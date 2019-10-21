@@ -137,7 +137,7 @@ class SC_user:
             time.sleep(1)
             menu = self.driver.find_element_by_css_selector("tbody.ant-table-tbody td input")
             # hidden_submenu = self.driver.find_element_by_css_selector("tr.ant-table-row.ant-table-row-hover.ant-table-row-level-0 td:nth-child(1)")
-            ActionChains(self.driver).move_to_element(menu).click(menu).perform()
+            ActionChains(self.driver).move_to_element(menu).click(menu).perform()#不加无法点击
             self.driver.find_element_by_css_selector('div.ant-table-title div.custom_other_btn_right:nth-child(4)').click()
             time.sleep(2)
             self.driver.find_element_by_css_selector('div.ant-confirm-btns button:nth-child(2)').click()
