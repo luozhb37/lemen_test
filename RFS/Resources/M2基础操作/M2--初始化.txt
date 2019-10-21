@@ -1,0 +1,34 @@
+*** Settings ***
+Resource          M2--引用.txt
+
+*** Keywords ***
+往来单位初始化
+    登录
+    点击公司管理
+    点击用户管理
+    点击用户维护
+    用户查询
+    打开用户详情
+    保存职员类型
+    点击公司管理
+    点击基础资料
+    点击企业基础资料
+    点击往来单位
+    ${return1}    往来单位查询客户名称    ${往来单位}
+    run keyword if    '${return1}'=='True'    修改往来单位    ${M2_FULLNAME}
+    ...    ELSE    新增往来单位    ${往来单位_CODE}    ${往来单位}    ${M2_FULLNAME}
+    点击基础资料
+
+系统参数设置
+    [Documentation]    应付对账前必须费用审核
+    登录
+    点击系统设置
+    点击系统参数
+    系统参数单选框设置    group_name=sys_paras_stopfinish_lock    value=1    #选择业务制单完成后锁定页面
+    系统参数单选框设置    group_name=sys_paras_new_invoicememu    value=1    #启用新发票模式
+    系统参数单选框设置    group_name=sys_paras_fee_confirm    value=0    #开发票前不需要费用确认
+    系统参数单选框设置    group_name=sys_paras_invoice_recfeeaudit    value=0    #开发票前不需要费用审核
+    系统参数设置点击保存
+    点击系统设置
+    退出
+    关闭浏览器

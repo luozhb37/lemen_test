@@ -1,0 +1,148 @@
+*** Settings ***
+Resource          ../GM1-UI-公共/GM1-UI-引用.txt
+
+*** Keywords ***
+凭证字管理--查询
+    [Arguments]    ${voucher}
+    进入列表框架
+    输入    id=word    ${voucher}    #凭证字
+    点击    xpath=//span[text()='查 询']/..    #点击查询
+    离开框架
+
+凭证字管理--新增
+    [Arguments]    ${voucher}
+    进入列表框架
+    点击列表按钮    新 增
+    输入    id=voucherword    ${voucher}    #输入代码
+    输入    id=vouchercode    ${voucher}    #输入名称
+    输入    id=remark    ${voucher}    #备注
+    点击    xpath=//span[text()='保 存']/..
+    离开框架
+
+凭证字管理--删除
+    进入列表框架
+    勾选全部
+    点击列表按钮    删 除
+    离开框架
+
+会计科目管理--新增
+    [Arguments]    ${subject}
+    进入列表框架
+    点击列表按钮    新 增
+    输入    id=subjectcode    ${subject}    #凭证字
+    输入    id=subjectname    ${subject}
+    点击    xpath=//span[text()='保 存']/..    #点击查询
+    离开框架
+
+会计科目管理--删除
+    [Arguments]    ${subject}
+    进入列表框架
+    勾选记录    xpath=//a[text()='${subject}']/../..//input[@class='ant-checkbox-input']
+    点击列表按钮    删 除
+    离开框架
+
+业务科目对应关系--新增
+    [Arguments]    ${vouchertypeid}    ${defaultword}    ${debitaccttype}    ${creditaccttype}    ${moneydebitaccttype}    ${moneycreditaccttype}
+    [Documentation]    \#业务类别 \ | \ \ 凭证类别 \ | \ 借方科目 \ | \ 贷方科目 \ | \ 借方现金科目 \ | \ 贷方现金科目    #摘要默认选择可添加
+    进入列表框架
+    点击列表按钮    新 增    #点击新增
+    ${index1}    Set Variable    1    #借方科目
+    ${index2}    Set Variable    2    #贷方科目
+    ${index3}    Set Variable    3    #借方现金科目
+    ${index4}    Set Variable    4    #贷方现金科目
+    Run Keyword If    '${creditaccttype}'=='汇兑损益'    Set Suite Variable    ${index1}    2    #借方科目
+    Run Keyword If    '${creditaccttype}'=='汇兑损益'    Set Suite Variable    ${index2}    3    #贷方科目
+    Run Keyword If    '${moneydebitaccttype}'=='汇兑损益'    Set Suite Variable    ${index3}    4    #借方现金科目
+    Run Keyword If    '${moneycreditaccttype}'=='汇兑损益'    Set Suite Variable    ${index4}    5    #贷方现金科目
+    点击    xpath=//div[contains(@class,'vouchertypeid ant-select-lg ant-select')]//div[@class='ant-select-selection__rendered']    #业务类别
+    点击    xpath=//li[text()='${vouchertypeid}']
+    点击    xpath=//div[contains(@class,'defaultword ant-select-lg ant-select')]//div[@class='ant-select-selection__rendered']    #凭证类别
+    点击    xpath=//li[text()='${defaultword}']
+    点击    xpath=//div[contains(@class,'debitaccttype ant-select-lg ant-select')]//div[@class='ant-select-selection__rendered']    #借方科目
+    点击    xpath=(//li[text()='${debitaccttype}'])[${index1}]
+    点击    xpath=//div[contains(@class,'creditaccttype ant-select-lg ant-select')]//div[@class='ant-select-selection__rendered']    #贷方科目
+    点击    xpath=(//li[text()='${creditaccttype}'])[${index2}]
+    点击    xpath=//div[contains(@class,'moneydebitaccttype ant-select-lg ant-select')]//div[@class='ant-select-selection__rendered']    #借方现金科目
+    点击    xpath=(//li[text()='${moneydebitaccttype}'])[${index3}]
+    点击    xpath=//div[contains(@class,'moneycreditaccttype ant-select-lg ant-select')]//div[@class='ant-select-selection__rendered']    #贷方现金科目
+    点击    xpath=(//li[text()='${moneycreditaccttype}'])[${index4}]
+    #添加摘要（多个）
+    点击    xpath=//div[contains(@class,'remarkVariable ant-select-lg ant-select')]//div[@class='ant-select-selection__rendered']    #添加结算单位
+    点击    xpath=//li[text()='结算单位']
+    点击    xpath=//span[text()='添 加']/..
+    点击    xpath=//div[contains(@class,'remarkVariable ant-select-lg ant-select')]//div[@class='ant-select-selection__rendered']    #添加工作单号
+    点击    xpath=//li[text()='工作单号']
+    点击    xpath=//span[text()='添 加']/..
+    点击    xpath=//div[contains(@class,'remarkVariable ant-select-lg ant-select')]//div[@class='ant-select-selection__rendered']    #添加提单号
+    点击    xpath=//li[text()='提单号']
+    点击    xpath=//span[text()='添 加']/..
+    点击    xpath=//div[contains(@class,'remarkVariable ant-select-lg ant-select')]//div[@class='ant-select-selection__rendered']    #添加账单号
+    点击    xpath=//li[text()='账单号']
+    点击    xpath=//span[text()='添 加']/..
+    点击    xpath=//span[text()='保 存']/..    #保存
+    离开框架
+
+业务科目对应关系--删除
+    [Arguments]    ${vouchertypeid}
+    进入列表框架
+    勾选记录    xpath=//a[text()='${vouchertypeid}']/../..//input[@class='ant-checkbox-input']
+    点击列表按钮    删 除
+    离开框架
+
+保证无该业务类别
+    [Arguments]    ${vouchertypeid}
+    ${result}    Run Keyword And Return Status    业务科目对应关系--删除    ${vouchertypeid}
+    Run Keyword If    '${result}'=='False'    离开框架
+
+职员相关财务代码--查询
+    [Arguments]    ${name}
+    进入列表框架
+    输入    id=name    ${name}
+    点击    xpath=//span[text()='查 询']/..
+    离开框架
+
+职员相关财务代码--查询(条件按)
+    [Arguments]    ${group}
+    进入列表框架
+    点击    xpath=//div[@class='ant-select-selection__placeholder']
+    点击    xpath=//li[text()='组别财务代码']
+    输入    xpath=//input[@class='ant-input ant-input-lg']    ${group}
+    点击    xpath=//span[text()='查 询']/..
+    离开框架
+
+维护职员财务代码
+    [Arguments]    ${name}    ${financialCode}
+    进入列表框架
+    点击    xpath=//a[text()='${name}']
+    输入    id=financialCode    ${financialCode}
+    点击    xpath=//span[text()='保 存']/..
+    离开框架
+
+维护组别财务代码
+    [Arguments]    ${group}
+    进入列表框架
+    点击    xpath=//span[text()='修改组别财务代码']/..
+    点击    xpath=//div[contains(@class,'subGroupId ant-select-lg ant-select')]//div[@class='ant-select-selection__rendered']
+    点击    xpath=//li[text()='测试部']
+    输入    id=groupFinancialCode    ${group}
+    点击    xpath=//span[text()='保 存']/..
+    离开框架
+
+删除列表所有数据
+    [Documentation]    \#业务类型科目代码 列表无法快速判断是否有重复的数据，用该关键字删除所有列表数据，避免重复
+    进入列表框架
+    勾选全部
+    点击    xpath=//span[text()='删 除']/..
+    离开框架
+
+业务类型科目代码--新增
+    [Arguments]    ${businesstype}    ${goodssource}    ${code}
+    进入列表框架
+    点击    xpath=//span[text()='添 加']/..
+    点击    xpath=//div[contains(@class,'businesstype ant-select-lg ant-select')]//div[@class='ant-select-selection__rendered']    #业务类型
+    点击    xpath=//li[text()='${businesstype}']
+    点击    xpath=//div[contains(@class,'goodssource ant-select-lg ant-select')]//div[@class='ant-select-selection__rendered']    #货物来源
+    点击    xpath=//li[text()='${goodssource}']
+    输入    id=code    ${code}    #科目
+    点击    xpath=//span[text()='保 存']/..
+    离开框架

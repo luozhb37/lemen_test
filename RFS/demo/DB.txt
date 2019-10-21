@@ -1,0 +1,29 @@
+*** Settings ***
+Library           DatabaseLibrary
+Library           OlymLibrary
+Library           Collections
+
+*** Test Cases ***
+connect
+    connect
+    ${result}    Query    SELECT * from mem_organization where org_id = '10045'
+    log    ${result}
+    log    ${result[0][3]}
+    Disconnect
+
+test1
+    connect    host='192.168.1.210'    db=priceservice
+    ${result}    query    select loadport,dischargeport,country,transferport,cycle,sailtime,carrier,sailing_date,massaddress,carrier_route, internetsellprice1,internetsellprice2,internetsellprice3,signflag,createby, owner_name,quoteorg,addfee,employee_remark from fp_sea_exportfcl_mains where casenumber='425706'
+    log    ${result}
+    ${result2}    convert to string    ${result}
+    ${result4}    re search all    ${result3}    '    '
+    log    ${result4}
+    Disconnect From Database
+
+*** Keywords ***
+connect
+    [Arguments]    ${host}='192.168.1.231'    ${db}=priceservice
+    Connect To Database Using Custom Params    MySQLdb    db='${db}', user='saas1', passwd='olymtech1', host=${host},charset="utf8"
+
+Disconnect
+    Disconnect From Database

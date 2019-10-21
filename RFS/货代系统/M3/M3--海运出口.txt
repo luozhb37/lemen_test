@@ -1,0 +1,198 @@
+*** Settings ***
+Suite Setup       登录    # Run keywords | 系统参数设置 | AND | 往来单位初始化 | AND | 自定义初始化
+Suite Teardown    close all browsers
+Test Setup        Reload Page
+Resource          ../../Resources/M3基础操作/M3--引用.txt
+
+*** Variables ***
+&{整箱基础运价}         loadport=NINGBO    dischargeport=NINGBO    country=中国    transferport=YANTIAN    cycle=1/2    sailtime=23    carrier=APL
+...               internetsellprice1=1000    internetsellprice2=2000    internetsellprice3=3000    signflag=yunjiaweihu    publishcasenumber=    employee_remark=内部备注信息    casenumber=
+...               addfee=附加费说明信息    remark=外部备注信息
+
+*** Test Cases ***
+新增海运出口业务台帐
+    [Tags]
+    ${id}    新增海运出口业务
+    海运出口列表查询业务编号    ${id}
+    ${pages}    获取列表记录数
+    应该包含    ${pages}    共1条    #验证新增的业务编号在列表上可以查询到一条记录
+    点击业务管理
+
+复制海运出口业务台帐
+    [Tags]    OK
+    ${id}    新增海运出口业务
+    海运出口列表查询业务编号    ${id}
+    勾选包含业务编号的台帐    ${id}
+    ${no}    复制海运出口业务-方法2    #复制切片单号时确认下单号位数字
+    海运出口列表查询业务编号    ${no}
+    ${pages}    获取列表记录数
+    应该包含    ${pages}    共1条
+
+删除海运出口业务台帐
+    [Tags]
+    ${id}    新增海运出口业务
+    海运出口列表查询业务编号    ${id}
+    删除海运出口业务
+    海运出口列表查询业务编号    ${id}
+    ${pages1}    获取列表记录数
+    应该包含    ${pages1}    共0条
+    点击业务管理
+
+海运出口-标记退关
+    ${id}    新增海运出口业务
+    海运出口列表查询业务编号    ${id}
+    勾选包含业务编号的台帐    ${id}
+    批量操作-标记退关
+    海运出口业务列表查询    value2=true    value8=${id}
+    ${pages}    获取列表记录数
+    应该包含    ${pages}    共1条
+    点击业务管理
+
+海运出口批量完成--提单确认
+    [Tags]    OK
+    ${id}    新增海运出口业务
+    海运出口业务列表查询    value8=${id}
+    列表页面-全选记录
+    批量提单确认
+    ${content}    获取台帐详情提单确认状态    ${id}
+    应该要相等    ${content}    true
+    点击业务管理
+
+海运出口批量完成--业务制单--取消业务制单
+    [Tags]
+    [Setup]
+    #登录
+    ${id}    新增海运出口业务
+    海运出口业务列表查询    value8=${id}
+    海运出口填写离港日期
+    列表页面-全选记录
+    批量业务制单完成
+    ${content}    获取台帐详情锁定后的业务制单状态    ${id}
+    应该要相等    ${content}    true
+    关闭所有弹出框
+    等待    1
+    列表页面-全选记录
+    批量取消业务制单完成
+    ${content1}    获取台帐详情未锁定的业务制单状态    ${id}
+    应该要相等    ${content1}    false
+    关闭所有弹出框
+    点击业务管理
+    [Teardown]
+
+分单
+    ${id}    新增海运出口业务
+    海运出口业务列表查询    value8=${id}
+    勾选包含业务编号的台帐    ${id}
+    m3--分单    #拆3条保存、不关联集装箱
+    点击业务管理
+
+批量修改业务台帐目的港
+    ${id}    新增海运出口业务
+    海运出口业务列表查询    value8=${id}
+    列表页面-全选记录
+    批量修改-目的港    dischargeport    NINGBO
+    进入台帐详情    ${id}
+    进入详情框架
+    ${bn_mains_dischargeport}    获取页面值    id =bn_mains_dischargeport    #目的港的值
+    should be equal as strings    NINGBO    ${bn_mains_dischargeport}
+    离开框架
+    关闭所有弹出框
+    点击业务管理
+
+装箱页面新增集装箱信息
+    [Documentation]    \#物流可视化的节点开着了就会影响点击修改的定位
+    [Tags]    ok
+    ${id}    新增海运出口业务
+    海运出口业务列表查询    value8=${id}
+    进入台帐详情    ${id}
+    ${TIME1}    get timestamp    #生成时间戳来表示下面的箱号
+    新增集装箱信息    ctnno=${TIME1}    sealno=${TIME1}
+    等待    1
+    #进入详情框架
+    Select Frame    xpath=//iframe[starts-with(@src,'about:blank?')]
+    点击    id=bt_sendgoods    #点击内装
+    等待    1
+    点击    xpath=.//*[@id='sp_sendgoods_seacontainers_tbl5']/tbody/tr[2]/td[10]/a    #点击修改
+    page should contain    内装信息
+    离开框架
+    关闭所有弹出框
+    点击业务管理
+
+海运出口新增和选择航次
+    [Setup]
+    ${temp}    生成一个带有字符的随机数    A
+    ${id}    新增海运出口业务
+    进入新增业务信息    ${id}
+    新增航次    ${temp}
+    选择航次    ${temp}
+    关闭所有弹出框
+    点击业务管理
+
+新舱单
+    ${temp}    生成一个带有字符的随机数    A
+    ${id}    新增海运出口业务
+    海运出口业务列表查询    value8=${id}
+    进入台帐详情    ${id}
+    ${TIME1}    get timestamp    #生成时间戳来表示下面的箱号
+    新增集装箱信息    ctnno=${TIME1}    sealno=${TIME1}
+    等待    1
+    #进入详情框架
+    Select Frame    xpath=//iframe[starts-with(@src,'about:blank?')]
+    点击    id=bt_sendgoods    #点击内装
+    等待    1
+    点击    xpath=.//*[@id='sp_sendgoods_seacontainers_tbl5']/tbody/tr[2]/td[10]/a    #点击修改
+    page should contain    内装信息
+    离开框架
+    关闭所有弹出框
+    新舱单添加数据    ${id}    ${temp}
+    #验证
+    进入详情框架
+    ${weight}    Get Value    id=bn_mains_weight
+    应该要相等    ${weight}    1.000
+
+新报关
+    #新增一票海运业务
+    ${id}    新增海运出口业务
+    海运出口业务列表查询    value8=${id}
+    ${pages}    获取列表记录数
+    应该包含    ${pages}    共1条
+    #报关部分
+    点击    xpath=//a[text()='报关管理']
+    等待加载层消失
+    报关    ${id}
+    点击业务管理
+
+调度派车
+    [Documentation]    常规派车，非箱信
+    ...
+    ...    不能有【箱信对接】权限
+    #生成一个业务并加入箱封号
+    ${temp}    生成一个带有字符的随机数    A
+    ${id}    新增海运出口业务
+    海运出口业务列表查询    value8=${id}
+    进入台帐详情    ${id}
+    ${TIME1}    get timestamp    #生成时间戳来表示下面的箱号
+    新增集装箱信息    ctnno=${TIME1}    sealno=${TIME1}
+    等待    1
+    Select Frame    xpath=//iframe[starts-with(@src,'about:blank?')]
+    点击    id=bt_sendgoods    #点击内装
+    等待    1
+    点击    xpath=.//*[@id='sp_sendgoods_seacontainers_tbl5']/tbody/tr[2]/td[10]/a    #点击修改
+    page should contain    内装信息
+    离开框架
+    关闭所有弹出框
+    进入台帐详情    ${id}
+    进入详情框架
+    输入    id=bn_mains_mblno    ${temp}
+    点击    id=bt_save
+    等待    0.5
+    点击    id=bt_save_close
+    等待    1.5
+    离开框架
+    #调度派车（常规派车，非箱信）
+    点击调度派车
+    调度派车列表查询    ${TIME1}
+    列表全选记录
+    派车    大香蕉    KDA111
+
+*** Keywords ***

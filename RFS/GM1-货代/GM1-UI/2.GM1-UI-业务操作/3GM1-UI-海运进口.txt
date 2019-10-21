@@ -1,0 +1,84 @@
+*** Settings ***
+Documentation     海进很多功能同海运出口，很多关键字直接调用海运出口，因此若改，搜索确认下
+Suite Setup       m4-登录
+Suite Teardown    close all browsers
+Test Teardown     重载当前页
+Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+
+*** Test Cases ***
+系统设置-参数-初始跑一次
+    海运进口列表自定义列设置
+
+【前置条件】台账新增海运进口订单
+    点击业务管理
+    进入指定二级菜单    业务台账    海运进口
+    等待加载层消失
+    新增海运进口业务单    自揽货
+    点击保存
+    Wait Until Page Contains    操作成功
+    ${bussinessNO-seaimport}    获取页面文本内容    xpath=//div[@class='dzg-business-info']/span[2]    #获取工作号
+    Set Suite Variable    ${bussinessNO-seaimport}
+    关闭当前窗口
+    切换窗口
+
+台账复制海运进口订单
+    点击业务管理
+    进入指定二级菜单    业务台账    海运进口
+    等待加载层消失
+    ${pages}    海运进口列表查询业务编号    ${bussinessNO-seaimport}
+    应该包含    ${pages}    共1条
+    进入框架    id=content
+    勾选记录    xpath=//div[@class='ant-table-body-inner']//tbody/tr/td[1]//input    #勾选第一条
+    点击    xpath=//span[text()='复制新增']/..    #点击复制新增按钮
+    点击确定按钮
+    离开框架
+    切换窗口    new
+    Wait Until Page Contains    操作详情
+    ${bussinessNO-seaimport}    获取页面文本内容    xpath=//div[@class='dzg-business-info']/span[2]    #获取工作号
+    关闭当前窗口
+    切换窗口
+    ${pages}    海运进口列表查询业务编号    ${bussinessNO-seaimport}
+    应该包含    ${pages}    共1条
+
+【前置条件】台账列表进入海运进口详情页
+    #可由台账新增业务而来，也可直接维护业务编号
+    #${bussinessNO-seaimport}    Set Variable    B--2018120011
+    点击业务管理
+    进入指定二级菜单    业务台账    海运进口
+    等待加载层消失
+    ${pages}    海运进口列表查询业务编号    ${bussinessNO-seaimport}
+    应该包含    ${pages}    共1条
+    点击业务编号进入详情页（海进）    ${bussinessNO-seaimport}
+    切换窗口    new
+    Page Should Contain    海运进口
+    Set Suite Variable    ${bussinessNO-seaimport}
+
+集装箱-新增
+    #copy了海运出口脚本
+    点击集装箱
+    ${已关联箱子数量}    获取箱子数量
+    ${设定新增箱子后数量+1}    Evaluate    int(${已关联箱子数量})+1    #新增箱子后该+1
+    新增集装箱（海进）
+    点击操作详情    #切换下模块
+    点击集装箱
+    ${已关联箱子数量}    获取箱子数量    #获取新增后箱子数量
+    应该要相等（数字）    ${已关联箱子数量}    ${设定新增箱子后数量+1}
+
+集装箱-选择货物
+    #需勾选集装箱-新增    #copy了海运出口脚本
+    点击集装箱
+    ${count1}    关联货物（海进）
+    点击保存按钮
+    ${count2}    获取匹配xpath的个数    xpath=//div[text()='货物装载列表']/following-sibling::div[1]//table/tbody/tr
+    应该不相等    ${count1}    ${count2}
+
+集装箱-删除
+    #需勾选集装箱-新增    #copy了海运出口脚本
+    点击集装箱
+    ${已关联箱子数量}    获取箱子数量
+    ${设定删除箱子后数量-1}    Evaluate    int(${已关联箱子数量})-1    #新增箱子后该-1
+    删除箱子
+    点击操作详情    #删除箱子后切换下模块
+    点击集装箱
+    ${已关联箱子数量}    获取箱子数量
+    应该要相等（数字）    ${已关联箱子数量}    ${设定删除箱子后数量-1}

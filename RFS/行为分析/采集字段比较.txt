@@ -1,0 +1,146 @@
+*** Settings ***
+Resource          ../Resources/main.txt
+Resource          ../Resources/基础关键字.txt
+Library           Selenium2Library
+Resource          ../Resources/common.txt
+
+*** Test Cases ***
+外部用户登录采集
+    [Documentation]    freight_login
+    外部用户登录
+    点击链接    退出
+    sleep    1
+    关闭浏览器
+    ots账号登录
+    点击链接    ActionData
+    输入    id=actionName    freight_login
+    submit form    id=form    #进入form
+    点击    xpath=//button[@id="addBtn"]    #点击搜索按钮
+    点击    xpath=//table/tbody/tr[1]/td[1]
+    ${text}    get text    xpath=//table/tbody/tr[2]/td
+    @{freight_login}    create list    dt    org_name    is_temp    user_type    open_id
+    ...    is_first_login    org_id    user_name    login_time    client_type    name
+    ...    user_id    open_phone    app_code
+    : FOR    ${i}    IN    @{freight_login}
+    \    should contain    ${text}    ${i}    失败原因
+    \    log    ${i}
+    log    【外部用户登录】字段校验完成
+    关闭浏览器
+    [Teardown]    关闭浏览器
+
+外部用户退出
+    [Documentation]    mmembership_logout
+    外部用户登录
+    点击链接    退出
+    sleep    1
+    关闭浏览器
+    ots账号登录
+    点击链接    ActionData
+    输入    id=actionName    mmembership_logout
+    submit form    id=form    #进入form
+    点击    xpath=//button[@id="addBtn"]    #点击搜索按钮
+    点击    xpath=//table/tbody/tr[1]/td[1]
+    ${text}    get text    xpath=//table/tbody/tr[2]/td
+    @{mmembership_logout}    create list    dt    logout_type    domain
+    : FOR    ${i}    IN    @{mmembership_logout}
+    \    should contain    ${text}    ${i}    失败原因
+    \    log    ${i}
+    log    【外部用户退出】字段校验完成
+    关闭浏览器
+    [Teardown]    关闭浏览器
+
+内部用户退出
+    [Documentation]    mmembership_logout
+    内部用户登录
+    点击链接    退出
+    sleep    1
+    关闭浏览器
+    ots账号登录
+    点击链接    ActionData
+    输入    id=actionName    mmembership_logout
+    submit form    id=form    #进入form
+    点击    xpath=//button[@id="addBtn"]    #点击搜索按钮
+    点击    xpath=//table/tbody/tr[1]/td[1]
+    ${text}    get text    xpath=//table/tbody/tr[2]/td
+    @{mmembership_logout}    create list    dt    logout_type    domain
+    : FOR    ${i}    IN    @{mmembership_logout}
+    \    should contain    ${text}    ${i}    失败原因
+    \    log    ${i}
+    log    【内部用户退出】字段校验完成
+    关闭浏览器
+    [Teardown]    关闭浏览器
+
+报价单生成
+    [Documentation]    freight_generate_offering_list
+    内部用户登录
+    报价单生成
+    关闭浏览器
+    ots账号登录
+    点击链接    ActionData
+    输入    id=actionName    freight_generate_offering_list
+    submit form    id=form    #进入form
+    点击    xpath=//button[@id="addBtn"]    #点击搜索按钮
+    点击    xpath=//table/tbody/tr[1]/td[1]    #点击显示第一条详情信息
+    ${text}    get text    xpath=//table/tbody/tr[2]/td
+    @{freight_generate_offering_list}    create list    tiny    company_id    contact_user_id    employee_name    org_id
+    ...    employee_user_id    company_name    contact_name    carrier    searoute    freight_type
+    ...    app_code    dischargeport    loadport    operator_date    forwarder_id
+    : FOR    ${i}    IN    @{freight_generate_offering_list}
+    \    should contain    ${text}    ${i}    失败原因
+    \    log    ${i}
+    log    【生成报价单】字段校验完成
+    关闭浏览器
+    [Teardown]    关闭浏览器
+
+报价单查询
+    [Documentation]    freight_query_offering_list
+    内部用户登录
+    报价单查询
+    关闭浏览器
+    ots账号登录
+    点击链接    ActionData
+    输入    id=actionName    freight_query_offering_list
+    submit form    id=form    #进入form
+    点击    xpath=//button[@id="addBtn"]    #点击搜索按钮
+    点击    xpath=//table/tbody/tr[1]/td[1]    #点击显示第一条详情信息
+    ${text}    get text    xpath=//table/tbody/tr[2]/td
+    @{freight_query_offering_list}    create list    tiny    company_id    contact_user_id    org_id    company_name
+    ...    contact_name    carrier    searoute    freight_type    app_code    dischargeport
+    ...    loadport    operator_date    forwarder_id
+    : FOR    ${i}    IN    @{freight_query_offering_list}
+    \    should contain    ${text}    ${i}    失败原因
+    \    log    ${i}
+    log    【报价单查询】字段校验完成
+    关闭浏览器
+    [Teardown]    关闭浏览器
+
+出口整箱外部查询展开详情
+    [Documentation]    freight_serviceportal_detail_efcl
+    外部用户登录
+    点击    xpath=//li[@id="search_fcl"]    #选择【海运出口整箱】
+    输入    id=dischargeport    SABA
+    sleep    1
+    点击链接    搜索
+    sleep    2
+    点击    xpath=//*[@id="efcl_search_form"]/div[2]/div/div[2]/table/tbody[1]/tr[2]/td[9]/a    #点击第一条【展开详情】
+    点击链接    退出
+    sleep    1
+    关闭浏览器
+    ots账号登录
+    点击链接    ActionData
+    输入    id=actionName    freight_serviceportal_detail_efcl
+    submit form    id=form    #进入form
+    点击    xpath=//button[@id="addBtn"]    #点击搜索按钮
+    点击    xpath=//table/tbody/tr[1]/td[1]    #点击显示第一条详情信息
+    ${text}    get text    xpath=//table/tbody/tr[2]/td
+    @{freight_serviceportal_detail_efcl}    create list    dt    write_source    company_id    linkinfo    show_detail_time
+    ...    addfee    sailtime    company_name    validdate    contact_name    user_id
+    ...    query_id    loadport    dischargeport    cycle    iscommend    barge_id
+    ...    country    org_id    expected_rise    searoute_code    casenumber    searoute
+    ...    begindate
+    : FOR    ${i}    IN    @{freight_serviceportal_detail_efcl}
+    \    should contain    ${text}    ${i}    失败原因
+    \    log    ${i}
+    log    【出口整箱外部查询展开详情 】字段校验完成
+    关闭浏览器
+    [Teardown]    关闭浏览器

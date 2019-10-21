@@ -1,0 +1,240 @@
+*** Settings ***
+Suite Setup       m4-登录
+Suite Teardown    close all browsers
+Test Teardown     重载当前页
+Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+
+*** Test Cases ***
+货物来源-新增
+    点击基础资料
+    进入指定二级菜单    企业基础资料    货物来源
+    等待加载层消失
+    ${QYgoodsSource}    Get Timestamp    #货物来源，唯一性
+    货物来源-新增    ${QYgoodsSource}
+    ${return}    货物来源-查询    ${QYgoodsSource}    启用
+    应该包含    ${return}    共1条
+    Set Suite Variable    ${QYgoodsSource}
+
+货物来源-禁用/启用
+    #要勾选【货物来源-新增】
+    点击基础资料
+    进入指定二级菜单    企业基础资料    货物来源
+    等待加载层消失
+    进入列表框架
+    ${return}    货物来源-查询    ${QYgoodsSource}    启用
+    应该包含    ${return}    共1条
+    #点击禁用
+    勾选记录    xpath=//table//thead/tr//input    #勾选记录
+    点击    xpath=//span[text()='禁 用']/..    #点击禁用
+    ${return}    货物来源-查询    ${QYgoodsSource}    禁用
+    应该包含    ${return}    共1条
+    #点击启用
+    勾选记录    xpath=//table//thead/tr//input    #勾选记录
+    点击    xpath=//span[text()='启 用']/..    #点击启用
+    ${return}    货物来源-查询    ${QYgoodsSource}    启用
+    应该包含    ${return}    共1条
+    离开框架
+
+服务类型-新增
+    点击基础资料
+    进入指定二级菜单    企业基础资料    服务类型
+    等待加载层消失
+    ${QYserviceName}    Get Timestamp    #服务类型，唯一性
+    服务类型-新增    ${QYserviceName}
+    ${return}    服务类型-查询    ${QYserviceName}    启用
+    应该包含    ${return}    共1条
+    Set Suite Variable    ${QYserviceName}
+
+服务类型-禁用/启用
+    #要勾选【服务类型-新增】
+    点击基础资料
+    进入指定二级菜单    企业基础资料    服务类型
+    等待加载层消失
+    进入列表框架
+    ${return}    服务类型-查询    ${QYserviceName}    启用
+    应该包含    ${return}    共1条
+    #点击禁用
+    勾选记录    xpath=//table//thead/tr//input    #勾选记录
+    点击    xpath=//span[text()='禁 用']/..    #点击禁用
+    ${return}    服务类型-查询    ${QYserviceName}    禁用
+    应该包含    ${return}    共1条
+    #点击启用
+    勾选记录    xpath=//table//thead/tr//input    #勾选记录
+    点击    xpath=//span[text()='启 用']/..    #点击启用
+    ${return}    服务类型-查询    ${QYserviceName}    启用
+    应该包含    ${return}    共1条
+    离开框架
+
+费用税率--新增/删除
+    点击基础资料
+    点击企业基础资料
+    点击费用税率
+    #费用税率--新增
+    ${time}    get time    epoch
+    费用税率--新增    ${time}    ${time}    CNY
+    费用税率--查询    ${time}
+    #验证数据
+    进入列表框架
+    ${result}    获取页面数据条数
+    应该要相等（数字）    ${result}    1
+    离开框架
+    #费用税率--删除
+    费用税率--查询    ${time}
+    费用税率--删除
+    #验证数据
+    进入列表框架
+    ${result}    获取页面列表条数    费用项目列表
+    应该要相等（数字）    ${result}    0
+    离开框架
+
+浮动汇率--新增/删除
+    #前提动作
+    点击基础资料
+    进入指定二级菜单    业务基础资料    通用基础资料
+    点击币别信息
+    检查并维护币别信息    WYC
+    #
+    点击基础资料
+    点击企业基础资料
+    点击浮动汇率
+    浮动汇率--查询    WYC    CNY    记账汇率    #验证记账汇率
+    进入列表框架
+    ${新增前}    获取页面列表条数    浮动汇率列表
+    离开框架
+    Run Keyword If    '${新增前}'>'0'    浮动汇率--删除    #保证数据不重复
+    浮动汇率--新增    WYC    CNY    记账汇率    5    4    6
+    #验证数据
+    浮动汇率--查询    WYC    CNY    记账汇率    #验证记账汇率
+    进入列表框架
+    ${新增后}    获取页面列表条数    浮动汇率列表
+    应该要相等（数字）    ${新增后}    1
+    离开框架
+    #记账汇率删除
+    浮动汇率--查询    WYC    CNY    记账汇率
+    进入列表框架
+    ${删除前}    获取页面列表条数    浮动汇率列表
+    离开框架
+    浮动汇率--删除
+    #验证数据
+    进入列表框架
+    ${删除后}    获取页面列表条数    浮动汇率列表
+    应该要相等（数字）    ${删除后}    0
+    离开框架
+
+账户类型--新增/删除
+    点击基础资料
+    点击企业基础资料
+    点击账户类型
+    #银行类型--新增
+    ${time}    get time    epoch
+    账户类型--新增    ${time}
+    账户类型--查询    ${time}
+    #验证数据
+    进入列表框架
+    ${result}    获取页面数据条数
+    应该要相等（数字）    ${result}    1
+    离开框架
+    #银行类型--删除
+    账户类型--查询    ${time}
+    账户类型--删除
+    #验证数据
+    进入列表框架
+    ${result}    获取页面列表条数    银行类型列表
+    应该要相等（数字）    ${result}    0
+    离开框架
+
+银行账户--新增/删除
+    #前提动作
+    点击基础资料
+    点击企业基础资料
+    点击账户类型
+    检查并维护账户类型    公账
+    #
+    点击基础资料
+    点击企业基础资料
+    点击银行账户
+    #银行账户--新增
+    ${time}    get time    epoch
+    银行账户--新增    ${time}    312312    公账    CNY
+    银行账户--查询    ${time}
+    #验证数据
+    进入列表框架
+    ${result}    获取页面数据条数
+    应该要相等（数字）    ${result}    1
+    离开框架
+    #银行账户--删除
+    银行账户--查询    ${time}
+    银行账户--删除
+    #验证数据
+    进入列表框架
+    ${result}    获取页面列表条数    银行类型列表
+    应该要相等（数字）    ${result}    0
+    离开框架
+
+发票类型--新增/删除
+    点击基础资料
+    点击企业基础资料
+    点击发票类别
+    #新增发票组
+    进入列表框架
+    ${新增前}    获取匹配xpath的个数    xpath=//table[@id='qp_base_invoicetypes_tbl5']/tbody/tr
+    离开框架
+    ${time}    get time    epoch
+    发票组--新增    code-${time}    name-${time}    type-${time}    ${time}
+    #验证数据
+    进入列表框架
+    ${新增后}    获取匹配xpath的个数    xpath=//table[@id='qp_base_invoicetypes_tbl5']/tbody/tr
+    ${实际值1}    Evaluate    ${新增后}-${新增前}
+    应该要相等（数字）    ${实际值1}    1
+    离开框架
+    #删除发票组
+    进入列表框架
+    ${删除前}    获取匹配xpath的个数    xpath=//table[@id='qp_base_invoicetypes_tbl5']/tbody/tr
+    离开框架
+    发票组--删除    name-${time}
+    #验证数据
+    进入列表框架
+    ${删除后}    获取匹配xpath的个数    xpath=//table[@id='qp_base_invoicetypes_tbl5']/tbody/tr
+    ${实际值2}    Evaluate    ${删除前}-${删除后}
+    应该要相等（数字）    ${实际值2}    1
+    离开框架
+
+附件类型-新增/删除
+    点击基础资料
+    点击企业基础资料
+    点击附件类型
+    等待加载层消失
+    ${QYadjunctType}    Get Timestamp    #附件类型，设定唯一性（业务类型+业务模块+附件类型要求唯一性）
+    附件类型-新增    海运出口整箱    订单    ${QYadjunctType}
+    ${return}    附件类型-查询    海运出口整箱    订单    ${QYadjunctType}
+    应该包含    ${return}    共 1 条
+    #勾选删除
+    勾选记录    xpath=//table//thead/tr//input    #勾选
+    点击    xpath=//span[text()='删 除']/..    #点击删除
+    点击    xpath=//span[text()='确 定']/..    #点击确定
+    #删除后页面显示暂无数据
+    ${text}    获取页面文本内容    xpath=//i[@class='anticon anticon-frown-o']/..
+    应该要相等    ${text}    暂无数据
+
+异常类型-编辑
+    [Documentation]    异常类型设置：每个业务类型+业务模块，只能新增一次，二次新增会失败。且新增后无法删除。
+    ...
+    ...    所以新增功能数据会穷尽，所以不维护新增的功能。
+    点击基础资料
+    点击企业基础资料
+    点击异常类型
+    等待加载层消失
+    进入列表框架
+    ${QYerrType}    Get Timestamp    #异常类型
+    ${return}    异常类型-查询    海运出口整箱    订单
+    应该包含    ${return}    共1条
+    点击    xpath=//a[text()='编辑']    #点击编辑
+    点击    xpath=//i[@class='anticon anticon-plus-square-o']/..    #点击异常类型+按钮
+    等待    0.5
+    ${num}    获取匹配xpath的个数    xpath=//label[text()='异常类型']/../following-sibling::div[1]//tbody//tr
+    输入    id=errType.${num}_name    ${QYerrType}
+    点击保存按钮
+    点击    xpath=//span[@class='ant-modal-close-x']/..    #点击关闭按钮
+    ${text}    获取页面文本内容    xpath=//table[@class='ant-table-fixed']//tbody//tr//td[5]
+    应该包含    ${text}    ${QYerrType}
+    离开框架

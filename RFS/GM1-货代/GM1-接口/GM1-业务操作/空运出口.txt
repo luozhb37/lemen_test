@@ -1,0 +1,69 @@
+*** Settings ***
+Suite Setup       m4-登录    # m4-登录
+Suite Teardown    Close All Browsers    # Close All Browsers
+Library           ExcelLibrary
+Library           requests
+Resource          ../../../Resources/GM1/GM1-接口/m4-接口-新订单基础操作.txt
+Resource          ../../../Resources/GM1-空运接口.txt
+Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+
+*** Test Cases ***
+读取接口test
+    Open Excel    D:\\inter_test.xls
+    ${row_count}    Get Row Count    Sheet1
+    ${col_count}    Get Column Count    Sheet1
+    @{excel_data}    读取Excel数据    Sheet1    ${col_count}    ${row_count}
+    log many    @{excel_data}
+    # ----新增的几个关键字----
+    Create Excel    D:\\result_test2.xls    testSheet
+    Write All Excel    D:\\result_test1.xls    testSheet    ${excel_data}    1    200
+    Add Sheet    D:\\result_test1.xls    testSheet2
+    Write Cell    D:\\result_test.xls    testSheet1    0    0    111    2
+    ...    240
+
+数据驱动例子
+    Open Excel    ${M4_INTER_DIR}\\inter_file\\数据驱动_test.xls
+    ${row_count}    Get Row Count    Sheet1
+    ${col_count}    Get Column Count    Sheet1
+    @{excel_data}    读取Excel数据    Sheet1    ${col_count}    ${row_count}
+    Write All Excel    ${M4_INTER_DIR}\\result_inter_file\\result_数据驱动.xls    testSheet    ${excel_data}    # 将原excel内容写入新excel
+    : FOR    ${item}    IN    @{excel_data}
+    \    run keyword if    '${item[2]}' == 'Protocol'    写入列名    ${M4_INTER_DIR}\\result_inter_file\\result_数据驱动.xls    testSheet
+    \    ...    ELSE    模拟接口并写入结果    ${M4_INTER_DIR}\\result_inter_file\\result_数据驱动.xls    testSheet    ${item}
+    \    ...    # 在生成的excel中写入新列    # 在生成的excel中写入运行结果
+
+demo
+    ${result}    Xls To Json    C:\\Users\\yusen\\Desktop\\test1.xls
+    log    ${result}
+
+数据驱动excel读取例子
+    #Open Excel    C:\\Users\\叶俊彦\\Desktop\\interface\\test测试.xls
+    ${start}    Set Variable    3
+    ${end}    Set Variable    5
+    ${sheetname}    Set Variable    demo
+    ${result_json}    Create List
+    #${row_count}    Get Row Count    demo
+    #${col_count}    Get Column Count    demo
+    #@{temp}    读取Excel数据    demo    ${col_count}    ${row_count}
+    ${aa}    Create List
+    @{col_name}    Create List    序号    result
+    Append To List    ${aa}    ${col_name}
+    @{data}    Xls To Json    C:\\Users\\叶俊彦\\Desktop\\interface\\test测试.xls    ${sheetname}    ${start}    ${end}
+    Write All Excel    C:\\Users\\叶俊彦\\Desktop\\interface\\result测试.xls    demo    ${aa}
+    ${length}    Get Length    ${data}
+    : FOR    ${i}    IN RANGE    ${length}
+    \    进行post请求并放入结果    ${data[${i}]}    ${start}    ${i}    C:\\Users\\叶俊彦\\Desktop\\interface\\result测试.xls    ${sheetname}
+
+*** Keywords ***
+进行post请求并放入结果
+    [Arguments]    ${item}    ${start}    ${i}    ${filename}    ${sheetname}
+    ${resultjson}    m4-post-json    /fms-air-rest/rest/bookingAir/saveFmsBookingAir    data=${item}
+    #${jieguo}    Create List    ${i}    ${resultjson}
+    #Append To List    ${result_json}    ${jieguo}
+    ${content_string}    Convert To String    ${result_json}    # 转换为字符串用于进行校验
+    ${t}    Evaluate    int(${i})+1
+    ${t1}    Evaluate    int(${start})+int(${t})-1
+    Write Cell    ${filename}    ${sheetname}    ${t}    0    ${t1}
+    Write Cell    ${filename}    ${sheetname}    ${t}    1    ${content_string}
+
+把结果放入list中

@@ -1,0 +1,3 @@
+*** Settings ***
+Resource          ../Resources/main_zbb.txt
+Resource          ../Resources/基础关键字.txt

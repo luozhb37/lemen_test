@@ -1,0 +1,569 @@
+*** Settings ***
+Resource          ../../../基础关键字.txt
+Library           ExcelLibrary
+Resource          ../GM1-UI-公共/GM1-UI-引用.txt
+
+*** Keywords ***
+订单新增
+    [Arguments]    ${businesstype}    ${serviceRuleTypeCode}    #业务类型|#服务类型
+    业务点击新增指定按钮    订单
+    #点击订单新增按钮
+    新增订单弹出框    ${businesstype}    ${serviceRuleTypeCode}
+    维护订单详情
+    新增报价
+    新增成本价
+    ${workno}    订单点击保存
+    关闭当前窗口
+    切换窗口
+    [Return]    ${workno}
+
+点击订单管理
+    点击    xpath=//a[@href="/modelhome3/applogin?currentMenu=tr_booking_search"]
+
+点击订单中心
+    点击    xpath=//a[@href='/fms-front/#/orderCenterList']
+    进入列表框架
+    Wait Until Element Is Enabled    xpath=//li[@class='ant-pagination-total-text']    30
+    离开框架
+
+下拉框选中
+    [Arguments]    ${cnname}    ${content}    # 下拉框的中文标签名|下拉框取值
+    [Documentation]    因为用了react,所以下拉框 无法直接赋值，于是采用先点击 下拉框，然后再点击值的方式
+    ...
+    ...    备注：仅适用于标签名旁直接就是下拉框
+    点击    xpath=//label[contains(text(),'${cnname}')]/../following-sibling::div[1]    #点击下拉框
+    等待    0.5
+    点击    xpath=//li[contains(text(),'${content}')]    #选中下拉框的一条记录
+
+点击新增
+    进入列表框架
+    点击    xpath=//span[contains(text(),'新 增')]/..
+    离开框架
+
+点击运价管理
+    点击    xpath=//a[@href='/modelhome3/applogin?currentMenu=tr_freight']
+
+点击运价查询
+    点击    xpath=//a[@href="/freight-efcl-front/#/freightList"]
+    进入列表框架
+    Page Should Contain    请输入必选条件【目的港】查询运价
+    离开框架
+
+订单列表查询
+    [Arguments]    ${workno}    # 各状态对应的id
+    进入列表框架
+    输入    id=businessNumber    ${workno}
+    点击    xpath=//span[text()='查 询']/..
+    wait until element is not visible    xpath=//div[@class='ant-spin-container ant-spin-blur']    timeout=20    #等待进度条消失
+    离开框架
+    Capture Page Screenshot
+
+点击提交订单
+    [Arguments]    ${workno}
+    进入订单详情    ${workno}
+    切换窗口    new
+    Wait Until Element Is Visible    xpath=//div[@title='自揽货']
+    点击    xpath=//span[text()='提 交']/..
+    Wait Until Page Contains    提交成功
+    关闭当前窗口
+    切换窗口
+
+进入订单详情
+    [Arguments]    ${workno}
+    等待    1
+    进入列表框架
+    点击    xpath=//a[text()='${workno}']
+    离开框架
+
+点击审单中心
+    点击    xpath=//a[@href="/fms-front/#/orderAuditCenterList"]
+    #为了等待列表加载出来再进行操作
+    进入列表框架
+    Wait Until Page Contains    每页15条    timeout=20
+    离开框架
+    mouse out    xpath=//a[@href="/fms-front/#/orderAuditCenterList"]
+
+点击状态tab
+    [Arguments]    ${status}
+    进入列表框架
+    点击    id=${status}    #订单状态状态查询
+    wait until element is not visible    xpath=//div[@class='ant-spin-container ant-spin-blur']    timeout=20    #等待进度条消失
+    离开框架
+
+新增底价-多条
+    [Arguments]    ${price}    ${tr}
+    [Documentation]    ${tr}:从 1开始计数
+    ...    ${num}: 0 开始计数
+    ...
+    ...    费用项目、币别、计费单位都是选中第一条
+    : FOR    ${num}    IN RANGE    ${tr}
+    \    点击    xpath=//b[contains(text(),'底价')]/../../following-sibling::div[1]/div/button[2]
+    \    #维护费用名称
+    \    点击    xpath=//b[contains(text(),'底价')]/../../../../following-sibling::div[1]//tr[${num}+1]/td[2]/div
+    \    按键    id=paysList_feeitem_${num}    \\13
+    \    #单价
+    \    输入    xpath=//input[contains(@id,'paysList_price_${num}')]    ${price}
+    \    #币别
+    \    点击    xpath=//b[contains(text(),'底价')]/../../../../following-sibling::div[1]//tr[${num}+1]/td[5]/div
+    \    按键    id=paysList_currency_${num}    \\13
+    \    #计费单位
+    \    点击    xpath=//b[contains(text(),'底价')]/../../../../following-sibling::div[1]//tr[${num}+1]/td[6]/div
+    \    按键    id=paysList_unit_${num}    \\13
+
+新增底价-单条
+    [Documentation]    为了 后面批量维护的验证，故写死了 传入费用项目名称为海运费
+    点击    xpath=//b[contains(text(),'底价')]/../../following-sibling::div[1]/div/button[2]
+    #维护费用名称
+    点击    xpath=//div[contains(@class,'paysList_feeitem_0')]    #如果加上后面的_0_0就找不到了
+    点击    xpath=//li[text()='海运费']
+    #单价
+    输入    id=paysList_price_0    20
+    #选择币别
+    点击    xpath=//div[contains(@class,'paysList_currency_0')]
+    等待    0.5
+    点击    xpath=//li[text()='CNY']
+    #选择计费单位
+    点击    xpath=//div[contains(@class,'paysList_unit_0')]
+    等待    0.5
+    输入    xpath=//input[contains(@id,'paysList_unit_0')]    20GP
+    按键    xpath=//input[contains(@id,'paysList_unit_0')]    \\13
+
+点击审核通过
+    [Arguments]    ${kind}    # 新订或使用现舱
+    #选择订舱代理
+    #拉动滚动条（新）    900
+    拉动滚动条(新2)    700
+    点击    xpath=//label[contains(text(),'订舱代理')]/../following-sibling::div[1]//div[@class='ant-select-search__field__wrap']    #点击订舱代理下拉框
+    按键    xpath=//div[@id='bnMains.bookingagency-shipping-company']//input[@class='ant-select-search__field']    \\13
+    Comment    拉动滚动条（新）    0
+    拉动滚动条(新2)    0    700
+    点击    xpath=//span[contains(text(),'通 过')]/..    #点击通过
+    点击    xpath=//span[contains(text(),'${kind}')]    #选择新订
+    点击    xpath=//span[contains(text(),'确 定')]/..    #点击确定
+    关闭当前窗口
+    切换窗口
+
+点击占舱中心
+    点击    xpath=//a[@href="/fms-front/#/forClassCenterList"]
+    进入列表框架
+    Wait Until Element Is Enabled    xpath=//span[contains(text(),'新 增')]/..
+    离开框架
+
+获取订单列表记录数
+    进入列表框架
+    Wait Until Element Is Enabled    xpath=//li[@class='ant-pagination-total-text']
+    ${content}    获取页面文本内容    xpath=//li[@class='ant-pagination-total-text']
+    离开框架
+    [Return]    ${content}
+
+复制新增
+    [Arguments]    ${type}    #复制订单/业务
+    进入列表框架
+    点击    xpath=//div[@id='OPERATION_COLUMN0_0']//a[contains(text(), '操作')]    #点击列表第一条数据的操作按钮
+    Wait Until Element Is Visible    xpath=//div[contains(@class, 'ant-dropdown-placement-bottomLeft')]
+    点击    xpath=//div[contains(@class, 'ant-dropdown-placement-bottomLeft')]//li[text()='${type}']
+    Wait Until Element Is Visible    xpath=//div[@class='ant-modal-content']
+    点击    xpath=//div[@class='ant-modal-content']//span[text()='确 定']/..
+    离开框架
+
+点击删除
+    进入列表框架
+    点击    xpath=//span[contains(text(),'删 除')]/..
+    Wait Until Element Is Enabled    xpath=//span[contains(text(),'确 定')]/..
+    点击    xpath=//span[contains(text(),'确 定')]/..
+    Wait Until Page Contains    操作成功
+    离开框架
+    等待    1
+
+勾选列表第一条记录
+    进入列表框架
+    勾选记录    xpath=//table//tbody//tr[1]//input
+    离开框架
+
+点击批量维护
+    [Arguments]    ${unit}    ${price}
+    [Documentation]    默认批量维护底价
+    勾选列表第一条记录
+    进入列表框架
+    点击    xpath=//span[contains(text(),'批量维护')]/..
+    点击    xpath=//span[contains(text(),'新 增')]/..
+    #计费单位
+    点击    xpath=//div[contains(@class,'ctntype_0')]
+    输入    xpath=//input[@id='ctntype_0']    ${unit}
+    按键    xpath=//input[@id='ctntype_0']    \\13
+    #操作
+    点击    xpath=//div[contains(@class,'operator_0')]
+    点击    xpath=//li[contains(text(),'=')]
+    #单价
+    输入    id=value_0    ${price}
+    点击    xpath=//span[contains(text(),'确 定')]/..
+    Wait Until Page Contains    批量维护成功
+    离开框架
+
+占舱新增
+    点击新增
+    等待    1
+    切换窗口    new
+    #委托单位
+    Comment    点击    xpath=//label[text()='委托单位']/../following-sibling::div[1]    #点击下拉框
+    Comment    等待    0.5
+    Comment    按键    css=.ant-select-search__field    \\13
+    #船公司
+    点击    xpath=//label[text()='船公司']/../following-sibling::div[1]    #点击船公司下拉框
+    按键    xpath=//label[text()='船公司']/../following-sibling::div[1]//input    \\13    #点击enter
+    #选第一条起运港
+    点击    xpath=//label[contains(text(),'起运港')]/../following-sibling::div[1]    #点击起运港下拉框
+    等待    0.5
+    按键    xpath=//label[contains(text(),'起运港')]/../following-sibling::div[1]//input    \ue015    #点击向下箭头
+    按键    xpath=//label[contains(text(),'起运港')]/../following-sibling::div[1]//input    \\13    #点击enter
+    #选第二条数据
+    点击    xpath=//label[contains(text(),'目的港')]/../following-sibling::div[1]    #点击目的港下拉框
+    等待    0.5
+    按键    xpath=//label[contains(text(),'目的港')]/../following-sibling::div[1]//input    \ue015    #点击向下箭头
+    按键    xpath=//label[contains(text(),'目的港')]/../following-sibling::div[1]//input    \\13    #点击enter
+    #箱型
+    点击    xpath=//table//div[@class='ant-select-selection__rendered']    #点击箱型下拉框
+    等待    0.5
+    点击    xpath=//li[text()='20GP']    #选择20GP
+    #箱量
+    输入    css=.ant-input-number-input    3
+    #单柜货重
+    输入    xpath=//td[@class='ant-table-selection-column']/following-sibling::td[4]/input    13
+    点击    xpath=//span[text()='保 存']/..
+    Wait Until Element Is Visible    xpath=//label[@title='工作号']/../following-sibling::div[1]/div/span
+    ${workno}    获取页面文本内容    xpath=//label[@title='工作号']/../following-sibling::div[1]/div/span
+    关闭当前窗口
+    切换窗口
+    [Return]    ${workno}
+
+订单修改某字段
+    [Arguments]    ${price}
+    #修改单价
+    拉动滚动条（新）    1000
+    输入    id=receiptsList[0].price    ${price}
+    拉动滚动条（新）    0
+    点击    xpath=//span[contains(text(),'保 存')]/..
+    关闭当前窗口
+    切换窗口
+
+生成订单
+    维护订单详情
+    Execute Javascript    $('.ant-layout-content div').scrollTop(1000)
+    等待    1
+    ${status1}    Run Keyword And Return Status    全选报价后删除
+    ${status2}    Run Keyword And Return Status    全选成本价后删除
+    新增报价
+    ${workno}    订单点击保存
+    [Return]    ${workno}
+
+维护订单详情
+    切换窗口    new
+    Wait Until Page Contains    订单详情
+    勾选记录    xpath=//span[text()='拖柜']/../span/input
+    勾选记录    xpath=//span[text()='仓储']/../span/input
+    勾选记录    xpath=//span[text()='报关']/../span/input
+    勾选记录    xpath=//span[text()='保险']/../span/input
+    Unselect checkbox    xpath=//span[text()='代订舱']/../span/input    #取消勾选代订舱
+    #船公司 按下enter直接选中
+    点击    xpath=//label[contains(text(),'船公司')]/../following-sibling::div[1]//div[@class='ant-select-selection__rendered']
+    按键    xpath=//label[contains(text(),'船公司')]/../following-sibling::div[1]//input[@class='ant-select-search__field']    \\13
+    #截关时间
+    #选择日期（字段名称）    截关时间    二月    2019年2月3日
+    #装货港
+    点击    xpath=//input[@id='bnAssistants.loadportcode']
+    按键    xpath=//input[@id='bnAssistants.loadportcode']    \\13
+    ${text}    获取元素属性值    id=bnAssistants.loadportCountryCnname    value
+    Run Keyword If    '${text}'==''    输入    id=bnAssistants.loadportCountryCnname    QYG    #空格则手动输入值
+    #目的港
+    点击    xpath=//input[@id='bnAssistants.dischargeportcode']
+    按键    xpath=//input[@id='bnAssistants.dischargeportcode']    \ue015
+    按键    xpath=//input[@id='bnAssistants.dischargeportcode']    \\13
+    ${text1}    获取元素属性值    id=bnAssistants.dischargeportCountryCnname    value
+    Run Keyword If    '${text1}'==''    输入    id=bnAssistants.dischargeportCountryCnname    MDG    #空格则手动输入值
+    #最终目的地
+    点击    xpath=//input[@id='bnAssistants.finalplacecode']
+    按键    xpath=//input[@id='bnAssistants.finalplacecode']    \ue015
+    按键    xpath=//input[@id='bnAssistants.finalplacecode']    \\13
+    ${text2}    获取元素属性值    id=bnAssistants.finalplaceCountryCnname    value
+    Run Keyword If    '${text2}'==''    输入    id=bnAssistants.finalplaceCountryCnname    ZZMDD    #空格则手动输入值
+    #维护开船日期
+    点击    xpath=//label[text()='预计开船时间']/../following-sibling::div[1]
+    点击    xpath=//a[text()='今天']
+    #箱型
+    下拉框选择(带筛选功能)    xpath=//div[@id='bnMainsBookingCtnList[0].ctn-t']//div[@class='ant-select-selection__rendered']    xpath=//div[@id='bnMainsBookingCtnList[0].ctn_0']//input[@class='ant-select-search__field']    20GP
+    输入    xpath=//div[@id='bnMainsBookingCtnList[0].ctnCount-t']//input[@class='ant-input ant-input-sm']    4    #count
+    输入    xpath=//div[@id='bnMainsBookingCtnList[0].perCtnWeight-t']//input[@class='ant-input ant-input-sm']    1.111    #单柜货重
+    输入    xpath=//div[@id='bnMainsBookingCtnList[0].perCtnVolume-t']//input[@class='ant-input ant-input-sm'] \    22.222    #体积
+    #中、英文品名
+    输入    xpath=//div[@id='bnCargoVo.goodsName-t']//input[@class='ant-select-search__field']    板栗
+    输入    xpath=//div[@id='bnCargoVo.goodsDesc-t']//textarea[@class='ant-input']    cheesenuts
+    #将滚动条拉到下面，为了后面新增报价
+    拉动滚动条（新）    1000
+
+新增报价
+    #点击新增
+    点击    xpath=//div[@id='booking-fee']//div[@class='tar']/button[2]
+    #维护费用名称
+    点击    xpath=//div[@id='receiptsList[0].feeitem']
+    点击    xpath=//li[text()='海运费']
+    #单价
+    输入    xpath=//input[@id='receiptsList[0].price']    10
+    #选择币别
+    点击    xpath=//div[@id='receiptsList[0].currency']//div[@class='ant-select-selection__rendered']
+    点击    xpath=//li[text()='CNY']
+    #选择计费单位
+    点击    xpath=//div[@id='receiptsList[0].unit']//div[@class='ant-select-selection__rendered']
+    点击    xpath=//li[text()='40GP']
+    #数量
+    输入    xpath=//input[@id='receiptsList[0].count']    3    #因为最后一位的数字不是固定的
+
+订单点击保存
+    #拉动滚动条（新）    0    #将滚动条拉到最上面
+    移动滚动条（M3）    0
+    点击保存按钮
+    Wait Until Element Is Visible    xpath=//span[text()='工作号']/span
+    ${workno}    获取页面文本内容    xpath=//span[text()='工作号']/span
+    [Return]    ${workno}
+
+维护费用项目
+    [Documentation]    避免操作等页面显示该费用时需要维护一些字段，故不允许订单的费用显示在 操作的tab 上
+    点击    xpath=//a[@href="/modelhome3/applogin?currentMenu=tr_m4_baseinfo"]
+    点击    xpath=//a[@href="/fms-front/#/baseInfo/business/GoodsSource"]/i
+    进入列表框架
+    Wait Until Element Is Visible    css=.ant-pagination-total-text
+    离开框架
+    #点击费用税率
+    点击    xpath=//ul[@class='menu']/li[3]/a
+    进入列表框架
+    输入    id=noKeyword    海运费
+    点击    xpath=//span[text()='查 询']/..
+    点击    xpath=//td[text()="海运费"]/../td[3]/a
+    下拉框选中    服务模块    保险
+    点击    xpath=//span[text()='保 存']/..
+    Wait Until Page Contains    修改成功
+    [Teardown]    回到首页
+
+点击提交占舱
+    [Arguments]    ${workno}
+    进入订单详情    ${workno}
+    切换窗口    new
+    Wait Until Element Is Visible    xpath=//span[text()='提 交']/..
+    点击    xpath=//span[text()='提 交']/..
+    Wait Until Page Contains    提交成功
+    关闭当前窗口
+    切换窗口
+
+全选报价后删除
+    勾选记录    xpath=//div[@class='ant-table-content']//table//tr//input
+    等待    1
+    点击    xpath=//div[@class='ant-table-title']/div/div[2]/div/button[1]
+    等待    1
+
+全选成本价后删除
+    等待    5
+    勾选记录    xpath=//b[contains(text(),'成本价')]/../../../../following-sibling::div[1]//table//tr//input
+    等待    1
+    点击    xpath=//b[contains(text(),'成本价')]/../../following-sibling::div[1]/div/button[1]
+    等待    1
+
+运价生成订单弹出框
+    [Arguments]    ${sales}    ${goodssourceName}
+    进入框架    xpath=//iframe[contains(@src,'/freight-main-rest/rest/order/efcl/newOrderPremise?priceId')]
+    Wait Until Element Is Visible    xpath=//label[text()='业务类型']
+    输入    id=sales    ${sales}
+    mouse out    id=sales
+    输入    id=goodssourceName    ${goodssourceName}
+    点击    xpath=//a[text()='自揽货']
+    按键    id=customername    \\13
+    等待    0.5
+    按键    id=customername    \ue015
+    等待    0.5
+    按键    id=customername    \\13
+    点击    id=confirm
+    离开框架
+
+新增订单弹出框
+    [Arguments]    ${businesstype}    ${serviceRuleTypeCode}    #业务类型|#服务类型
+    进入列表框架
+    Wait Until Element Is Visible    xpath=//label[text()='业务类型']
+    新增订单选择业务类型    ${businesstype}
+    新增订单选择委托单位
+    #委托单位
+    新增订单选择货物来源
+    新增订单选择服务类型    ${serviceRuleTypeCode}
+    等待    0.5
+    点击    xpath=//span[contains(text(),'确 定')]/..
+    离开框架
+    等待    0.5
+
+船期选择
+    进入框架    xpath=//h3[text()='选择船期']/../following-sibling::div[1]//iframe
+    Wait Until Element Is Visible    id=confirm
+    单选框选择    index    0
+    点击    id=confirm
+    离开框架
+
+运价查询列表勾选第一条记录
+    进入列表框架
+    Wait Until Element Is Visible    xpath=//table//tr/td[2]/input
+    勾选记录    xpath=//table//tr/td[2]/input    #勾选第一条运价记录
+    离开框架
+
+列表点击生成订单按钮
+    进入列表框架
+    点击    xpath=//span[text()='生成订单']/..
+    离开框架
+
+查询起运港
+    [Arguments]    ${loadport}
+    进入列表框架
+    输入    css=.ant-input ant-select-search__field    ${loadport}
+    点击    xpath=//span[text()='查 询']/..
+    离开框架
+
+维护订单详情11
+    切换窗口    new
+    Wait Until Page Contains    订单详情
+    #船公司 按下enter直接选中
+    勾选记录    xpath=//span[text()='拖柜']/../span/input
+    勾选记录    xpath=//span[text()='仓储']/../span/input
+    勾选记录    xpath=//span[text()='报关']/../span/input
+    勾选记录    xpath=//span[text()='保险']/../span/input
+    下拉框选中    船公司    ${carrier}
+    #起运港
+    点击    id=loadportcode
+    输入    id=loadportcode    ${loadportcode}
+    按键    id=loadportcode    \\13
+    #目的港
+    点击    id=dischargeportcode
+    输入    id=dischargeportcode    ${dischargeportcode}
+    按键    id=dischargeportcode    \\13
+    等待    2
+    #交货地
+    点击    xpath=//label[contains(text(),'交货地')]/../following-sibling::div[1]
+    点击    xpath=//p[contains(text(),'${delplacecode}')]
+    #最终目的地
+    点击    id=finalplacecode
+    输入    id=finalplacecode    ${finalplacecode}
+    按键    id=finalplacecode    \\13
+    #免用箱申请天数
+    输入    id=freeBoxDays    ${freeBoxDays}
+    #箱型
+    点击    xpath=//label[contains(text(),'箱型箱量')]/../../../following-sibling::div[1]/ul/li/div/div[2]
+    点击    xpath=//li[contains(text(),"${ctn}")]
+    输入    id=bnMainsBookingCtnList_0_ctnCount    ${ctn_count}    #count
+    #中、英文品名
+    输入    id=goodsname    ${goodsname}
+    输入    id=goodsdesc    ${goodsdesc}
+    #总包装
+    下拉框选中    总包装    ${packkind}
+    #总件数、总毛重、总体积
+    输入    id=count    ${count}
+    输入    id=weight    ${weight}
+    输入    id=volume    ${volume}
+
+读取订单excel
+    Open Excel    E:\\order_list.xls
+    : FOR    ${i}    IN RANGE    1    2
+    \    ${carrier}    Read Cell Data By Coordinates    Sheet1    0    ${i}
+    \    ${loadportcode}    Read Cell Data By Coordinates    Sheet1    1    ${i}
+    \    ${dischargeportcode}    Read Cell Data By Coordinates    Sheet1    2    ${i}
+    \    ${delplacecode}    Read Cell Data By Coordinates    Sheet1    3    ${i}
+    \    ${finalplacecode}    Read Cell Data By Coordinates    Sheet1    4    ${i}
+    \    ${freeBoxDays}    Read Cell Data By Coordinates    Sheet1    5    ${i}
+    \    ${ctn}    Read Cell Data By Coordinates    Sheet1    6    ${i}
+    \    ${ctn_count}    Read Cell Data By Coordinates    Sheet1    7    ${i}
+    \    ${goodsname}    Read Cell Data By Coordinates    Sheet1    8    ${i}
+    \    ${goodsdesc}    Read Cell Data By Coordinates    Sheet1    9    ${i}
+    \    ${packkind}    Read Cell Data By Coordinates    Sheet1    10    ${i}
+    \    ${count}    Read Cell Data By Coordinates    Sheet1    11    ${i}
+    \    ${weight}    Read Cell Data By Coordinates    Sheet1    12    ${i}
+    \    ${volume}    Read Cell Data By Coordinates    Sheet1    13    ${i}
+    \    Set Suite Variable    ${carrier}
+    \    Set Suite Variable    ${loadportcode}
+    \    Set Suite Variable    ${dischargeportcode}
+    \    Set Suite Variable    ${delplacecode}
+    \    Set Suite Variable    ${finalplacecode}
+    \    Set Suite Variable    ${freeBoxDays}
+    \    Set Suite Variable    ${ctn}
+    \    Set Suite Variable    ${ctn_count}
+    \    Set Suite Variable    ${goodsname}
+    \    Set Suite Variable    ${goodsdesc}
+    \    Set Suite Variable    ${packkind}
+    \    Set Suite Variable    ${count}
+    \    Set Suite Variable    ${weight}
+    \    Set Suite Variable    ${volume}
+
+新增成本价
+    #点击新增
+    点击    xpath=//div[@id='booking-feepay']//div[@class='tar']/button[2]
+    #维护费用名称
+    下拉框选择(带筛选功能)    xpath=//div[@id='payfeePlanList[0].feeitem']//div[@class='ant-select-selection__rendered']    xpath=//input[contains(@id,'payfeePlanList[0].feeitem')]    海运费
+    #单价
+    输入    xpath=//input[contains(@id,'payfeePlanList[0].price')]    10
+    #选择币别
+    下拉框选择(带筛选功能)    xpath=//div[@id='payfeePlanList[0].currency']//div[@class='ant-select-selection__rendered']    xpath=//input[contains(@id,'payfeePlanList[0].currency')]    CNY
+    #选择计费单位
+    下拉框选择(带筛选功能)    xpath=//div[@id='payfeePlanList[0].unit']//div[@class='ant-select-selection__rendered']    xpath=//input[contains(@id,'payfeePlanList[0].unit')]    20GP
+
+设置订单参数
+    点击系统设置（主菜单）
+    点击系统设置（菜单）
+    进入框架    id=fms-front
+    设置业务参数(单选)    订舱代理手动输入无效    否
+    设置业务参数(单选)    船公司手动输入无效    否
+    设置业务参数(单选)    港口及航线手动输入无效    否
+    设置业务参数(单选)    铁路站点手动输入无效    否
+    设置业务参数(单选)    船名航次手动输入无效    否
+    设置业务参数(单选)    订单中心订舱代理是否可见    是
+    设置业务参数(单选)    发货单位是否支持手输    是
+    点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+    ${订舱代理_value}    获取页面文本内容    xpath=//div[text()='订舱代理手动输入无效']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
+    ${船公司_value}    获取页面文本内容    xpath=//div[text()='船公司手动输入无效']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
+    ${港口航线_value}    获取页面文本内容    xpath=//div[text()='港口及航线手动输入无效']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
+    ${铁路站点_value}    获取页面文本内容    xpath=//div[text()='铁路站点手动输入无效']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
+    ${船名航次_value}    获取页面文本内容    xpath=//div[text()='船名航次手动输入无效']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
+    ${订舱是否可见_value}    获取页面文本内容    xpath=//div[text()='订单中心订舱代理是否可见']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
+    ${发货单位_value}    获取页面文本内容    xpath=//div[text()='发货单位是否支持手输']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
+    应该要相等    ${订舱代理_value}    否
+    应该要相等    ${船公司_value}    否
+    应该要相等    ${港口航线_value}    否
+    应该要相等    ${铁路站点_value}    否
+    应该要相等    ${船名航次_value}    否
+    应该要相等    ${订舱是否可见_value}    是
+    应该要相等    ${发货单位_value}    是
+    离开框架
+
+新增订单选择业务类型
+    [Arguments]    ${content}    # 下拉框取值
+    [Documentation]    因为用了react,所以下拉框 无法直接赋值，于是采用先点击 下拉框，然后再点击值的方式
+    ...
+    ...    备注：仅适用于标签名旁直接就是下拉框
+    点击    id=businesstype    #点击下拉框
+    等待    0.5
+    点击    xpath=//li[contains(text(),'${content}')]    #选中下拉框的一条记录
+
+新增订单选择委托单位
+    [Documentation]    因为用了react,所以下拉框 无法直接赋值，于是采用先点击 下拉框，然后再点击值的方式
+    ...
+    ...    备注：仅适用于标签名旁直接就是下拉框
+    点击    id=customername    #点击下拉框
+    等待    0.5
+    按键    xpath=//input[@id='customername']    \\13
+
+新增订单选择货物来源
+    [Documentation]    因为用了react,所以下拉框 无法直接赋值，于是采用先点击 下拉框，然后再点击值的方式
+    ...
+    ...    备注：仅适用于标签名旁直接就是下拉框
+    点击    id=goodssource    #点击下拉框
+    等待    0.5
+    按键    xpath=//input[@id='goodssource']    \\13
+
+新增订单选择服务类型
+    [Arguments]    ${content}    # 下拉框取值
+    [Documentation]    因为用了react,所以下拉框 无法直接赋值，于是采用先点击 下拉框，然后再点击值的方式
+    ...
+    ...    备注：仅适用于标签名旁直接就是下拉框
+    点击    id=serviceRuleTypeCode    #点击下拉框
+    等待    0.5
+    点击    xpath=//li[contains(text(),'${content}')]    #选中下拉框的一条记录

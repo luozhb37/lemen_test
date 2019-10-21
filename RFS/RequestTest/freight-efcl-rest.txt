@@ -1,0 +1,8 @@
+*** Settings ***
+Resource          ../resources/会员接口.txt
+Resource          ../resources/整箱接口.txt
+
+*** Test Cases ***
+导入运价
+    Fail    msg=未完成
+    [Teardown]    Delete All Sessions

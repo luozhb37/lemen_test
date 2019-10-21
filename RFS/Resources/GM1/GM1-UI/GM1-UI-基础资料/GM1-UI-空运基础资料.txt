@@ -1,0 +1,78 @@
+*** Settings ***
+Resource          ../GM1-UI-公共/GM1-UI-引用.txt
+
+*** Keywords ***
+生成指定位数的随机字符串
+    [Arguments]    ${num}    ${isupper}=False    # 位数|生成的字符串是否大写
+    ${str}    Run Keyword If    '${isupper}'=='True'    evaluate    string.ascii_uppercase    string
+    ...    ELSE    evaluate    string.ascii_lowercase    string    # 生成所有26个大写字母的字符串    # 生成所有26个小写字母的字符串
+    ${newStr}    set variable    ${EMPTY}    # 设置空字符串用于拼接字符
+    : FOR    ${index}    IN RANGE    ${num}
+    \    ${i}    evaluate    random.randint(0,25)    random    # 在0-25中生成一个随机整数
+    \    ${tmp}    set variable    ${str[int(${i})-1]}    # 取对应随机数位的字符内容
+    \    ${newStr}    连接字符    ${newStr}    ${tmp}    # 拼接字符
+    [Return]    ${newStr}
+
+新增机场
+    [Arguments]    ${iataCode}    ${airport}
+    点击    xpath=//span[text()='新 增']/..    # 点击新增按钮
+    输入    id=aircode    ${iataCode}    # 输入IATA code
+    输入    id=enname    ${airport}    # 输入机场英文
+    点击    xpath=//label[text()='城市']/../following-sibling::div[1]//div[text()='代码']    # 点击城市代码
+    点击    xpath=//ul[contains(@class,'ant-select-dropdown-menu-root')]/li[2]    # 选择第一个列表城市
+    点击    xpath=//label[text()='航线']    # 点击航线代码
+    点击    xpath=(//ul[contains(@class,'ant-select-dropdown-menu-root')])[last()]/li[1]
+    点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+
+删除机场第一条数据
+    点击    xpath=//table/tbody/tr/td[1]//input    # 点击第一行勾选框
+    点击    xpath=//span[text()='删 除']/..    # 点击删除按钮
+    点击    xpath=//span[text()='确 认']/..    # 点击确认按钮
+
+查询是否存在测试机场
+    [Arguments]    ${iataCode}    # 查询的IATA码
+    输入    id=searchNo    ${iataCode}
+    点击    xpath=//span[text()='查 询']/..    # 点击查询
+    sleep    3
+    ${count}    获取匹配xpath的个数    xpath=//table/tbody/tr    # 获取匹配的xpath个数
+    [Return]    ${count}
+
+新增航线
+    [Arguments]    ${cnname}    ${enname}    ${code}    ${num}
+    输入    xpath=//div[@class='ant-modal-body']//input[@id='cnname']    ${cnname}
+    输入    xpath=//div[@class='ant-modal-body']//input[@id='enname']    ${enname}
+    输入    xpath=//div[@class='ant-modal-body']//input[@id='seaRouteCode']    ${code}
+    输入    id=seqno    ${num}
+    点击    xpath=//span[text()='保 存']/..    # 点击保存并关闭按钮
+    Wait Until Page Contains    保存成功    10
+
+下拉框选中(多列)
+    [Arguments]    ${cnname}    ${content}    ${index}=1    # \ | # 下拉框的中文标签名\|下拉框取值|相同元素时取第几个
+    Set Focus To Element    xpath=//label[contains(text(),'${cnname}')]/../following-sibling::div[1]
+    点击    xpath=//label[contains(text(),'${cnname}')]/../following-sibling::div[1]    #点击下拉框
+    等待    3
+    Comment    点击    xpath=(//p[contains(text(),'${content}')]/..)[${index}]    #选中下拉框的一条记录
+    : FOR    ${name}    IN    ${content}
+    \    Wait Until Element Is Visible    xpath=//label[contains(text(),'${cnname}')]/../following-sibling::div[1]//input
+    \    点击    xpath=//label[contains(text(),'${cnname}')]/../following-sibling::div[1]//input
+    \    输入    xpath=//label[contains(text(),'${cnname}')]/../following-sibling::div[1]//input    ${name}
+    Wait Until Element Is Visible    xpath=(//p[contains(text(),'${content}')]/..)[${index}]
+    点击    xpath=(//p[contains(text(),'${content}')]/..)[${index}]    #选中下拉框的一条记录
+
+新增航班
+    [Arguments]    ${flight_no}
+    点击    xpath=//span[text()='新 增']/..
+    下拉框选中(多列)    航空公司    BA    # 选择航空公司
+    输入    xpath=//div[@id='hedging-form-component']//input[@id='flightNo']    ${flight_no}    # 输入航班号
+    下拉框选中(多列)    始发机场    YJC    # 选择始发机场
+    点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+
+查询航班
+    [Arguments]    ${flight_no}
+    输入    xpath=//div[@id='fee-item-manage']//input[@id='flightNo']    ${flight_no}
+    点击    xpath=//span[text()='查 询']/..
+
+删除航班第一条数据
+    点击    xpath=//table/tbody/tr/td[1]//input    # 点击第一行勾选框
+    点击    xpath=//span[text()='删 除']/..    # 点击删除按钮
+    点击    xpath=//span[text()='确 认']/..    # 点击确认按钮

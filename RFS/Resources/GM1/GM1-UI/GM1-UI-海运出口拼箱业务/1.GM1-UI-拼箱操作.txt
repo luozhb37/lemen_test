@@ -1,0 +1,3 @@
+*** Settings ***
+Library           AutoItLibrary
+Resource          ../GM1-UI-公共/GM1-UI-引用.txt

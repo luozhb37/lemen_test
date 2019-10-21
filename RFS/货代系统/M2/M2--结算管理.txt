@@ -1,0 +1,642 @@
+*** Settings ***
+Suite Setup       登录    # \ Run keywords | 系统参数设置 | AND | 往来单位初始化
+Suite Teardown    close all browsers
+Test Setup        回到首页
+Resource          ../../Resources/M2基础操作/M2--引用.txt
+
+*** Test Cases ***
+新增费用
+    新增海运出口业务台帐
+    列表查询业务编号    ${BUSINESSNO-SUIT}
+    选中包含业务编号的台帐    ${BUSINESSNO-SUIT}
+    进入费用信息页面
+    新增收入费用
+    进入详情框架
+    ${rec_amount}    获取页面文本内容    xpath=//tr[@elementname='fee_amount_rec']/td[2]/font
+    应该要相等    ${rec_amount}    RMB:1,000.00
+    离开框架
+    新增支出费用
+    进入详情框架
+    ${pay_amount}    获取页面文本内容    xpath=//tr[@elementname='fee_amount_pay']/td[2]/font
+    应该要相等    ${pay_amount}    RMB:300.00
+    离开框架
+    关闭费用信息页面
+
+删除费用
+    ${businessNO}    新增海运出口业务台帐
+    列表查询业务编号    ${businessNO}
+    选中海运出口第一条记录
+    进入费用信息页面
+    #新增收入、支出费用
+    新增收入费用
+    新增支出费用
+    费用信息页面勾选收入费用
+    #删除收入费用
+    删除收入费用
+    进入详情框架
+    ${fee_rec_amount}    获取页面文本内容    xpath=//*[@id='pg_fee_apply_tbl12']/tbody/tr/td[2]/font
+    应该要相等    ${fee_rec_amount}    总计:0.00
+    离开框架
+    #删除支出费用
+    费用信息页面勾选支出费用
+    删除支出费用
+    #验证删除支出费用后，支出费用总金额为0
+    进入详情框架
+    ${fee_pay_amount}    获取页面文本内容    xpath=//*[@id='pg_fee_apply_tbl12']/tbody/tr[2]/td[2]/font
+    应该要相等    ${fee_pay_amount}    总计:0.00
+    离开框架
+    等待    1
+    关闭费用信息页面
+
+支出转收入费用
+    ${businessNO}    新增海运出口业务台帐
+    列表查询业务编号    ${businessNO}
+    选中海运出口第一条记录
+    进入费用信息页面
+    新增支出费用
+    进入详情框架
+    ${fee_amount_rec}    获取页面文本内容    xpath=//*[@id="pg_fee_apply_tbl12"]/tbody/tr[1]/td[2]/font
+    离开框架
+    应该要相等    ${fee_amount_rec}    总计:0.00
+    费用信息页面勾选支出费用
+    点击支出转收入
+    进入详情框架
+    ${fee_amount_rec1}    获取页面文本内容    xpath=//*[@id="pg_fee_apply_tbl12"]/tbody/tr[1]/td[2]/font[1]
+    应该要相等    ${fee_amount_rec1}    RMB:300.00
+    离开框架
+    关闭费用信息页面
+
+费用确认和取消费用确认
+    ${businessNO}    新增海运出口业务台帐
+    列表查询业务编号    ${businessNO}
+    选中海运出口第一条记录
+    进入费用信息页面
+    #新增收入
+    新增收入费用
+    费用信息页面勾选收入费用
+    费用确认
+    ${confirm_status}    获取费用确认完成状态
+    应该要相等    ${confirm_status}    已完成
+    费用信息页面勾选收入费用
+    费用取消确认
+    ${cancel_confirm_status}    获取费用确认完成状态
+    应该要相等    ${cancel_confirm_status}    未完成
+    关闭费用信息页面
+
+审核和取消审核收入费用
+    ${businessNO}    新增海运出口业务台帐
+    列表查询业务编号    ${businessNO}
+    选中海运出口第一条记录
+    进入费用信息页面
+    #新增收入
+    新增收入费用
+    费用信息页面勾选收入费用
+    审核收入费用
+    #查询应收款审核查询页面已审核列表存在该记录
+    关闭费用信息页面
+    点击结算管理
+    点击收款核销
+    点击应收款审核
+    应收/付款审核列表查询    ${businessNO}
+    ${page}    应收款审核-已审核应收费用列表记录数
+    应该包含    ${page}    共1条
+    #取消审核
+    点击业务管理
+    点击业务台帐
+    点击海运出口
+    选中包含业务编号的台帐    ${businessNO}
+    进入费用信息页面
+    费用信息页面勾选收入费用
+    取消审核收入费用
+    关闭费用信息页面
+    #查询应收款审核查询页面待审核列表存在该记录，已审核列表无该记录
+    点击结算管理
+    等待    1
+    点击收款核销
+    点击应收款审核
+    应收/付款审核列表查询    ${businessNO}
+    等待    1
+    ${cancel_audi_page}    应收款审核-待审核应收费用列表记录数
+    应该包含    ${cancel_audi_page}    共1条
+    ${audi_page1}    应收款审核-已审核应收费用列表记录数
+    应该包含    ${audi_page1}    共0条
+
+审核和取消审核支出费用
+    ${businessNO}    新增海运出口业务台帐
+    列表查询业务编号    ${businessNO}
+    选中海运出口第一条记录
+    进入费用信息页面
+    #新增收入
+    新增支出费用
+    费用信息页面勾选支出费用
+    审核支出费用
+    #查询应收款审核查询页面已审核列表存在该记录
+    关闭费用信息页面
+    点击结算管理
+    点击付款核销
+    点击应付款审核
+    应收/付款审核列表查询    ${businessNO}
+    ${page}    应付款审核-已审核支出费用列表记录数
+    应该包含    ${page}    共1条
+    #取消审核
+    点击业务管理
+    点击业务台帐
+    点击海运出口
+    选中包含业务编号的台帐    ${businessNO}
+    进入费用信息页面
+    费用信息页面勾选支出费用
+    取消审核支出费用
+    关闭费用信息页面
+    #查询应收款审核查询页面待审核列表存在该记录，已审核列表无该记录
+    点击结算管理
+    等待    1
+    点击付款核销
+    点击应付款审核
+    应收/付款审核列表查询    ${businessNO}
+    等待    1
+    ${cancel_audi_page}    应付款审核-待审核支出费用列表记录数
+    应该包含    ${cancel_audi_page}    共1条
+    ${audi_page1}    应付款审核-已审核支出费用列表记录数
+    应该包含    ${audi_page1}    共0条
+
+标记收入制单完成和取消收入制单完成
+    ${businessNO}    新增海运出口业务台帐
+    列表查询业务编号    ${businessNO}
+    选中包含业务编号的台帐    ${businessNO}
+    进入费用信息页面
+    #标记收入制单完成
+    标记收入制单完成
+    #收入制单完成后，状态为已完成，且无新增按钮
+    ${rec_finish_status}    获取收入制单完成状态
+    应该要相等    ${rec_finish_status}    已完成
+    #取消标记收入制单完成
+    取消标记收入制单完成
+    #取消收入制单完成后，状态为未完成
+    ${rec_finish_status}    获取收入制单完成状态
+    应该要相等    ${rec_finish_status}    未完成
+    关闭费用信息页面
+
+标记支出制单完成和取消支出制单完成
+    ${businessNO}    新增海运出口业务台帐
+    列表查询业务编号    ${businessNO}
+    选中包含业务编号的台帐    ${businessNO}
+    进入费用信息页面
+    #标记支出制单完成
+    标记支出制单完成
+    #支出制单完成后，状态为已完成
+    ${rec_finish_status}    获取支出制单完成状态
+    应该要相等    ${rec_finish_status}    已完成
+    #取消标记支出制单完成
+    取消标记支出制单完成
+    #取消收入制单完成后，状态为未完成
+    ${rec_finish_status}    获取支出制单完成状态
+    应该要相等    ${rec_finish_status}    未完成
+    关闭费用信息页面
+
+生成对账单(收入、支出)
+    ${businessNo}    新增海运出口业务台帐
+    列表查询业务编号    ${businessNo}
+    选中海运出口第一条记录
+    进入费用信息页面
+    #收入费用维护确认
+    新增收入费用
+    费用信息页面勾选收入费用
+    审核收入费用
+    新增支出费用
+    费用信息页面勾选支出费用
+    审核支出费用
+    关闭费用信息页面
+    #生成对账单
+    点击发票管理(外)
+    点击对账单
+    点击新增账单
+    新增对账单列表查询    qy_fee_checkdate_type=1    qy_businessno=${businessNo}
+    进入一个框架后-全选记录
+    点击选择
+    ${model_fi_debitcredits_debitcreditno}    生成对账单
+    查询对账单    ${model_fi_debitcredits_debitcreditno}
+    ${content}    获取列表记录数
+    应该包含    ${content}    共1条
+
+新增发票(关联业务)--按账单汇总开票
+    ${businessNo}    新增海运出口业务台帐
+    列表查询业务编号    ${businessNo}
+    选中海运出口第一条记录
+    进入费用信息页面
+    #收入费用维护确认
+    新增收入费用
+    费用信息页面勾选收入费用
+    审核收入费用
+    新增支出费用
+    费用信息页面勾选支出费用
+    审核支出费用
+    关闭费用信息页面
+    #生成对账单
+    点击发票管理(外)
+    点击对账单
+    点击新增账单
+    新增对账单列表查询    qy_fee_checkdate_type=1    qy_businessno=${businessNo}
+    进入一个框架后-全选记录
+    点击选择
+    ${model_fi_debitcredits_debitcreditno}    生成对账单
+    点击货代发票
+    点击新增发票(关联业务)
+    ${invoiceno}    账单汇总开票    ${model_fi_debitcredits_debitcreditno}
+    点击发票管理(内)
+    发票管理(收入)页面查询发票号    ${invoiceno}
+    ${content}    获取列表记录数
+    应该包含    ${content}    共1条
+
+新增发票(关联业务)--按账单明细开票
+    ${businessNo}    新增海运出口业务台帐
+    列表查询业务编号    ${businessNo}
+    选中海运出口第一条记录
+    进入费用信息页面
+    #收入费用维护确认
+    新增收入费用
+    费用信息页面勾选收入费用
+    审核收入费用
+    新增支出费用
+    费用信息页面勾选支出费用
+    审核支出费用
+    关闭费用信息页面
+    #生成对账单
+    点击发票管理(外)
+    点击对账单
+    点击新增账单
+    新增对账单列表查询    qy_fee_checkdate_type=1    qy_businessno=${businessNo}
+    进入一个框架后-全选记录
+    点击选择
+    ${model_fi_debitcredits_debitcreditno}    生成对账单
+    点击货代发票
+    点击新增发票(关联业务)
+    ${invoiceno}    账单明细开票    ${model_fi_debitcredits_debitcreditno}
+    点击发票管理(内)
+    发票管理(收入)页面查询发票号    ${invoiceno}
+    ${content}    获取列表记录数
+    应该包含    ${content}    共1条
+
+新增发票(关联业务)--按费用明细开发票
+    ${businessNo}    新增海运出口业务台帐
+    列表查询业务编号    ${businessNo}
+    选中海运出口第一条记录
+    进入费用信息页面
+    #收入费用维护确认
+    新增收入费用
+    费用信息页面勾选收入费用
+    审核收入费用
+    关闭费用信息页面
+    点击发票管理(外)
+    点击货代发票
+    点击新增发票(关联业务)
+    ${invoiceno}    按费用明细开票    ${businessNo}
+    点击发票管理(内)
+    发票管理(收入)页面查询发票号    ${invoiceno}
+    sleep    5
+    ${content}    获取列表记录数
+    应该包含    ${content}    共1条
+
+新增发票(关联业务)--按费用汇总开发票
+    ${businessNo}    新增海运出口业务台帐
+    列表查询业务编号    ${businessNo}
+    选中海运出口第一条记录
+    进入费用信息页面
+    #收入费用维护确认
+    新增收入费用
+    费用信息页面勾选收入费用
+    审核收入费用
+    关闭费用信息页面
+    点击发票管理(外)
+    点击货代发票
+    点击新增发票(关联业务)
+    ${invoiceno}    按费用汇总开票    ${businessNo}
+    点击发票管理(内)
+    发票管理(收入)页面查询发票号    ${invoiceno}
+    ${content}    获取列表记录数
+    应该包含    ${content}    共1条
+
+新增发票(关联业务)--按费用标记为已开票
+    ${businessNo}    新增海运出口业务台帐
+    列表查询业务编号    ${businessNo}
+    选中海运出口第一条记录
+    进入费用信息页面
+    #收入费用维护确认
+    新增收入费用
+    费用信息页面勾选收入费用
+    审核收入费用
+    关闭费用信息页面
+    点击发票管理(外)
+    点击货代发票
+    点击新增发票(关联业务)
+    按费用标记为已开票    ${businessNo}
+    点击发票管理(内)
+    发票管理(收入)页面查询发票号    ${businessNo}
+    ${content}    获取列表记录数
+    应该包含    ${content}    共1条
+
+应付发票登记--按账单
+    ${businessNo}    新增海运出口业务台帐
+    列表查询业务编号    ${businessNo}
+    选中海运出口第一条记录
+    进入费用信息页面
+    #支出费用维护确认
+    新增支出费用
+    费用信息页面勾选支出费用
+    审核支出费用
+    关闭费用信息页面
+    #生成对账单
+    点击发票管理(外)
+    点击对账单
+    点击新增账单
+    新增对账单列表查询    qy_fee_checkdate_type=1    qy_businessno=${businessNo}
+    进入一个框架后-全选记录
+    点击选择
+    ${model_fi_debitcredits_debitcreditno}    生成对账单
+    点击发票管理(外)
+    点击货代发票
+    点击应付发票登记
+    按账单--发票登记    ${businessNo}
+    点击发票管理(内)
+    发票管理(支出)页面查询发票号    ${businessNo}
+    ${content}    获取列表记录数
+    应该包含    ${content}    共1条
+
+应付发票登记--按费用
+    ${businessNo}    新增海运出口业务台帐
+    列表查询业务编号    ${businessNo}
+    选中海运出口第一条记录
+    进入费用信息页面
+    #支出费用维护确认
+    新增支出费用
+    费用信息页面勾选支出费用
+    审核支出费用
+    关闭费用信息页面
+    #生成对账单
+    点击发票管理(外)
+    点击对账单
+    点击新增账单
+    新增对账单列表查询    qy_fee_checkdate_type=1    qy_businessno=${businessNo}
+    进入一个框架后-全选记录
+    点击选择
+    ${model_fi_debitcredits_debitcreditno}    生成对账单
+    点击发票管理(外)
+    点击货代发票
+    点击应付发票登记
+    按费用--发票登记    ${businessNo}
+    点击发票管理(内)
+    发票管理(支出)页面查询发票号    ${businessNo}
+    ${content}    获取列表记录数
+    应该包含    ${content}    共1条
+
+作废--按账单汇总开票
+    ${businessNo}    新增海运出口业务台帐
+    列表查询业务编号    ${businessNo}
+    选中海运出口第一条记录
+    进入费用信息页面
+    #收入费用维护确认
+    新增收入费用
+    费用信息页面勾选收入费用
+    审核收入费用
+    新增支出费用
+    费用信息页面勾选支出费用
+    审核支出费用
+    关闭费用信息页面
+    #生成对账单
+    点击发票管理(外)
+    点击对账单
+    点击新增账单
+    新增对账单列表查询    qy_fee_checkdate_type=1    qy_businessno=${businessNo}
+    进入一个框架后-全选记录
+    点击选择
+    ${model_fi_debitcredits_debitcreditno}    生成对账单
+    点击货代发票
+    点击新增发票(关联业务)
+    ${invoiceno}    账单汇总开票    ${model_fi_debitcredits_debitcreditno}
+    点击发票管理(内)
+    发票管理(收入)页面查询发票号    ${invoiceno}
+    ${content}    获取列表记录数
+    应该包含    ${content}    共1条
+    作废收入发票    ${invoiceno}
+    发票管理(收入)页面查询发票号    ${invoiceno}
+    ${content}    获取列表记录数
+    应该包含    ${content}    共0条
+
+删除--按账单应付登记
+    ${businessNo}    新增海运出口业务台帐
+    列表查询业务编号    ${businessNo}
+    选中海运出口第一条记录
+    进入费用信息页面
+    #支出费用维护确认
+    新增支出费用
+    费用信息页面勾选支出费用
+    审核支出费用
+    关闭费用信息页面
+    #生成对账单
+    点击发票管理(外)
+    点击对账单
+    点击新增账单
+    新增对账单列表查询    qy_fee_checkdate_type=1    qy_businessno=${businessNo}
+    进入一个框架后-全选记录
+    点击选择
+    ${model_fi_debitcredits_debitcreditno}    生成对账单
+    点击发票管理(外)
+    点击货代发票
+    点击应付发票登记
+    按账单--发票登记    ${businessNo}
+    点击发票管理(内)
+    发票管理(支出)页面查询发票号    ${businessNo}
+    ${content}    获取列表记录数
+    应该包含    ${content}    共1条
+    删除支出发票    ${businessNo}
+    发票管理(支出)页面查询发票号    ${businessNo}
+    ${content}    获取列表记录数
+    应该包含    ${content}    共0条
+
+收款单制作(费用明细)
+    ${businessNo}    新增海运出口业务台帐
+    列表查询业务编号    ${businessNo}
+    选中海运出口第一条记录
+    进入费用信息页面
+    #收入费用维护确认
+    新增收入费用
+    费用信息页面勾选收入费用
+    审核收入费用
+    关闭费用信息页面
+    #生成对账单
+    点击发票管理(外)
+    点击对账单
+    点击新增账单
+    新增对账单列表查询    qy_fee_checkdate_type=1    qy_businessno=${businessNo}
+    进入一个框架后-全选记录
+    点击选择
+    ${model_fi_debitcredits_debitcreditno}    生成对账单
+    点击货代发票
+    点击新增发票(关联业务)
+    ${invoiceno}    账单汇总开票    ${model_fi_debitcredits_debitcreditno}
+    点击结算管理
+    点击收款核销
+    点击收款单制作(费用明细)
+    ${recbillno}    收款核销(费用明细)    ${invoiceno}
+    点击收款单查询
+    收款单查询->全部    ${recbillno}
+    ${content}    获取列表记录数
+    应该包含    ${content}    共1条
+
+收款单制作(发票)
+    ${businessNo}    新增海运出口业务台帐
+    列表查询业务编号    ${businessNo}
+    选中海运出口第一条记录
+    进入费用信息页面
+    #收入费用维护确认
+    新增收入费用
+    费用信息页面勾选收入费用
+    审核收入费用
+    关闭费用信息页面
+    #生成对账单
+    点击发票管理(外)
+    点击对账单
+    点击新增账单
+    新增对账单列表查询    qy_fee_checkdate_type=1    qy_businessno=${businessNo}
+    进入一个框架后-全选记录
+    点击选择
+    ${model_fi_debitcredits_debitcreditno}    生成对账单
+    点击货代发票
+    点击新增发票(关联业务)
+    ${invoiceno}    账单汇总开票    ${model_fi_debitcredits_debitcreditno}
+    点击结算管理
+    点击收款核销
+    点击收款单制作(发票)
+    ${recbillno}    收款核销(发票)    ${invoiceno}
+    点击收款单查询
+    收款单查询->全部    ${recbillno}
+    ${content}    获取列表记录数
+    应该包含    ${content}    共1条
+
+收款--反核销费用明细
+    ${businessNo}    新增海运出口业务台帐
+    列表查询业务编号    ${businessNo}
+    选中海运出口第一条记录
+    进入费用信息页面
+    #收入费用维护确认
+    新增收入费用
+    费用信息页面勾选收入费用
+    审核收入费用
+    关闭费用信息页面
+    #生成对账单
+    点击发票管理(外)
+    点击对账单
+    点击新增账单
+    新增对账单列表查询    qy_fee_checkdate_type=1    qy_businessno=${businessNo}
+    进入一个框架后-全选记录
+    点击选择
+    ${model_fi_debitcredits_debitcreditno}    生成对账单
+    点击货代发票
+    点击新增发票(关联业务)
+    ${invoiceno}    账单汇总开票    ${model_fi_debitcredits_debitcreditno}
+    点击结算管理
+    点击收款核销
+    点击收款单制作(发票)
+    ${recbillno}    收款核销(发票)    ${invoiceno}
+    点击反核销费用明细(收款)
+    收款--反核销费用明细    ${recbillno}
+    点击收款单制作(发票)
+    进入列表页面框架    #查找反核销后的费用
+    输入    id=qyin_invoiceno    ${invoiceno}
+    点击    id=bt_query
+    离开框架
+    ${content}    获取列表记录数
+    应该包含    ${content}    共1条
+
+付款单制作(费用明细)
+    ${businessNo}    新增海运出口业务台帐
+    列表查询业务编号    ${businessNo}
+    选中海运出口第一条记录
+    进入费用信息页面
+    #支出费用维护确认
+    新增支出费用
+    费用信息页面勾选支出费用
+    审核支出费用
+    关闭费用信息页面
+    #生成对账单
+    点击发票管理(外)
+    点击对账单
+    点击新增账单
+    新增对账单列表查询    qy_fee_checkdate_type=1    qy_businessno=${businessNo}
+    进入一个框架后-全选记录
+    点击选择
+    ${model_fi_debitcredits_debitcreditno}    生成对账单
+    点击货代发票
+    点击应付发票登记
+    按账单--发票登记    ${businessNo}
+    点击结算管理
+    点击付款核销
+    点击付款申请(费用明细)
+    ${paybillno}    付款申请(费用明细)    ${businessNo}
+    点击付款单查询
+    付款单查询->已核销    ${paybillno}
+    ${content}    获取列表记录数
+    应该包含    ${content}    共1条
+
+付款单制作(发票)
+    ${businessNo}    新增海运出口业务台帐
+    列表查询业务编号    ${businessNo}
+    选中海运出口第一条记录
+    进入费用信息页面
+    #支出费用维护确认
+    新增支出费用
+    费用信息页面勾选支出费用
+    审核支出费用
+    关闭费用信息页面
+    #生成对账单
+    点击发票管理(外)
+    点击对账单
+    点击新增账单
+    新增对账单列表查询    qy_fee_checkdate_type=1    qy_businessno=${businessNo}
+    进入一个框架后-全选记录
+    点击选择
+    ${model_fi_debitcredits_debitcreditno}    生成对账单
+    点击货代发票
+    点击应付发票登记
+    按账单--发票登记    ${businessNo}
+    点击结算管理
+    点击付款核销
+    点击付款申请(发票)
+    ${paybillno}    付款申请(发票)    ${businessNo}
+    点击付款单查询
+    付款单查询->已核销    ${paybillno}
+    ${content}    获取列表记录数
+    应该包含    ${content}    共1条
+
+付款--反核销费用明细
+    ${businessNo}    新增海运出口业务台帐
+    列表查询业务编号    ${businessNo}
+    选中海运出口第一条记录
+    进入费用信息页面
+    #支出费用维护确认
+    新增支出费用
+    费用信息页面勾选支出费用
+    审核支出费用
+    关闭费用信息页面
+    #生成对账单
+    点击发票管理(外)
+    点击对账单
+    点击新增账单
+    新增对账单列表查询    qy_fee_checkdate_type=1    qy_businessno=${businessNo}
+    进入一个框架后-全选记录
+    点击选择
+    ${model_fi_debitcredits_debitcreditno}    生成对账单
+    点击货代发票
+    点击应付发票登记
+    按账单--发票登记    ${businessNo}
+    点击结算管理
+    点击付款核销
+    点击付款申请(发票)
+    ${paybillno}    付款申请(发票)    ${businessNo}
+    点击反核销费用明细(付款)
+    付款--反核销费用明细    ${paybillno}
+    点击付款申请(发票)
+    付款申请(发票)--查询    ${businessNo}
+    ${content}    获取列表记录数
+    应该包含    ${content}    共1条
+
+*** Keywords ***

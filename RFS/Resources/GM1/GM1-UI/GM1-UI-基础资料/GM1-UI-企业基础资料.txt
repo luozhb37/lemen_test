@@ -1,0 +1,294 @@
+*** Settings ***
+Resource          ../GM1-UI-公共/GM1-UI-引用.txt
+
+*** Keywords ***
+费用税率--查询
+    [Arguments]    ${noKeyword}
+    进入列表框架
+    输入    id=noKeyword    ${noKeyword}
+    点击    xpath=//span[text()='查 询']/..
+    离开框架
+
+费用税率--新增
+    [Arguments]    ${code}    ${name}    ${currency}
+    进入列表框架
+    点击列表按钮    新 增
+    输入    id=code    ${code}    #输入代码
+    输入    id=name    ${name}    #输入名称
+    点击    xpath=//div[contains(@class,'currency ant-select-lg customer ant-select')]
+    点击    xpath=//li[text()='${currency}']    #选择默认币别
+    点击    xpath=//span[text()='保 存']/..
+    离开框架
+
+费用税率--删除
+    进入列表框架
+    勾选全部
+    点击列表按钮    删 除
+    离开框架
+
+浮动汇率--查询
+    [Arguments]    ${f_currency}    ${c_currency}    ${floatrate_type}
+    进入列表框架
+    清除搜素条件(条件按)
+    #查询原币
+    点击    xpath=//div[@class='ant-select-selection__placeholder']
+    点击    xpath=//li[text()='原币']
+    点击    xpath=//div[contains(@class,'fCurrency ant-select-sm ant-select')]//div[@class='ant-select-selection__rendered']
+    点击    xpath=//li[text()='${f_currency}']
+    #查询目标币
+    点击    xpath=//div[@class='ant-select-selection__placeholder']
+    点击    xpath=//li[text()='目标币']
+    点击    xpath=//div[contains(@class,'cCurrency ant-select-sm ant-select')]//div[@class='ant-select-selection__rendered']
+    点击    xpath=//li[text()='${c_currency}']
+    #查询汇率类型
+    点击    xpath=//div[@class='ant-select-selection__placeholder']
+    点击    xpath=//li[text()='汇率类型']
+    点击    xpath=//div[contains(@class,'floatrateType ant-select-sm ant-select')]//div[@class='ant-select-selection__rendered']
+    点击    xpath=//li[text()='${floatrate_type}']
+    等待    2
+    离开框架
+
+浮动汇率--新增
+    [Arguments]    ${f_currency}    ${c_currency}    ${floatrate_type}    ${rate}    ${lower}    ${upper}
+    进入列表框架
+    点击    xpath=//span[text()='新 增']/..    #点击新增
+    #选择原币
+    点击    xpath=//div[contains(@class,'fCurrency ant-select-lg ant-select')]//div[@class='ant-select-selection__rendered']
+    点击    xpath=//li[text()='${f_currency}']
+    #选择目标币
+    点击    xpath=//div[contains(@class,'cCurrency ant-select-lg ant-select')]//div[@class='ant-select-selection__rendered']
+    点击    xpath=//li[text()='${c_currency}']/../../../../../following-sibling::div[1]//li[text()='${c_currency}']
+    #填汇率
+    输入    id=rate    ${rate}    #输入汇率
+    输入    id=lowerLimit    ${lower}    #输入下限
+    输入    id=upperLimit    ${upper}    #输入上限
+    #选择汇率类型
+    点击    xpath=//div[contains(@class,'floatrateType ant-select-lg ant-select')]//div[@class='ant-select-selection__rendered']
+    点击    xpath=//li[text()='${floatrate_type}']
+    点击    xpath=//span[text()='保 存']/..
+    等待    1
+    离开框架
+
+浮动汇率--修改
+    进入列表框架
+    点击    xpath=//a[contains(@href,'javascript:navigateUrl')]
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]
+    #修改时间为当天
+    Comment    ${year}    get time    year
+    Comment    ${month}    get time    month
+    Comment    ${time}    Catenate    SEPARATOR=-    ${year}    ${month}    #获取当前年月
+    Comment    下拉选择byValue    id=base_floatrates_begin_month    ${time}    #选择开始月日
+    Comment    等待    1
+    Comment    下拉选择byValue    id=base_floatrates_end_month    ${time}    #选择结束月日
+    等待    1
+    点击    id=bt_save
+    离开框架
+    点击    css=.icon-close
+    等待    1
+
+浮动汇率--删除
+    进入列表框架
+    勾选全部
+    点击    xpath=//span[text()='删 除']/..    #点击删除
+    等待    1
+    离开框架
+
+删除所有满足条件的浮动汇率
+    进入列表框架
+    勾选记录    name=SHEET_ROW_SELECT_ALL
+    点击    id=bt_delete
+    ${message}    confirm action    #点击确定
+    等待    2
+    choose OK on next confirmation
+    等待    1
+    离开框架
+
+账户类型--查询
+    [Arguments]    ${name}
+    进入列表框架
+    输入    id=keyword    ${name}
+    点击    xpath=//span[text()='查 询']/..
+    离开框架
+
+账户类型--新增
+    [Arguments]    ${detailName}
+    进入列表框架
+    点击    xpath=//span[text()='新 增']/..
+    输入    id=detailName    ${detailName}
+    点击    xpath=//div[@class='ant-radio-group ant-radio-group-large']//input[@class='ant-radio-input']    #选择默认
+    点击    xpath=//span[text()='保 存']/..
+    离开框架
+
+账户类型--删除
+    进入列表框架
+    勾选全部
+    点击    xpath=//span[text()='删 除']/..    #点击删除
+    离开框架
+
+银行账户--查询
+    [Arguments]    ${bankcode}
+    进入列表框架
+    输入    id=noKeyword    ${bankcode}
+    点击    xpath=//span[text()='查 询']/..
+    离开框架
+
+银行账户--新增
+    [Arguments]    ${bankname}    ${bankaccount}    ${bankType}    ${currency}
+    进入列表框架
+    点击列表按钮    新 增
+    点击    xpath=//span[text()='是否默认']/..//input    #选择默认
+    输入    id=name    ${bankname}    #开户行
+    输入    id=account    ${bankaccount}    #银行账号
+    点击    xpath=//div[contains(@class,'accountType ant-select-lg auto ant-select')]/div/div    #点击银行类型
+    点击    xpath=//li[text()='${bankType}']
+    点击    xpath=//div[contains(@class,'currency ant-select-lg auto ant-select')]/div/div    #点击币别
+    点击    xpath=//li[text()='${currency}']
+    等待    1
+    点击    xpath=//span[text()='确 定']/..
+    等待    1
+    离开框架
+
+银行账户--删除
+    进入列表框架
+    勾选全部
+    点击列表按钮    删 除
+    离开框架
+
+发票组--新增
+    [Arguments]    ${code}    ${name}    ${infotypecode}    ${time}
+    进入列表框架
+    点击    id=bt_add    #点击新增
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]
+    输入    id=base_invoicetypes_code    ${code}    #发票组代码
+    输入    id=base_invoicetypes_name    ${name}    #发票组名称
+    输入    id=base_invoicetypes_infotypecode    ${infotypecode}    #发票代码
+    输入    id=base_invoicetypes_start_invoiceno    ${time}    #起始发票号
+    点击    id=bt_save    #保存
+    等待    1
+    离开框架
+    点击    css=.icon-close
+    等待    1
+
+发票组--删除
+    [Arguments]    ${name}
+    进入列表框架
+    勾选记录    xpath=//a[text()='${name}']/../..//input    #勾选发票组代码对应的勾选框
+    点击    id=bt_delete    #点击删除
+    ${message}    confirm action    #点击确定
+    等待    2
+    choose OK on next confirmation
+    等待    1
+    离开框架
+
+货物来源-新增
+    [Arguments]    ${QYgoodsSource}
+    进入列表框架
+    #等待加载层消失
+    Wait Until Element Is Not Visible    xpath=//div[contains(@class,'ant-spin-spinning')]
+    点击    xpath=//span[text()='新 增']/..
+    输入    id=goodsSource    ${QYgoodsSource}
+    点击保存按钮
+
+货物来源-查询
+    [Arguments]    ${QYgoodsSource}    ${text}
+    [Documentation]    ${QYgoodsSource} ：货物来源
+    ...
+    ...    ${text}：启用/禁用
+    ...
+    ...    ${return}:获取条数
+    输入    id=goodsSourceSearch    ${QYgoodsSource}    #输入货物来源
+    点击    xpath=//div[@class='isEnableSearch ant-select-lg ant-select ant-select-enabled ant-select-allow-clear']/div/div    #点击启用、禁用查询按钮
+    点击    xpath=//li[text()='${text}']    #点击启用或禁用
+    等待    0.5
+    点击    id=searchButton    #点击查询
+    ${return}    获取页面文本内容    css=.ant-pagination-total-text
+    [Return]    ${return}
+
+服务类型-新增
+    [Arguments]    ${QYserviceName}
+    [Documentation]    ${QYserviceName}：服务类型
+    进入列表框架
+    点击    xpath=//span[text()='新 增']/..
+    输入    id=serviceName    ${QYserviceName}
+    点击    xpath=//a[text()='全选']    #业务类型点击全选
+    点击保存按钮
+
+服务类型-查询
+    [Arguments]    ${QYserviceName}    ${text}
+    输入    id=serviceNameSearch    ${QYserviceName}    #输入货物来源
+    点击    xpath=//div[@class='isEnableSearch ant-select-lg ant-select ant-select-enabled ant-select-allow-clear']/div/div    #点击启用、禁用查询按钮
+    点击    xpath=//li[text()='${text}']    #点击启用或禁用
+    等待    0.5
+    点击    id=searchButton    #点击查询
+    ${return}    获取页面文本内容    css=.ant-pagination-total-text
+    [Return]    ${return}
+
+附件类型-新增
+    [Arguments]    ${QYbusinessType}    ${QYfunctionCode}    ${QYadjunctType}
+    [Documentation]    ${QYbusinessType}：业务类型（海运出口整箱，空运出口，空运拼票，海运出口拼箱）
+    ...
+    ...    ${QYfunctionCode} ：业务模块（订单，订舱，集装箱，拖柜，仓储........等）
+    ...
+    ...    ${QYadjunctType} ：附件类别（自己命名）
+    ...
+    ...    业务类型+业务模块+附件类别：唯一性
+    进入列表框架
+    点击    xpath=//span[text()='新 增']/..
+    #维护业务类型
+    点击    xpath=//tbody[@class='ant-table-tbody']/tr[1]/td[2]//div[@class='ant-select-selection__rendered']    #每次点击新增以后，在第一行
+    点击    xpath=//li[text()='${QYbusinessType}']
+    #维护业务模块
+    点击    xpath=//tbody[@class='ant-table-tbody']/tr[1]/td[3]//div[@class='ant-select-selection__rendered']    #每次点击新增以后，在第一行
+    点击    xpath=//li[text()='${QYfunctionCode}']
+    #输入附件类别
+    输入    xpath=//tbody[@class='ant-table-tbody']/tr[1]/td[4]//input    ${QYadjunctType}
+    点击保存按钮
+
+附件类型-查询
+    [Arguments]    ${QYbusinessType}    ${QYfunctionCode}    ${QYadjunctType}
+    [Documentation]    ${QYbusinessType}：业务类型（海运出口整箱，空运出口，空运拼票，海运出口拼箱）
+    ...
+    ...    ${QYfunctionCode} ：业务模块（订单，订舱，集装箱，拖柜，仓储........等）
+    ...
+    ...    ${QYadjunctType} ：附件类别（自己命名的）
+    点击    xpath=//div[@class='businessType ant-select-sm ant-select ant-select-enabled ant-select-allow-clear']/div/div    #点击业务类型
+    点击    xpath=//li[text()='${QYbusinessType}']
+    点击    xpath=//div[@class='functionCode ant-select-sm ant-select ant-select-enabled ant-select-allow-clear']/div/div    #点击业务模块
+    点击    xpath=//li[text()='${QYfunctionCode}']
+    输入    id=adjunctType    ${QYadjunctType}    #输入附件类别
+    点击    xpath=//span[text()='搜 索']/..    #点击搜索
+    ${return}    获取页面文本内容    css=.ant-pagination-total-text
+    [Return]    ${return}
+
+异常类型-查询
+    [Arguments]    ${QYbusinessType}    ${QYfunctionCode}
+    [Documentation]    ${QYbusinessType} ：业务类型
+    ...
+    ...    ${QYfunctionCode} ：业务模块
+    点击    xpath=//div[@class='businessType ant-select-sm ant-select ant-select-enabled ant-select-allow-clear']/div/div    #点击业务类型
+    点击    xpath=//li[text()='${QYbusinessType}']
+    点击    xpath=//div[@class='functionCode ant-select-sm ant-select ant-select-enabled ant-select-allow-clear']/div/div    #点击业务模块
+    点击    xpath=//li[text()='${QYfunctionCode}']
+    点击    xpath=//span[text()='搜 索']/..    #点击搜索
+    ${return}    获取页面文本内容    css=.ant-pagination-total-text
+    [Return]    ${return}
+
+设置业务日期
+    [Arguments]    ${name}    ${type}
+    [Documentation]    name：待设置的业务类型
+    ...    type：设置的业务日期规则名字
+    点击基础资料
+    进入指定二级菜单    企业基础资料    业务日期
+    选择业务日期    ${name}    ${type}
+
+选择业务日期
+    [Arguments]    ${name}    ${type}
+    进入列表框架
+    点击    xpath=//td[text()='${name}']/../td[2]//div[contains(@class,'ant-select-selection-selected-value')]
+    Wait Until Element Is Enabled    xpath=//ul[contains(@class,'ant-select-dropdown-menu-vertical')]
+    点击    xpath=//ul[contains(@class,'ant-select-dropdown-menu-vertical')]//li[text()='${type}']
+    点击    xpath=//span[text()='保 存']/..
+    Wait Until Page Contains    保存成功
+    离开框架

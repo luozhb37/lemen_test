@@ -1,0 +1,322 @@
+*** Settings ***
+Suite Setup       Run keywords    变量
+...               AND    登录
+Suite Teardown    关闭浏览器
+Resource          ../../Resources/基础关键字.txt
+Library           ExcelLibrary
+
+*** Test Cases ***
+新客户新增订单
+    [Setup]
+    ${index}    set variable    -1    #用于数组【index】取值，从=0开始，即从数组的第1个值取值
+    #---新客户新增订单----
+    : FOR    ${i}    IN    @{client_name}
+    \    log    ${i}
+    \    ${index}    Evaluate    int(${index})+1    #类似于【index】自增，从0开始
+    \    点击    xpath=//a[text()='业务受理']
+    \    点击    xpath=//a[text()='订单管理']
+    \    点击    xpath=//a[text()='新客户新增订单']
+    \    进入框架    id=content
+    \    wait until page contains    客户名称    timeout=10    error=打开新增页面失败
+    \    输入    id=b_constructno    @{construct_no}[${index}]    #订单编号
+    \    输入    id=b_clientname    @{client_name}[${index}]    #客户公司名称
+    \    输入    id=b_paylinkman    @{paylink_man}[${index}]    #联系人
+    \    输入    id=b_clientfax    @{client_fax}[${index}]    #传真
+    \    输入    id=b_clientphone    @{client_fax}[${index}]    #电话=传真
+    \    输入    id=b_clientemail    @{client_email}[${index}]    #邮箱
+    \    输入    id=b_clientaddress    @{client_address}[${index}]    #公司地址
+    \    输入    id=b_manageremail    @{manager_email}[${index}]    #管理员账号（email格式）
+    \    输入    id=b_domain    @{client_domain}[${index}]    #公司域名
+    \    点击    xpath=//*[@id='a_membershipversion' and @value=${mem_rido_value}]    #选择会员版本 ----脚本待优化
+    \    点击    xpath=//*[@id='a_appversion3' and @value=${m3_ido_value}]    #选择M3版本
+    \    输入    id=a_personaccountnum    @{personaccount_num}[${index}]
+    \    输入    id=b_servicestartdate    ${service_startdate}
+    \    输入    id=b_serviceenddate    ${service_enddate}
+    \    输入    id=preinputmoney    0
+    \    输入    id=province_name    ${province_name}
+    \    输入    id=city_name    ${city_name}
+    \    点击    id=bt_refer    # 点【提交订单】
+    \    wait until page contains    成功    timeout=3    error=新增订单-保存失败
+    \    Capture Page Screenshot
+    \    离开框架
+
+订单审核并开通（审核）
+    ${index}    set variable    -1    #用于数组【index】取值，从=0开始，即从数组的第1个值取值
+    #----订单审核并开通（审核）
+    : FOR    ${i}    IN    @{client_name}
+    \    log    ${i}
+    \    ${index}    Evaluate    int(${index})+1    #类似于【index】自增，从0开始
+    \    Wait Until Element Is Visible    xpath=//a[text()='业务受理']    5
+    \    点击    xpath=//a[text()='业务受理']
+    \    点击    xpath=//a[text()='服务管理']
+    \    点击    xpath=//a[text()='订单审核及开通']
+    \    进入框架    id=content
+    \    Wait Until Element Is Visible    id=s_clientname
+    \    输入    id=s_clientname    @{client_name}[${index}]
+    \    点击    xpath=//img[@class='Selector']    #定制开始时间:打开日期控件
+    \    点击    xpath=//a[text()='置空']    #日期控件设置‘置空’
+    \    点击    id=bt_search
+    \    点击    xpath=//div[@name='open_link_div']//a[contains(text(),'进入审核')]
+    \    Wait Until Element Is Visible    xpath=//span[contains(text(),'审核订单')]    30
+    \    点击    xpath=//span[contains(text(),'审核订单')]/..
+    \    ${status}    run keyword and return status    页面弹出框选择确定
+    \    wait until page contains    订单审核成功    timeout=3    error=新增订单-保存失败
+    \    Capture Page Screenshot
+    \    离开框架
+
+订单到账确认
+    ${index}    set variable    -1    #用于数组【index】取值，从=0开始，即从数组的第1个值取值
+    #---订单到账确认------
+    : FOR    ${i}    IN    @{client_name}
+    \    log    ${i}
+    \    ${index}    Evaluate    int(${index})+1    #类似于【index】自增，从0开始
+    \    点击    xpath=//a[text()='业务受理']
+    \    点击    xpath=//a[text()='财务管理']
+    \    点击    xpath=//a[text()='订单到账确认']
+    \    进入框架    id=content
+    \    Wait Until Element Is Visible    id=s_clientname    5
+    \    输入    id=s_clientname    @{client_name}[${index}]
+    \    点击    xpath=//img[@class='Selector']    #定制开始时间:打开日期控件
+    \    点击    xpath=//a[text()='置空']    #日期控件设置‘置空’
+    \    点击    id=bt_search
+    \    点击    xpath=//div[@name='open_link_div']//a[contains(text(),'金额确认')]
+    \    Wait Until Element Is Visible    id=bt_account    5
+    \    点击    id=bt_account    #点‘确认到帐’
+    \    ${status}    run keyword and return status    页面弹出框选择确定
+    \    wait until page contains    此订单已确认到账    timeout=3    error=订单确认到账-失败
+    \    Capture Page Screenshot
+    \    离开框架
+
+订单审核并开通（开通）
+    ${index}    set variable    -1    #用于数组【index】取值，从=0开始，即从数组的第1个值取值
+    #----订单审核并开通（开通）
+    : FOR    ${i}    IN    @{client_name}
+    \    log    ${i}
+    \    ${index}    Evaluate    int(${index})+1    #类似于【index】自增，从0开始
+    \    点击    xpath=//a[text()='业务受理']
+    \    点击    xpath=//a[text()='服务管理']
+    \    点击    xpath=//a[text()='订单审核及开通']
+    \    进入框架    id=content
+    \    Wait Until Element Is Visible    id=s_clientname    5
+    \    输入    id=s_clientname    @{client_name}[${index}]
+    \    点击    xpath=//img[@class='Selector']    #定制开始时间:打开日期控件
+    \    点击    xpath=//*[contains(text(),'置空')]    #日期控件设置‘置空’
+    \    下拉选择byvalue    xpath=//select[@id='s_open_status']    1    #选“已到账”
+    \    点击    id=bt_search
+    \    点击    xpath=//div[@name='open_link_div']//a[contains(text(),'开通编辑')]
+    \    等待    2
+    \    点击    id=bt_open    #点击开通
+    \    ${status}    run keyword and return status    页面弹出框选择确定
+    \    wait until page contains    开通成功    timeout=30    error=开通失败
+    \    Capture Page Screenshot
+    \    离开框架
+
+老客户新增订单
+    [Setup]
+    ${index}    set variable    -1    #用于数组【index】取值，从=0开始，即从数组的第1个值取值
+    #---新客户新增订单----
+    : FOR    ${i}    IN    @{client_name}
+    \    log    ${i}
+    \    ${index}    Evaluate    int(${index})+1    #类似于【index】自增，从0开始
+    \    点击    xpath=//*[contains(text(),'业务受理')]
+    \    点击    xpath=//*[contains(text(),'订单管理')]
+    \    点击    xpath=//*[contains(text(),'老客户新增订单')]
+    \    进入框架    id=content
+    \    wait until page contains    客户名称    timeout=10    error=打开新增页面失败
+    \    #--查询订单---
+    \    输入    id=s_clientname    @{client_name}[${index}]
+    \    点击    xpath=//img[@class='Selector']    #定制开始时间:打开日期控件
+    \    点击    xpath=//*[contains(text(),'置空')]    #日期控件设置‘置空’
+    \    点击    id=bt_search    # 点【查询】
+    \    #---编辑订单---
+    \    点击    xpath=//div[@name='open_link_div']//a[contains(text(),'新增订单')]    #点【新增订单】连接
+    \    sleep    3
+    \    ${c_name}    get value    id=b_clientname    #获得 客户名称（默认加载客户信息）
+    \    ${order_num}    get value    id=b_constructno    #获得 订单编号（默认分配 订单编号）
+    \    输入    id=b_constructno    @{construct_no}[${index}]
+    \    点击    xpath=//*[@id='a_appversion3' and @value=${m3_ido_value}]    #选择M3版本
+    \    输入    id=b_servicestartdate    ${service_startdate}
+    \    输入    id=b_serviceenddate    ${service_enddate}
+    \    输入    id=preinputmoney    0
+    \    Run Keyword If    '${c_name}' != '@{client_name}[${index}]'    Exit For Loop    log    公司名信息获取失败
+    \    Run Keyword If    '${order_num}' == ''    Exit For Loop    log    订单获取失败
+    \    点击    id=bt_refer    # 点【提交订单】
+    \    wait until page contains    成功    timeout=3    error=新增订单-保存失败
+    \    Capture Page Screenshot
+    \    离开框架
+
+公司开通订舱通管理-查ORGID
+    ${index}    set variable    -1    #用于数组【index】取值，从=0开始，即从数组的第1个值取值
+    #---订单到账确认------
+    : FOR    ${i}    IN    @{client_name}
+    \    log    ${i}
+    \    ${index}    Evaluate    int(${index})+1    #类似于【index】自增，从0开始
+    \    点击    xpath=//div[@id='rootMenu']//a[contains(text(),"运营商公司管理")]    #运营商公司管理
+    \    点击    xpath=//div[@id='treeMenu']/ul/li[2]/a[contains(text(),"公司管理")]    #公司管理
+    \    点击    xpath=//div[@id='treeMenu']//li[2]//a[contains(text(),"公司开通订舱通管理")]    #公司开通订舱通管理
+    \    进入框架    id=content
+    \    Wait Until Element Is Visible    id=role_adjust_org_name
+    \    输入    id=role_adjust_org_name    @{client_name}[${index}]
+    \    点击    id=bt_query
+    \    page should contain    共1条    #验证：检索结果是否只有1条
+    \    进入框架    id=content
+    \    ${ORG_ID}    get text    xpath=//tr[@vrws-attribute='vrws-sheetpage-row']/td[@elementname='qp_org_isbookingpss_list:org_id']    #获得 ORGID
+    \    LOG    ${ORG_ID}
+    \    Capture Page Screenshot
+    \    离开框架
+
+老客户新增订单（优化）
+    log many    @{ORG_GROUP}
+    #---新客户新增订单----
+    : FOR    ${i}    IN    @{ORG_GROUP}
+    \    log    ${i}
+    \    老用户新增订单    ${i}
+    \    订单审核    ${i}
+    \    订单到账确认    ${i}
+    \    订单开通    ${i}
+
+*** Keywords ***
+登录
+    #---登录----
+    打开    ${login_url}
+    进入框架    id=loginPanel
+    输入    id=username    ${username}
+    输入    id=password    ${password}
+    点击    id=btn-submit
+    wait until page contains    首页    timeout=3    error=登录失败
+    离开框架
+
+变量
+    [Documentation]    \#【会员标准版】：测试=273,准生产=275，生产=276 #    #【M3-标准版】：测试=274,准生产=273，生产（M3精简版）=275， 生产（M3免费版）=278    #【GM1-标准版】：测试=276,准生产=276，生产=280    #【M3-标准版】：测试=274,准生产=273，生产（M3精简版）=275， 生产（M3免费版）=278    #【GM1-标准版】：测试=276,准生产=276，生产=280
+    ...    【M3-标准版】：测试=274,准生产=273，生产（M3精简版）=275， 生产（M3免费版）=278
+    ...    【GM1-标准版】：测试=276(GM1-测试版）,测试=277(GM1-高级版）,准生产=276，生产=280
+    #--变量--[支撑登录账号]---
+    set suite variable    ${login_url}    http://www.800jit.com/login.html    #登录地址 http://www.800jit.com/login.html    #http://vip.stage.800jit.com/login.html    #http://vip.800jit.com/login.html
+    set suite variable    ${username}    olymtech_admin    #支撑-登录名    # olymtech_admin    # yunying@olymtech.com
+    set suite variable    ${password}    olymtech    #登录密码    #olymtech    #FX5y6A
+    #--变量--[新客户订单]--
+    set suite variable    @{construct_no}    auto-ys101    # 必须修改，不能一致
+    set suite variable    @{client_name}    自动化测试公司-ys6    # 必须修改，不能一致
+    set suite variable    @{paylink_man}    刘克松
+    set suite variable    @{client_fax}    021-60293678
+    set suite variable    @{client_email}    jingnaw@olymtech.com
+    set suite variable    @{client_address}    上海浦东金闻路305室
+    set suite variable    @{manager_email}    autoys6@test.com    # 必须修改，不能一致
+    set suite variable    @{client_domain}    autoys6.test.200jit.com    # 必须修改，不能一致
+    set suite variable    @{personaccount_num }    25
+    set suite variable    ${mem_rido_value}    273    #选择‘会员版本’（value值）    #【会员标准版】测试=273,准生产=275，生产=
+    set suite variable    ${m3_ido_value}    277    #选择‘M3版本’（value值）    #【会员标准版】：测试=273,准生产=275，生产=276 #【M3-标准版】：测试=274,准生产=273，生产（M3精简版）=275， 生产（M3免费版）=278 #【GM1-标准版】：测试=276,准生产=276，生产=280
+    ${service_startdate}    当前日期加减天数    +0    #服务开始日期。PS:若无特殊，默认=今天
+    ${service_enddate}    当前日期加减天数    +364    #服务结束日期
+    set suite variable    ${service_startdate}
+    set suite variable    ${service_enddate}
+    set suite variable    ${province_name}    北京    #省份
+    set suite variable    ${city_name}    东城    #城市
+    #--变量--[老客户新增订单]--
+    Open Excel    ${CURDIR}\\file\\gm1(正式).xls
+    ${excel_start}    Set Variable    2    # 设置读取的起始行数
+    ${excel_rows}    Get Row Count    自动化名单    # 获取行数
+    @{ORG_GROUP}    Create List
+    : FOR    ${i}    IN RANGE    ${excel_start}    int(${excel_rows})+1
+    \    ${item_org_name}    Read Cell Data By Name    自动化名单    A${i}    # 读取公司名称
+    \    ${item_startdate}    Read Cell Data By Name    自动化名单    D${i}    # 读取公司服务开始时间
+    \    ${item_enddate}    Read Cell Data By Name    自动化名单    E${i}    # 读取公司服务结束时间
+    \    ${item_version}    Read Cell Data By Name    自动化名单    F${i}    # 读取公司版本
+    \    ${item_type}    Read Cell Data By Name    自动化名单    G${i}    # 读取公司产品类型
+    \    ${item_type_value}    Read Cell Data By Name    自动化名单    I${i}    # 读取公司类型value值
+    \    ${item_ordno}    Read Cell Data By Name    自动化名单    J${i}    # 读取公司订单号
+    \    ${ITEM-LIST}    create list    ${item_org_name}    ${item_startdate}    ${item_enddate}    ${item_version}
+    \    ...    ${item_type}    ${item_type_value}    ${item_ordno}
+    \    @{ORG_GROUP}    create list    @{ORG_GROUP}    ${ITEM-LIST}
+    set suite variable    @{ORG_GROUP}
+
+老用户新增订单
+    [Arguments]    ${i}
+    点击    xpath=//*[contains(text(),'业务受理')]
+    点击    xpath=//*[contains(text(),'订单管理')]
+    点击    xpath=//*[contains(text(),'老客户新增订单')]
+    进入框架    id=content
+    wait until page contains    客户名称    timeout=10    error=打开新增页面失败
+    #--查询订单---
+    输入    id=s_clientname    ${i[0]}    # 输入公司名称
+    点击    xpath=//img[@class='Selector']    #定制开始时间:打开日期控件
+    点击    xpath=//*[contains(text(),'置空')]    #日期控件设置‘置空’
+    等待    1
+    点击    id=bt_search    # 点【查询】
+    #---编辑订单---
+    Wait Until Element Is Visible    xpath=//div[@name='open_link_div']//a[contains(text(),'新增订单')]
+    点击    xpath=//div[@name='open_link_div']//a[contains(text(),'新增订单')]    #点【新增订单】连接
+    sleep    3
+    ${c_name}    get value    id=b_clientname    #获得 客户名称（默认加载客户信息）
+    ${order_num}    get value    id=b_constructno    #获得 订单编号（默认分配 订单编号）
+    输入    id=b_constructno    ${i[6]}    # 输入订单编号
+    点击    xpath=//*[@id='a_appversion3' and @value='${i[5]}']    # 选择GM1版本
+    输入    id=b_servicestartdate    ${i[1]}    # 输入服务起始时间
+    输入    id=b_serviceenddate    ${i[2]}    # 输入服务结束时间
+    输入    id=preinputmoney    0
+    Run Keyword If    '${c_name}' != '${i[0]}'    Exit For Loop    log    公司名信息获取失败
+    Run Keyword If    '${order_num}' == ''    Exit For Loop    log    订单获取失败
+    点击    id=bt_refer    # 点【提交订单】
+    wait until page contains    成功    timeout=3    error=新增订单-保存失败
+    Capture Page Screenshot
+    离开框架
+
+订单到账确认
+    [Arguments]    ${i}
+    点击    xpath=//a[text()='业务受理']
+    点击    xpath=//a[text()='财务管理']
+    点击    xpath=//a[text()='订单到账确认']
+    进入框架    id=content
+    Wait Until Element Is Visible    id=s_clientname    5
+    输入    id=s_clientname    ${i[0]}
+    点击    xpath=//img[@class='Selector']    #定制开始时间:打开日期控件
+    点击    xpath=//a[text()='置空']    #日期控件设置‘置空’
+    点击    id=bt_search
+    点击    xpath=//div[@name='open_link_div']//a[contains(text(),'金额确认')]
+    Wait Until Element Is Visible    id=bt_account    5
+    点击    id=bt_account    #点‘确认到帐’
+    ${status}    run keyword and return status    页面弹出框选择确定
+    wait until page contains    此订单已确认到账    timeout=3    error=订单确认到账-失败
+    Capture Page Screenshot
+    离开框架
+
+订单审核
+    [Arguments]    ${i}
+    Wait Until Element Is Visible    xpath=//a[text()='业务受理']    5
+    点击    xpath=//a[text()='业务受理']
+    点击    xpath=//a[text()='服务管理']
+    点击    xpath=//a[text()='订单审核及开通']
+    进入框架    id=content
+    Wait Until Element Is Visible    id=s_clientname
+    输入    id=s_clientname    ${i[0]}
+    点击    xpath=//img[@class='Selector']    #定制开始时间:打开日期控件
+    点击    xpath=//a[text()='置空']    #日期控件设置‘置空’
+    下拉选择byvalue    xpath=//select[@id='s_open_status']    0    #选“待审核”
+    点击    id=bt_search
+    点击    xpath=//div[@name='open_link_div']//a[contains(text(),'进入审核')]
+    Wait Until Element Is Visible    xpath=//span[contains(text(),'审核订单')]    30
+    点击    xpath=//span[contains(text(),'审核订单')]/..
+    ${status}    run keyword and return status    页面弹出框选择确定
+    wait until page contains    订单审核成功    timeout=3    error=新增订单-保存失败
+    Capture Page Screenshot
+    离开框架
+
+订单开通
+    [Arguments]    ${i}
+    点击    xpath=//a[text()='业务受理']
+    点击    xpath=//a[text()='服务管理']
+    点击    xpath=//a[text()='订单审核及开通']
+    进入框架    id=content
+    Wait Until Element Is Visible    id=s_clientname    5
+    输入    id=s_clientname    ${i[0]}
+    点击    xpath=//img[@class='Selector']    #定制开始时间:打开日期控件
+    点击    xpath=//*[contains(text(),'置空')]    #日期控件设置‘置空’
+    下拉选择byvalue    xpath=//select[@id='s_open_status']    1    #选“已到账”
+    点击    id=bt_search
+    点击    xpath=//div[@name='open_link_div']//a[contains(text(),'开通编辑')]
+    等待    2
+    点击    id=bt_open    #点击开通
+    ${status}    run keyword and return status    页面弹出框选择确定
+    wait until page contains    开通成功    timeout=30    error=开通失败
+    Capture Page Screenshot
+    离开框架

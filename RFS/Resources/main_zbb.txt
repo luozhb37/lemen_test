@@ -1,0 +1,14 @@
+*** Variables ***
+${browserType}    gc    # 执行对应的浏览器gc,ff等
+${remote_url}     \    # 留空 Or http://192.168.1.74:5555/wd/hub
+${url}            http://olymtest.xicp.net
+${username}       99992000001
+${password}       111111.
+${new_contact_username}    99992001001
+${contact_username}    99992000004
+${contact_password}    111111.
+${biboss_url}     http://bi.qa.com/biboss/login.ctrl?$action=loginAction
+${biboss_username}    ljj
+${biboss_password}    111111
+
+*** Keywords ***

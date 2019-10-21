@@ -1,0 +1,187 @@
+*** Settings ***
+Library           Selenium2Library
+Resource          在线订舱基础关键字.txt
+Resource          基础关键字.txt
+
+*** Variables ***
+${目的港}            EDMONTON, AB    # 目的港
+
+*** Keywords ***
+网上营业厅搜索目的港
+    点击    id=search_fcl
+    输入    id=dischargeport    ${目的港}
+    点击    id=search_home
+    等待    2
+
+提交订单
+    [Documentation]    起运港=NINGBO,目的港=EDMONTON, AB，船公司=APL，
+    ...    船期=2/3,航程=25，中转港=SHENZHEN,港区=进港港区，限重=限重，
+    ...    外部备注=外部备注信息，附加费说明=附加费说明，20GP=888,40GP=999,40HQ=1000,第四个箱型价格=2000
+    @{cheackList}    create list    NINGBO    EDMONTON, AB    APL    2/3    25
+    ...    SHENZHEN    进港港区    限重    外部备注信息    附加费说明    888
+    ...    999    1000    2000
+    点击    xpath=//a[contains(@href,'security')]
+    等待    3
+    选择页面    订舱详情
+    页面检查多个内容    @{cheackList}
+    输入    id=num1    8
+    输入    id=num2    9
+    输入    id=num3    10
+    输入    id=num4    11
+    Choose File    id=uploadFileDomId    E:/项目/在线订舱/环境部署 -汇总.docx
+    sleep    3
+    输入    xpath=//textarea[@name="remark"]    订舱说明
+    点击    id=submitOrder
+    等待    20
+    ${abc}=    confirm action
+    Should Be Equal    ${abc}     下单成功
+
+查看订单详情
+    @{cheackList}    create list    NINGBO    EDMONTON, AB    2/3    APL    SHENZHEN
+    ...    进港港区    附加费说明    888    999    1000    2000
+    ...    8    9    10    11    订舱说明    环境部署 -汇总
+    点击    css=.order-detail-link    #点击订单详情
+    等待    10
+    选择页面    订单详情
+    页面检查多个内容    @{cheackList}
+    点击    xpath=//a[contains(text(),"费用信息")]
+    @{cheackList1}    create list    20'GP×8 + 40'GP×9 + 40'HQ×10
+    页面检查多个内容    @{cheackList1}
+
+进入订单管理
+    点击    xpath=//a[contains(text(),"订单管理")]
+    等待    8
+    选择页面    订单列表
+    验证页面包含某元素    全部订单
+
+接受订单
+    @{cheackList}    create list    NINGBO    EDMONTON, AB    2/3    APL    8
+    ...    9    10    11
+    页面检查多个内容    @{cheackList}
+    ${订单号}    获取页面上的元素    xpath=//div[@class="eui-panel-hd"]//li[2]
+    点击    xpath=//a[contains(@class,"j-acceptOrder")]
+    等待    4
+    confirm action
+    等待    4
+    confirm action
+    验证页面不包含某元素    ${订单号}
+    进入已接受列表
+    验证页面包含某元素    ${订单号}
+
+进入已接受列表
+    点击    xpath=//a[contains(text(),"已接受")]
+
+点击作业信息
+    点击    xpath=//a[contains(text(),"作业信息")]
+
+订舱确认信息维护
+    点击    id=editBookingComfirm    #编辑订舱确认信息
+    点击    id=bookingComfirm    #勾选订舱确认状态
+    输入    id=vesselName1    船名001
+    输入    id=voyNo1    航次001
+    输入    id=blNo1    提单号001
+    输入    id=psailingTime1    2015-12-01
+    输入    id=gatewayEndtime1    2015-12-02
+    输入    id=parrivingTime1    2015-12-03
+    输入    id=customsBrokerCodename1    报关行代码001
+    输入    id=customsBroker1    报关行名称001
+    点击    id=saveBookingComfirm
+    等待    2
+    confirm action
+
+进入我的订单
+    点击    xpath=//a[contains(text(),"我的订单")]
+    等待    2
+    选择页面    订单列表
+    验证页面包含某元素    全部订单
+
+预配舱单维护
+    点击    id=editCustomsManifest
+    点击    id=customsManifest
+    输入    id=customsManifestTime    2016-12-01
+    点击    id=saveCustomsManifest
+    等待    2
+    confirm action
+
+发放通知书维护
+    点击    id=editEirNotice
+    点击    id=eirNotice
+    输入    id=eirNoticeTime    2016-12-02
+    点击    id=saveEirNotice
+    等待    2
+    confirm action
+
+EIR维护
+    点击    id=editEir
+    点击    id=eir
+    输入    id=eirTime    2016-12-03
+    点击    id=saveEir
+    confirm action
+
+装箱单维护
+    点击    id=editLoadPlan
+    点击    id=loadPlan
+    输入    id=loadPlanTime    2016-12-04
+    点击    id=saveLoadPlan
+    等待    2
+    confirm action
+
+进仓通知维护
+    点击    id=editWarehousNotice
+    点击    id=warehousNotice
+    输入    id=warehousNoticeTime    2016-12-05    #进仓通知时间
+    输入    id=whName    仓库名称001
+    输入    id=whAddress    仓库地址001
+    输入    id=whMapAttachment    地图001
+    输入    id=whLinkman    联系人001
+    输入    id=whLinkPhone    联系方式001
+    输入    id=whTel    仓库电话001
+    输入    id=whFax    仓库传真001
+    输入    id=cargoTime    2016-12-06    #进仓时间
+    输入    id=cutoffCargoTime    2016-12-07    #截仓时间
+    输入    id=complaintsTel    投诉电话001
+    输入    id=requireEnterwh    进仓要求001
+    点击    id=saveWarehousNotice
+    等待    2
+    confirm action
+
+装箱维护
+    点击    id=editStuffingOver
+    点击    id=stuffingOver
+    输入    id=stuffingOverTime    2016-12-08    #装箱时间
+    点击    id=saveStuffingOver
+    等待    2
+    confirm action
+
+报关维护
+    点击    id=editCustomsClearance
+    点击    id=customsClearance
+    输入    id=customsClearanceTime    2016-12-09    #报关时间
+    输入    id=customsDeclarationsNo    报关单号001
+    点击    id=saveCustomsClearance
+    等待    2
+    confirm action
+
+确认提单
+    点击    id=editBlComfirmationOrder
+    点击    id=blComfirmationOrder
+    输入    id=blComfirmationOrderTime    2016-12-10    #提单确认时间
+    点击    id=saveBlComfirmationOrder
+    等待    2
+    confirm action
+
+提单签发
+    点击    id=editBlStandby
+    点击    id=blStandby
+    输入    id=blStandbyTime    2016-12-11    #提单签发时间
+    点击    id=saveBlStandby
+    等待    2
+    confirm action
+
+离港
+    点击    id=editBeparture
+    点击    id=departure
+    输入    id=departureTime    2016-12-12    #船离港日期
+    点击    id=saveBeparture
+    等待    2
+    confirm action

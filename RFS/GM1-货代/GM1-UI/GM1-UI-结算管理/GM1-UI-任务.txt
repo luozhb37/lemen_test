@@ -1,0 +1,60 @@
+*** Settings ***
+Suite Teardown    close all browsers
+Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+
+*** Test Cases ***
+临时登录
+    打开    http://vip.800jit.com/login.html
+    进入框架    id=loginPanel
+    Wait Until Element Is Visible    id=username
+    输入    id=username    tester2    #账号
+    输入    id=password    111111    #密码
+    点击    id=btn-submit
+    等待    5
+    wait until page contains    工作台
+    关闭更新弹框
+    #等待    2
+    离开框架
+    #等待    2
+    离开框架
+
+删除全部应收应付凭证(业务凭证)
+    [Setup]    回到首页
+    进入指定一级菜单    结算
+    进入指定二级菜单(新icon)    证
+    进入列表框架
+    点击已输出凭证
+    : FOR    ${i}    IN RANGE    1000
+    \    应收应付凭证页面查询
+    \    ${size}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr
+    \    Run Keyword If    '${size}'>'0'    删除全部凭证
+    \    ...    ELSE    Exit For Loop
+    离开框架
+
+删除全部实收凭证
+    [Setup]    回到首页
+    进入指定一级菜单    结算
+    进入指定二级菜单(新icon)    证
+    点击实收凭证
+    进入finance框架
+    点击已输出凭证
+    : FOR    ${i}    IN RANGE    1000
+    \    实收凭证页面查询
+    \    ${size}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr
+    \    Run Keyword If    '${size}'>'0'    删除全部凭证
+    \    ...    ELSE    Exit For Loop
+    离开框架
+
+删除全部实付凭证
+    [Setup]    回到首页
+    进入指定一级菜单    结算
+    进入指定二级菜单(新icon)    证
+    点击实付凭证
+    进入finance框架
+    点击已输出凭证
+    : FOR    ${i}    IN RANGE    1000
+    \    实付凭证页面查询
+    \    ${size}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr
+    \    Run Keyword If    '${size}'>'0'    删除全部凭证
+    \    ...    ELSE    Exit For Loop
+    离开框架

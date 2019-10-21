@@ -1,0 +1,251 @@
+*** Settings ***
+Documentation     运价维护的基本功能验证
+...
+...               -->帐号使用 ${掌门人_员工用户名}
+Test Setup        初始化整箱数据
+Test Teardown     Delete All Sessions
+Resource          ../Resources/会员接口.txt
+Resource          ../Resources/整箱维护接口.txt
+Library           Collections
+Resource          ../Resources/基础资料接口.txt
+
+*** Variables ***
+&{整箱基础运价}         loadport=NINGBO    dischargeport=NINGBO    country=中国    transferport=YANTIAN    cycle=1/2    sailtime=23    carrier=APL
+...               internetsellprice1=1000    internetsellprice2=2000    internetsellprice3=3000    signflag=yunjiaweihu    publishcasenumber=    employee_remark=内部备注信息    casenumber=
+...               addfee=附加费说明信息    remark=外部备注信息    createby=${掌门人_员工employeeName}    modifyby=${掌门人_员工employeeName}    owner_employee_id=${掌门人_员工EmployeeId}    # 整箱基础运价#
+
+*** Test Cases ***
+新增整箱运价
+    [Tags]    complete
+    #用符号做运价唯一标识
+    ${signflag}    Get Timestamp
+    #新增运价
+    ${newcasenumber}    新增整箱运价    &{整箱基础运价}
+    #验证保存后的所有字段一致
+    ${result}=    查询整箱运价明细    casenumber=${newcasenumber}
+    should contain    ${result}    &{整箱基础运价}[signflag]
+    #清理数据
+    [Teardown]
+
+查询整箱运价
+    [Tags]    complete
+    #查询运价
+    @{case}    查询整箱运价    signflag=&{整箱基础运价}[signflag]
+    log    ${case}
+    Should Be True    ${case}    #Passes if ${list} is not empty
+    [Teardown]
+
+导入运价
+    [Tags]    complete
+    ${resultJson}    导入整箱运价    priceupload_FCL_newport.xls    files_path=${EXECDIR}${/}Resources${/}priceupload_FCL_newport.xls
+    run keyword if    ${resultJson['resultCode']}==${100}    should be equal    ${100}    ${resultJson['resultCode']}    msg=导入运价失败
+    ...    ELSE IF    ${resultJson['resultCode']}==${1015}    log    港口未做过认证
+    ...    ELSE    fail
+    [Teardown]
+
+批量修改底价
+    [Tags]    complete
+    批量修改整箱运价_底价    casenumberString=&{整箱基础运价}[casenumber]    baseprice1=2016
+    #检查
+    ${result}    查询整箱运价明细    &{整箱基础运价}[casenumber]
+    Should Contain    ${result}    2016
+    [Teardown]
+
+批量修改成本价
+    [Tags]    complete
+    批量修改整箱运价_成本价    casenumberString=&{整箱基础运价}[casenumber]    sellprice1=2017
+    #检查
+    ${result}    查询整箱运价明细    &{整箱基础运价}[casenumber]
+    Should Contain    ${result}    2017
+    [Teardown]
+
+销售查询整箱运价
+    [Tags]    complete
+    @{casnumber}    销售查询运价    loadport=&{整箱基础运价}[loadport]
+    Should Not Be Empty    ${casnumber}
+    [Teardown]
+
+销售查询生成报价单
+    [Tags]    complete
+    ${beginTime}    get time modified    addnumber=0
+    ${endTime}    get time modified    addnumber=7
+    ${publishcasenumber}    Set Variable    &{整箱基础运价}[publishcasenumber]
+    ${casenumber}    Set Variable    &{整箱基础运价}[casenumber]
+    #勾选一个运价,点生成报价单
+    ${result}    Get Request    ${运价内部_session}    /freight-main-rest/rest/quotation/offeringListFromPriceEdit?casenumber=&{整箱基础运价}[publishcasenumber]&bargeId=-1
+    #log    ${result.text}
+    Should Contain    ${result.text}    &{整箱基础运价}[internetsellprice1]
+    #下拉框选择一个用户
+    ${headers1}    Create Dictionary    Content-Type=application/x-www-form-urlencoded; charset=UTF-8
+    ${data1}    Create Dictionary    className=memberQuotationRichSelect    custName=    isOfficial=true    isAuditingPass=false
+    ${result1}    Post Request    ${运价内部_session}    /cpmembership/vrwsajax?ajaxBeanName=richSelect    data=${data1}    headers=${headers1}
+    ${result1Json}    to json    ${result1.text}
+    #生成报价单
+    ${headers2}    Create Dictionary    Content-Type=application/json;charset=UTF-8
+    ${data2}    Jsonstr To Dict    {"contactUserId":"${result1Json['list'][0][1]}","contactName":"${result1Json['list'][0][2]}","companyName":"${result1Json['list'][0][5]}","beginTime":"${beginTime}","endTime":"${endTime}","calculatorStatus":"0","remark":"","total":"USD1000 CNY200 ","tiny":"","mainInfo":{"goodsName":"包子","dangerousGoodsStatus":0,"dangerousGoodsClass":"","refrigerationStatus":0,"shippingTime":"${beginTime}","numberUnits":"100","volume":"3","weight":"200"},"efclCtx":{"containerBox1":"20'GP","containerBox2":"40'GP","containerBox3":"40'HQ","containerBox4":"45'GP","containerNum1":"1","containerNum2":"0","containerNum3":"0","containerNum4":"0"},"serviceList":[],"efclMainList":[{"pubCasenumber":${publishcasenumber},"bargeId":-1,"mainCasenumber":${casenumber},"loadport":"NINGBO","dischargeport":"NINGBO","loadportCnname":"宁波","dischargeportCnname":"宁波","searoute":"其他航线","carrier":"APL","cycle":"周一截关,周二离港","sailtime":"23","transferport":"YANTIAN","searouteCode":"","country":"中国","internetsellprice1":1000,"internetsellprice2":2000,"internetsellprice3":3000,"efclChargeList":[{"pubCasenumber":${publishcasenumber},"chargeType":0,"cnname":"海运费","paymentMethod":"1","currency":"USD","billUnit":"10","price":null,"price1":"1000","price2":"2000","price3":"3000","price4":""},{"pubCasenumber":${publishcasenumber},"chargeType":1,"cnname":"转运费","paymentMethod":"1","currency":"CNY","billUnit":"10","price":null,"price1":"200","price2":"300","price3":"","price4":""}]}],"serviceConfigList":[{"id":1,"orgId":3,"serviceName":"拖卡服务","serviceStatus":10,"chargeCnname":"拖车费","chargeVadation":"s-100","seqno":1},{"id":2,"orgId":3,"serviceName":"报关服务","serviceStatus":1,"chargeCnname":"报关费","chargeVadation":"","seqno":2},{"id":3,"orgId":3,"serviceName":"报检服务","serviceStatus":1,"chargeCnname":"查验费","chargeVadation":"","seqno":3},{"id":4,"orgId":3,"serviceName":"仓储服务","serviceStatus":1,"chargeCnname":"仓库费","chargeVadation":"","seqno":4},{"id":5,"orgId":3,"serviceName":"商检换单","serviceStatus":1,"chargeCnname":"商检费","chargeVadation":"","seqno":5},{"id":6,"orgId":3,"serviceName":"反恐仓单","serviceStatus":1,"chargeCnname":"反恐仓单费","chargeVadation":"","seqno":6},{"id":7,"orgId":3,"serviceName":"快递服务","serviceStatus":1,"chargeCnname":"快递费","chargeVadation":"","seqno":7},{"id":8,"orgId":3,"serviceName":"保险服务","serviceStatus":2,"chargeCnname":"保险费","chargeVadation":"s-30","seqno":8}],"createBy":"","createTime":"","modifyBy":"","modifyTime":""}
+    ${result2}    Post Request    ${运价内部_session}    /freight-efcl-rest/rest/quotation/offeringList    data=${data2}    headers=${headers2}
+    ${result2Json}    to json    ${result2.text}
+    Should Be Equal As Integers    ${result2Json['resultCode']}    100
+    #生成tinyurl
+    ${result3}    Get Request    ${运价内部_session}    /freight-efcl-rest/rest/forwarder/tinyurl/${result2Json['data']['id']}
+    #log    ${result3.text}
+    ${result3Json}    to json    ${result3.text}
+    Should Be Equal As Integers    ${result3Json['resultCode']}    100
+    #展示报价单
+    ${result4}    Get Request    ${运价内部_session}    /freight-main-rest/rest/quotation/forwarder/efcl/${result2Json['data']['id']}?showtiny=1
+    Should Contain    ${result4.text}    &{整箱基础运价}[internetsellprice1]
+    [Teardown]
+
+查询发布记录
+    [Tags]    complete
+    ${beginTime}    get time modified    addnumber=-7
+    ${endTime}    get time modified    addnumber=0
+    #查询运价
+    ${headers}    Create Dictionary    Content-Type=application/json
+    ${data}    Jsonstr To Dict    {"isavailable":"1","loadport":"","dischargeport":"&{整箱基础运价}[dischargeport]","transferport":"","carrier":"","searouteCnname":"","startTime":"${beginTime}","endTime":"${endTime}","pageNum":1,"pageSize":"50","sortBy":"","sortColumn":"","quoteorg":""}
+    ${result}    Post Request    ${运价内部_session}    /freight-efcl-rest/rest/efclpublishrecord/getfclPublishRecord    data=${data}    headers=${headers}
+    ${resultJson}    to json    ${result.text}
+    Should Not Be Empty    ${resultJson['data']['list']}
+    [Teardown]
+
+查询整箱运价维护日志
+    [Tags]    complete
+    ${result}    Get Request    ${运价内部_session}    /priceservice/seaMainPrice.ctrl?$action=logFclSearch
+    Should Contain    ${result.text}    td
+    [Teardown]
+
+批量新建附加费_删除
+    [Tags]    complete
+    #批量新建附加费
+    ${resultCode}=    批量新建整箱运价附加费    casenumber=&{整箱基础运价}[casenumber]
+    should contain    ${resultCode}    批量保存成功    msg=批量新建整箱附加费失败
+    #验证附加费页面存在新增的附加费
+    ${result}    进入整箱运价批量删除附加费页面    casenumber=&{整箱基础运价}[casenumber]
+    should contain    ${result}    加拿大海关申报费    msg=批量新建整箱附加费失败
+    ${id}    re search    ${result}    id":    ,
+    log    ${id}
+    #删除附加费
+    ${resultCode1}=    批量删除整箱运价附加费    casenumber=&{整箱基础运价}[casenumber]    surchargeId=${id}
+    should be equal as integers    ${resultCode1['resultCode']}    ${100}    msg=批量删除整箱附加费失败
+    #验证附加费页面无被删除的附加费
+    ${result}    进入整箱运价批量删除附加费页面    casenumber=&{整箱基础运价}[casenumber]
+    should not contain    ${result}    加拿大海关申报费    msg=批量删除整箱附加费失败
+
+批量修改整箱附加费说明_覆盖_删除
+    [Tags]    complete
+    批量修改整箱附加费说明_覆盖    casenumberString=&{整箱基础运价}[casenumber]    addfee=我要覆盖附加费信息
+    ${result}    查询整箱运价明细    &{整箱基础运价}[casenumber]
+    should contain    ${result}    我要覆盖附加费信息
+    should not contain    ${result}    &{整箱基础运价}[addfee]
+    批量修改整箱附加费说明_删除    casenumberString=&{整箱基础运价}[casenumber]
+    ${result}    查询整箱运价明细    &{整箱基础运价}[casenumber]
+    should not contain    ${result}    附加费说明信息
+
+批量修改整箱运价航线代码
+    [Tags]    complete
+    ${result}=    批量修改航线代码    searouteCode=HXDM    casenumber=&{整箱基础运价}[casenumber]
+    should be equal    ${result.text}    yes
+    ${result1}    查询整箱运价明细    &{整箱基础运价}[casenumber]
+    should contain    ${result1}    HXDM
+
+批量修改整箱运价船期/航程/开航日
+    [Tags]    complete
+    ${result}=    批量修改船期/航程/开航日    cycle=3/4    sailtime=34    sailingDate=2016-12-23    casenumber=&{整箱基础运价}[casenumber]
+    should be equal    ${result.text}    yes
+    #验证修改船期航程开航日成功
+    ${result1}    查询整箱运价明细    &{整箱基础运价}[casenumber]
+    should contain    ${result1}    3/4
+    should contain    ${result1}    34
+    should contain    ${result1}    2016-12-23
+
+批量修改整箱运价有效期
+    [Tags]    complete
+    ${begindata}=    get time modified    addnumber=1
+    ${validdate}=    get time modified    addnumber=2
+    log    ${begindata}
+    ${result}=    批量修改有效期    casenumberString=&{整箱基础运价}[casenumber]    begindate=${begindata}    validdate=${validdate}
+    should be equal    ${result.text}    yes
+    ${result1}    查询整箱运价明细    &{整箱基础运价}[casenumber]
+    log    ${result1}
+    Should Contain    ${result1}    "${begindata}"
+    Should Contain    ${result1}    "${validdate}"
+
+批量修改整箱运价备注_追加_覆盖
+    [Tags]    complete
+    #追加备注
+    批量修改整箱备注_追加    casenumberString= &{整箱基础运价}[casenumber]    remark= remark    employee_remark=employee_remark
+    #验证运价明细页面是否存在追加的备注
+    ${result}    查询整箱运价明细    &{整箱基础运价}[casenumber]
+    Should Contain    ${result}    外部备注信息remark    msg=批量修改整箱运价备注_覆盖失败
+    Should Contain    ${result}    内部备注信息employee_remark    msg=批量修改整箱运价备注_覆盖失败
+    #覆盖备注
+    批量修改整箱备注_覆盖    casenumberString= &{整箱基础运价}[casenumber]    remark= 覆盖外部备注信息    employee_remark=覆盖内部备注信息
+    #验证运价明细页面显示覆盖后的备注
+    ${result}    查询整箱运价明细    &{整箱基础运价}[casenumber]
+    Should Contain    ${result}    覆盖外部备注信息    msg=批量修改整箱运价外部备注_覆盖失败
+    Should Contain    ${result}    覆盖内部备注信息    msg=批量修改整箱运价内部备注_覆盖失败
+    should not contain    ${result}    外部备注信息remark    msg=批量修改整箱运价外部备注_覆盖失败
+    should not contain    ${result}    内部备注信息employee_remark    msg=批量修改整箱运价内部备注_覆盖失败
+
+批量修改整箱运价起运港
+    [Tags]    complete
+    新增整箱港口    enname=SHANGHAI
+    ${result}=    批量修改起运港    casenumberString=&{整箱基础运价}[casenumber]    loadport=SHANGHAI
+    should be equal    ${result.text}    yes
+    ${result1}    查询整箱运价明细    &{整箱基础运价}[casenumber]
+    should contain    ${result1}    SHANGHAI    msg=批量修改起运港失败
+
+批量修改整箱运价更多项目_承运人航线
+    [Tags]    complete
+    ${result}=    批量修改整箱更多项目_承运人航线    casenumberString=&{整箱基础运价}[casenumber]    carrier_route=consinger
+    should be equal    ${result.text}    yes
+    ${result1}    查询整箱运价明细    &{整箱基础运价}[casenumber]
+    should contain    ${result1}    consinger
+
+批量修改整箱运价的维护人
+    [Tags]    complete
+    ${result}=    批量修改维护人    casenumberString=&{整箱基础运价}[casenumber]    name=公司管理员    employee_id=${掌门人_管理员EmployeeId}
+    should be equal    ${result.text}    yes
+    ${result1}    查询整箱运价明细    &{整箱基础运价}[casenumber]
+    should contain    ${result1}    公司管理员
+
+删除全部运价
+    新建掌门人管理员会话
+    @{list}    ${pages}    选择一页数据    pagesize=500    publishstate=all    invalidstate=all
+    : FOR    ${i}    IN RANGE    ${pages}
+    \    @{list1}    选择一页数据    pagesize=500    publishstate=all    invalidstate=all
+    \    log    i=${i}
+    \    删除整箱运价    casenumber=${list1}    isCanclePub=true
+
+*** Keywords ***
+初始化整箱数据
+    [Documentation]    return casenumber
+    新建掌门人员工会话
+    #删除历史数据
+    @{casenumber}    查询整箱运价    signflag=&{整箱基础运价}[signflag]
+    ${length} =    Get Length    ${casenumber}
+    Run Keyword If    ${length} > 0    删除整箱运价    ${casenumber}
+    #创建运价&设置
+    ${newcasenumber}    新增整箱运价    &{整箱基础运价}
+    Set To Dictionary    ${整箱基础运价}    casenumber=${newcasenumber}
+    #发布运价&设置
+    发布整箱运价    ${newcasenumber}
+    @{publishcasnumber}    销售查询运价    signflag=&{整箱基础运价}[signflag]
+    Should Not Be Empty    @{publishcasnumber}    msg=销售查询发布记录
+    Set To Dictionary    ${整箱基础运价}    publishcasenumber=@{publishcasnumber}[0]
+    [Return]    ${casenumber}
+
+销售查询运价
+    [Arguments]    ${loadport}=    ${dischargeport}=    ${signflag}=    ${carrier}=    ${searoute}=    ${session}=${运价内部_session}
+    ${headers}    Create Dictionary    Content-Type=application/x-www-form-urlencoded
+    ${querytype}    Run Keyword If    '${loadport}'!=''    Set Variable    [{"fieldnum":1,"fieldCn":"起运港","fieldEn":"loadport","fieldValue":"${loadport}"}]
+    ...    ELSE IF    '${dischargeport}'!=''    Set Variable    [{"fieldnum":1,"fieldCn":"目的港","fieldEn":"dischargeport","fieldValue":"'${dischargeport}"}]
+    ...    ELSE IF    '${signflag}'!=''    Set Variable    [{"fieldnum":1,"fieldCn":"符号","fieldEn":"signflag","fieldValue":"${signflag}"}]
+    ...    ELSE IF    '${carrier}'!=''    Set Variable    [{"fieldnum":1,"fieldCn":"船公司","fieldEn":"carrier","fieldValue":"${carrier}"}]
+    ...    ELSE IF    '${searoute}'!=''    Set Variable    [{"fieldnum":4,"fieldCn":"航线","fieldEn":"searoute","fieldValue":"${searoute}"}]
+    ...    ELSE    Set Variable
+    ${data}    Create Dictionary    advancedConditionsTextarea=${querytype}
+    ${result}    Post Request    ${session}    /priceservice/seaEFCLPublish.ctrl?$action=fcl_sale&pageno=1&connonQueryValue=10    data=${data}    headers=${headers}
+    #log    ${result.text}
+    @{case}    Re Search All    ${result.text}    \\\$casenumber=    "
+    [Return]    @{case}

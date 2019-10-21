@@ -1,0 +1,184 @@
+*** Settings ***
+Library           OlymLibrary
+Resource          ../Resources/m2基础操作.txt
+Library           Collections
+
+*** Variables ***
+${m2有附件的业务编号}     EXP17080072
+${m2filename}     333.txt    # 下载的文件名
+${下载目录}           E:\\    # 如果电脑上没有磁盘，则会弹出下载文件选择框
+${m1有附件的业务编号}     HHK2017080010
+${m1filename}     555.txt
+
+*** Test Cases ***
+m1服务下载文件验证
+    [Tags]    host
+    ${dir}    set variable    C:\\Windows\\System32\\drivers\\etc\\HOSTS
+    清空文本内容    ${dir}
+    ${i}    set variable    112.124.112.139 saas.800jit.com demo01.800jit.com cas.800jit.com    #m1服务
+    写入文本内容    ${dir}    ${i}
+    m1文件下载
+    close browser
+    m2文件下载
+    [Teardown]    close browser
+
+m6服务下载文件验证
+    [Tags]    host
+    ${dir}    set variable    C:\\Windows\\System32\\drivers\\etc\\HOSTS
+    清空文本内容    ${dir}
+    ${i}    set variable    114.215.168.105 saas.800jit.com demo01.800jit.com cas.800jit.com    #m6服务
+    写入文本内容    ${dir}    ${i}
+    m1文件下载
+    close browser
+    m2文件下载
+    [Teardown]    close browser
+
+m7服务下载文件验证
+    [Tags]    host
+    ${dir}    set variable    C:\\Windows\\System32\\drivers\\etc\\HOSTS
+    清空文本内容    ${dir}
+    ${i}    set variable    101.37.71.22 saas.800jit.com demo01.800jit.com cas.800jit.com    #m7服务
+    写入文本内容    ${dir}    ${i}
+    m1文件下载
+    close browser
+    m2文件下载
+    [Teardown]    close browser
+
+m8服务下载文件验证
+    [Tags]    host
+    ${dir}    set variable    C:\\Windows\\System32\\drivers\\etc\\HOSTS
+    清空文本内容    ${dir}
+    ${i}    set variable    121.40.151.66 saas.800jit.com demo01.800jit.com cas.800jit.com    #m8服务
+    写入文本内容    ${dir}    ${i}
+    m1文件下载
+    close browser
+    m2文件下载
+    [Teardown]    close browser
+
+m9服务下载文件验证
+    [Tags]    host
+    ${dir}    set variable    C:\\Windows\\System32\\drivers\\etc\\HOSTS
+    清空文本内容    ${dir}
+    ${i}    set variable    120.26.80.177 saas.800jit.com demo01.800jit.com cas.800jit.com    #m9服务
+    写入文本内容    ${dir}    ${i}
+    m1文件下载
+    close browser
+    m2文件下载
+    [Teardown]    close browser
+
+m10服务下载文件验证
+    [Tags]    host
+    ${dir}    set variable    C:\\Windows\\System32\\drivers\\etc\\HOSTS
+    清空文本内容    ${dir}
+    ${i}    set variable    121.40.166.119 saas.800jit.com demo01.800jit.com cas.800jit.com    #m10服务
+    写入文本内容    ${dir}    ${i}
+    m1文件下载
+    close browser
+    m2文件下载
+    [Teardown]    close browser
+
+切换host验证服务（for循环）
+    [Documentation]    在jenkins上运行后只会有一个用例的结果，一旦失败，无法明确知道 具体是哪一台服务器有问题，于是上面就分成 6条用例执行
+    #服务器m1,m6,m7,m8,m9,m10
+    ${dir}    set variable    C:\\Windows\\System32\\drivers\\etc\\HOSTS
+    ${sumResult}    set variable
+    @{list}    create list    112.124.112.139 saas.800jit.com demo01.800jit.com cas.800jit.com    114.215.168.105 saas.800jit.com demo01.800jit.com cas.800jit.com    101.37.71.22 saas.800jit.com demo01.800jit.com cas.800jit.com    121.40.151.66 saas.800jit.com demo01.800jit.com cas.800jit.com    120.26.80.177 saas.800jit.com demo01.800jit.com cas.800jit.com
+    ...    121.40.166.119 saas.800jit.com demo01.800jit.com cas.800jit.com
+    清空文本内容    ${dir}
+    @{sumResult}    create list
+    ${result}    set variable
+    ${returnvalue}    set variable
+    : FOR    ${i}    IN    @{list}
+    \    log    ${i}
+    \    写入文本内容    ${dir}    ${i}
+    \    ${result}    ${returnvalue}    run keyword and ignore error    登录并新增海运出口
+    \    append to list    ${sumResult}    ${result}
+    log    "m1,m6,m7,m8,m9,m10依次执行的结果为："${sumResult}
+    should not contain    ${sumResult}    FAIL
+
+下载文件
+    [Tags]
+    ${option}    Evaluate    selenium.webdriver.ChromeOptions()    selenium
+    ${prefs}    create dictionary    profile.default_content_settings.popups=0    download.default_directory=${下载目录}
+    Evaluate    $option.add_experimental_option('prefs', $prefs)
+    Create Webdriver    Chrome    chrome_options=${option}
+    go to    http://www.800jit.com/login.html
+    进入框架    id=loginPanel
+    等待    2
+    输入    id=username    hovi
+    输入    id=password    a111111
+    点击    id=btn-submit
+    等待    10
+    wait until page contains    首页    timeout=3    error=登录失败
+    点击业务管理
+    点击业务台帐
+    点击海运出口
+    进入台帐详情    ${m2有附件的业务编号}
+    select frame by index    tag=iframe    -1
+    点击    id=bt_remark    #点击备注
+    离开框架
+    select frame by index    tag=iframe    -1
+    等待    1
+    ${status}    run keyword and return status    文件存在    ${下载目录}${m2filename}    #验证下载后文件存在于下载目录中
+    run keyword if    '${status}'=='True'    移除文件    ${下载目录}${m2filename}
+    ...    ELSE    文件不存在    ${下载目录}${m2filename}    #先删除存入的路径中的文件
+    点击附件名下载    ${m2filename}
+    文件存在    ${下载目录}${m2filename}    #验证下载后文件存在于下载目录中
+    [Teardown]    close browser
+
+*** Keywords ***
+m1文件下载
+    ${option}    Evaluate    selenium.webdriver.ChromeOptions()    selenium
+    ${prefs}    create dictionary    profile.default_content_settings.popups=0    download.default_directory=${下载目录}
+    Evaluate    $option.add_experimental_option('prefs', $prefs)
+    Create Webdriver    Chrome    chrome_options=${option}
+    go to    http://www.800jit.com/login.html
+    进入框架    id=loginPanel
+    等待    2
+    输入    id=username    w01@800jit.com
+    输入    id=password    aaa111
+    点击    id=btn-submit
+    等待    10
+    wait until page contains    首页    timeout=3    error=登录失败
+    点击业务管理
+    点击业务台帐
+    点击海运出口
+    进入台帐详情    ${m1有附件的业务编号}
+    select frame by index    tag=iframe    -1
+    点击    id=bt_remark    #点击备注
+    离开框架
+    select frame by index    tag=iframe    -1
+    等待    1
+    ${status}    run keyword and return status    文件存在    ${下载目录}${m1filename}    #验证下载后文件存在于下载目录中
+    run keyword if    '${status}'=='True'    移除文件    ${下载目录}${m1filename}
+    ...    ELSE    文件不存在    ${下载目录}${m1filename}    #先删除存入的路径中的文件
+    点击附件名下载    ${m1filename}
+    文件存在    ${下载目录}${m1filename}    #验证下载后文件存在于下载目录中
+
+m2文件下载
+    ${option}    Evaluate    selenium.webdriver.ChromeOptions()    selenium
+    ${prefs}    create dictionary    profile.default_content_settings.popups=0    download.default_directory=${下载目录}
+    Evaluate    $option.add_experimental_option('prefs', $prefs)
+    Create Webdriver    Chrome    chrome_options=${option}
+    go to    http://www.800jit.com/login.html
+    进入框架    id=loginPanel
+    等待    2
+    输入    id=username    hovi
+    输入    id=password    a111111
+    点击    id=btn-submit
+    等待    10
+    wait until page contains    首页    timeout=3    error=登录失败
+    点击业务管理
+    点击业务台帐
+    点击海运出口
+    进入台帐详情    ${m2有附件的业务编号}
+    select frame by index    tag=iframe    -1
+    点击    id=bt_remark    #点击备注
+    离开框架
+    select frame by index    tag=iframe    -1
+    等待    1
+    ${status}    run keyword and return status    文件存在    ${下载目录}${m2filename}    #验证下载后文件存在于下载目录中
+    run keyword if    '${status}'=='True'    移除文件    ${下载目录}${m2filename}
+    ...    ELSE    文件不存在    ${下载目录}${m2filename}    #先删除存入的路径中的文件
+    点击附件名下载    ${m2filename}
+    文件存在    ${下载目录}${m2filename}    #验证下载后文件存在于下载目录中

@@ -1,0 +1,98 @@
+*** Settings ***
+Resource          m4-接口-新订单基础操作.txt
+Resource          货代业务数据.txt
+Resource          m4-公用.txt
+
+*** Keywords ***
+查询工作号
+    [Arguments]    ${worknumber}
+    ${yyyy}    ${yy}    ${dd}=    get time    year,month,day
+    ${currentdate}    Catenate    SEPARATOR=-    ${yyyy}    ${yy}    ${dd}
+    ${data}    create Dictionary    startDate=${currentdate}    endDate=${currentdate}    dateType=createdate    multi_number=${worknumber}    pageSize=15
+    ...    page=1
+    ${result}    m4-post-urlencoded    uri=/fms-rest/rest/bnBookings/list?_method=get    data=${data}
+    [Return]    ${result['data']['list'][0]['acceptBncasenumber']}
+
+订舱--离港日期
+    [Arguments]    ${casenumber订单}    ${casenumber业务}    ${worknumber}    ${time}    ${orgId}=${m4orgId}    ${user}=${m4-fullname}
+    ${result}    m4-post-json    uri=/fms-rest/rest/booking/saveBookingPageData?_method=POST&casenumber=${casenumber业务}    data={"bnMainsBookingCtnList":[],"bnMains":{"orgId":"${orgId}","casenumber":"${casenumber业务}","businesstype":"1","businessno":"${worknumber}","bookingtype":"1","seaconsigntype":"FCL","createby":"${user}","createdate":"2018-01-16 16:37:15","sales":"${user}","op":"${user}","acceptdate":"2018-01-16 00:00:00","customername":"${测试环境_往来单位}","landservice":"false","customerservice":"false","inspectservice":"false","loadport":"NINGBO","dischargeport":"SHENZHEN","freightclause":"1","sendtype":"1","goodsname":"板栗","count":0,"carrier":"美国总统","staudit":"false","stopfinish":"false","stfeefinish":"false","stblconfirmnote":"false","stblconfirmfinish":"false","stfeeconfrimnote":"false","stfeeconfirm":"false","sttelexbillnote":"false","stdelivergoodsnote":"false","sttelexbillnotep":"false","stdelivergoodsnotep":"false","stshift":"false","stauditEnd":"false","createbyid":"585279","opid":"585279","stinvoicesend":"false","streceiptfinish":"false","stpayfinish":"false","hblcount":0,"receiptname":"${测试环境_往来单位}","iscanceled":"false","loginman":" ","bookingservice":"true","islclset":"false","stzxdcomplete":"false","packingliststatus":"1","exchangeservice":"true","businesspeople":"${user}","disccheckoutdate":"false","instatus":"1","stbookingsuccess":"false","coloadStbookingsuccess":"false","coloadBlconfirmnotify":"false","coloadBlconfirmfinish":"false","coloadFeeconfirmnotify":"false","coloadFeeconfirmfinish":"false","coloadDeliverynotify":"false","airLoginkCargoStatus":"1","airSendLoginkStatus":"0","mblcount":0,"billedittype":"main","stedisend":"init","orderUuid":"8314845c-8565-4468-94e5-50cfd043fbc2","isSyncO2o":"true","sendManifestFinish":"false","isHaverecfee":1,"isHavepayfee":0,"customsSupervision":"false","progressOfWork":10,"lclCount":0,"businessSource":"10","bnBookingCasenumber":"${casenumber订单}","stpayfeeconfirm":"false","etd":"${time}"},"bnAssistants":{"orgId":"${orgId}","casenumber":"${casenumber业务}","loadportcode":"CNNBO","dischargeportcode":"CNSZX","goodstype":"s","searoute":"130","pawnservice":"false","sendgoodsservice":"false","plancarrier":"APL","billtype":"dd","stfeefinishRec":"false","stfeefinishPay":"false","inwarehouseno":"WK1801153","isdoublebox":"1","inspectinspection":"false","customsinspection":"false","marineinspection":"false","carriercode":"APL","goodssource":"4","isDocFreighted":"false","dischargeportUnCode":"PRBQN","feeinfoVersion":1,"loadportCountryCnname":"中国","dischargeportCountryCnname":"中国"},"bnAssistant2s":{"orgId":"${orgId}","casenumber":"${casenumber业务}","ispermitrelease":"false","isrelease":"false","isanomalous":"false","overstatus":"0","mdriverfee2":0,"mdriverfeeadd2":0,"moilamountadd2":0,"mroadfeeadd2":0,"moilamount2":0,"mroadfee2":0,"splint":0,"splint2":0,"oilcompensate":0,"oilcompensate2":0,"isdropandpull":"false","iscarriernotice":"false","issendarrivalnotice":"false","iscustomsrelease":"false","ispickup":"false","createdate":"2018-01-16 16:37:15","bookingNameOfAgency":"false","mnotify2":""},"bnMainsEfclBooking":{"orgId":"${orgId}","casenumber":"${casenumber业务}","currentEbookingStatus":"10","bookingDemandStatus":"0","isRebooking":"0","isApplyDestPort":"false","isRealShipper":false},"bnMainsStatusList":[],"bnHscode":{},"bnReceiptsList":[{"id":"11030417","orgId":"${orgId}","casenumber":"${casenumber业务}","feeitem":"保险费","currency":"USD","rate":6.8,"unit":"05","count":2,"amount":32,"customername":"${测试环境_往来单位}","issuestatus":"false","auditstatus":"false","orginvoce":"false","clearstatus":"false","quotedstatus":"-1","isauto":"false","ischeckoutBn":"false","freightclause":"0","feerank":1,"certificatelock":"false","orderUuid":"8314845c-8565-4468-94e5-50cfd043fbc2","customerconfirm":0,"isTaxinclusivePrice":0,"price":16,"issplit":"false","feeCategory":10,"feeSource":10,"chargingInfo":"20'GP","serviceItemName":"booking","forceclear":0,"confirmStatus":0,"isContainSecurity":true,"isModifyCustomernameOrCurrency":false}],"baseCustomers":{"casenumber":"685211","orgId":"${orgId}","code":"BLJYCAR","name":"${测试环境_往来单位}","fullname":"${测试环境_往来单位}","linkman":"${user}","tel":" ","fax":" ","email":"23@qq.com","settletype":"2","paydays":0,"creditmoney":0,"mobilephone":"99994999998","language":"zh-cn","orgJitNo":"134196","iscrm":"true","loginman":"auto962017-12-06 10:28:51","bank":"宁波银行","accountno":"6228789878654","usdbank":"建设银行","usdaccountno":"6228 8987 89887 23","isAgent":"false","paydaysWay":"20","paydaysMonth":1,"settleDay":15},"serviceContent":"订舱","bnMainsBarge":{},"bnSpecialgoods":{"marinepollutant":"n","temperatureunitid":"c","iswoodpack":false}}
+    log    ${casenumber业务}
+    log    ${time}
+    log    ${orgId}
+    should be equal as strings    ${result['resultCode']}    100
+
+获取订单费用
+    [Arguments]    ${casenumber业务}
+    ${result}    m4-get    uri=/fms-rest/rest/bn-fee/selectBnFeeInfo?_method=get&casenumber=${casenumber业务}
+    should be equal as strings    ${result['resultCode']}    100
+    log    ${result['data']['bnReceiptsList'][0]['id']}
+    [Return]    ${result['data']['bnReceiptsList'][0]['id']}
+
+维护收入费用
+    [Arguments]    ${casenumber订单}    ${casenumber业务}    ${worknumber}    ${etd}    ${id订单费用}    ${time}
+    ...    ${orgId}=${m4orgId}    ${user}=${m4-fullname}
+    ${result}    m4-post-json    uri=/fms-rest/rest/bn-fee/saveFeeData?_method=POST&casenumber=${casenumber业务}    data={"bnMains":{"orgId":"${orgId}","casenumber":"${casenumber业务}","businesstype":"1","businessno":"${worknumber}","bookingtype":"1","seaconsigntype":"FCL","createby":"${user}","createdate":"2018-01-16 16:37:15","sales":"${user}","op":"${user}","acceptdate":"2018-01-16 00:00:00","customername":"${测试环境_往来单位}","landservice":"false","customerservice":"false","inspectservice":"false","loadport":"NINGBO","dischargeport":"SHENZHEN","freightclause":"1","sendtype":"1","goodsname":"板栗","count":0,"carrier":"美国总统","etd":"${etd} 00:00:00","staudit":"false","stopfinish":"false","stfeefinish":"false","stblconfirmnote":"false","stblconfirmfinish":"false","stfeeconfrimnote":"false","stfeeconfirm":"false","sttelexbillnote":"false","stdelivergoodsnote":"false","sttelexbillnotep":"false","stdelivergoodsnotep":"false","stshift":"false","stauditEnd":"false","createbyid":"585279","opid":"585279","stinvoicesend":"false","streceiptfinish":"false","stpayfinish":"false","hblcount":0,"receiptname":"${测试环境_往来单位}","iscanceled":"false","loginman":"${user}2018-01-16 18:59:01","bookingservice":"true","islclset":"false","stzxdcomplete":"false","packingliststatus":"1","exchangeservice":"true","businesspeople":"${user}","disccheckoutdate":"false","instatus":"1","stbookingsuccess":"false","coloadStbookingsuccess":"false","coloadBlconfirmnotify":"false","coloadBlconfirmfinish":"false","coloadFeeconfirmnotify":"false","coloadFeeconfirmfinish":"false","coloadDeliverynotify":"false","airLoginkCargoStatus":"1","airSendLoginkStatus":"0","mblcount":0,"billedittype":"main","stedisend":"init","orderUuid":"8314845c-8565-4468-94e5-50cfd043fbc2","isSyncO2o":"true","sendManifestFinish":"false","isHaverecfee":1,"isHavepayfee":0,"customsSupervision":"false","progressOfWork":10,"lclCount":0,"businessSource":"10","bnBookingCasenumber":"${casenumber订单}","stpayfeeconfirm":"false"},"bnReceiptsList":[{"id":"${id订单费用}","orgId":"${orgId}","casenumber":"${casenumber业务}","feeitem":"保险费","currency":"USD","rate":6.8,"unit":"05","count":2,"amount":"32.00","customername":"${测试环境_往来单位}","auditstatus":"false","clearstatus":"false","quotedstatus":"-1","isauto":"false","ischeckoutBn":"false","freightclause":"0","feerank":1,"certificatelock":"false","orderUuid":"cdfd5e4a-a605-4216-ba54-30c47e2caed4","customerconfirm":0,"isTaxinclusivePrice":0,"price":16,"issplit":"false","feeCategory":10,"feeSource":10,"chargingInfo":"20'GP","serviceItemName":"booking","forceclear":0,"confirmStatus":0,"upperRate":0,"lowerRate":0,"writeoffAmount":0,"feeLockStatus":0,"isEnterFinancialFlow":0,"serviceItemLabel":"订舱","isContainSecurity":true,"isModifyCustomernameOrCurrency":false,"calcAmount":"32.00","standardCurrency":"217.60","rateAmount":null,"olymc_seq":1},{"id":"add-${time}","feeitem":"操作费","customername":"${测试环境_往来单位}","currency":"EUR","price":"20.00","count":1,"calcAmount":"20.00","rateAmount":null,"amount":"20.00","rate":"7.80","standardCurrency":"156.00","chargingInfo":null,"isTaxinclusivePrice":"1","checkaccountno":null,"invoiceno":null,"recbillno":null,"paybillno":null,"paymentplace":null,"remark":null,"freimbursedExpensesId":"","debitcreditno":null,"freightclause":null,"isEnterFinancialFlow":0,"confirmStatus":0,"feeLockStatus":0,"issplit":"false","auditstatus":"false","feeCategory":"10","feeSource":"","olymc_seq":2,"upperRate":0,"lowerRate":0}],"bnPaysList":[],"bnPayfeePlanList":[],"payFeeContentType":"payReal"}
+    should be equal as strings    ${result['resultCode']}    100
+    log    ${result['data']['bnReceiptsList'][0]['id']}
+    [Return]    ${result['data']['bnReceiptsList'][1]['id']}
+
+维护支出费用
+    [Arguments]    ${casenumber订单}    ${casenumber业务}    ${worknumber}    ${etd}    ${time}    ${id订单费用}
+    ...    ${orgId}=${m4orgId}    ${user}=${m4-fullname}
+    ${result}    m4-post-json    uri=/fms-rest/rest/bn-fee/saveFeeData?_method=POST&casenumber=${casenumber业务}    data={"bnMains":{"orgId":"${orgId}","casenumber":"${casenumber业务}","businesstype":"1","businessno":"${worknumber}","bookingtype":"1","seaconsigntype":"FCL","createby":"${user}","createdate":"2018-01-16 16:37:15","sales":"${user}","op":"${user}","acceptdate":"2018-01-16 00:00:00","customername":"${测试环境_往来单位}","landservice":"false","customerservice":"false","inspectservice":"false","loadport":"NINGBO","dischargeport":"SHENZHEN","freightclause":"1","sendtype":"1","goodsname":"板栗","count":0,"carrier":"美国总统","etd":"${etd} 00:00:00","staudit":"false","stopfinish":"false","stfeefinish":"false","stblconfirmnote":"false","stblconfirmfinish":"false","stfeeconfrimnote":"false","stfeeconfirm":"false","sttelexbillnote":"false","stdelivergoodsnote":"false","sttelexbillnotep":"false","stdelivergoodsnotep":"false","stshift":"false","stauditEnd":"false","createbyid":"585279","opid":"585279","stinvoicesend":"false","streceiptfinish":"false","stpayfinish":"false","hblcount":0,"receiptname":"${测试环境_往来单位}","iscanceled":"false","loginman":"${user}2018-01-16 18:59:01","bookingservice":"true","islclset":"false","stzxdcomplete":"false","packingliststatus":"1","exchangeservice":"true","businesspeople":"${user}","disccheckoutdate":"false","instatus":"1","stbookingsuccess":"false","coloadStbookingsuccess":"false","coloadBlconfirmnotify":"false","coloadBlconfirmfinish":"false","coloadFeeconfirmnotify":"false","coloadFeeconfirmfinish":"false","coloadDeliverynotify":"false","airLoginkCargoStatus":"1","airSendLoginkStatus":"0","mblcount":0,"billedittype":"main","stedisend":"init","orderUuid":"8314845c-8565-4468-94e5-50cfd043fbc2","isSyncO2o":"true","sendManifestFinish":"false","isHaverecfee":1,"isHavepayfee":0,"customsSupervision":"false","progressOfWork":10,"lclCount":0,"businessSource":"10","bnBookingCasenumber":"${casenumber订单}","stpayfeeconfirm":"false"},"bnReceiptsList":[{"id":"${id订单费用}","orgId":"${orgId}","casenumber":"${casenumber业务}","feeitem":"保险费","currency":"USD","rate":6.8,"unit":"05","count":2,"amount":"32.00","customername":"${测试环境_往来单位}","auditstatus":"false","clearstatus":"false","quotedstatus":"-1","isauto":"false","ischeckoutBn":"false","freightclause":"0","feerank":1,"certificatelock":"false","orderUuid":"cdfd5e4a-a605-4216-ba54-30c47e2caed4","customerconfirm":0,"isTaxinclusivePrice":0,"price":16,"issplit":"false","feeCategory":10,"feeSource":10,"chargingInfo":"20'GP","serviceItemName":"booking","forceclear":0,"confirmStatus":0,"upperRate":0,"lowerRate":0,"writeoffAmount":0,"feeLockStatus":0,"isEnterFinancialFlow":0,"serviceItemLabel":"订舱","isContainSecurity":true,"isModifyCustomernameOrCurrency":false,"calcAmount":"32.00","standardCurrency":"217.60","rateAmount":null,"olymc_seq":1}],"bnPaysList":[{"id":"add-${time}","feeitem":"仓储费","customername":"${测试环境_往来单位}","currency":"EUR","price":"10.00","count":1,"calcAmount":"10.00","rateAmount":null,"amount":"10.00","rate":"7.80","standardCurrency":"78.00","chargingInfo":null,"isTaxinclusivePrice":"1","checkaccountno":null,"invoiceno":null,"recbillno":null,"paybillno":null,"paymentplace":null,"remark":null,"freimbursedExpensesId":"","serviceItemName":"storage","debitcreditno":null,"freightclause":null,"isEnterFinancialFlow":0,"confirmStatus":0,"feeLockStatus":0,"issplit":"false","auditstatus":"false","feeCategory":"10","feeSource":"","olymc_seq":1,"serviceItemLabel":"仓储","upperRate":0,"lowerRate":0}],"bnPayfeePlanList":[{"id":"add-${time}","feeitem":"仓储费","customername":"${测试环境_往来单位}","currency":"EUR","price":"10.00","count":1,"calcAmount":"10.00","rateAmount":null,"amount":"10.00","rate":"7.80","standardCurrency":"78.00","chargingInfo":null,"isTaxinclusivePrice":"1","checkaccountno":null,"invoiceno":null,"recbillno":null,"paybillno":null,"paymentplace":null,"remark":null,"freimbursedExpensesId":"","serviceItemName":"storage","debitcreditno":null,"freightclause":null,"isEnterFinancialFlow":0,"confirmStatus":0,"feeLockStatus":0,"issplit":"false","auditstatus":"false","feeCategory":"10","feeSource":"","olymc_seq":1,"serviceItemLabel":"仓储","upperRate":0,"lowerRate":0}],"payFeeContentType":"payReal"}
+    should be equal as strings    ${result['resultCode']}    100
+    log    ${result['data']['bnPaysList'][0]['id']}
+    [Return]    ${result['data']['bnPaysList'][0]['id']}
+
+新增收入费用
+    ${worknumber}    ${casenumber订单}    订单生成台帐
+    ${casenumber业务}    查询工作号    ${worknumber}
+    ${etd}    get time    yyy-mm-dd
+    订舱--离港日期    ${casenumber订单}    ${casenumber业务}    ${worknumber}    ${etd}
+    ${id订单费用}    获取订单费用    ${casenumber业务}
+    ${time}    get time    epoch
+    ${id}    维护收入费用    ${casenumber订单}    ${casenumber业务}    ${worknumber}    ${etd}    ${time}
+    ...    ${id订单费用}
+    [Return]    ${casenumber业务}    ${id}
+
+新增支出费用
+    ${worknumber}    ${casenumber订单}    订单生成台帐
+    ${casenumber业务}    查询工作号    ${worknumber}
+    ${etd}    get time    yyy-mm-dd
+    订舱--离港日期    ${casenumber订单}    ${casenumber业务}    ${worknumber}    ${etd}
+    ${id订单费用}    获取订单费用    ${casenumber业务}
+    ${time}    get time    epoch
+    ${id}    维护支出费用    ${casenumber订单}    ${casenumber业务}    ${worknumber}    ${etd}    ${time}
+    ...    ${id订单费用}
+    [Return]    ${casenumber业务}    ${id}
+
+费用页面费用(收入/支出)
+    [Arguments]    ${casenumber业务}    ${id}    ${feeActionType}
+    ${result}    m4-post-json    uri=/fms-rest/rest/bn-fee/feeActionTypeButton    data={"casenumber":"${casenumber业务}","feeIdActionParm":["${id}"],"feeActionType":"${feeActionType}"}    #recDelete    #删除收入    #recAudit
+    ...    #审核收入    #payAudit    #审核支出    #recConfirm    #确认收入    #payConfirm
+    ...    #确认支出
+    should be equal as strings    ${result['resultCode']}    100    \    #payDelete    #删除支出    #recCancelAudit
+    ...    #取消审核收入    #payCancelAudit    #取消审核支出    #recCancelConfirm    #取消确认收入    #payCancelConfirm
+    ...    #取消确认支出
+
+打印账单
+    [Arguments]    ${casenumber业务}    ${id应收}=    ${id应付}=
+    ${result}    m4-post-json    uri=/fmsfinance-rest/rest/fiDebitcredits/create    data={"bncasenumber":"${casenumber业务}","recIdList":["${id应收}"],"payIdList":["${id应付}"],"customername":"${测试环境_往来单位}"}
+    should be equal as strings    ${result['resultCode']}    100
+    log    ${result['data']['casenumber']}
+    [Return]    ${result['data']['casenumber']}
+
+作废账单
+    [Arguments]    ${casenumber账单}
+    ${result}    m4-post-urlencoded    uri=/fmsfinance-rest/rest/fiDebitcredits/invalid    data={casenumber=${casenumber账单}}
+    should be equal as strings    ${result['resultCode']}    100
+
+删除账单
+    [Arguments]    ${casenumber账单}
+    ${result}    m4-post-urlencoded    uri=/fmsfinance-rest/rest/fiDebitcredits/delete    data={casenumber=${casenumber账单}}
+    should be equal as strings    ${result['resultCode']}    100
+
+确认账单
+    [Arguments]    ${casenumber账单}
+    ${result}    m4-post-urlencoded    uri=/fmsfinance-rest/rest/fiDebitcredits/confirm    data={casenumber=${casenumber账单}}
+    should be equal as strings    ${result['resultCode']}    100

@@ -1,0 +1,75 @@
+*** Settings ***
+Suite Setup       Run keywords    变量
+...               AND    登录
+Suite Teardown    关闭浏览器
+Resource          ../../Resources/基础关键字.txt
+
+*** Test Cases ***
+应用管理
+    点击    xpath=//div[@id='rootMenu']//a[contains(text(),"运营商公司管理")]    #运营商公司管理
+    点击    xpath=//div[@id='treeMenu']/ul/li[3]/a[contains(text(),"应用管理")]    #应用管理
+    点击    xpath=//div[@id='treeMenu']/ul/li[3]/ul/li/a[contains(text(),"应用管理")]    #应用管理
+    进入框架    id=content
+    #---查找公司----
+    输入    id=q_orglist_fa_org_name    ${client_name}
+    点击    id=bt_query    # 点【查询】
+    page should contain    共1条    #验证：检索结果是否只有1条
+    #---给公司新增应用--
+    进入框架    id=content
+    点击    xpath=//a[@class='Linkstyle'][contains(text(),"${client_name}")]    #点击列表公司名
+    点击    xpath=//a[@class='button_addNewRow']/span[contains(text(),"新增")]    #点击【新增】
+    ${table_num}    获取匹配xpath的个数    xpath=//tr[@vrws-attribute='vrws-sheetpage-row']    #获得表格行数（当前公司拥有的应用列表）
+    ${table_num}    Evaluate    int(${table_num})+1
+    select from list by Label    xpath=//table[@id='sheet_orgapps_tbl5']/tbody/tr[${table_num}]/td[2]//select[contains(@name,"orgapps")]    ${ma_app_name}    #选择应用名称
+    输入    xpath=//table[@id='sheet_orgapps_tbl5']/tbody/tr[${table_num}]/td[4]//input[contains(@id,"_app_end_date")]    ${end_date}    #输入结束日期 （开始日期=系统默认当前）
+    点击    id=bt_save    #点保存
+    wait until page contains    保存成功    timeout=10    error=新增应用失败
+    离开框架
+    Capture Page Screenshot
+
+应用许可管理
+    点击    xpath=//div[@id='rootMenu']//a[contains(text(),"运营商公司管理")]    #运营商公司管理
+    点击    xpath=//div[@id='treeMenu']/ul/li[3]//a[contains(text(),"应用管理")]    #应用管理
+    点击    xpath=//div[@id='treeMenu']/ul/li[3]/ul//a[contains(text(),"应用许可管理")]    # 应用许可管理
+    进入框架    id=content
+    #---查找公司----
+    输入    id=q_orglist_fb_org_name    ${client_name}    # 客户公司名称
+    点击    id=bt_query    # 点【查询】
+    page should contain    共1条    #验证：检索结果是否只有1条
+    #---给公司应用设置许可---
+    进入框架    id=content
+    点击    xpath=//a[@class='Linkstyle'][contains(text(),"${client_name}")]    #点击列表公司名
+    点击    xpath=//a[@class='Linkstyle'][contains(text(),"${ma_app_name}")]    #点击需要加许可的【应用名】
+    点击    id=bt_buy_token    #点【购买指令】
+    输入    id=tmp_buy_token_end_date    ${end_date}    #设置【服务结束时间】
+    输入    id=tmp_buy_token_buy_num    ${token_num}
+    点击    id=bt_save    #点【保存】
+    点击    id=bt_back    #点【返回】
+    离开框架
+    Capture Page Screenshot    #由于保存后无提示信息，SO 返回页面截图看结果
+
+公司-用户分配权限
+    # 略： 直接用 CASE【修改公司-用户权限】
+
+*** Keywords ***
+登录
+    #---登录----
+    打开    ${login_url}
+    进入框架    id=loginPanel
+    输入    id=username    ${username}
+    输入    id=password    ${password}
+    点击    id=btn-submit
+    wait until page contains    首页    timeout=3    error=登录失败
+    离开框架
+
+变量
+    #--变量--[支撑登录账号]---
+    set suite variable    ${login_url}    http://www.800jit.com/login.html    #登录地址
+    set suite variable    ${username}    olymtech_admin    #支撑-登录名
+    set suite variable    ${password}    111111    #登录密码
+    #----增加公司应用---
+    set suite variable    ${client_name}    GM1-准生产-性能-B    #客户公司名
+    set suite variable    ${ma_app_name}    oa    #需要增加的应用名称
+    ${end_date}    当前日期加减天数    +365    #服务结束日期
+    set suite variable    ${end_date}
+    set suite variable    ${token_num}    10    #许可数量

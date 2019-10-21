@@ -1,0 +1,43 @@
+*** Settings ***
+Suite Setup       登录    # \ Run keywords | 系统参数设置 | AND | 往来单位初始化
+Suite Teardown    close all browsers
+Test Setup        回到首页
+Resource          ../../Resources/M2基础操作/M2--引用.txt
+
+*** Test Cases ***
+删除海运进口业务台帐
+    新增海运进口业务台帐
+    列表查询业务编号    ${IMPORT-BUSINESSNO-SUIT}
+    选中海运进口第一条记录
+    删除业务台帐
+    ${pages}    列表查询业务编号    ${IMPORT-BUSINESSNO-SUIT}
+    应该包含    ${pages}    共0条    #验证新增的业务编号在列表上可以查询到一条记录
+
+新增海运进口业务台帐
+    新增海运进口业务台帐
+    ${pages}    列表查询业务编号    ${IMPORT-BUSINESSNO-SUIT}
+    应该包含    ${pages}    共1条    #验证新增的业务编号在列表上可以查询到一条记录
+
+复制海运进口业务台帐
+    点击业务管理
+    点击业务台帐
+    点击海运进口
+    列表查询业务编号    ${IMPORT-BUSINESSNO-SUIT}
+    选中包含业务编号的台帐    ${IMPORT-BUSINESSNO-SUIT}
+    ${businessNo}    复制海运进口业务台帐
+    ${pages}    列表查询业务编号    ${businessNo}
+    应该包含    ${pages}    共1条    #验证新增的业务编号在列表上可以查询到一条记录
+
+海运进口批量完成--业务制单-取消业务制单
+    点击业务管理
+    点击业务台帐
+    点击海运进口
+    列表查询业务编号    ${IMPORT-BUSINESSNO-SUIT}
+    选中包含业务编号的台帐    ${IMPORT-BUSINESSNO-SUIT}
+    批量业务制单完成
+    ${content}    获取海运进口台帐业务制单完成状态    ${IMPORT-BUSINESSNO-SUIT}
+    应该要相等    ${content}    已完成
+    选中包含业务编号的台帐    ${IMPORT-BUSINESSNO-SUIT}
+    批量取消业务制单完成
+    ${content1}    获取海运进口台帐业务制单取消状态    ${IMPORT-BUSINESSNO-SUIT}
+    应该要相等    ${content1}    false

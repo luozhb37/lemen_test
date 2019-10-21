@@ -1,0 +1,41 @@
+*** Settings ***
+Suite Setup       登录    # Run keywords | 系统参数设置-应付对账核销模式 | AND | 往来单位初始化
+Suite Teardown    close all browsers
+Test Setup        回到首页
+Resource          ../../Resources/M1基础操作/M1--引用.txt
+
+*** Test Cases ***
+新增海运进口业务台帐
+    ${businessNo}    新增海运进口业务台帐
+    ${pages}    列表查询业务编号    ${businessNo}
+    应该包含    ${pages}    共1条
+
+复制海运进口业务台帐
+    ${businessNo}    新增海运进口业务台帐
+    列表查询业务编号    ${businessNo}
+    进入一个框架后-全选记录
+    ${businessNo}    复制海运进口业务台帐
+    ${pages}    列表查询业务编号    ${businessNo}
+    应该包含    ${pages}    共1条
+
+删除海运进口业务台帐
+    ${businessNo}    新增海运进口业务台帐
+    列表查询业务编号    ${businessNo}
+    进入一个框架后-全选记录
+    删除业务台帐
+    ${pages}    列表查询业务编号    ${businessNo}
+    应该包含    ${pages}    共0条
+
+海运进口批量完成--业务制单完成/取消
+    ${businessNo}    新增海运进口业务台帐
+    列表查询业务编号    ${businessNo}
+    进入一个框架后-全选记录
+    批量业务制单完成
+    ${content}    获取海运进口台帐业务制单完成状态    ${businessNo}
+    应该要相等    ${content}    已完成
+    进入框架    id=content
+    select checkbox    xpath=.//*[@id='qp_seaimport0_tbl5']/tbody/tr[2]/td[2]/input    #勾选第一条
+    离开框架
+    批量取消业务制单完成
+    ${content1}    获取海运进口台帐业务制单取消状态    ${businessNo}
+    应该要相等    ${content1}    false

@@ -1,0 +1,155 @@
+*** Settings ***
+Library           Screenshot
+Library           Collections
+Library           Selenium2Library
+Resource          ${EXECDIR}${/}Resources${/}基础关键字.txt
+Library           OlymLibrary
+
+*** Variables ***
+${hello}          hello world
+@{listDemo}       ago    amao    ayu    awang
+&{dictDemo}       ta=1    tb=2
+&{dictccc}        &{dictDemo}
+
+*** Test Cases ***
+中文用例
+    [Documentation]    这是一个测试demo
+    [Tags]    demo
+    ${a}    Set variable    59
+    ${b}    Catenate    SEPARATOR= -    hello    world
+    ${abc}    Create List    a1    b1    c1
+    @{abc1}    Create List    a2    b2    c2
+    ${t}    get time
+    run keyword if    ${a} >90    log    优秀
+    ...    ELSE IF    ${a} >60    log    及格
+    ...    ELSE    log    不及格
+    : FOR    ${i}    IN    @{abc1}
+    \    exit for loop if    '${i}'=='c2'
+    log    ${i}
+    ${d}    evaluate    random.randint(1000,9999)    random
+    log    ${d}
+    import library    D:/work/pydemo/HeadFirst/nester.py
+    ${a1}    evaluate    int(4)
+    ${a2}    evaluate    int(5)
+    ${add}    add    ${a1}    ${a2}
+    log    ${add}
+    comment    注释
+    #注释2
+    Take Screenshot
+    ${dict}    Create Dictionary    a    1    b    2
+    ${itmes}    get Dictionary Items    ${dict}    #${itmes} = {u'a': u'1', u'b': u'2'}
+    ${key}    get dictionary Keys    ${dict}
+    ${value}    get dictionary values    ${dict}
+    ${v}=    get from dictionary    ${dict}    b
+    ${v2}=    get from dictionary    &{dictDemo}    dict2
+
+数据驱动测试
+    [Tags]    demo
+    [Template]    数据驱动
+    A1    B1
+    A2    B2
+    A3    B3
+
+gobaidu
+    [Tags]    demo
+    #steplog    打开:xxx 登录外部帐号:xxx
+    ${ssss}    Set Variable    dddd2 sssss1
+    ${upper}=    Evaluate    "${ssss}".upper()
+    log    ${upper}
+
+jQueryTest
+    @{case}    Create List
+    : FOR    ${in}    IN    @{case}
+    \    log    ${in}
+    \    log    ${in}
+    ${locator}    Set Variable If    1==2    \#    \.
+
+Evaluate
+    @{time}    Get Time    year month day    NOW + 14d
+    log    @{time}[0]-@{time}[1]-@{time}[2]
+    #${time}    获取当前日期
+    ${aaa}    关键字1
+    ${bbb}
+    Run Keyword If    "${aaa}"!="true"    ${bbb}    Set Variable    \.
+    log    ${bbb}
+
+sss
+    [Tags]    baidu
+    #Open Browser    http://www.baidu.com    browser=gc    #${count1}    Execute Javascript    return $("ac")
+    Run Keyword If    "1"=="1"    Open Browser    http://www.baidu.com    browser=gc
+    #@{count1}    Get Webelements    name=tj_trnuomi
+    #${text}    Get Text    @{count1}[0]
+    ${text}=    get text    xpath=//a[@name="tj_trnuomi"]
+    @{tr}    Execute Javascript    return jquery=$(".mnav")
+    : FOR    ${element}    IN    @{tr}
+    \    log    1
+    #${rowCount}=    Get Length    @{tr}
+    ${contain}    element_should_contain    xpath=//a[@name="tj_trnuomi"]    糯米
+    Element Should Be Enabled    xpath=//a[@name="tj_trnuomi"]
+    [Teardown]    关闭浏览器
+
+fortest
+    log    ${EXECDIR}
+
+fortest2
+    ${ssss}=    Evaluate    random.randint(0, sys.maxint)    modules=random, sys
+    log    ${ssss}
+    Run Keyword if    ${FALSE}    log    aaa    else    log    bbb
+    \    \    log    ccc
+
+zhuanyi
+    ${aaa}    Set Variable    true
+    @{ddd}=    切分数据    aaa
+    : FOR    ${daili}    IN    @{ddd}
+    \    log    ${daili}
+    log    ${EXECDIR}${/}Resources${/}基础关键字.txt
+    打开    浏览器
+
+test33
+    @{str}    Create List    111    2222    333
+    log    @{str}[0]
+
+*** Keywords ***
+循环
+    [Arguments]    ${number}
+    : FOR    ${i}    IN RANGE    ${number}
+    \    log    ${i}
+
+数据驱动
+    [Arguments]    ${a}    ${b}
+
+循环2
+    [Arguments]    @{number}
+    : FOR    ${i}    IN    @{number}
+    \    log    ${i}
+
+关键字1
+    [Arguments]    ${tb}=    ${ta}=
+    log    ta>>>> ${ta}
+    log    ta>>>> ${tb}
+
+newKey
+    [Arguments]    ${value}
+    @{list}    Evaluate    list(${value})
+    Run Keyword If    ${value} !=[]    log    22222222
+    : FOR    ${a}    IN    @{list}
+    \    log    ${a}
+
+循环3
+    [Arguments]    &{number}
+    : FOR    ${case}    IN    @{number}
+    \    ${valuetest}=    get from dictionary    ${number}    ${case}
+    \    log    ${valuetest}
+    ${EMPTY}
+
+usercase
+    [Arguments]    ${aaaa}="asdasda"    @{listtest}
+    ${value}    Catenate    SEPARATOR=,    @{listtest}
+    log    ${aaaa}
+    log    [${value}]
+
+listdemo
+    [Arguments]    ${a}    ${b}
+    log    a>>>>>>${a}
+    log    b>>>>>>${b}
+    [Teardown]

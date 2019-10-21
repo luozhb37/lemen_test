@@ -1,0 +1,16 @@
+*** Variables ***
+&{TestData}       &{TestData_cargo}    # 详见对应的配置
+${browserType}    gc    # 执行对应的浏览器gc,ff等
+${remote_url}     \    # 留空 Or http://192.168.1.74:5555/wd/hub
+&{TestData_231}    url=http://rfs.qa.ngrok.900jit.com    mem_username=13967880231    mem_password=111111.    contact_username=13967880231    contact_password=111111.
+&{TestData_225}    url=http://rfs.td.ngrok.900jit.com    mem_username=13967880231    mem_password=111111.    contact_username=13967880231    contact_password=111111.
+&{TestData_test4}    url=http://test4.100jit.com    mem_username=test4@100jit.com    mem_password=111111.    contact_username=13967880231    contact_password=111111.
+&{TestData_QA0107}    url=http://0107.qa.com    mem_username=0107@600jit.com    mem_password=111111.    contact_username=13967880232    contact_password=111111.
+&{TestData_cargo}    url=http://rfs-zm.test.200jit.com    mem_username=rfs_admin    mem_password=111111.    contact_username=13967880231    contact_password=111111.
+${url}            &{TestData}[url]    # 用于全局变量(企业URL)
+${member_username}    &{TestData}[mem_username]    # 用于全局变量(员工用户名)
+${member_password}    &{TestData}[mem_password]    # 用于全局变量(员工密码)
+${contact_username}    &{TestData}[contact_username]    # 用于全局变量(客户用户名)
+${contact_password}    &{TestData}[contact_password]    # 用于全局变量(客户密码)
+
+*** Keywords ***

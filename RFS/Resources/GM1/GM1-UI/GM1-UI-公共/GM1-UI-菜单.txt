@@ -1,0 +1,376 @@
+*** Settings ***
+Resource          GM1-UI-引用.txt
+
+*** Keywords ***
+点击业务管理
+    点击    xpath=//ul[@id='rootMenu']//a[text()=' 业务']
+    等待    1
+    等待加载层消失
+    mouse out    xpath=//ul[@id='rootMenu']//a[text()=' 业务']
+
+点击业务台账
+    点击    xpath=//span[contains(text(),'业务台账')]/..    #xpath=//ul[@id='scroll_cnt2']/li[1]/a    这个也可以定位到
+    等待加载层消失
+    mouse out    xpath=//span[contains(text(),'业务台账')]/..
+
+进入指定一级菜单
+    [Arguments]    ${name}
+    [Documentation]    name：对应的一级菜单名称
+    ...    举例：点击订单菜单时，name为"订单"，不需要另加空格
+    Wait Until Element Is Visible    xpath=//ul[@id='rootMenu']//a[contains(normalize-space(),'${name}')]
+    点击    xpath=//ul[@id='rootMenu']//a[contains(normalize-space(),'${name}')]
+    等待    1
+    等待加载层消失
+    mouse out    xpath=//ul[@id='rootMenu']//a[contains(normalize-space(),'${name}')]
+
+进入指定二级菜单
+    [Arguments]    ${menu}    ${item}
+    [Documentation]    点击进入对应的二级菜单页面
+    ...    参数：
+    ...    menu：对应的菜单名称，如"业务台账"
+    ...    item：对应的业务名称，如"空运出口"
+    Wait Until Element Is Enabled    xpath=//span[text()='${menu}']    30
+    Mouse Over    id=scroll_cnt2
+    Mouse Over    xpath=//span[text()='${menu}']/../..    # 鼠标移动至对应菜单
+    Wait Until Element Is Visible    xpath=//span[text()='${item}']/..    3
+    等待    0.5
+    点击    xpath=//span[text()='${item}']/..    # 点击业务栏
+    等待    0.5
+    等待加载层消失
+    Wait Until Element Is Not Visible    xpath=//div[contains(@class,'mp-cover')]    30
+    mouse out    xpath=//span[text()='${item}']/..
+
+进入指定二级菜单(新icon)
+    [Arguments]    ${icon_name}    ${item}=${EMPTY}
+    Wait Until Element Is Enabled    xpath=//div[text()='${icon_name}']    30
+    Mouse Over    xpath=//div[text()='${icon_name}']    # 鼠标移动至对应菜单
+    Wait Until Element Is Visible    xpath=//div[text()='${icon_name}']/../span[contains(@class, 'menu_dsp')]    3
+    run keyword if    '${item}' != '${EMPTY}'    点击    xpath=//span[text()='${item}']/..
+    ...    ELSE    点击    xpath=//div[text()='${icon_name}']
+    等待加载层消失
+    Mouse Over    xpath=//div[text()='${icon_name}']
+    mouse out    xpath=//div[text()='${icon_name}']
+
+点击海运出口
+    点击    xpath=//a[text()='海运出口']
+    等待加载层消失
+    mouse out    xpath=//a[text()='海运出口']
+
+点击操作详情
+    点击    xpath=//li[text()='操作详情'][@role='menuitem']
+    Wait Until Page Contains    操作详情    timeout=3    error=失败
+    等待加载层消失
+
+点击订舱
+    点击    xpath=//li[text()='订舱'][@role='menuitem']
+    等待加载层消失
+
+点击拖柜
+    点击    xpath=//li[text()='拖柜'][@role='menuitem']
+    等待加载层消失
+
+点击仓储
+    点击    xpath=//li[text()='仓储'][@role='menuitem']
+    等待加载层消失
+
+点击单证
+    点击    xpath=//li[text()='单证'][@role='menuitem']
+    等待加载层消失
+
+点击集装箱
+    点击    xpath=//li[contains(text(),'集装箱')][@role='menuitem']
+    #等待加载层消失
+
+点击贸易单证
+    点击    xpath=//li[text()='贸易单证'][@role='menuitem']
+    等待加载层消失
+
+点击报关
+    点击    xpath=//li[contains(text(),'报关')][@role='menuitem']
+    等待加载层消失
+
+点击附件
+    点击    xpath=//li[contains(text(),'附件')][@role='menuitem']
+    等待加载层消失
+
+点击异常
+    点击    xpath=//li[contains(text(),'异常')][@role='menuitem']
+    等待加载层消失
+
+点击费用
+    等待loading消失
+    点击    xpath=//li[text()='费用'][@role='menuitem']
+    等待loading消失
+
+点击结算
+    [Documentation]    \#主菜单
+    点击    xpath=//a[@class='waves-effect waves-light tr_m4_boot_settlement']
+    等待加载层消失
+    mouse out    xpath=//a[@class='waves-effect waves-light tr_m4_boot_settlement']
+
+鼠标移至业务台账
+    鼠标悬停    jQuery("//span[contains(text(),'业务台账')]/..").mouseover();    #这个暂时不能用
+    等待加载层消失
+
+点击费用列表--按工作单
+    点击    xpath=//div[@class='inactiveTab']
+    等待加载层消失
+
+点击对账单管理
+    点击    xpath=//a[text()='对账单管理']
+    等待加载层消失
+
+点击应收发票管理
+    点击    xpath=//a[text()='应收发票管理']
+    等待加载层消失
+
+点击应付发票
+    点击    xpath=//span[text()='应付发票']/..
+    等待加载层消失
+
+点击应付待登记
+    点击    xpath=//a[text()='应付待登记']
+    等待加载层消失
+
+点击应付发票管理
+    点击    xpath=//a[text()='应付发票管理']
+    等待加载层消失
+
+点击待核销
+    点击    xpath=//*[@id="tab-panel"]/div/div[2]
+    等待加载层消失
+
+点击核销记录(收款)
+    点击    xpath=//a[text()='核销记录']
+    等待加载层消失
+
+点击请款单管理
+    点击    xpath=//a[text()='请款单管理']
+    等待加载层消失
+
+点击付款单管理
+    点击    xpath=//a[text()='付款单管理']
+    等待加载层消失
+
+点击待付款待核销
+    点击    xpath=//div[text()='待付款待核销']
+    等待加载层消失
+
+点击核销记录(付款)
+    点击    xpath=//a[text()='核销记录']
+    等待加载层消失
+
+点击我的请款单
+    点击    xpath=//a[text()='我的请款单']
+    等待加载层消失
+
+点击实收凭证
+    Comment    点击    xpath=//a[@href='/fmsfinance-front/#/receiveVerificationRecord']
+    点击    xpath=//span[text()='实收凭证']/..
+    等待加载层消失
+
+点击实付凭证
+    Comment    点击    xpath=//a[@href='/fmsfinance-front/#/paymentRecord']
+    点击    xpath=//span[text()='实付凭证']/..
+    等待加载层消失
+
+点击已输出凭证
+    点击    xpath=//div[@class='inactiveTab']
+    等待加载层消失
+
+点击基础资料
+    点击    xpath=//ul[@id='rootMenu']//a[text()=' 资料']
+    等待加载层消失
+
+点击企业基础资料
+    点击    xpath=//span[text()='企业基础资料']/../i
+    等待加载层消失
+
+点击货物来源
+    点击    xpath=//a[text()='货物来源']
+    等待加载层消失
+
+点击服务类型
+    点击    xpath=//a[text()='服务类型']
+    等待加载层消失
+
+点击费用税率
+    点击    xpath=//a[text()='费用税率']
+    等待加载层消失
+
+点击浮动汇率
+    点击    xpath=//a[text()='浮动汇率']
+    等待加载层消失
+
+点击账户类型
+    点击    xpath=//a[text()='账户类型']
+    等待加载层消失
+
+点击银行账户
+    点击    xpath=//a[text()='银行账户']
+    等待加载层消失
+
+点击发票类别
+    点击    xpath=//a[text()='发票类别']
+    等待加载层消失
+
+点击附件类型
+    点击    xpath=//a[text()='附件类型']
+    等待加载层消失
+
+点击异常类型
+    点击    xpath=//a[text()='异常类型']
+    等待加载层消失
+
+点击业务基础资料
+    点击    xpath=//span[text()='业务基础资料']/../i
+    等待加载层消失
+    mouse out    xpath=//span[text()='业务基础资料']/../i
+
+点击通用基础资料
+    Wait Until Element Is Enabled    xpath=//span[text()='通用基础资料']
+    点击    xpath=//span[text()='通用基础资料']
+    等待加载层消失
+    mouse out    xpath=//span[text()='通用基础资料']
+
+点击其他基础资料
+    点击    xpath=//a[text()='其他基础资料']
+    等待加载层消失
+    mouse out    xpath=//a[text()='其他基础资料']
+
+点击货物状态
+    点击    xpath=//a[text()='货物状态']
+    等待加载层消失
+    mouse out    xpath=//a[text()='货物状态']
+
+点击币别信息
+    点击    xpath=//a[text()='币别信息']
+    等待加载层消失
+    mouse out    xpath=//a[text()='币别信息']
+
+点击商品分类
+    点击    xpath=//a[text()='商品分类']
+    等待加载层消失
+    mouse out    xpath=//a[text()='商品分类']
+
+点击货物信息
+    点击    xpath=//a[text()='货物信息']
+    等待加载层消失
+    mouse out    xpath=//a[text()='货物信息']
+
+点击贸易方式
+    点击    xpath=//a[text()='贸易方式']
+    等待加载层消失
+    mouse out    xpath=//a[text()='贸易方式']
+
+点击成交方式
+    点击    xpath=//a[text()='成交方式']
+    等待加载层消失
+    mouse out    xpath=//a[text()='成交方式']
+
+点击结算类型
+    点击    xpath=//a[text()='结算类型']
+    等待加载层消失
+    mouse out    xpath=//a[text()='结算类型']
+
+点击费用分类管理
+    点击    xpath=//a[text()='费用分类管理']
+    等待加载层消失
+    mouse out    xpath=//a[text()='费用分类管理']
+
+点击计费方式和单位
+    点击    xpath=//a[text()='计费方式和单位']
+    等待加载层消失
+    mouse out    xpath=//a[text()='计费方式和单位']
+
+点击国家
+    点击    xpath=//a[text()='国家']
+    等待加载层消失
+    mouse out    xpath=//a[text()='国家']
+
+点击城市
+    点击    xpath=//a[text()='城市']
+    等待加载层消失
+    mouse out    xpath=//a[text()='城市']
+
+点击包装类型
+    点击    xpath=//a[text()='包装类型']
+    等待加载层消失
+    mouse out    xpath=//a[text()='包装类型']
+
+点击系统设置（主菜单）
+    点击    xpath=//ul[@id='rootMenu']//a[text()=' 设置']
+    等待加载层消失
+    mouse out    xpath=//ul[@id='rootMenu']//a[text()=' 设置']
+
+点击系统设置（菜单）
+    点击    xpath=//span[contains(text(),'系统设置')]/..
+    等待加载层消失
+    Wait Until Element Is Not Visible    xpath=//div[contains(@class,'mp-cover')]    30
+    mouse out    xpath=//span[contains(text(),'系统设置')]/..
+
+点击企业编码
+    点击    xpath=//a[text()='企业编码']
+    等待加载层消失
+    mouse out    xpath=//a[text()='企业编码']
+
+点击业务参数
+    [Documentation]    应用位置：
+    ...    \ \ 系统设置-业务参数
+    点击    xpath=//a[text()='业务参数']
+    等待加载层消失
+    mouse out    xpath=//a[text()='业务参数']
+
+点击公司管理
+    点击    xpath=//span[contains(text(),'公司管理')]/..
+    等待    1
+    等待加载层消失
+    mouse out    xpath=//span[contains(text(),'公司管理')]/..
+
+点击凭证设置
+    点击    xpath=//i[@class='iconfont icon-pingzheng']
+    等待加载层消失
+
+点击凭证字管理
+    点击    xpath=//a[text()='凭证字管理']
+    等待加载层消失
+
+点击会计科目管理
+    点击    xpath=//a[text()='会计科目管理']
+    等待加载层消失
+
+点击业务科目对应关系
+    点击    xpath=//a[text()='业务科目对应关系']
+    等待加载层消失
+
+点击职员相关财务代码
+    点击    xpath=//a[text()='职员相关财务代码']
+    等待加载层消失
+
+点击业务类型科目代码
+    点击    xpath=//a[text()='业务类型科目代码']
+    等待加载层消失
+
+点击组织结构
+    点击    xpath=//a[text()='组织结构']
+    等待加载层消失
+
+点击员工管理
+    点击    xpath=//a[text()='员工管理']
+    等待加载层消失
+
+点击用户管理
+    点击    xpath=//a[text()='用户管理']
+    等待加载层消失
+
+点击舱单
+    点击    xpath=//li[text()='舱单'][@role='menuitem']
+    等待加载层消失
+
+点击堆场装箱
+    点击    xpath=//li[text()='堆场装箱'][@role='menuitem']
+    等待加载层消失
+
+点击托书信息
+    点击    xpath=//li[text()='托书信息'][@role='menuitem']
+    等待加载层消失

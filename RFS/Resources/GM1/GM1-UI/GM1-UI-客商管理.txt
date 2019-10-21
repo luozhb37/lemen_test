@@ -1,0 +1,450 @@
+*** Settings ***
+Resource          GM1-UI-公共/GM1-UI-公用.txt
+Library           ExcelLibrary
+
+*** Keywords ***
+进入客商详情
+    [Arguments]    ${customer}    # 客商名称
+    进入列表框架
+    Wait Until Element Is Enabled    xpath=//a[text()='${customer}']    5
+    点击    xpath=//a[text()='${customer}']    #点击超链接
+    离开框架
+    等待    2
+    切换窗口    new
+
+新增客商
+    [Arguments]    ${customername}    ${customercode}
+    进入列表框架
+    #等待加载层消失
+    Wait Until Element Is Enabled    xpath=//span[text()='新 增']/..
+    等待    2
+    点击    xpath=//span[text()='新 增']/..
+    等待    2
+    离开框架
+    切换窗口    new
+    输入    id=name    ${customername}
+    输入    id=code    ${customercode}
+    输入    id=organizationCode    organization code    #社会信用统一代码
+    输入    id=address    浙江省宁波市鄞州区
+    勾选客户类别    委托客户
+    勾选客户类别    国际采购商
+    勾选客户类别    经营单位
+    下拉框选中    客户类型    同行
+    #客户类型(全部)
+    勾选客户类别    发货人    #发货人
+    勾选客户类别    收货人    #收货人
+    勾选客户类别    通知人    #通知人
+    勾选客户类别    海外代理    #海外代理
+    勾选客户类别    船公司    #船公司
+    勾选客户类别    订舱代理    #订舱代理
+    #维护必填项
+    点击    xpath=//button[@class='ant-btn ant-btn-primary']
+    wait until page contains    保存成功    15
+    关闭当前窗口
+    切换窗口    main
+
+新增-银行账户信息
+    [Arguments]    ${shortname}    ${bankname}    ${bankaccount}    ${currency}    ${bankType}=
+    点击    xpath=//span[text()='新 增']/..    #点击新增
+    输入    id=bankNameShort    ${shortname}
+    #银行名称
+    输入    id=bankName    ${bankname}
+    #银行账号
+    输入    id=bankAccount    ${bankaccount}
+    #币别
+    下拉框选中    币别    ${currency}
+    下拉框选中    账户类型    ${bankType}
+    #付款地(默认选择第一个)
+    点击    id=paymentPlace
+    按键    id=paymentPlace    \ue015
+    按键    id=paymentPlace    \\13
+    #保存
+    银行账户信息点击保存按钮
+
+新增-开票信息
+    [Arguments]    ${invoicetype}    ${currency}    ${invoicename}
+    点击    xpath=//b[text()='开票信息列表']/../../..//span[text()='新 增']/..    #点击新增
+    #业务类型
+    业务类型选择全部业务
+    #移出焦点，将业务类型的下拉框隐藏掉
+    点击    id=rcDialogTitle0
+    #开票类型
+    下拉框选中    开票类型    ${invoicetype}
+    #币别
+    下拉框选中    币别    ${currency}
+    #输入银行名称，防止前面选择的币别没有维护对应的信息
+    开票信息页面输入银行名称
+    #输入银行帐号
+    开票信息页面输入银行帐号
+    输入    id=tel    0574-88876
+    #纳税人识别号
+    输入    id=taxno    纳税人识别号${currency}
+    #发票抬头
+    输入    id=invoicename    ${invoicename}
+    #地址
+    输入    id=address    这个世界
+    #寄票地址
+    输入    id=mailAddress    浙江宁波
+    #收件人
+    输入    id=recipients    自动化
+    #收件人地址
+    输入    id=recipientsAddress    自动化的家乡
+    #收件人电话
+    输入    id=recipientsTel    0574-99987
+    #默认
+    点击    xpath=//label[text()='默认']/../..//input[@class='ant-checkbox-input']
+    #保存
+    开票信息点击保存按钮
+
+勾选客户类别
+    [Arguments]    ${text}    # 客户类别名称
+    点击    xpath=//span[text()='${text}']/..//input
+
+客商列表查询
+    [Arguments]    ${customername}
+    进入列表框架
+    输入    id=name    ${customername}
+    点击    xpath=//span[text()='查 询']/..
+    ${number}    获取匹配xpath的个数    xpath=//table[@class='ant-table-fixed']//tbody[@class='ant-table-tbody']//tr
+    离开框架
+    [Return]    ${number}
+
+新增联系人
+    [Arguments]    ${contactname}    ${goodsource}    ${phone_number}    ${contact-type}
+    点击客商详情内的tab    联系方式
+    点击    xpath=//span[text()='新 增']/..
+    点击    xpath=//div[text()='联系人属性']    #点击联系人属性下拉框
+    点击    xpath=//li[text()='${contact-type}']    #联系人属性
+    输入    xpath=//input[@id='name'][@class='ant-input ant-input-lg']    ${contactname}    #输入联系人
+    输入    id=tel    0574-8888
+    输入    id=mobile    ${phone_number}
+    run keyword if    '${contact-type}'=='业务关键人'    维护销售记录    0    ${goodsource}    ${M4-ORGNAME}    ${M4-DEPARTMENT}
+    ...    ${M4-FULLNAME}
+    run keyword if    '${contact-type}'=='其他联系人'    维护所属公司记录    0    ${M4-ORGNAME}
+    点击    xpath=//div[text()='联系人详细']/../following-sibling::div[2]//span[text()='保 存']/..    #
+    wait until page contains    保存成功    15
+
+点击客商详情内的tab
+    [Arguments]    ${text}    # tab名称
+    点击    xpath=//li[text()='${text}']
+
+联系人列表查询
+    [Arguments]    ${name}
+    输入    xpath=//input[@id='name'][@class='ant-input ant-input-sm']    ${name}
+    点击    xpath=//div[@class='panel panel--gray']//span[text()='查 询']/..
+
+进入客商列表
+    点击    xpath=//a[text()=' 客商管理']
+    Mouse Over    xpath=//a[@href='/fms-crm-front/#/CustomerSupplierList']
+    点击    xpath=//span[text()='客商资料']/../..
+    Mouse Out    xpath=//a[@href='/fms-crm-front/#/CustomerSupplierList']
+    等待    0.5
+
+删除联系人
+    点击    xpath=//span[text()='删 除']/..
+    点击确定按钮
+
+新增收发通
+    [Arguments]    ${custenname}    ${phone}    ${fax}    ${contactsenname}    ${enaddress}
+    点击    xpath=//b[text()='收发通列表']/../../following-sibling::div[1]//span[text()='新 增']/..
+    勾选收发通属性    发货人
+    勾选收发通属性    收货人
+    勾选收发通属性    通知人
+    业务类型选择全部业务
+    输入    id=dataVo.custEnName    ${custenname}    #公司英文名称
+    输入    id=dataVo.phone    ${phone}    #电话
+    输入    id=dataVo.fax    ${fax}    #传真
+    点击    xpath=//div[@id='dataVo.contactsEnName']    # 点击联系人英文名字
+    输入    xpath=//input[@id='dataVo.contactsEnName']    ${contactsenname}    #联系人英文名字
+    输入    id=dataVo.enAddress    ${enaddress}    #联系人英文地址
+    点击    xpath=//a[text()='生成内容']
+    点击    xpath=//span[text()='保 存']/..
+
+勾选列表记录（多列表）
+    [Arguments]    ${listname}    ${line}    # 列表名称，行号
+    [Documentation]    可支持多个列表当中，某个列表的勾选记录
+    勾选记录    xpath=//b[text()='${listname}']/../../../../following-sibling::div[1]//table//tbody//tr[${line}]//input
+
+勾选收发通属性
+    [Arguments]    ${type}    # 发货人、收货人、通知人
+    勾选记录    xpath=//label[@title='${type}']/../following-sibling::div[1]//input
+
+删除收发通
+    点击    xpath=//b[text()='收发通列表']/../../following-sibling::div[1]//span[text()='删 除']/..
+    Wait Until Element Is Enabled    xpath=//span[text()='确 定']/..
+    点击    xpath=//span[text()='确 定']/..
+    Wait Until Element Is Visible    xpath=//span[contains(text(),'删除成功')]
+
+新增关联自己集团
+    [Arguments]    ${kind}    #关联的客商名称# 上级、下级
+    点击    xpath=//span[text()='新增关联']/..
+    点击    xpath=//label[contains(text(),'关联公司')]/../following-sibling::div[1]    #点击下拉框
+    按键    xpath=//input[@id='ownGroup.custName']    \ue015
+    按键    xpath=//input[@id='ownGroup.custName']    \\13
+    下拉框选中    关系    ${kind}
+    点击    xpath=//span[text()='保 存']/..
+
+删除关联关系
+    点击    xpath=//a[text()='删除']
+    Wait Until Element Is Enabled    xpath=//span[text()='确 定']/..
+    点击    xpath=//span[text()='确 定']/..
+    Wait Until Element Is Visible    xpath=//span[contains(text(),'删除成功')]
+
+新增关联客户
+    [Arguments]    ${kind}    # 发货人、收货人、通知人
+    点击    xpath=//span[text()='新增关联']/..
+    点击    xpath=//label[@title='关联公司']/../following-sibling::div[1]
+    按键    xpath=//input[@id='clientVo.custName']    \\13
+    ${company}    获取元素属性值    xpath=//label[@title='关联公司']/../following-sibling::div[1]//div[@class='ant-select-selection-selected-value']    title
+    下拉框选中    关系    ${kind}
+    点击    xpath=//span[text()='保 存']/..
+    [Return]    ${company}
+
+获取结算信息列表条数
+    [Arguments]    ${tabname}
+    ${return}    获取匹配xpath的个数    xpath=//b[text()='${tabname}']/../../../../following-sibling::div[1]//div[@class='ant-table-scroll']//table/tbody/tr
+    [Return]    ${return}
+
+点击结算信息列表内的tab
+    [Arguments]    ${text}    # 结算信息内的tab名称
+    点击    xpath=//div[text()='${text}']
+
+删除银行账户信息
+    点击    xpath=//div[@class='ant-table-fixed-right']//a[text()='删除']
+    删除后点击确定按钮
+    Wait Until Element Is Visible    xpath=//span[contains(text(),'删除成功')]
+
+删除开票信息
+    点击    xpath=//b[text()='开票信息列表']/../../following-sibling::div[1]//span[text()='删 除']/..
+    删除后点击确定按钮
+    Wait Until Element Is Visible    xpath=//span[contains(text(),'删除成功')]
+
+复制银行账户信息
+    点击    xpath=//div[@class='ant-table-fixed-right']//a[text()='复制']
+    ${bank}    生成一个带有字符的随机数    银行
+    ${short}    生成一个带有字符的随机数    银行简称
+    输入    id=bankName    ${bank}
+    输入    id=bankNameShort    ${short}
+    下拉框选中    币别    USD
+    银行账户信息点击保存按钮
+    [Return]    ${bank}
+
+复制开票信息
+    [Arguments]    ${address}
+    [Documentation]    以防复制的是 默认生成的数据，故特意维护上 业务类型、地址，否则保存提示必填
+    点击    xpath=(//div[@class='ant-table-fixed-right']//table/tbody/tr/td/div/div/a[text()='复制'])[last()]
+    #获取业务类型是不是已经有值
+    点击    xpath=//label[contains(text(),'业务类型')]/../following-sibling::div[1]    #点击下拉框
+    等待    0.5
+    ${return}    获取元素属性值    xpath=//li[text()='全部业务']    aria-selected
+    #移出焦点，将业务类型的下拉框隐藏掉
+    点击    id=rcDialogTitle0
+    #没有选中这个全部业务的情况下才需要选择
+    run keyword if    '${return}'=='false'    业务类型选择全部业务
+    输入    id=address    ${address}
+    开票信息页面输入银行名称
+    开票信息页面输入银行帐号
+    开票信息点击保存按钮
+
+维护顶部信息
+    [Arguments]    ${settletype}    ${paydays}    ${paytype}    ${invoiceDateDays}    ${invoicetype}
+    客商下拉框选中(带筛选)    结算类型    ${settletype}
+    输入    id=paydays    ${paydays}
+    客商下拉框选中(带筛选)    付款方式    ${paytype}
+    输入    id=invoiceDateDays    ${invoiceDateDays}
+    客商下拉框选中(带筛选)    发票提供方式    ${invoicetype}
+    点击    xpath=//span[text()='保 存']/..
+
+结算信息详情点击保存按钮
+    [Arguments]    ${title}    # 详情的标题名称
+    点击    xpath=//div[text()='${title}']/../following-sibling::div[2]//span[text()='保 存']/..
+
+关闭开票信息详情
+    点击    xpath=//button[@class='ant-modal-close']
+
+维护销售记录
+    [Arguments]    ${row}    ${goodsource}    ${orgname}    ${department}    ${sales-name}
+    [Documentation]    ${row}:这个参数的目的是为了 你要新增多条联系人的一个定位
+    ...    第一行 则 从 0 开始
+    #点击全选所有业务类型
+    客商下拉框选中(带筛选)    xpath=//div[contains(@class,'businessTypes_${row} ')]    全部业务
+    #选择货物来源
+    客商下拉框选中(带筛选)    xpath=//div[contains(@class,'goodsSource_${row}')]    ${goodsource}
+    #选择我司公司
+    客商下拉框选中(无筛选)    xpath=//div[contains(@class,'belongOrgName_${row}')]    ${orgname}
+    #选择部门
+    #下拉框选中(根据代码定位)    id=orgDept_${row}    ${department}
+    #选择销售
+    客商下拉框选中(带筛选)    xpath=//div[contains(@class,'sales_${row}')]    ${sales-name}
+
+维护所属公司记录
+    [Arguments]    ${row}    ${orgname}
+    [Documentation]    其他联系人中，若为总公司，则可以维护多条所属公司记录
+    ...    ${row}: 0 表示定位里的第一条
+    客商下拉框选中(无筛选)    xpath=//div[contains(@class,'belongOrgName_${row}')]    ${orgname}
+
+银行账户信息点击保存按钮
+    结算信息详情点击保存按钮    银行账户信息
+
+获取银行账户信息列表的条数
+    ${num}    获取结算信息列表条数    银行账户信息列表
+    [Return]    ${num}
+
+删除后点击确定按钮
+    Wait Until Element Is Enabled    xpath=//span[text()='确 定']/..
+    点击    xpath=//span[text()='确 定']/..
+
+获取开票信息列表条数
+    ${num}    获取匹配xpath的个数    xpath=//b[text()='开票信息列表']/../../../../following-sibling::div[1]//table/tbody/tr//input
+    [Return]    ${num}
+
+业务类型选择全部业务
+    下拉框选中    业务类型    全部业务
+
+开票信息点击保存按钮
+    结算信息详情点击保存按钮    开票信息
+    等待    1
+    ${count}    获取匹配xpath的个数    xpath=//div[text()='发票抬头与该客户全称不一致，是否继续保存？']
+    Run Keyword If    ${count}>0    点击    xpath=//span[text()='确 定']/..
+
+开票信息页面输入银行名称
+    输入    xpath=//label[@title='银行名称']/../following-sibling::div[1]//input    宁波银行    #这个输入框暂没给ID值，开发说后期可能会加上
+
+开票信息页面输入银行帐号
+    输入    xpath=//label[@title='银行账号']/../following-sibling::div[1]//input    6666 8888 9999 1000    #这个输入框暂没给ID值，开发说后期可能会加上
+
+新增账单信息
+    [Arguments]    ${depDays}    ${monthEndDays}    ${receiveBillDays}
+    点击    xpath=//b[text()='账单信息列表(每家公司一条账单信息)']/../../following-sibling::div[1]//button    #点击新增
+    输入    id=depDays    ${depDays}    #航班离港
+    输入    id=monthEndDays    ${monthEndDays}    #每期结束
+    输入    id=receiveBillDays    ${receiveBillDays}    #客户确认时间
+    点击    xpath=//span[text()='保 存']/..
+
+获取账单信息列表条数
+    ${num}    获取匹配xpath的个数    xpath=//b[contains(text(),'账单信息列表')]/../../../../following-sibling::div[1]//table/tbody/tr
+    [Return]    ${num}
+
+新增信用额度
+    [Arguments]    ${startdate}    ${enddate}
+    ${count}    生成指定范围内容的带字符随机数    3
+    ${limit}    生成指定范围内容的带字符随机数    2
+    点击    xpath=//b[text()='信用额度列表']/../../following-sibling::div[1]//span[text()='新 增']/..    #点击新增
+    客商radio选择    类型    收款
+    选择有效期    有效期    ${startdate}    ${enddate}
+    输入    id=creditLimit    ${count}
+    输入    id=creditDemarcMoney    ${limit}
+    点击    xpath=//span[text()='确 定']/..
+    Wait Until Page Contains    保存成功
+
+获取指定信息列表条数
+    [Arguments]    ${name}
+    [Documentation]    获取客商-结算信息tab下的指定列表条数
+    ${num}    获取匹配xpath的个数    xpath=//b[contains(text(),'${name}')]/../../../../following-sibling::div[1]//div[@class='ant-table-scroll']//table/tbody/tr
+    [Return]    ${num}
+
+新增月结账期信息
+    [Arguments]    ${type}    ${business_type}    ${startdate}    ${enddate}    ${mode}    ${se_cycle}
+    ...    ${partition}    ${date}
+    [Documentation]    type：账期类型，取值：付款|收款
+    ...    se_type：业务类型
+    ...    date：账期
+    ...    pay：付款方式，取值：现金|电汇|支票|信用证|承兑汇票
+    ...    mode：发票提供方式，取值：快递|勤送/取|其他
+    ...    after_date：开发票日期
+    点击    xpath=//b[text()='账期信息列表']/../../following-sibling::div[1]//span[text()='新 增']/..    #点击新增
+    客商radio选择    类型    ${type}    # 选择类型
+    下拉框选中    业务类型    ${business_type}    # 选择业务类型
+    选择有效期    有效期    ${startdate}    ${enddate}    # 输入有效期
+    下拉框选中    超额处理方式    ${mode}    # 选择超额提醒方式
+    下拉框选中    结算类型    月结    # 选择结算方式
+    下拉框选中    结算周期    ${se_cycle}    # 选择结算周期
+    下拉框选中    结算划分日    ${partition}    # 选择结算划分日
+    下拉框选中    付款日    ${date}    # 选择付款日
+    点击    xpath=//span[text()='确 定']/..
+    Wait Until Page Contains    保存成功
+
+新增单票结账期信息
+    [Arguments]    ${type}    ${business_type}    ${startdate}    ${enddate}    ${mode}    ${partition}
+    ...    ${date}
+    [Documentation]    type：账期类型，取值：付款|收款
+    ...    se_type：业务类型
+    ...    date：账期
+    ...    pay：付款方式，取值：现金|电汇|支票|信用证|承兑汇票
+    ...    mode：发票提供方式，取值：快递|勤送/取|其他
+    ...    after_date：开发票日期
+    点击    xpath=//b[text()='账期信息列表']/../../following-sibling::div[1]//span[text()='新 增']/..    #点击新增
+    客商radio选择    类型    ${type}    # 选择类型
+    下拉框选中    业务类型    ${business_type}    # 选择业务类型
+    选择有效期    有效期    ${startdate}    ${enddate}    # 输入有效期
+    下拉框选中    超额处理方式    ${mode}    # 选择超额提醒方式
+    下拉框选中    结算类型    单票结    # 选择结算方式
+    下拉框选中    付款日    ${partition}    # 选择付款日
+    输入    settlePayDays    ${date}    # 输入付款日日期
+    点击    xpath=//span[text()='确 定']/..
+    Wait Until Page Contains    保存成功
+
+客商radio选择
+    [Arguments]    ${name}    ${type}
+    点击    xpath=//label[text()='${name}']/../following-sibling::div[1]//span[text()='${type}']/../span[1]
+
+选择有效期
+    [Arguments]    ${name}    ${startdate}    ${enddate}
+    点击    xpath=//label[text()='${name}']/../following-sibling::div[1]//input[1]
+    点击    xpath=(//tbody[contains(@class, 'ant-calendar-tbody')]//td[@title='${startdate}'])[1]
+    点击    xpath=(//tbody[contains(@class, 'ant-calendar-tbody')]//td[@title='${enddate}'])[1]
+    点击    xpath=//div[@class='ant-calendar-panel']//a[text()='确 定']
+    Wait Until Element Is Not Visible    xpath=//div[@class='ant-calendar-panel']//a[text()='确 定']
+
+查询正式客商
+    [Arguments]    ${name}
+    进入框架    id=content
+    Wait Until Element Is Enabled    id=name
+    输入    id=name    ${name}
+    点击    xpath=//span[text()='查 询']/..
+    离开框架
+
+客商下拉框选中(带筛选)
+    [Arguments]    ${location}    ${content}
+    点击    ${location}    #点击下拉框
+    等待    0.5
+    清空输入框内容    ${location}//input
+    # 循环输入文字内容
+    : FOR    ${str}    IN    ${content}
+    \    输入    ${location}//input    ${str}
+    \    等待    0.5
+    点击    xpath=//li[contains(text(),'${content}')]    #选中下拉框的一条记录
+
+客商下拉框选中(无筛选)
+    [Arguments]    ${location}    ${content}
+    点击    ${location}    #点击下拉框
+    等待    0.5
+    点击    xpath=//li[contains(text(),'${content}')]    #选中下拉框的一条记录
+
+新增信控信息
+    [Arguments]    ${type}    ${business_type}    ${startdate}    ${enddate}    ${mode}    ${partition}
+    ...    ${date}    ${se_cycle}=
+    ${count}    生成指定范围内容的带字符随机数    3
+    ${limit}    生成指定范围内容的带字符随机数    2
+    点击    xpath=//b[text()='账期信息列表']/../../following-sibling::div[1]//span[text()='新 增']/..    #点击新增
+    客商radio选择    类型    ${type}
+    下拉框选中    业务类型    ${business_type}    # 选择业务类型
+    选择有效期    有效期    ${startdate}    ${enddate}
+    下拉框选中    结算类型    ${mode}    # 点击结算类型
+    Run Keyword If    '${mode}' == '月结'    选择月结账期信息    ${se_cycle}    ${partition}    ${date}
+    ...    ELSE    选择单票结账期信息    ${partition}    ${date}
+    输入    id=creditLimit    ${count}    # 输入信用额度
+    输入    id=creditDemarcMoney    ${limit}    # 输入信用额度临界点
+    点击    xpath=//span[text()='确 定']/..
+    Wait Until Page Contains    保存成功
+
+选择月结账期信息
+    [Arguments]    ${se_cycle}    ${partition}    ${date}
+    下拉框选中    结算周期    ${se_cycle}    # 选择结算周期
+    下拉框选中    结算划分日    ${partition}    # 选择结算划分日
+    下拉框选中    付款日    ${date}    # 选择付款日
+
+选择单票结账期信息
+    [Arguments]    ${partition}    ${date}
+    下拉框选中    付款日    ${partition}    # 选择付款日
+    输入    settlePayDays    ${date}    # 输入付款日日期

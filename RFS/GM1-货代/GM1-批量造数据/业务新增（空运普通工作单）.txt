@@ -1,0 +1,29 @@
+*** Settings ***
+Suite Setup       m4-登录    # Run keywords | m4-登录 | AND | 空运出口初始化 |AND|维护结算相关基础信息
+Suite Teardown    close all browsers
+Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+
+*** Test Cases ***
+批量新增
+    ${count}    Set Variable    5
+    ${filename}    Set Variable    ${CURDIR}\\批量造数据编号存储.xls
+    ${sheetname}    Set Variable    空运出口
+    点击业务管理
+    进入指定二级菜单    业务台账    空运出口
+    : FOR    ${index}    IN RANGE    2    ${count}
+    \    进入框架    id=content
+    \    点击    xpath=//span[text()='全 部']/..
+    \    等待加载层消失
+    \    ${WORKNO}    新建空运工作单
+    \    切换窗口    new
+    \    编辑空运工作单
+    \    ${custom}    获取页面文本内容    xpath=//label[text()='委托单位']/../following-sibling::div[1]//div[@class='ant-select-selection-selected-value']
+    \    点击    xpath=//li[text()='费用']    # 点击切换至费用tab
+    \    等待加载层消失
+    \    新增收入费用
+    \    新增支出费用    ${custom}
+    \    关闭当前窗口
+    \    切换窗口
+    \    离开框架
+    \    log    ${WORKNO}
+    \    Write Cell    ${filename}    ${sheetname}    ${index}    0    ${WORKNO}

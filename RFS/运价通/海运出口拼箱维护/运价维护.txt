@@ -1,0 +1,118 @@
+*** Settings ***
+Suite Setup       登陆
+Suite Teardown    关闭浏览器
+Test Setup        打开页面    运价维护    海运出口拼箱维护
+Test Teardown     重载当前页
+Resource          ../../Resources/基础关键字.txt
+Resource          ../../Resources/会员操作关键字.txt
+Resource          ../../Resources/拼箱操作关键字.txt
+Resource          ../../Resources/基础资料操作关键字.txt
+Resource          ../../Resources/海运拼箱运价通.txt
+Resource          ../../Resources/整箱操作关键字.txt
+Resource          ../../Resources/运价通/运价通-引用.txt
+
+*** Test Cases ***
+运价维护-新增
+    ${count}    获取列表记录数
+    ${exp_count}    Evaluate    int(${count})+1    # 原列表数+1作为最后期望值
+    进入框架    id=mainFrame
+    点击    xpath=//a[text()='新增']    #点击新增按钮
+    离开框架
+    新增运价
+    ${new_count}    获取列表记录数
+    作为字符串应该相等    ${exp_count}    ${new_count}
+
+运价维护-复制
+    [Documentation]    \# \ 必须先执行"运价维护-新增"用例
+    ${count}    获取列表记录数
+    ${exp_count}    Evaluate    int(${count})+1    # 原列表数+1作为最后期望值
+    进入框架    id=mainFrame
+    点击第一条运价记录
+    点击复制按钮
+    离开框架
+    复制运价
+    ${new_count}    获取列表记录数
+    作为字符串应该相等    ${exp_count}    ${new_count}
+
+运价维护-编辑
+    [Documentation]    \# \ 必须先执行"运价维护-新增"用例
+    进入框架    id=mainFrame
+    点击第一条运价记录
+    点击    xpath=//a[text()='编辑']    # 点击编辑按钮
+    ${price}    获取页面值    xpath=//input[starts-with(@id,'cbmbaseprice')]    # 获取原抛底价内容
+    log    ${price}
+    ${num}    Random Num
+    # 如果有内容，把内容清空；否则输入随机数
+    Run Keyword If    "${price}"==""    输入    xpath=//input[starts-with(@id,'cbmbaseprice')]    ${num}
+    ...    ELSE    清空输入框内容    xpath=//input[starts-with(@id,'cbmbaseprice')]
+    点击    xpath=//a[text()="保存并退出"]    # 点击保存并关闭按钮
+    点击    xpath=//a[text()="明细"]    # 点击第一条记录的明细按钮
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@name,'win_')]
+    ${new_price}    获取页面值    id=cbmbaseprice
+    log    ${new_price}
+    点击    xpath=//span[text()='关闭']/..    # 点击关闭
+    离开框架
+    作为字符串应该不相等    ${price}    ${new_price}
+
+运价维护-删除
+    [Documentation]    \# \ 必须先执行"运价维护-新增"用例
+    ${count}    获取列表记录数
+    ${exp_count}    Evaluate    int(${count})-1    # 原列表数+1作为最后期望值
+    进入框架    id=mainFrame
+    点击第一条运价记录
+    点击    xpath=//a[text()='删除']    # 点击删除按钮
+    离开框架
+    点击    xpath=//span[text()='确认']/..    # 点击确认按钮删除
+    ${new_count}    获取列表记录数
+    作为字符串应该相等    ${exp_count}    ${new_count}
+
+运价维护-发布运价
+    [Documentation]    \# \ 必须先执行"运价维护-新增"用例
+    切换运价状态    未发布
+    ${count}    获取列表记录数
+    ${exp_count}    Evaluate    int(${count})-1    # 原列表数-1作为最后期望值
+    进入框架    id=mainFrame
+    点击第一条运价记录
+    点击    xpath=//a[text()='发布运价']    # 点击发布运价
+    等待直到关键字成功    1min    5sec    点击确定关闭弹框
+    离开框架
+    ${list_count}    获取列表记录数
+    Comment    ${list_count}    获取匹配xpath的个数    xpath=//*[@id='j-tableFixScroll']//table//tbody/tr    # 获取列表条数
+    作为字符串应该相等    ${list_count}    ${exp_count}
+
+运价维护-涨跌复原
+    [Documentation]    \# \ 必须先执行"运价维护-新增"用例
+    进入框架    id=mainFrame
+    点击    xpath=//a[text()="明细"]    # 点击第一条记录的明细按钮
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@name,'win_')]
+    下拉选择byValue    id=trends    1    # 下拉框选择涨
+    点击    id=bt_save    # 点击保存按钮
+    页面弹出框选择确定
+    点击    xpath=//span[text()='关闭']/..    # 点击关闭
+    离开框架
+    进入框架    id=mainFrame
+    点击第一条运价记录    # 勾选第一条记录
+    点击    xpath=//a[text()="涨跌复原"]    # 点击涨跌复原按钮
+    页面弹出框选择确定    # 确定进行涨跌复原
+    页面弹出框选择确定    # 点击确定按钮
+    点击    xpath=//a[text()="明细"]    # 点击第一条记录的明细按钮
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@name,'win_')]
+    ${result}    获取页面值    id=trends
+    点击    xpath=//span[text()='关闭']/..
+    离开框架
+    应该要相等（数字）    ${result}    0
+
+运价维护-维护运价
+    Comment    进入框架    id=mainFrame
+    Comment    run keyword if    ${count}==0    run keywords    点击    xpath=//a[text()='新增']
+    ...    AND    离开框架
+    ...    AND    新增运价
+    Comment    离开框架
+    Comment    ${count}    获取列表记录数    # 获取列表条数
+    ${cbmsellprice}    获取页面底价
+    ${exp_price}    维护第一条运价成本价    ${cbmsellprice}    1
+    ${new_price}    获取页面底价
+    应该要相等（数字）    ${new_price}    ${exp_price}

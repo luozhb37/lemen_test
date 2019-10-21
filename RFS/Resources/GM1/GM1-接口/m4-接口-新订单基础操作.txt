@@ -1,0 +1,213 @@
+*** Settings ***
+Library           ExcelLibrary
+Resource          ../GM1-UI/m4-公用.txt
+
+*** Keywords ***
+save
+    [Arguments]    ${sales}=${M4-FULLNAME}
+    [Documentation]    订单保存
+    #保存订单
+    ${etd}    get time
+    ${worknumber}    prefixAndYearMonthsInfo
+    ${resultTOjson}    m4-post-json    /fms-rest/rest/omc/save?_method=POST    {"createdate":"","createby":"","canEdit":true,"status":"0","despatchCustomername":"${customername}","despatchCustomerId":"","businesstype":"1","bookingno":"","sales":"${sales}","goodssource":"${goodssource}","customername":"${customername}","customerId":"","customerType":"${customerType}","contractName":"${contractName}","customerlinkman":"${customerlinkman}","customertel":"${customertel}","customermobile":"${customermobile}","customeremail":"${customeremail}","customeraddress":"${customeraddress}","despatchCustomerlinkman":"${despatchCustomerlinkman}","despatchCustomertel":"${despatchCustomertel}","despatchCustomermobile":"${despatchCustomermobile}","despatchCustomeremail":"${despatchCustomeremail}","despatchCustomeraddress":"${despatchCustomeraddress}","op":"${sales}","businesspeople":"${sales}","carrier":"${carrier}","carrierName":"","sono":"${sono}","agreementNo":"${agreementNo}","vesselname":"${vesselname}","voyno":"${voyno}","loadport":"${loadport}","loadportcode":"${loadportcode}","loadportCountryCnname":"${loadportCountryCnname}","dischargeport":"${dischargeport}","dischargeportcode":"${dischargeportcode}","dischargeportCountryCnname":"${dischargeportCountryCnname}","transferportCode":"${transferportCode}","transferport":"${transferport}","transferportCountryCnname":"${transferportCountryCnname}","transfersType":"${transfersType}","voyage":"${voyage}","freeBoxDays":"${freeBoxDays}","freeHeapDays":"${freeHeapDays}","goodsClass":"${goodsClass}","goodsname":"${goodsname}","goodsdesc":"${goodsdesc}","hsCode":"${hsCode}","packkind":"${packkind}","count":"${count-main}","weight":"${weight}","volume":"${volume}","tradeterm":"${tradeterm}","billtype":"${billtype}","paymentplace":"${paymentplace}","routeCode":"${routeCode}","shipper":"${shipper}","consignee":"${consignee}","notify":"${notify}","bnMainsBookingCtnList":[{"ctn":"${ctn}","ctnCount":"${ctnCount}","casenumber":"","perCtnWeight":"${perCtnWeight}","perCtnVolume":"${perCtnVolume}"}],"receiptsList":[{"amount":"${amount}","casenumber":"","count":"${count}","currency":"${currency}","rate":"","feeitem":"${feeitem}","orderUuid":"","orgId":"","price":"${price}","unit":"${unit}","freightclause":"${freightclause}","feeStatus":"2"}],"whintoNo":null,"packType":null,"isOversize":null,"oversize":null,"isCollection":null,"collectionMoney":null,"isPrepayReSingle":null,"collectMoney":null,"overseaSales":null,"overseasAgent":null,"overseasAgentId":null,"shippingAddress":null,"postcode":null,"isImportRight":null,"productValue":null,"dduDdpConsignee":null,"dduDdpContact":null,"dduDdpPhone":null,"dduDdpMail":null,"pdoors":null,"padate":null,"linkman":null,"tel":null,"address":null,"bargeLoadportCode":null,"bargeLoadportEnname":null,"bargeLoadportCountryCnname":null,"bargeLoadportUncode":null,"bargeTransfersType":null,"bargeDate":null,"massaddress":null,"bnMainServiceList":[{"serviceItemValue":true,"serviceItemName":"booking","serviceItemLable":"订舱"}],"pprovinceCode":null,"pcityCode":null,"pareaCode":null,"pprovinceName":null,"pcityName":null,"pareaName":null,"freeBoxBy":"10","freeHeapBy":"10","goodsType":"${goodsType}","transclause":"${transclause}","billtype":"","freightclause":"${freightclause}","sendtype":"${sendtype}","hblFreightclause":"${hblFreightclause}","hblSendtype":"${hblSendtype}","workNo":"${worknumber}","etd":"${etd}"}
+    [Return]    ${resultTOjson}    # bookingno,casenumber
+
+updateBnBookings
+    [Arguments]    ${worknumber}    ${casenumber}    ${org_id}    ${loadport}    ${uuid}    ${dischargeport}=SHENZHEN
+    ...    ${sales}=${M4-FULLNAME}    ${op}=${M4-FULLNAME}    ${businesspeople}=${M4-FULLNAME}
+    [Documentation]    与 【海外中心的填充完毕】请求是同一个，只是参数有点不一样
+    ...
+    ...    填充完毕：增加参数 \ \ 海外代理 和 overseasStatus="2"
+    ${tojson}    m4-post-json    /fms-rest/rest/omc/updateBnBookings?_method=PUT    {"receiptsList":[{"id":null,"orgId":"${org_id}","casenumber":"${casenumber}","feeitem":"${feeitem}","currency":"${currency}","rate":${rate},"unit":"${unit}","count":${count},"amount":${amount},"customername":"${customername}","issuestatus":"false","reccreateman":"","reccreatedate":"","auditstatus":"false","orginvoce":"false","clearstatus":"false","quotedstatus":"-1","isauto":"false","ischeckoutBn":"false","freightclause":"0","feerank":1,"certificatelock":"false","customerconfirm":0,"isTaxinclusivePrice":1,"price":10,"issplit":"false","feeCategory":10,"feeSource":10,"forceclear":0,"confirmStatus":0,"isContainSecurity":true,"isModifyCustomernameOrCurrency":false}],"payfeePlanList":[],"paysList":[],"bnMainsBookingCtnList":[{"orgId":"${org_id}","id":null,"casenumber":"${casenumber}","ctn":"${ctn}","ctnCount":${ctnCount},"perCtnWeight":${perCtnWeight},"perCtnVolume":${perCtnVolume},"isPolActualFreebox":"false","isPolActualFreeheap":"false","isPodActualFreebox":"false","isPodActualFreeheap":"false"}],"bnRemarksList":[],"canAudit":false,"canEdit":true,"canEditOverseasAgent":false,"currentUser":"","casenumber":"${casenumber}","orgId":"${org_id}","businesstype":"1","loadport":"${loadport}","loadportcode":"${loadportcode}","dischargeport":"${dischargeport}","dischargeportcode":"${dischargeportcode}","transclause":"${transclause}","freightclause":"${freightclause}","paymentplace":"${paymentplace}","sendtype":"${sendtype}","shipper":"${shipper}","consignee":"${consignee}","notify":"${notify}","goodsname":"${goodsname}","goodsdesc":"${goodsdesc}","count":${count-main},"packkind":"${packkind}","weight":${weight},"volume":${volume},"deliveryservice":"true","customerservice":"true","inspectservice":"true","status":"0","createby":"","createdate":"","carrier":"${carrier}","vesselname":"${vesselname}","compactno":"","sales":"${sales}","op":"${sales}","customername":"${customername}","customerlinkman":"${customerlinkman}","customertel":"${customertel}","customeraddress":"${customeraddress}","bookingtype":"1","voyno":"${voyno}","transferport":"${transferport}","sendgoodsservice":"false","businesspeople":"${sales}","orderUuid":"${uuid}","orderSource":"ADD","customermobile":"${customermobile}","customeremail":"${customeremail}","goodssource":"${goodssource}","createbyId":"","workNo":"${worknumber}","goodsType":"${goodsType}","despatchCustomername":"${customername}","transferportCode":"${transferportCode}","voyage":${voyage},"transfersType":"${transfersType}","isApplyDestPort":"false","hsCode":"${hsCode}","routeCode":"${routeCode}","loadportCountryCnname":"${loadportCountryCnname}","dischargeportCountryCnname":"${dischargeportCountryCnname}","transferportCountryCnname":"${transferportCountryCnname}","freightCreateName":"","agreementNo":"协议号 29987","customerType":"2","goodsClass":"01","contractName":"合约公司","sono":"${sono}","freeBoxBy":"${freeBoxBy}","freeBoxDays":${freeBoxDays},"freeHeapBy":"${freeHeapBy}","freeHeapDays":${freeHeapDays},"tradeterm":"${tradeterm}","despatchCustomerlinkman":"${despatchCustomerlinkman}","despatchCustomertel":"${despatchCustomertel}","despatchCustomeraddress":"${despatchCustomeraddress}","despatchCustomeremail":"${despatchCustomeremail}","despatchCustomermobile":"${despatchCustomermobile}","list":[],"copyBusinessNo":"","reviewFlag":false,"bnError":false,"setBasePrice":false,"orgPageElementVo.booking":true,"agreementGoodsname":"xieyihuop","areaCodes":[],"whintoNo":null,"packType":null,"isOversize":null,"oversize":null,"isCollection":null,"collectionMoney":null,"isPrepayReSingle":null,"collectMoney":null,"overseaSales":null,"overseasAgent":null,"overseasAgentId":null,"shippingAddress":null,"postcode":null,"isImportRight":null,"productValue":null,"dduDdpConsignee":null,"dduDdpContact":null,"dduDdpPhone":null,"dduDdpMail":null,"pdoors":null,"padate":null,"linkman":null,"tel":null,"address":null,"bargeLoadportCode":null,"bargeLoadportEnname":null,"bargeLoadportCountryCnname":null,"bargeLoadportUncode":null,"bargeTransfersType":null,"bargeDate":null,"massaddress":null,"bnMainServiceList":[{"serviceItemValue":true,"serviceItemName":"booking","serviceItemLable":"订舱"}],"pprovinceCode":null,"pcityCode":null,"pareaCode":null,"pprovinceName":null,"pcityName":null,"pareaName":null,"billtype":"","hblFreightclause":"${hblFreightclause}","hblSendtype":"${hblSendtype}","receiptsList_feeitem_0_0":"操作费","receiptsList_freightclause_0_0":"0","receiptsList_price_0_0":10,"receiptsList_currency_0_0":"USD","receiptsList_unit_0_0":"1","receiptsList_count_0_0":2,"receiptsList_amount_0_0":20}
+    [Return]    ${tojson}
+
+获取订单详情
+    [Arguments]    ${casenumber}
+    ${content1}    m4-get    uri=/fms-rest/rest/omc/${casenumber}
+    [Return]    ${content1}
+
+commitBnBookings
+    [Arguments]    ${worknumber}    ${casenumber}    ${org_id}    ${uuid}    ${sales}=${M4-FULLNAME}
+    [Documentation]    提交订单
+    ${etd}    get time
+    ${tojson}    m4-post-json    /fms-rest/rest/omc/commitOrder?_method=PUT    {"receiptsList":[{"id":null,"orgId":"${org_id}","casenumber":"${casenumber}","feeitem":"${feeitem}","currency":"${currency}","rate":${rate},"unit":"${unit}","count":${count},"amount":${amount},"customername":"${customername}","issuestatus":"false","reccreateman":"","reccreatedate":"","auditstatus":"false","orginvoce":"false","clearstatus":"false","quotedstatus":"-1","isauto":"false","ischeckoutBn":"false","freightclause":"0","feerank":1,"certificatelock":"false","customerconfirm":0,"isTaxinclusivePrice":1,"price":10,"issplit":"false","feeCategory":10,"feeSource":10,"forceclear":0,"confirmStatus":0,"isContainSecurity":true,"isModifyCustomernameOrCurrency":false}],"payfeePlanList":[],"paysList":[],"bnMainsBookingCtnList":[{"orgId":"${org_id}","id":null,"casenumber":"${casenumber}","ctn":"${ctn}","ctnCount":${ctnCount},"perCtnWeight":${perCtnWeight},"perCtnVolume":${perCtnVolume},"isPolActualFreebox":"false","isPolActualFreeheap":"false","isPodActualFreebox":"false","isPodActualFreeheap":"false"}],"bnRemarksList":[],"canAudit":false,"canEdit":true,"canEditOverseasAgent":false,"currentUser":"","casenumber":"${casenumber}","orgId":"${org_id}","businesstype":"1","loadport":"${loadport}","loadportcode":"${loadportcode}","dischargeport":"${dischargeport}","dischargeportcode":"${dischargeportcode}","transclause":"${transclause}","freightclause":"${freightclause}","paymentplace":"${paymentplace}","sendtype":"${sendtype}","shipper":"${shipper}","consignee":"${consignee}","notify":"${notify}","goodsname":"${goodsname}","goodsdesc":"${goodsdesc}","count":${count-main},"packkind":"${packkind}","weight":${weight},"volume":${volume},"deliveryservice":"true","customerservice":"true","inspectservice":"true","status":"0","createby":"","createdate":"","carrier":"${carrier}","vesselname":"${vesselname}","compactno":"","sales":"${sales}","op":"${sales}","customername":"${customername}","customerlinkman":"${customerlinkman}","customertel":"${customertel}","customeraddress":"${customeraddress}","bookingtype":"1","voyno":"${voyno}","transferport":"${transferport}","sendgoodsservice":"false","businesspeople":"${sales}","orderUuid":"${uuid}","orderSource":"ADD","customermobile":"${customermobile}","customeremail":"${customeremail}","goodssource":"${goodssource}","createbyId":"","workNo":"${worknumber}","etd":"${etd}","goodsType":"${goodsType}","despatchCustomername":"${customername}","transferportCode":"${transferportCode}","voyage":${voyage},"transfersType":"${transfersType}","isApplyDestPort":"false","hsCode":"${hsCode}","routeCode":"${routeCode}","loadportCountryCnname":"${loadportCountryCnname}","dischargeportCountryCnname":"${dischargeportCountryCnname}","transferportCountryCnname":"${transferportCountryCnname}","freightCreateName":"","agreementNo":"协议号 29987","customerType":"2","goodsClass":"01","contractName":"合约公司","sono":"${sono}","freeBoxBy":"${freeBoxBy}","freeBoxDays":${freeBoxDays},"freeHeapBy":"${freeHeapBy}","freeHeapDays":${freeHeapDays},"tradeterm":"${tradeterm}","despatchCustomerlinkman":"${despatchCustomerlinkman}","despatchCustomertel":"${despatchCustomertel}","despatchCustomeraddress":"${despatchCustomeraddress}","despatchCustomeremail":"${despatchCustomeremail}","despatchCustomermobile":"${despatchCustomermobile}","list":[],"copyBusinessNo":"","reviewFlag":false,"bnError":false,"setBasePrice":false,"orgPageElementVo.booking":true,"agreementGoodsname":"xieyihuop","areaCodes":[],"whintoNo":null,"packType":null,"isOversize":null,"oversize":null,"isCollection":null,"collectionMoney":null,"isPrepayReSingle":null,"collectMoney":null,"overseaSales":null,"overseasAgent":null,"overseasAgentId":null,"shippingAddress":null,"postcode":null,"isImportRight":null,"productValue":null,"dduDdpConsignee":null,"dduDdpContact":null,"dduDdpPhone":null,"dduDdpMail":null,"pdoors":null,"padate":null,"linkman":null,"tel":null,"address":null,"bargeLoadportCode":null,"bargeLoadportEnname":null,"bargeLoadportCountryCnname":null,"bargeLoadportUncode":null,"bargeTransfersType":null,"bargeDate":null,"massaddress":null,"bnMainServiceList":[{"serviceItemValue":true,"serviceItemName":"booking","serviceItemLable":"订舱"}],"pprovinceCode":null,"pcityCode":null,"pareaCode":null,"pprovinceName":null,"pcityName":null,"pareaName":null,"billtype":"","hblFreightclause":"${hblFreightclause}","hblSendtype":"${hblSendtype}","receiptsList_feeitem_0_0":"操作费","receiptsList_freightclause_0_0":"0","receiptsList_price_0_0":10,"receiptsList_currency_0_0":"USD","receiptsList_unit_0_0":"1","receiptsList_count_0_0":2,"receiptsList_amount_0_0":20}
+    [Return]    ${tojson}
+
+copybooking
+    [Arguments]    ${casenumber}
+    ${data}    Create Dictionary    _method=get    casenumber=${casenumber}    num=1
+    ${result1}    m4-post-urlencoded    uri=/fms-rest/rest/omc/copyBooking?_method=get&casenumber=${casenumber}&num=1
+    [Return]    ${result1}
+
+statusTotal
+    [Arguments]    ${datetype}
+    [Documentation]    显示该时间查询条件下各个状态的记录数
+    ...    -10：已拒绝
+    ...    20：审核通过
+    ...    0：草稿
+    ...    10：待处理
+    ...    -5：已取消
+    ...    ALL:全部
+    ${yyyy}    ${yy}    ${dd}=    get time    year,month,day
+    ${currentdate}    Catenate    SEPARATOR=    ${yyyy}    ${yy}    ${dd}
+    ${data}    create dictionary    dateType=${datetype}    startDate=${currentdate}    endDate=${currentdate}
+    ${result1}    m4-post-urlencoded    uri=/fms-rest/rest/bnBookings/statusTotal?_method=get    data=${data}
+    [Return]    ${result1}
+
+list
+    [Arguments]    ${dateType}    ${multi_number}    ${status}=
+    [Documentation]    订单中心列表查询
+    ...    ${status}：
+    ...    草稿：0
+    ...    待处理：10
+    ...    审核通过：20
+    ...    已拒绝：-10
+    ...    已取消：-5
+    ...    全部：空
+    ...    ${multi_number}:可查询 工作编号、主单号
+    ...
+    ...
+    ...    查询当前日期
+    ${yyyy}    ${yy}    ${dd}=    get time    year,month,day
+    ${currentdate}    Catenate    SEPARATOR=    ${yyyy}    ${yy}    ${dd}
+    ${data}    create Dictionary    startDate=${currentdate}    endDate=${currentdate}    dateType=${dateType}    multi_number=${multi_number}    status=${status}
+    ...    pageSize=15    page=1
+    ${content_json}    m4-post-urlencoded    uri=/fms-rest/rest/omc/list?_method=get    data=${data}
+    [Return]    ${content_json}
+
+auditList
+    [Arguments]    ${datetype}    ${status}    ${multi_number}
+    [Documentation]    审核中心查询：
+    ...    ${status}:
+    ...    待处理:10
+    ...    审核通过: 20
+    ...    已拒 绝: -10
+    ...    已取消: -5
+    ...    全部:为空
+    ...
+    ...    查询当前日期
+    #查询日期为当前日期
+    ${yyyy}    ${yy}    ${dd}=    get time    year,month,day
+    ${currentdate}    Catenate    SEPARATOR=    ${yyyy}    ${yy}    ${dd}
+    ${data}    create dictionary    startDate=${currentdate}    endDate=${currentdate}    dateType=${datetype}    status=${status}    multi_number=${multi_number}
+    ...    pageSize=15    page=1
+    ${result1}    m4-post-urlencoded    /fms-rest/rest/omc/auditList?_method=get    data=${data}
+    [Return]    ${result1}
+
+audit
+    [Arguments]    ${casenumber}    ${status}    ${booking}    ${refusereason}
+    [Documentation]    ${status}=20为通过，-10为拒绝
+    ...
+    ...    ${refusereason}: 通过时 ，维护成 null
+    ...
+    ...    ${booking}:审核通过时 ，0 表示 使用现舱，1 是 重新订舱
+    ...    拒绝时：不维护
+    ${tojson}    m4-post-json    /fms-rest/rest/omc/audit    {"casenumber":"${casenumber}","auditStatus":${status},"refuseReason":${refusereason},"isRebooking":"${booking}","contractNo":"","agreementGoodsname":"","contractName":"大掌柜新版系统功能测试体验","isRealShipper":"false","payfeePlanList":[],"bookingagency":"六六国际货运代理有限公司","paysList":[{"amount":6,"casenumber":"","count":2,"currency":"USD","rate":"","feeitem":"动植检费","orderUuid":"","orgId":"","price":"3","unit":"05","freightclause":"0","feeStatus":"2"}]}
+    [Return]    ${tojson}
+
+prefixAndYearMonthsInfo
+    ${content}    m4-post-urlencoded    uri=/fms-rest/rest/sys-numrule/businesstypeid/seaexp/prefixAndYearMonthsInfo?_method=get
+    ${worknumber}    Catenate    SEPARATOR=    ${content['data']['businessnoPrefix']}    ${content['data']['businessnoYearmonth']}    ${content['data']['businessnoContentDefualt']}
+    [Return]    ${worknumber}
+
+cancelbnbooking
+    [Arguments]    ${casenumber}
+    ${data}    create dictionary    casenumber=${casenumber}
+    ${tojson}    m4-post-urlencoded    uri=/fms-rest/rest/omc/cancelBnBooking?_method=get    data=${data}
+    [Return]    ${tojson}
+
+occupationList
+    [Arguments]    ${dateType}    ${multi_number}
+    [Documentation]    占舱中心列表查询
+    ${yyyy}    ${yy}    ${dd}=    get time    year,month,day
+    ${currentdate}    Catenate    SEPARATOR=    ${yyyy}    ${yy}    ${dd}
+    ${data}    create Dictionary    startDate=${currentdate}    endDate=${currentdate}    dateType=${dateType}    multi_number=${multi_number}    status=
+    ...    pageSize=15    page=1
+    ${content_json}    m4-post-urlencoded    /fms-rest/rest/omc/occupationList?_method=get    data=${data}
+    [Return]    ${content_json}
+
+searchBookingDate
+    [Arguments]    ${dateType}    ${no}    ${status}
+    [Documentation]    订舱台帐列表查询
+    ...    ${status}：
+    ...    全部：0
+    ...    待订舱：10
+    ...    处理中：20
+    ...    待关联SO：30
+    ...    SO待修改：35
+    ...    已放舱：40
+    ...    已取消：-1
+    ...
+    ...
+    ...    ${dateType}:
+    ...    创建时间：createDate
+    ...    驳船截关时间：bargeEtc
+    ...    驳船截单时间：cutOffBillDateBarge
+    ...    大船截关时间：mainEtc
+    ...    大船截单时间：cutOffBillDateMain
+    ${yyyy}    ${yy}    ${dd}=    get time    year,month,day
+    ${currentdate}    Catenate    SEPARATOR=    ${yyyy}    ${yy}    ${dd}
+    ${data}    create Dictionary    startDate=${currentdate}    endDate=${currentdate}    dateType=${dateType}    no=${no}    currentEbookingStatus=${status}
+    ...    sizePerPage=15    pageNumber=1
+    ${content_json}    m4-post-urlencoded    uri=/fms-rest/rest/booking/searchBookingDate    data=${data}
+    [Return]    ${content_json}
+
+commitOccupyBnBookings
+    [Arguments]    ${type}    ${worknumber}    ${casenumber}    ${orgid}    ${uuid}    ${user}=${m4-fullname}
+    ${tojson}    m4-post-json    /fms-rest/rest/omc/commitOccupyBnBookings?_method=PUT    data={"casenumber":"${casenumber}","orgId":"${orgid}","businesstype":"${type}","loadport":"NINGBO","loadportcode":"CNNBO","dischargeport":"BOSTON","dischargeportcode":"USBOS","goodsname":"中文品名","weight":11,"fclLcl":"FCL","ctntype1":"22G1","ctncount1":1,"deliveryservice":"false","customerservice":"false","inspectservice":"false","status":"0","createby":"${user}","createdate":"2017-12-21 14:00:10","istemplate":"false","storeservice":"false","islclOwen":"false","iswoodpack":"false","isinbatch":"false","ischangeship":"false","isdangoods":"false","carrier":"ANL","vesselname":"VOLWS","customername":"杭州电子","customerlinkman":"小赖","customertel":"87172845","customeraddress":"宁波南部商务区","bookingtype":"1","vesselnameCn":"goods","voyno":"W155","etc":"2017-12-20 00:00:00","iscreatebuss":"false","sendgoodsservice":"false","ctndesc":"20'GP×1","orderUuid":"e70f75ff-5f96-416e-b3c5-632fcb4fa772","orderSource":"ADD","feeStatus":"0","isSyncO2o":"true","customermobile":"15267855764","customeremail":"22@qq.com","needOverywrite":"F","createbyId":"585011","workNo":"${worknumber}","ctnweight1":11,"isApplyDestPort":"false","massaddress":"宁波码头","routeCode":"HANGCODE","loadportCountryCnname":"中国","dischargeportCountryCnname":"美国","freightCreateName":"${user}","fileList":[],"feeList":[],"feePayList":[],"basePriceVoList":[],"canAudit":false,"canEdit":true,"canEditOverseasAgent":false,"currentUser":"${user}","list":[],"bnBookingExtVo":{"contractNo":"heyuehao","contractName":"heyuecompany","occupyNum":5,"occupyRemark":"OCCUPY REQUIREMENT"},"needSaveService":false,"key":"1"}
+    [Return]    ${tojson}
+
+updateAuditor
+    [Arguments]    ${casenumber}
+    ${data}    create dictionary    casenumber=${casenumber}    auditorName=系统管理员
+    ${tojson}    m4-post-urlencoded    /fms-rest/rest/omc/updateAuditor    data=${data}
+    [Return]    ${tojson}
+
+delete
+    [Arguments]    ${casenumber}
+    ${data}    create dictionary    _method=delete    casenumbers=${casenumber}
+    ${result1}    m4-post-urlencoded    uri=/fms-rest/rest/omc/delete    data=${data}
+    [Return]    ${result1}
+
+save-占舱
+    [Arguments]    ${type}
+    #保存订单
+    ${worknumber}    prefixAndYearMonthsInfo
+    ${resultTOjson}    m4-post-json    /fms-rest/rest/omc/save?_method=POST    data={"businesstype":"${type}","customername":"杭州电子","customermobile":"15267855764","customeremail":"22@qq.com","customertel":"87172845","customeraddress":"宁波南部商务区","customerlinkman":"小赖","carrier":"ANL","loadport":"NINGBO","loadportcode":"CNNBO","loadportCountryCnname":"中国","dischargeport":"BOSTON","dischargeportcode":"USBOS","dischargeportCountryCnname":"美国","routeCode":"HANGCODE","ctntype1":"22G1","ctncount1":1,"ctnweight1":"11","key":"1","etc":"2017-12-20","goodsname":"中文品名","voyno":"W155","vesselname":"VOLWS","vesselnameCn":"goods","massaddress":"宁波码头","bnBookingExtVo":{"occupyNum":5,"contractNo":"heyuehao","contractName":"heyuecompany","occupyRemark":"OCCUPY REQUIREMENT"},"workNo":"${worknumber}"}
+    [Return]    ${resultTOjson}    # bookingno,casenumber
+
+updateBnBookings-占舱
+    [Arguments]    ${type}    ${worknumber}    ${casenumber}    ${orgid}    ${uuid}    ${user}=${m4-fullname}
+    ${tojson}    m4-post-json    uri=/fms-rest/rest/omc/updateBnBookings?_method=PUT    data={"casenumber":"${casenumber}","orgId":"${orgid}","businesstype":"${type}","loadport":"NINGBO","loadportcode":"CNNBO","dischargeport":"BOSTON","dischargeportcode":"USBOS","weight":11,"fclLcl":"FCL","ctntype1":"22G1","ctncount1":1,"deliveryservice":"false","customerservice":"false","inspectservice":"false","status":"0","createby":"${user}","createdate":"2017-12-21 11:34:37","istemplate":"false","storeservice":"false","islclOwen":"false","iswoodpack":"false","isinbatch":"false","ischangeship":"false","isdangoods":"false","carrier":"ANL","vesselname":"VOLWS","customername":"杭州电子","customerlinkman":"","customertel":"","customeraddress":"","bookingtype":"1","vesselnameCn":"goods","voyno":"W155","etc":"2017-12-20 00:00:00","goodsname":"","iscreatebuss":"false","sendgoodsservice":"false","ctndesc":"20'GP×1","orderUuid":"${uuid}","orderSource":"ADD","feeStatus":"0","isSyncO2o":"true","customermobile":"","customeremail":"","needOverywrite":"F","createbyId":"585011","workNo":"${worknumber}","isApplyDestPort":"false","massaddress":"宁波码头","routeCode":"","loadportCountryCnname":"中国","dischargeportCountryCnname":"美国","freightCreateName":"${user}","fileList":[],"feeList":[],"feePayList":[],"basePriceVoList":[],"canAudit":false,"canEdit":true,"canEditOverseasAgent":false,"currentUser":"${user}","list":[],"bnBookingExtVo":{},"needSaveService":false,"contractNo":"","contractName":"","occupyNum":"","occupyRemark":"","key":"1"}
+    [Return]    ${tojson}
+
+新增订单并审核通过
+    ${casenumber1}    save
+    ${content}    获取订单详情    ${casenumber1['data']}
+    #提交订单
+    commitBnBookings    worknumber=${content['data']['workNo']}    casenumber=${content['data']['casenumber']}    org_id=${content['data']['orgId']}    uuid=${content['data']['orderUuid']}
+    #审核订单
+    ${result}    audit    casenumber=${casenumber1['data']}    status=20    booking=0    refusereason=null    org_id=${content['data']['orgId']}
+    Should Be Equal As Strings    ${result['resultCode']}    100
+    #订单中心审核通过列表有该记录
+    ${content_json}    list    dateType=createdate    multi_number=${content['data']['workNo']}    status=20
+    Should Be Equal As Integers    ${content_json["data"]["total"]}    1    #列表总条数
+    #订舱台帐在待订舱列表查询
+    ${content_json2}    searchBookingDate    dateType=createdate    status=10    no=${content['data']['workNo']}
+    Should Be Equal As Integers    ${content_json2["data"]["total"]}    1    #列表总条数
+    ${order-casenumber}    Set Variable    ${content['data']['casenumber']}
+    ${public-worknumber}    Set Variable    ${content['data']['workNo']}
+    ${booking-casenumber}    Set Variable    ${content_json2['data']['list'][0]['casenumber']}
+    [Return]    ${order-casenumber}    ${public-worknumber}    ${booking-casenumber}
+
+登记异常
+    [Arguments]    ${casenumber}    ${responer}    ${user_id}
+    ${typeid}    获取异常id    ${casenumber}
+    ${return}    m4-post-json    /fms-rest/rest/bn-error/error/${casenumber}/save    {"id":null,"casenumber":"${casenumber}","functionCode":"order","businesstype":"1","errorTypeName":"取消订单","errorTypeId":${typeid},"responsibleMan":"${responer}","responsibleUserId":"${user_id}","errorDesc":"取消订单","liableUnit":"1","solveStatus":false,"bnErrorFollowUpList":[]}
+    [Return]    ${return}
+
+获取异常id
+    [Arguments]    ${casenumber}
+    ${return}    m4-post-urlencoded    /fms-rest/rest/sys-paras/error/rich-select/mainId/${casenumber}/order?searchValue=&_method=get
+    log    ${return['data'][0]['id']}
+    [Return]    ${return['data'][0]['id']}

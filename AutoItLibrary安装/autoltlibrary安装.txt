@@ -1,0 +1,26 @@
+关于button的上传文件，目前只找到autoltlibrary这个库能解决，choose file无法实现
+
+
+autoltlibrary库安装教程
+
+1.安装pywin32  cmd命令：pip install pywin32
+  如果提示错误，尝试：pip install pypiwin32
+  pip list 检查 是否已安装
+
+
+2.安装autoit-v3，安装包已上传，运行autoit-v3-setup.exe
+  注意64位的，安装过程中一定要选x64，不然加载AutoItLibrary还是会是红色的
+
+
+3.安装autoltlibrary库（下面有两种方法，二选一）
+
+  ①以管理员身份运行cmd命令：pip install robotframework-autoitlibrary
+
+  ②或者 下载AutoItLibrary，
+    在cmd窗口转到AutoItLibrary的存放目录（放在哪里都无所谓，只要转对就行了），
+    运行命令“python setup.py install”便可安装
+
+  pip list 检查 是否已安装
+
+
+4.ride引用autoitlibrary，重启ride

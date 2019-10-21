@@ -1,0 +1,41 @@
+*** Settings ***
+Resource          ../Resources/基础关键字.txt
+Resource          ../Resources/会员操作关键字.txt
+Resource          ../Resources/整箱操作关键字.txt
+Resource          ../Resources/基础资料操作关键字.txt
+Library           OlymLibrary
+
+*** Test Cases ***
+主营航线查询
+    [Documentation]    点击主营航线的一个港口,
+    ...    跳转到查询页面,
+    ...    检查查询结果是否正确
+    [Tags]    todo
+    [Setup]    登录外部账号
+    [Template]
+    [Timeout]
+    点击链接    拼箱
+    sleep    1
+    点击链接    新加坡
+    点击    xpath=//a[@value="DUBAI"]
+    sleep    1
+    页面包含-遗弃    内容    目的港：DUBAI
+    [Teardown]    关闭浏览器
+
+testcase
+    [Setup]
+    登录内部账号
+    #新增多级运价-海运    目的港waibu1    整箱    dischargeport=waibu1 waibu2    fcl_ctn_type2=999    replaced=True
+    #引用多级运价-海运    目的港waibu1
+    #新增整箱运价    asdasdsa    asdasdas    hanjin    2015-12-15    2015-12-30
+    新增整箱港口-引用本体库    SHENZHEN    1    isloadport=是
+    [Teardown]    关闭浏览器
+
+*** Keywords ***
+登录内部账号
+    打开    ${url}    #全局变量
+    点击    id=member    #客户登录窗口
+    输入    id=username    ${member_username}    #username
+    输入    id=password    ${member_password}    #password
+    点击    xpath=//a[@class="login-btn"]    #点登录按钮
+    #sleep    1

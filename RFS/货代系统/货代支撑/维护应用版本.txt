@@ -1,0 +1,120 @@
+*** Settings ***
+Suite Setup       Run keywords    变量
+...               AND    登录    #
+Suite Teardown    关闭浏览器
+Resource          ../../Resources/基础关键字.txt
+Library           Collections
+Library           ExcelLibrary
+
+*** Test Cases ***
+新增版本
+    点击    xpath=//div[@id='rootMenu']//a[contains(text(),"平台管理")]    #平台管理
+    点击    xpath=//div[@id='treeMenu']/ul/li[2]/div/a[contains(text(),"应用管理")]    #应用管理
+    点击    xpath=//div[@id='treeMenu']//li[2]//a[contains(text(),"平台应用管理")]    #平台应用管理
+    进入框架    id=content
+    Double Click Element    xpath=//td[contains(text(),"${ma_app_code}")]    #双击【应用编码】
+    page should contain    ${ma_app_name}
+    #---新增版本信息及权限
+    进入框架    id=content
+    点击    id=bt_new_version    #点击【新增版本】
+    输入    id=version_name    ${version_name}    #输入【版本名称】
+    输入    id=version_code    ${version_code}    #输入【版本代码】
+    权限列表左右调整    ${exc_local}    ${exc_sheet}    fromUserRoleList    selectedUserRoleList    selectedUserRoleList    toRight
+    #--【保存】---
+    #点击    id=pg_user_app_model_role_save    # 点【保存】
+    wait until page contains    版本信息保存成功    timeout=3    error=版本信息保存-失败
+    Capture Page Screenshot
+
+编辑版本-加权限
+    点击    xpath=//div[@id='rootMenu']//a[contains(text(),"平台管理")]    #平台管理
+    点击    xpath=//div[@id='treeMenu']/ul/li[2]/div/a[contains(text(),"应用管理")]    #应用管理
+    点击    xpath=//div[@id='treeMenu']//li[2]//a[contains(text(),"平台应用管理")]    #平台应用管理
+    进入框架    id=content
+    Double Click Element    xpath=//td[contains(text(),"${ma_app_code}")]    #双击【应用编码】
+    page should contain    ${ma_app_name}
+    #--编辑版本权限---
+    进入框架    id=content
+    点击    xpath=//td[@elementname='query_qy_version_info:appver_name']/a[contains(text(),"${edit_version_name}")]    #点击【XX版本】
+    ${v_name}    get value    id=version_name
+    Run Keyword If    '${edit_version_name}'=='${v_name}'    log    ${v_name}
+    权限列表左右调整    ${exc_local}    ${exc_sheet}    fromUserRoleList    selectedUserRoleList    selectedUserRoleList    toRight
+    #--【保存】---
+    点击    id=pg_user_app_model_role_save    # 点【保存】
+    wait until page contains    版本信息保存成功    timeout=3    error=版本信息保存-失败
+    Capture Page Screenshot
+
+编辑版本-减权限
+    点击    xpath=//div[@id='rootMenu']//a[contains(text(),"平台管理")]    #平台管理
+    点击    xpath=//div[@id='treeMenu']/ul/li[2]/div/a[contains(text(),"应用管理")]    #应用管理
+    点击    xpath=//div[@id='treeMenu']//li[2]//a[contains(text(),"平台应用管理")]    #平台应用管理
+    进入框架    id=content
+    Double Click Element    xpath=//td[contains(text(),"${ma_app_code}")]    #双击【应用编码】
+    page should contain    ${ma_app_name}
+    #--编辑版本权限---
+    进入框架    id=content
+    点击    xpath=//td[@elementname='query_qy_version_info:appver_name']/a[contains(text(),"${edit_version_name}")]    #点击【XX版本】
+    ${v_name}    get value    id=version_name
+    Run Keyword If    '${edit_version_name}'=='${v_name}'    log    ${v_name}
+    权限列表左右调整    ${exc_local}    ${exc_sheet}    selectedUserRoleList    fromUserRoleList    selectedUserRoleList    toLeft
+    #--【保存】---
+    #点击    id=pg_user_app_model_role_save    # 点【保存】
+    wait until page contains    版本信息保存成功    timeout=3    error=版本信息保存-失败
+    Capture Page Screenshot
+
+*** Keywords ***
+登录
+    #---登录----
+    打开    ${login_url}
+    进入框架    id=loginPanel
+    输入    id=username    ${username}
+    输入    id=password    ${password}
+    点击    id=btn-submit
+    wait until page contains    首页    timeout=3    error=登录失败
+    离开框架
+
+变量
+    #--变量--[支撑登录账号]---
+    set suite variable    ${login_url}    http://www.800jit.com/login.html    #登录地址
+    set suite variable    ${username}    test    #支撑-登录名
+    set suite variable    ${password}    test    #登录密码
+    #----变量【新增应用-版本】-----
+    set suite variable    ${ma_app_code}    asp_modelhome3    #应用代码
+    set suite variable    ${ma_app_name}    在线货代软件3    #应用名称
+    set suite variable    ${version_name}    GM1-标准版    #版本名称
+    set suite variable    ${version_code}    GM1-2018-v1.1    #版本代码
+    #----权限参数[引用EXCEL]---
+    set suite variable    @{exc_info}    \    #定义 需要逐个存储的 {LIST} ,默认空
+    set suite variable    ${text}    \    #定义 EXCLE 临时读取的单元格内容,默认空
+    set suite variable    ${exc_local}    ${EXECDIR}\\自动化测试\\RFS\\Resources\\public_test_file\\货代权限表.xls    # EXCLE 文件路径 （必须是 .xls）,统一放置：../RFS/Resources/public_test_file目录下；【 \ ${EXECDIR} \ 】 表示 RIDE 中脚本所在的根目录；--根据各自的目录结构定义
+    set suite variable    ${exc_sheet}    Sheet2    # EXCLE 工作表 名称，默认 sheet1
+    set suite variable    ${exc_lie}    A    # EXCLE 列名
+    #----变量【编辑应用-版本】-------
+    set suite variable    ${edit_version_name}    GM1-标准版    #版本名称
+
+权限列表左右调整
+    [Arguments]    ${exc_local}    ${exc_sheet}    ${left_list_name}    ${right_list_name}    ${check_list_name}    ${to_remove}
+    [Documentation]    ${exc_local} = EXCEL 路径；
+    ...    ${exc_sheet} = EXCEL 工作表名；
+    ...    ${left_list_name} = 左侧 列表名name；
+    ...    ${right_list_name} = 右侧 列表名 name ；
+    ...    ${check_list_name} =待检查列表名name；
+    ...    ${to_remove} = 移动到左边、右边 （右移=加权限=toRight \ ； 左移=减权限=toLeft：
+    #---读取 EXCLE 权限列表----
+    open Excel    ${exc_local}    # 打开 EXECLE 文件
+    ${exc_rows}    Get Row Count    ${exc_sheet}
+    ${exc_rows}    Evaluate    int(${exc_rows})+1    # EXCLE 行数+1，用于循环 ---自动计算
+    : FOR    ${i}    IN RANGE    1    ${exc_rows}
+    \    ${text}    Read Cell Data By Name    ${exc_sheet}    ${exc_lie}${i}    # 逐个读取 EXCEL 单元格内容
+    \    log    ${text}
+    \    Append To List    ${exc_info}    ${text}    \    # 逐个赋值给 {LIST} 变量租
+    \    select from list by Label    name=${left_list_name}    ${text}    # 逐个选择左侧待选择权限
+    点击    name=${to_remove}    # 点击 移动到 用户权限列表
+    sleep    3
+    log    ${exc_info}    #打印 EXCLE 全选列表
+    Capture Page Screenshot
+    #---检验移动结果
+    ${sec_value}    Get List Items    name=${check_list_name}
+    log    ${sec_value}
+    ${sec_count}    get matching xpath count    xpath=//select[@name='${check_list_name}']/option    #获得列表总数
+    log    ${sec_count}
+    sleep    5

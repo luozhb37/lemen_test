@@ -1,0 +1,478 @@
+*** Settings ***
+Documentation     【台账列表进入详情页（必需勾选）】--【读取业务操作字段配置信息】
+...
+...               ${CURDIR}\\业务配置字段信息\\seaexport_业务数据.xls
+Suite Setup       m4-登录
+Suite Teardown    close all browsers
+Test Teardown     重载当前页
+Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+Library           BuiltIn
+Library           AutoItLibrary
+Library           OperatingSystem
+Library           String
+
+*** Test Cases ***
+系统设置-参数(台账新增,舱单,堆场)-初始跑一次
+    [Documentation]    企业编码设置，及系统参数配置，后面很多功能模块必须先设置
+    ...
+    ...    在GM1系统稳定前，暂时在这里，方便维护；等GM稳定以后，统一调整到set suit里面
+    海出订单主列表自定义设置
+    初始化设置企业编码
+    设置业务参数
+    设置异常类型
+
+【前置条件】新增整箱业务单
+    [Documentation]    当前账号：需客商配置好对应货物来源，即要能正常下单
+    进入指定一级菜单    订单
+    进入指定二级菜单(新icon)    订
+    新增整箱业务单    海运出口整箱    国际运输
+    点击保存
+    Wait Until Page Contains    保存成功
+    ${bussinessNO-seaexport}    获取页面文本内容    xpath=//div[@class='dzg-business-info']/span[2]    #获取工作号
+    Set Suite Variable    ${bussinessNO-seaexport}
+    关闭当前窗口
+    切换窗口
+    #xpath=//span[text()='工作号：']/following-sibling::span[1]@title
+
+台账复制订单
+    点击业务管理
+    点击业务台账
+    等待加载层消失
+    Wait Until Page Contains    海运出口    timeout=3    error=失败
+    ${pages}    海运出口列表查询业务编号    ${bussinessNO-seaexport}
+    应该包含    ${pages}    共1条
+    进入框架    id=content
+    勾选记录    xpath=//div[@class='ant-table-body-inner']//tbody/tr/td[1]//input    #勾选第一条
+    点击    xpath=//span[text()='复制新增']/..    #点击复制新增按钮
+    勾选记录    xpath=//span[text()='SI信息']/../span/input    #勾选SI信息复选框
+    勾选记录    xpath=//span[text()='应收信息']/../span/input    #勾选应收信息复选框
+    勾选记录    xpath=//span[text()='应付信息']/../span/input    #勾选应付信息复选框
+    勾选记录    xpath=//span[text()='船名航次信息']/../span/input    #勾选船名航次信息复选框
+    勾选记录    xpath=//span[text()='货物信息']/../span/input    #勾选货物信息复选框
+    点击确定按钮
+    离开框架
+    切换窗口    new
+    Wait Until Page Contains    操作详情
+    ${bussinessNO-seaexport}    获取页面文本内容    xpath=//span[text()='工作号：']/following-sibling::span[1]    #获取工作号
+    关闭当前窗口
+    切换窗口
+    ${pages}    海运出口列表查询业务编号    ${bussinessNO-seaexport}
+    应该包含    ${pages}    共2条
+
+【前置条件】台账列表进入详情页
+    [Documentation]    ${bussinessNO-seaexport}为业务单号，不同环境，给不同的单号（测试，生产：准生产：测试：）
+    读取业务操作字段配置信息
+    #可由台账新增业务而来，也可直接维护业务编号
+    #${bussinessNO-seaexport}    Set Variable    EXP2019010131
+    点击业务管理
+    点击业务台账
+    等待加载层消失
+    Wait Until Page Contains    海运出口    timeout=3    error=失败
+    ${pages}    海运出口列表查询业务编号    ${bussinessNO-seaexport}
+    应该包含    ${pages}    共1条
+    点击业务编号进入详情页    ${bussinessNO-seaexport}
+    切换窗口    new
+    Page Should Contain    海运出口整箱
+    Set Suite Variable    ${bussinessNO-seaexport}
+
+操作详情-保存
+    点击操作详情    #点击进入操作详情页
+    操作页维护字段信息
+    点击订舱    #切换一下模块
+    点击操作详情
+    ${value}    获取元素属性值    xpath=//input[@id='goodsName']    value
+    应该要相等    ${value}    ${goodsName}
+
+操作详情-SO-新增
+    判断是否已放舱    #如果确保是未放舱订单，可注释掉这行
+    点击操作详情
+    移动滚动条（M3）    0
+    ${已关联SO数量}    获取已关联SO数量    #新增前获取一次值
+    新增SO    ${soNo}
+    ${设定新增SO后数量+1}    Evaluate    int(${已关联SO数量})+1
+    ${已关联SO数量}    获取已关联SO数量    #新增前获取一次值
+    应该要相等（数字）    ${已关联SO数量}    ${设定新增SO后数量+1}
+    ${title}    获取元素属性值    xpath=//div[@class='ant-col-16']/div[1]/span    title
+    应该包含    ${title}    ${soNo}
+
+操作详情-SO-更新
+    #勾选操作详情-SO-新增
+    点击操作详情
+    ${soNo}    Set Variable    GX45678    #更新的SO编号，随便，不要超长等
+    更新SO    ${soNo}
+    ${title}    获取元素属性值    xpath=//div[@class='ant-col-16']/div[1]/span    title
+    应该包含    ${title}    ${soNo}
+
+操作详情-SO-脱离
+    点击操作详情
+    新增SO    TL123456
+    ${设定脱离SO后数量}    脱离SO
+    Wait Until Page Contains    解除关联SO成功
+    ${count2}    获取匹配xpath的个数    xpath=//div[@class='ant-table-body-inner']//tbody//tr    #获取脱离后行数
+    应该要相等（数字）    ${设定脱离SO后数量}    ${count2}
+    点击    xpath=//div[text()='查看SO']/../preceding-sibling::button    #关闭查看SO弹框
+
+操作详情-SO-取消
+    点击操作详情
+    新增SO    QX123456
+    ${设定取消SO后数量}    取消SO
+    Wait Until Page Contains    取消关联SO成功
+    ${count2}    获取匹配xpath的个数    xpath=//div[@class='ant-table-body-inner']//tbody//tr    #获取取消后行数
+    应该要相等（数字）    ${设定取消SO后数量}    ${count2}
+    点击    xpath=//div[text()='查看SO']/../preceding-sibling::button    #关闭查看SO弹框
+
+订舱--放舱
+    点击订舱
+    移动滚动条（M3）    0
+    点击放舱
+    点击保存按钮
+    ${弹框}    Run Keyword And Return Status    点击知道了
+    等待    1
+    ${text}    获取已放舱的时间
+    Should Not Be Empty    ${text}
+
+订舱--撤回放舱
+    [Documentation]    \#---撤回放舱需接上一条放舱使用
+    #前提先放舱【勾选订舱-放舱】
+    点击订舱
+    撤回放舱
+    ${text}    获取处理中的时间
+    Should Not Be Empty    ${text}
+
+集装箱-新增
+    [Setup]
+    点击集装箱
+    ${已关联箱子数量}    获取箱子数量
+    ${设定新增箱子后数量+1}    Evaluate    int(${已关联箱子数量})+1    #新增箱子后该+1
+    新增集装箱
+    点击订舱    #新增后切换一下模块
+    点击集装箱
+    ${已关联箱子数量}    获取箱子数量    #获取新增后箱子数量
+    应该要相等（数字）    ${已关联箱子数量}    ${设定新增箱子后数量+1}
+
+集装箱-选择货物
+    #需勾选集装箱-新增
+    点击集装箱
+    ${count1}    关联货物
+    点击保存按钮
+    ${count2}    获取匹配xpath的个数    xpath=//div[text()='货物装载列表']/following-sibling::div[1]//table/tbody/tr
+    应该不相等    ${count1}    ${count2}
+
+集装箱-删除
+    #需勾选集装箱-新增
+    点击集装箱
+    ${已关联箱子数量}    获取箱子数量
+    ${设定删除箱子后数量-1}    Evaluate    int(${已关联箱子数量})-1    #新增箱子后该-1
+    删除箱子
+    点击订舱    #删除箱子后切换下模块
+    点击集装箱
+    ${已关联箱子数量}    获取箱子数量
+    应该要相等（数字）    ${已关联箱子数量}    ${设定删除箱子后数量-1}
+
+拖柜-集卡计划-新增
+    [Documentation]    \#前提：确保有空余的集装箱可以关联，或者勾选集装箱-新增脚本
+    #要勾选【集装箱-新增】
+    ${集卡计划号}    Get Timestamp
+    Set Suite Variable    ${集卡计划号}
+    点击拖柜
+    维护装箱门点内容
+    新增集卡计划（海运出口整箱）
+    ${箱量}    获取页面文本内容    xpath=//a[text()='${集卡计划号}']/../following-sibling::td[1]/span    #获取列表箱量数据
+    Should Not Be Empty    ${箱量}
+    Comment    ${装箱门点}    获取页面文本内容    xpath=//a[text()='${集卡计划号}']/../following-sibling::td[3]/span    #获取列表装箱门点数据
+    Comment    Should Not Be Empty    ${装箱门点}
+
+拖柜-集卡计划-派车完成/取消派车
+    #要勾选【集卡计划-新增】
+    点击拖柜
+    ${text}    获取页面文本内容    xpath=.//a[text()='${集卡计划号}']/../../td[3]    #获取初始状态：派车未完成
+    应该要相等    ${text}    派车未完成
+    ${text1}    集卡派车完成
+    应该要相等    ${text1}    派车完成
+    ${text2}    集卡派车取消
+    应该要相等    ${text2}    派车未完成
+
+拖柜-集卡计划-删除
+    #要勾选【集卡计划-新增】
+    点击拖柜
+    勾选记录    xpath=.//a[text()='${集卡计划号}']/../../td[1]//input    #每次勾选新增的那条计划
+    点击    xpath=//span[text()='取消派车']/../following-sibling::button[1]    #点击删除按钮
+    点击确定按钮
+    wait until page contains    删除成功    timeout=6    error=保存失败
+    Page Should Not Contain Element    xpath=//a[text()='${集卡计划号}']
+
+拖柜-散货计划-新增
+    ${散货计划号}    Get Timestamp    #时间戳用来当计划号
+    Set Suite Variable    ${散货计划号}
+    点击拖柜
+    新增散货计划（海运出口整箱）
+    Page Should Contain Element    xpath=//a[text()='${散货计划号}']
+
+拖柜-散货计划-派车完成/取消派车
+    #要勾选【散货计划-新增】
+    点击拖柜
+    点击散货计划TAB
+    ${text}    获取页面文本内容    xpath=.//a[text()='${散货计划号}']/../../td[3]    #获取初始状态：派车未完成
+    应该要相等    ${text}    派车未完成
+    ${text1}    散货派车完成
+    应该要相等    ${text1}    派车完成
+    ${text2}    散货派车取消
+    应该要相等    ${text2}    派车未完成
+
+拖柜-散货计划-删除
+    #要勾选【散货计划-新增】
+    点击拖柜
+    点击散货计划TAB
+    勾选记录    xpath=.//a[text()='${散货计划号}']/../../td[1]//input    #每次勾选新增的那条计划
+    点击    xpath=//span[text()='取消派车']/../following-sibling::button[1]    #点击删除按钮
+    等待    0.5
+    点击确定按钮
+    wait until page contains    删除成功    timeout=6    error=保存失败
+
+仓储-进仓计划-新增/完成进仓
+    #要勾选【操作页维护数据】
+    ${进仓计划编号}    Get Timestamp
+    Set Suite Variable    ${进仓计划编号}
+    点击仓储
+    ${进仓计划数量}    获取进仓计划数量    #新增前货物计划数量
+    ${设定新增后进仓计划数量+1}    Evaluate    int(${进仓计划数量})+1
+    新增进仓计划（海运出口整箱）
+    新增计划进仓记录（海运出口整箱）    ${goodsName}    #品名下拉选择操作页维护的货物
+    新增实际进仓记录（海运出口整箱）    ${goodsName}    #品名下拉选择操作页维护的货物
+    点击    id=finishPlanIn    #点击完成进仓
+    点击关闭按钮
+    点击进仓记录TAB
+    ${进仓计划数量}    获取进仓计划数量    #新增后再获取一次计划数量
+    应该要相等（数字）    ${进仓计划数量}    ${设定新增后进仓计划数量+1}
+
+仓储-进仓计划-新增/删除
+    #要勾选【操作页维护数据】
+    ${进仓计划编号}    Get Timestamp
+    Set Suite Variable    ${进仓计划编号}
+    点击仓储
+    #--新增前获取计划数量
+    ${进仓计划数量}    获取进仓计划数量    #新增前货物计划数量
+    ${设定新增后进仓计划数量+1}    Evaluate    int(${进仓计划数量})+1
+    新增进仓计划（海运出口整箱）
+    新增计划进仓记录（海运出口整箱）    ${goodsName}    #品名下拉选择操作页维护的货物
+    点击关闭按钮
+    #--新增后获取计划数量
+    ${进仓计划数量}    获取进仓计划数量    #新增后再获取一次计划数量
+    应该要相等（数字）    ${进仓计划数量}    ${设定新增后进仓计划数量+1}
+    ${设定新增后进仓计划数量-1}    Evaluate    int(${进仓计划数量})-1
+    删除进仓计划（海运出口整箱）
+    点击进仓记录TAB
+    #--删除后获取计划数量
+    ${进仓计划数量}    获取进仓计划数量    #删除后再获取一次计划数量
+    应该要相等（数字）    ${进仓计划数量}    ${设定新增后进仓计划数量-1}
+
+仓储-出仓计划-新增/完成出仓
+    #要勾选【新增进仓计划-完成进仓】    或者能确定有相应仓库库存
+    ${出仓计划编号}    Get Timestamp
+    Set Suite Variable    ${出仓计划编号}
+    点击仓储
+    #--新增前获取出仓计划数量
+    ${出仓计划数量}    获取出仓计划数量
+    ${设置新增后出仓计划数量+1}    Evaluate    int(${出仓计划数量})+1
+    新增出仓计划（海运出口整箱）
+    新增计划出仓记录（海运出口整箱）    ${goodsName}
+    新增实际出仓记录（海运出口整箱）
+    点击    id=finishPlanOut    #点击完成出仓
+    Wait Until Page Contains    操作成功
+    点击关闭按钮
+    #--新增后再获取出仓计划数量
+    点击出仓记录TAB
+    ${出仓计划数量}    获取出仓计划数量
+    应该要相等（数字）    ${出仓计划数量}    ${设置新增后出仓计划数量+1}
+
+仓储-出仓计划-新增/删除
+    #要勾选【新增进仓计划-完成进仓】
+    ${出仓计划编号}    Get Timestamp
+    Set Suite Variable    ${出仓计划编号}
+    点击仓储
+    #--新增前获取计划数量
+    ${出仓计划数量}    获取出仓计划数量
+    ${设定新增后出仓计划数量+1}    Evaluate    int(${出仓计划数量})+1
+    新增出仓计划（海运出口整箱）
+    点击关闭按钮
+    #--新增后获取计划数量
+    ${出仓计划数量}    获取出仓计划数量
+    应该要相等（数字）    ${出仓计划数量}    ${设定新增后出仓计划数量+1}
+    ${设定新增后出仓计划数量-1}    Evaluate    int(${出仓计划数量})-1
+    删除出仓计划
+    #--删除后获取计划数量
+    点击出仓记录TAB
+    ${出仓计划数量}    获取出仓计划数量
+    应该要相等（数字）    ${出仓计划数量}    ${设定新增后出仓计划数量-1}
+
+单证SI-提单-新增
+    点击单证
+    #点击SI
+    ${newNO}    生成一个带有字符的随机数    TDBH    #必须输入大写字母
+    ${count1}    获取匹配xpath的个数    xpath=//span[text()='提单号']/../../../..//tbody//tr    #获取table个数
+    ${count2}    单证新增    ${newNO}
+    应该不相等    ${count1}    ${count2}
+
+单证SI-提单-修改
+    #要勾选提单-新增
+    点击单证
+    #点击SI
+    ${editNO}    生成一个带有字符的随机数    EDITNO    #必须输入大写字母
+    ${str}    单证修改    ${editNO}
+    应该包含    ${str}    ${editNO}    #前包含后
+
+单证SI-提单-复制
+    #要勾选提单-新增
+    点击单证
+    ${newNO}    生成一个带有字符的随机数    TDBH    #必须输入大写字母
+    ${count1}    获取匹配xpath的个数    xpath=//span[text()='提单号']/../../../..//tbody//tr    #获取table个数
+    ${count2}    单证复制    ${newNO}
+    应该不相等    ${count1}    ${count2}
+
+单证SI-提单-并单
+    #已确认及非主单的提单不可并单
+    点击单证
+    ${newNO}    生成一个带有字符的随机数    TDBH    #必须输入大写字母
+    ${count1}    获取匹配xpath的个数    xpath=//span[text()='提单号']/../../../..//tbody//tr    #获取table个数
+    ${count2}    单证并单    ${newNO}
+    应该不相等    ${count1}    ${count2}
+
+单证SI-提单-拆分
+    #舱单或提单未执行过拆分动作，若是二次拆分，拆分规则会被锁定，无需再选
+    点击单证
+    ${count1}    获取匹配xpath的个数    xpath=//span[text()='提单号']/../../../..//tbody//tr    #获取table个数
+    ${count2}    单证拆分    2    -A,-B,-C......    #勾选第一行，拆分数量2，规则为-A-B-C...
+    应该不相等    ${count1}    ${count2}
+
+单证SI-提单-删除
+    点击单证
+    #点击SI
+    ${count1}    获取匹配xpath的个数    xpath=//div[@class='ant-table-body-inner']/table/tbody//tr    #获取行数
+    ${count2}    Convert To Integer    ${count1}    #行数转换
+    ${count3}    单证删除    ${count2}    #删除最后一行
+    应该不相等    ${count1}    ${count3}
+
+单证SI-提单-提单确认/提单取消
+    点击单证
+    ${newNO}    生成一个带有字符的随机数    TDBH    #必须输入大写字母
+    ${count1}    获取匹配xpath的个数    xpath=//span[text()='提单号']/../../../..//tbody//tr    #获取table个数
+    ${count2}    单证新增    ${newNO}
+    应该不相等    ${count1}    ${count2}
+    单证列表自定义列设置    #有提单才会出现列表，因此在新增提单后执行自定义列设置
+    ${td_status2}    单证提单确认    ${newNO}
+    应该要相等    ${td_status2}    提单确认完成
+    ${td_status3}    单证提单取消    ${newNO}
+    应该要相等    ${td_status3}    取消提单确认
+
+单证SI-提单-关联集装箱
+    点击集装箱
+    新增集装箱    #单条跑用例，需提前新增一个集装箱
+    点击单证
+    ${newNO}    生成一个带有字符的随机数    TDBH    #必须输入大写字母
+    ${count1}    获取匹配xpath的个数    xpath=//span[text()='提单号']/../../../..//tbody//tr    #获取table个数
+    ${count2}    单证新增    ${newNO}
+    应该不相等    ${count1}    ${count2}
+    点击    xpath=//div[@class='ant-table-body-inner']//span[@title='${newNO}']    #点击新增的这条提单
+    ${ctn_text1}    获取页面文本内容    xpath=//div[@class='ant-col-offset-12']/div[1]    #获取箱量
+    应该要相等    ${ctn_text1}    箱量：    #关联集装箱前，只显示‘标题’
+    ${ctn_text2}    单证提单关联集装箱
+    应该不相等    ${ctn_text2}    箱量：    #关联集装箱后，对应会显示箱型
+
+报关-报关单-新增
+    [Setup]
+    点击报关
+    ${newNO}    ${bgdNO}    报关单新增    ${custom_tradewindow}
+    ${str}    获取页面文本内容    xpath=//div[text()='报关委托列表']/../following-sibling::div[1]//tbody/tr[1]/td[3]/a
+    应该要相等    ${newNO}    ${str}
+    ${str1}    获取页面文本内容    xpath=//div[text()='报关单']/../following-sibling::div[1]//tbody/tr[1]/td[5]
+    应该要相等    ${bgdNO}    ${str1}
+
+报关-报关委托-修改
+    点击报关
+    ${editNO}    报关委托修改
+    ${str}    获取页面文本内容    xpath=//div[text()='报关单']/../following-sibling::div[1]//tbody/tr[1]/td[3]
+    应该要相等    ${editNO}    ${str}
+
+报关-报关单-修改
+    点击报关
+    ${editNO}    报关单修改
+    ${str}    获取页面文本内容    xpath=//div[text()='报关单']/../following-sibling::div[1]//tbody/tr[1]/td[5]
+    应该要相等    ${editNO}    ${str}
+
+堆场装箱-提单-新增
+    点击堆场装箱
+    ${newNO}    生成一个带有字符的随机数    DCZX    #必须输入大写字母
+    ${count}    获取匹配xpath的个数    xpath=//tbody//tr
+    ${count1}    Convert To Integer    ${count}
+    堆场提单新增    ${newNO}    ${count1}
+    点击保存按钮
+    Wait Until Page Contains    操作成功
+    ${count2}    获取匹配xpath的个数    xpath=//tbody//tr
+    应该不相等    ${count}    ${count2}
+
+堆场装箱-提单-删除
+    点击堆场装箱
+    ${count}    获取匹配xpath的个数    xpath=//tbody//tr
+    ${count1}    Convert To Integer    ${count}
+    勾选记录    xpath=//tbody//tr[${count1}]//input    #勾选最后一条记录
+    点击    xpath=//span[text()='删 除']/..    #点击删除
+    点击确定按钮
+    点击保存按钮
+    Wait Until Page Contains    操作成功
+    ${count2}    获取匹配xpath的个数    xpath=//tbody//tr
+    应该不相等    ${count}    ${count2}
+
+舱单-明细品名-新增
+    #舱单箱封号取集装箱，且是必填项
+    点击集装箱
+    新增集装箱    PONU7921065    PONU7921065    #箱号，封号有唯一性要求
+    点击舱单
+    ${count}    获取页面列表条数    明细品名及数据
+    ${count1}    Convert To Integer    ${count}
+    舱单提单新增    ${count1}
+    ${count2}    获取页面列表条数    明细品名及数据
+    应该不相等    ${count}    ${count2}
+
+舱单-明细品名-复制
+    点击舱单
+    ${count}    获取页面列表条数    明细品名及数据
+    勾选记录    xpath=//b[text()='明细品名及数据']/../../../../following-sibling::div[1]//table//tbody/tr[1]/td[1]//input    #勾选第一条提单
+    点击    xpath=//span[text()='复 制']/..    #点击复制
+    点击确定按钮
+    点击保存
+    点击确定按钮
+    Wait Until Page Contains    操作成功
+    ${count2}    获取页面列表条数    明细品名及数据
+    应该不相等    ${count}    ${count2}
+
+舱单-明细品名-删除
+    点击舱单
+    ${count}    获取页面列表条数    明细品名及数据
+    勾选记录    xpath=//b[text()='明细品名及数据']/../../../../following-sibling::div[1]//table//tbody/tr[1]/td[1]//input    #勾选第一条提单
+    点击    xpath=//span[text()='复 制']/../preceding-sibling::button[1]    #点击删除
+    点击确定按钮
+    点击保存
+    点击    xpath=//div[@class='ant-confirm-btns']/button[2]    #点击弹框确定按钮
+    Wait Until Page Contains    操作成功
+    ${count2}    获取页面列表条数    明细品名及数据
+    应该不相等    ${count}    ${count2}
+
+登记异常
+    [Setup]
+    ${异常数量_登记前}    获取异常数量
+    ${设定登记异常后数量+1}    Evaluate    int(${异常数量_登记前})+1    #新增后该+1
+    点击订舱    #有异常功能的模块
+    ${title}    Get Title
+    点击    xpath=//span[text()='登记异常']/..    #点击登记异常按钮
+    切换窗口    new
+    Wait Until Page Contains    异常编号
+    等待    1    #增加页面加载时间
+    点击    xpath=//label[@title='异常类型']/../../div[2]//div[@class='ant-select-selection__rendered']    #点击异常类型下拉框
+    点击    xpath=//li[text()='订舱异常']    #点击维护的异常类型
+    输入    id=errorDesc    登记异常功能    #输入异常描述
+    点击保存按钮
+    关闭当前窗口
+    切换窗口    title=${title}
+    点击异常
+    ${异常数量_登记后}    获取异常数量    #获取新增后异常数量
+    应该要相等（数字）    ${异常数量_登记后}    ${设定登记异常后数量+1}

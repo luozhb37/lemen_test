@@ -1,0 +1,83 @@
+*** Settings ***
+Resource          基础关键字.txt
+Resource          m4-公用.txt
+
+*** Keywords ***
+保存客商
+    ${name}    生成一个带有字符的随机数    客户
+    ${code}    生成一个带有字符的随机数    co
+    ${return}    m4-post-json    /fms-crm-rest/rest/customers?_method=POST    {"createdate":"","createby":"","name":"${name}","code":"${code}","shortName":"JC","mnemonicCode":"ZJM","summaryCode":"HZBM","webaddress":"WWW.BAIDU.COM","switchboard":"0574-887","fax":"9984-887","postcode":"336600","country":"中国","province":"河北省","provinceCode":"130000","city":"秦皇岛市","cityCode":"130300","area":"北戴河区","areaCode":"130304","address":"浙江省宁波市鄞州区日丽中路555号","englishname":"english name","englishAddress":"english address","lealPerson":"小胡伟","registerMoney":"500","hscode":"123456","customerNature":"2","customerIndustry":"E","customerType":"1","fiCustomercode":"669900","fiSuppliercode":"cwgys","settleWay":"2","companyCode":"bgsdm","iscustomer":true,"isshipper":true,"turnover":"120","grossProfit":"230","employeeTotal":"4","isconsignee":false,"isnotify":false,"isbuyer":false,"isOperatingAgency":false,"isoverseasagent":false,"isairways":false,"isshipowner":false,"isvesselagent":false,"isInspectionCompany":false,"isfleet":false,"iscy":false,"isStorageYard":false,"isexpress":false,"isInsuranceCompany":false,"isshipside":false,"iscb":false,"isTerminal":false,"isother":false,"airwayscode":null,"carrierairs":null,"carrierseas":null,"carrierseacode":null,"carrierscaccode":null,"receivercode":null,"shippingagentcode":null,"superiorityRoute":null}
+    [Return]    ${return}    ${name}
+
+保存联系人
+    [Arguments]    ${businesstype}    ${goodsourceid}    ${sales}    ${accountant}    ${casenumber}    ${name}
+    ${deptid}    获取部门id
+    ${return}    m4-post-json    /fms-crm-rest/rest/contacts    {"name":"${name}","province":"辽宁省","provinceCode":"210000","city":"丹东市","cityCode":"210600","mobile":"15267855763","email":"jing@qq.com","tel":"0574-8888","fax":"0574-9999","enAddress":"NINGBO","cnAddress":"浙江省宁波","casenumber":"${casenumber}","contactsSaleVoList":[{"businessTypes":"${businesstype}","goodsSourceId":${goodsourceid},"orgDeptId":"${deptid}","sales":"${sales}","accountant":"${accountant}"}]}
+    [Return]    ${return}
+
+保存收发通
+    [Arguments]    ${casenumber}    ${custEnName}=company name    ${isshipper}=true    ${isconsignee}=true    ${isnotify}=true    ${businesstype}=1
+    ...    ${contactsEnName}=hovi    ${isDefaultMain}=true    ${isDefaultHouseBill}=true
+    ${data}    create dictionary    isShipper=${isshipper}    isConsignee=${isconsignee}    isNotify=${isnotify}    businessType=${businesstype}    id=
+    ...    custEnName=${custEnName}    contactsEnName=${contactsEnName}    enAddress=zhejiang    aciCode=ACICODE    eoriCode=EORICODE    phone=0544-8876876
+    ...    fax=0774-987768    isDefaultMain=${isDefaultMain}    isDefaultHouseBill=${isDefaultHouseBill}    remark=this is created by machine
+    ${return}    m4-post-urlencoded    /fms-crm-rest/rest/${casenumber}/scn?_method=post    data=${data}
+    [Return]    ${return}
+
+保存解析模板
+    [Arguments]    ${casenumber}    ${type}
+    ${templateno}    生成一个带有字符的随机数    tem
+    ${templatename}    生成一个带有字符的随机数    模板
+    ${return}    m4-post-json    /fms-crm-rest/rest/${casenumber}/resolve?_method=post    {"businesstype":"${type}","templateno":"${templateno}","templatename":"${templatename}"}
+    [Return]    ${return}    ${templateno}
+
+删除解析模板
+    [Arguments]    ${casenumber}    ${id}
+    ${data}    Create Dictionary    ids=${id}
+    ${return}    m4-post-urlencoded    /fms-crm-rest/rest/${casenumber}/resolve?_method=delete    ${data}
+    [Return]    ${return}
+
+删除收发通
+    [Arguments]    ${casenumber}    ${id}
+    ${data}    Create Dictionary    ids=${id}
+    ${return}    m4-post-urlencoded    /fms-crm-rest/rest/${casenumber}/scn?_method=delete    ${data}
+    [Return]    ${return}
+
+删除联系人
+    [Arguments]    ${casenumber}    ${id}
+    ${return}    m4-post-urlencoded    /fms-crm-rest/rest/contacts/${casenumber}/delete?ids=${id}&_method=delete
+    [Return]    ${return}
+
+获取部门id
+    ${return}    m4-get    /fms-crm-rest/rest/contacts/depts
+    log    ${return['data'][0]['groupId']}
+    [Return]    ${return['data'][0]['groupId']}
+
+客商查询
+    [Arguments]    ${name}
+    ${data}    Create Dictionary    name=${name}    pageSize=15    page=1
+    ${result}    m4-post-urlencoded    /fms-crm-rest/rest/customers?_method=get    data=${data}
+    log    ${result['data']['list'][0]['casenumber']}
+    [Return]    ${result['data']['list'][0]['casenumber']}    # 返回客商的casenumber
+
+读取客商的excel
+
+银行账户信息保存
+    [Arguments]    ${casenumber}    ${accounttype}
+    ${return}    m4-post-json    /fms-crm-rest/rest/${casenumber}/bankAccount/save    {"currency":"RMB","bankName":"宁波银行","accountType":"${accounttype}","bankAccount":"333660000","paymentPlaceName":"北京北京市","paymentPlace":"110000,110100","isDefault":"true","isEnabled":"true"}
+    [Return]    ${return}
+
+开票信息保存
+    [Arguments]    ${casenumber}    ${customer}=心灵休憩地
+    ${return}    m4-post-json    /fms-crm-rest/rest/${casenumber}/invoice    {"businessType":"1","invoiceType":"1","isGeneralTaxpayer":"2","invoicename":"${customer}","address":"浙江省宁波市","bank":"宁波银行","currency":"RMB","account":"333660000","isDefault":"2"}
+    [Return]    ${return}
+
+获取银行类型
+    ${return}    m4-post-json    /fms-base-rest/rest/front/baseBankAccountType/list    {}
+    log    ${return['data'][0]['id']}
+    [Return]    ${return['data'][0]['id']}    # 账户类型的id
+
+修改客商
+    [Arguments]    ${casenumber}    ${org_id}    ${code}    ${name}    ${shortname}
+    ${return}    m4-post-json    /fms-crm-rest/rest/customers?_method=PUT    {"casenumber":"${casenumber}","orgId":"${org_id}","code":"${code}","name":"${name}","settletype":"2","paydays":0,"creditmoney":0,"language":"zh-cn","paydaysWay":"10","shortName":"${shortname}","iscustomer":true,"isagent":"false","isfleet":true,"iscb":true,"isshipowner":false,"isairways":false,"isshipper":true,"isconsignee":false,"isnotify":false,"iscy":true,"isother":false,"isOperatingAgency":true,"isInspectionCompany":false,"isStorageYard":true,"isInsuranceCompany":false,"isvesselagent":true,"isbuyer":false,"isoverseasagent":false,"isexpress":false,"isshipside":false,"createby":"","createdate":"","paymentType":"2","businessTypes":"海运出口","goodsType":"自揽货","depDays":0,"receiveBillDays":0,"monthEndDays":0,"receiveStatementDays":0,"invoiceOfferWay":"1","invoiceDateDays":1,"isTerminal":false,"isDelete":"false","userNameList":[],"country":"中国","airwayscode":null,"carrierairs":null,"carrierseas":null,"carrierseacode":null,"carrierscaccode":null}
+    [Return]    ${return}

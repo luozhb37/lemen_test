@@ -1,0 +1,45 @@
+*** Settings ***
+Resource          ../GM1-UI-公共/GM1-UI-引用.txt
+
+*** Keywords ***
+报关单新增
+    [Arguments]    ${custom_tradewindow}
+    [Documentation]    ${custom_tradewindow}:经验单位，需输入下拉框中存在的数据
+    ${newNO}    生成一个带有字符的随机数    BGWT    #必须输入大写字母
+    ${bgdNO}    生成一个带有字符的随机数    BGD    #必须输入大写字母
+    移动滚动条（M3）    0
+    点击报关
+    点击    id=addEntBtn    #点击新增按钮
+    输入    id=entrusted.customEntrustNo    ${newNO}    #需求调整，必须要输入下拉框存在的值
+    点击    id=addCust    #点击报关单新增按钮
+    等待    1
+    点击    xpath=//input[@id='custom.1_tradewindow']/../../..    #点击经验单位下拉款
+    #点击    xpath=//p[text()='${custom_tradewindow}']    #点击下拉框中存在的经营单位，唯一值    #如果输入下拉框中不存在的数据，则无法选择
+    按键    xpath=//input[@id='custom.1_tradewindow']    \\13    #enter填入
+    输入    id=custom.1_custombillno    ${bgdNO}    #输入海关编号
+    点击    id=savePlanIn    #点击保存按钮
+    Wait Until Page Contains    操作成功
+    [Return]    ${newNO}    ${bgdNO}
+
+报关委托修改
+    ${editNO}    生成一个带有字符的随机数    EDIT    #必须输入大写字母
+    进入报关委托详情
+    点击编号的编辑按钮
+    输入    id=entrusted.customEntrustNo    ${editNO}    #修改报关委托编号
+    点击    id=savePlanIn    #点击保存按钮
+    Wait Until Page Contains    操作成功
+    点击关闭按钮
+    [Return]    ${editNO}
+
+进入报关委托详情
+    点击    xpath=//div[text()='报关委托列表']/../following-sibling::div[1]//tbody/tr[1]/td[3]/a
+
+报关单修改
+    ${editNO}    生成一个带有字符的随机数    EDIT    #必须输入大写字母
+    进入报关委托详情
+    输入    id=custom.1_custombillno    ${editNO}    #修改报关单
+    点击    id=savePlanIn
+    等待    1
+    Wait Until Page Contains    操作成功
+    点击关闭按钮
+    [Return]    ${editNO}

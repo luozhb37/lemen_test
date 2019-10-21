@@ -1,0 +1,52 @@
+*** Settings ***
+Suite Setup       登录    # Run keywords | 系统参数设置 | AND | 往来单位初始化 | \ AND | 自定义初始化
+Suite Teardown    close all browsers
+Test Setup        Reload Page
+Resource          ../../Resources/M3基础操作/M3--引用.txt
+
+*** Test Cases ***
+新增空运进口业务台帐
+    新增空运进口业务台帐
+
+复制空运进口业务台帐
+    判断是否存在全局变量业务编号-空运进口
+    点击业务管理
+    点击业务台帐
+    点击空运进口
+    ${no}    复制空运进口业务台帐
+    ${pages}    海运进口、空运列表查询业务编号    ${no}
+    应该包含    ${pages}    共1条    #msg=该业务编号${businessNo}不存在    #验证新增的业务编号在列表上可以查询到一条记录
+    点击业务管理
+
+删除空运进口业务台帐
+    ${no}    新增空运进口业务台帐-删除专用
+    点击业务管理
+    点击业务台帐
+    点击空运进口
+    进入框架    id=content
+    select checkbox    xpath=.//*[@id='qp_airimport_tbl5']/tbody/tr[2]/td[2]/input    #勾选第一条记录
+    离开框架
+    删除业务台帐
+    ${pages}    海运进口、空运列表查询业务编号    ${no}
+    sleep    1
+    应该包含    ${pages}    共0条    #msg=该业务编号${businessNo}存在    #验证新增的业务编号在列表上可以查询到一条记录
+    点击业务管理
+
+空运进口批量完成--业务制单/取消业务制单
+    判断是否存在全局变量业务编号-空运进口
+    点击业务管理
+    点击业务台帐
+    点击空运进口
+    空运进口填写离港日期
+    列表页面-全选记录
+    海运进口、空运批量业务制单完成
+    ${content}    获取台帐详情锁定后的业务制单状态    ${BUSINESSNO-SUIT-AIRIMPORT}
+    应该要相等    ${content}    true
+    关闭所有弹出框
+    等待    1
+    列表页面-全选记录
+    海运进口、空运批量取消业务制单完成
+    ${content1}    获取台帐详情未锁定的业务制单状态    ${BUSINESSNO-SUIT-AIRIMPORT}
+    应该要相等    ${content1}    false
+    关闭所有弹出框
+    点击业务管理

@@ -1,0 +1,343 @@
+*** Settings ***
+Resource          ../GM1-UI-公共/GM1-UI-引用.txt
+Library           AutoItLibrary
+
+*** Keywords ***
+获取列表记录数
+    进入列表框架
+    ${pages}    获取页面文本内容    css=.ant-pagination-total-text
+    离开框架
+    [Return]    ${pages}
+
+海运出口列表查询业务编号
+    [Arguments]    ${bussinessNO}
+    进入列表框架
+    输入    xpath=//div[@id='default.multiNumbers-t']//div[@class='ant-select-selection__placeholder']/..    ${bussinessNO}    #各类编号查询业务订单
+    #Mouse Over    xpath=//span[@class='ant-calendar-picker-input ant-input ant-input-lg']//input[1]    #x悬停至时间
+    #点击    xpath=//span[@class='ant-calendar-picker-input ant-input ant-input-lg']//i    #点击时间的删除
+    等待    1
+    点击    id=BusinessCenter-adSearch
+    等待    1    #点击查询后，页面还在刷新
+    ${pages}    获取页面文本内容    css=.ant-pagination-total-text
+    离开框架
+    [Return]    ${pages}
+
+点击业务编号进入详情页
+    [Arguments]    ${bussinessNO}
+    进入列表框架
+    等待    2
+    点击    xpath=//div[@id='business-center-list']//a[text()='${bussinessNO}']/..
+    离开框架
+
+点击保存按钮
+    Focus    xpath=//span[text()='保 存']/..
+    点击    xpath=//span[text()='保 存']/..
+    等待    2    #测试环境需要加等待时间
+
+点击保存
+    点击    xpath=//button[@class='ant-btn mr4 ant-btn-primary']
+
+点击确定按钮
+    点击    xpath=//span[text()='确 定']/..
+
+悬停到业务台账并点击海运出口整箱
+    Mouse Over    xpath=//i[@class='iconfont icon-yewutaizhang']
+    等待    1
+    click element    xpath=//span[contains(text(),'海运出口')]/..
+    等待    1
+    #click element    xpath=//span[text()='主列表']/..
+    #等待    1
+    log    已进入海运出口台账页面
+
+初始化设置企业编码
+    点击系统设置（主菜单）
+    点击系统设置（菜单）
+    点击企业编码
+    进入列表框架
+    海运出口集卡计划号设置无
+    海运出口散货计划号设置无
+    海运出口进仓编号设置无
+    海运出口进仓计划编号设置无
+    海运出口出仓计划编号设置无
+    海运出口装箱计划编号设置无
+    海运出口报关委托编号设置无
+    #海运出口委托编号设置无
+    离开框架
+
+海运出口集卡计划号设置无
+    点击    xpath=//a[text()='海运出口集卡计划号']
+    点击编码模式无
+    点击企业编码-保存并关闭
+    ${海运出口集卡计划号}    获取页面文本内容    xpath=//a[text()='海运出口集卡计划号']/../../td[2]
+    应该要相等    ${海运出口集卡计划号}    无
+
+海运出口散货计划号设置无
+    点击    xpath=//a[text()='海运出口散货计划号']
+    点击编码模式无
+    点击企业编码-保存并关闭
+    ${海运出口散货计划号}    获取页面文本内容    xpath=//a[text()='海运出口散货计划号']/../../td[2]
+    应该要相等    ${海运出口散货计划号}    无
+
+海运出口进仓编号设置无
+    点击    xpath=//a[text()='海运出口进仓编号']
+    点击编码模式无
+    点击企业编码-保存并关闭
+    ${海运出口进仓编号}    获取页面文本内容    xpath=//a[text()='海运出口进仓编号']/../../td[2]
+    应该要相等    ${海运出口进仓编号}    无
+
+海运出口进仓计划编号设置无
+    点击    xpath=//a[text()='海运出口进仓计划编号']
+    点击编码模式无
+    点击企业编码-保存并关闭
+    ${海运出口进仓计划编号}    获取页面文本内容    xpath=//a[text()='海运出口进仓计划编号']/../../td[2]
+    应该要相等    ${海运出口进仓计划编号}    无
+
+海运出口出仓计划编号设置无
+    点击    xpath=//a[text()='海运出口出仓计划编号']
+    点击编码模式无
+    点击企业编码-保存并关闭
+    ${海运出口出仓计划编号}    获取页面文本内容    xpath=//a[text()='海运出口出仓计划编号']/../../td[2]
+    应该要相等    ${海运出口出仓计划编号}    无
+
+海运出口装箱计划编号设置无
+    点击    xpath=//a[text()='海运出口装箱计划编号']
+    点击编码模式无
+    点击企业编码-保存并关闭
+    ${海运出口装箱计划编号}    获取页面文本内容    xpath=//a[text()='海运出口装箱计划编号']/../../td[2]
+    应该要相等    ${海运出口装箱计划编号}    无
+
+海运出口报关委托编号设置无
+    点击    xpath=//a[text()='海运出口报关委托编号']
+    点击编码模式无
+    点击支持修改
+    点击企业编码-保存并关闭
+    ${海运出口报关委托编号}    获取页面文本内容    xpath=//a[text()='海运出口报关委托编号']/../../td[2]
+    应该要相等    ${海运出口报关委托编号}    无
+
+海运出口委托编号设置无
+    点击    xpath=//a[text()='海运出口委托编号']
+    点击编码模式无
+    点击企业编码-保存并关闭
+    ${海运出口委托编号}    获取页面文本内容    xpath=//a[text()='海运出口委托编号']/../../td[2]
+    应该要相等    ${海运出口委托编号}    无
+
+点击编码模式无
+    点击    xpath=//span[contains(text(),'无')]/preceding-sibling::span[1]
+
+点击企业编码-保存并关闭
+    点击    xpath=//span[text()='保存并关闭']/..
+
+读取业务操作字段配置信息
+    [Documentation]    \#根据业务要输入的数据，修改这个文件名里的字段值    #绝对路径
+    ...
+    ...    E:\\自动化测试\\RFS\\Resources\\GM1\\GM1-UI\\GM1-业务操作类\\业务配置字段信息\\seaexport_业务数据.xls
+    Open Excel    ${CURDIR}\\业务配置字段信息\\seaexport_业务数据.xls
+    ${goodsName}    Read Cell Data By Name    Sheet1    C3
+    ${soNo}    Read Cell Data By Name    Sheet1    C4
+    ${ctnno}    Read Cell Data By Name    Sheet1    C5
+    ${count}    Read Cell Data By Name    Sheet1    C6
+    ${weight}    Read Cell Data By Name    Sheet1    C7
+    ${volume}    Read Cell Data By Name    Sheet1    C8
+    ${goodsDesc}    Read Cell Data By Name    Sheet1    C9
+    ${船公司}    Read Cell Data By Name    Sheet1    C10
+    #--拖柜-集卡
+    #${集卡计划号}    Read Cell Data By Name    Sheet1    C16
+    ${车队}    Read Cell Data By Name    Sheet1    C17
+    ${车队联系人}    Read Cell Data By Name    Sheet1    C18
+    ${车队电话}    Read Cell Data By Name    Sheet1    C19
+    #--拖柜-散货
+    ${散货计划进货仓库}    Read Cell Data By Name    Sheet1    C29
+    #${车队}    Read Cell Data By Name    Sheet1    C30
+    #${车队联系人}    Read Cell Data By Name    Sheet1    C31
+    #${车队电话}    Read Cell Data By Name    Sheet1    C32
+    ${散货-件-浮点型}    Read Cell Data By Name    Sheet1    C33
+    ${散货-件}    Convert To Integer    ${散货-件-浮点型}
+    ${散货-毛-浮点型}    Read Cell Data By Name    Sheet1    C34
+    ${散货-毛}    Convert To Integer    ${散货-毛-浮点型}
+    ${散货-体-浮点型}    Read Cell Data By Name    Sheet1    C35
+    ${散货-体}    Convert To Integer    ${散货-体-浮点型}
+    ${进仓编号}    Read Cell Data By Name    Sheet1    C36
+    ${提货联系人}    Read Cell Data By Name    Sheet1    C37
+    ${装箱电话}    Read Cell Data By Name    Sheet1    C38
+    ${装货要求}    Read Cell Data By Name    Sheet1    C39
+    ${提货仓库}    Read Cell Data By Name    Sheet1    C40
+    #拖柜-装箱门点信息
+    ${详细地址}    Read Cell Data By Name    Sheet1    C21
+    ${装箱门点}    Read Cell Data By Name    Sheet1    C22
+    ${输入联系人}    Read Cell Data By Name    Sheet1    C23
+    ${电话}    Read Cell Data By Name    Sheet1    C24
+    #仓储
+    #${进仓计划编号}    Read Cell Data By Name    Sheet2    C3
+    ${仓储进仓编号}    Read Cell Data By Name    Sheet2    C4
+    ${仓库名称}    Read Cell Data By Name    Sheet2    C5
+    ${送货单位}    Read Cell Data By Name    Sheet2    C6
+    ${送货联系人}    Read Cell Data By Name    Sheet2    C7
+    ${联系人电话}    Read Cell Data By Name    Sheet2    C8
+    ${进仓要求}    Read Cell Data By Name    Sheet2    C9
+    ${custom_tradewindow}    Read Cell Data By Name    Sheet2    C17
+    Set Global Variable    ${goodsName}
+    Set Global Variable    ${soNo}
+    Set Global Variable    ${ctnno}
+    Set Global Variable    ${count}
+    Set Global Variable    ${weight}
+    Set Global Variable    ${volume}
+    Set Global Variable    ${goodsDesc}
+    #Set Global Variable    ${集卡计划号}
+    Set Global Variable    ${车队}
+    Set Global Variable    ${车队联系人}
+    Set Global Variable    ${车队电话}
+    Set Global Variable    ${散货计划进货仓库}
+    Set Global Variable    ${车队}
+    Set Global Variable    ${车队联系人}
+    Set Global Variable    ${车队电话}
+    Set Global Variable    ${散货-件}
+    Set Global Variable    ${散货-毛}
+    Set Global Variable    ${散货-体}
+    Set Global Variable    ${进仓编号}
+    Set Global Variable    ${提货联系人}
+    Set Global Variable    ${装箱电话}
+    Set Global Variable    ${装货要求}
+    Set Global Variable    ${提货仓库}
+    Set Global Variable    ${详细地址}
+    Set Global Variable    ${装箱门点}
+    Set Global Variable    ${输入联系人}
+    Set Global Variable    ${电话}
+    Set Global Variable    ${船公司}
+    #Set Global Variable    ${进仓计划编号}
+    Set Global Variable    ${仓储进仓编号}
+    Set Global Variable    ${仓库名称}
+    Set Global Variable    ${送货单位}
+    Set Global Variable    ${送货联系人}
+    Set Global Variable    ${联系人电话}
+    Set Global Variable    ${进仓要求}
+    #报关
+    Set Global Variable    ${custom_tradewindow}
+
+点击关闭按钮
+    Focus    css=.ant-modal-close-x
+    点击    css=.ant-modal-close-x    #点击X符号关闭
+
+点击编号的编辑按钮
+    点击    xpath=//i[@class='anticon anticon-edit']/..
+
+点击支持修改
+    ${未勾选}    Run Keyword And Return Status    Page Should Not Contain Element    xpath=//span[@class='ant-checkbox ant-checkbox-checked']
+    Run Keyword If    '${未勾选}'=='True'    勾选支持修改
+    ...    ELSE    log    已勾选
+
+勾选支持修改
+    勾选记录    xpath=//span[text()='支持修改']/..//input
+
+新增整箱业务单
+    [Arguments]    ${businesstype}    ${serviceRuleTypeCode}    #业务类型|服务类型
+    [Documentation]    ${text}：取基础资料-企业基础资料-货物来源
+    ...
+    ...    备注：确保选择的货物来源与当前账号，有关联客商委托单位
+    #进入框架    id=fms-front
+    Comment    点击    xpath=//span[text()='新 增']/..
+    Comment    Wait Until Element Is Visible    xpath=//label[text()='业务类型']
+    Comment    Comment    下拉框选中    货物来源    ${text}
+    Comment    点击    xpath=//label[text()='委托单位']/../following-sibling::div[1]
+    Comment    按键    xpath=//input[@id='customername']    \\13
+    Comment    点击    xpath=//label[text()='货物来源']/../following-sibling::div[1]
+    Comment    按键    xpath=//input[@id='goodssource']    \\13
+    Comment    点击    xpath=//label[text()='服务类型']/../following-sibling::div[1]
+    Comment    点击    xpath=//li[text()='${serviceRuleTypeCode}']    #选中指定服务类型
+    Comment    Comment    按键    xpath=//input[@id='serviceRuleTypeCode']    \\13
+    Comment    点击    xpath=//span[contains(text(),'确 定')]/..
+    业务点击新增指定按钮    业务
+    新增订单弹出框    ${businesstype}    ${serviceRuleTypeCode}
+    离开框架
+    切换窗口    new
+    Wait Until Page Contains    操作详情
+    勾选记录    xpath=//span[text()='订舱']/../span/input
+    勾选记录    xpath=//span[text()='拖柜']/../span/input
+    勾选记录    xpath=//span[text()='仓储']/../span/input
+    勾选记录    xpath=//span[text()='报关']/../span/input
+    勾选记录    xpath=//span[text()='保险']/../span/input
+    Comment    勾选记录    xpath=//span[text()='堆场装箱']/../span/input
+    下拉框选择(带筛选功能)    xpath=//div[contains(@id,'bnMainsBookingCtnList[0].ctn_')]//div[@class='ant-select-selection__rendered']    xpath=//div[contains(@id,'bnMainsBookingCtnList[0].ctn_')]//div[@class='ant-select-selection__rendered']//input[@class='ant-select-search__field']    40GP    #第一个箱子
+    输入    xpath=//div[contains(@id,'bnMainsBookingCtnList[0].ctnCount')]//input[@class='ant-input ant-input-sm']    3    #箱型箱量输入数量
+    点击    xpath=//a[text()='特种']/../following-sibling::div[1]//a    #点击箱型箱量的+号
+    下拉框选择(带筛选功能)    xpath=//div[contains(@id,'bnMainsBookingCtnList[1].ctn_')]//div[@class='ant-select-selection__rendered']    xpath=//div[contains(@id,'bnMainsBookingCtnList[1].ctn_')]//div[@class='ant-select-selection__rendered']//input[@class='ant-select-search__field']    40GP    #第二个箱子
+    输入    xpath=//div[contains(@id,'bnMainsBookingCtnList[1].ctnCount')]//input[@class='ant-input ant-input-sm']    1    #第二个箱型箱量输入数量
+    输入    xpath=//div[@id='bnMains.hblno-t']//input    循环点击搜索条件叉叉    #英文或数字，不超过30位，都可
+    拉动滚动条（新）    0    #xpath=//div[@id='boxarea']/div[1]div[2]/div/div[2]
+
+设置业务参数
+    点击系统设置（主菜单）
+    点击系统设置（菜单）
+    进入框架    id=fms-front
+    Comment    ${radio_value}    获取页面文本内容    xpath=//div[text()='海运出口业务管理模块是否支持新增业务']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
+    Comment    Run Keyword If    '${radio_value}'=='是'    设置业务参数(单选)    海运出口业务管理模块是否支持新增业务    否
+    设置业务参数(单选)    订舱代理手动输入无效    否
+    设置业务参数(单选)    附加税率功能    是
+    设置业务参数(单选)    海运出口业务管理模块是否支持新增业务    是
+    设置业务参数(单选)    海运出口整箱是否启用舱单功能    是
+    设置业务参数(单选)    船名航次手动输入无效    否
+    #设置业务参数(单选)    海运出口整箱已放舱是否根据SO直接生成集装箱    是    #业务1.0已取消该参数
+    设置业务参数(单选)    港口及航线手动输入无效    否
+    设置业务参数(单选)    放舱时，SO与操作详情的箱型箱量是否校验    否
+    设置业务参数(单选)    是否启用业务日期校验    不校验
+    点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+    ${订舱代理_value}    获取页面文本内容    xpath=//div[text()='订舱代理手动输入无效']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
+    ${附加税率功能_value}    获取页面文本内容    xpath=//div[text()='附加税率功能']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
+    ${业务新增_value}    获取页面文本内容    xpath=//div[text()='海运出口业务管理模块是否支持新增业务']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
+    ${舱单_value}    获取页面文本内容    xpath=//div[text()='海运出口整箱是否启用舱单功能']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
+    ${船名航次_value}    获取页面文本内容    xpath=//div[text()='船名航次手动输入无效']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
+    #${SO_value}    获取页面文本内容    xpath=//div[text()='海运出口整箱已放舱是否根据SO直接生成集装箱']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
+    ${港口_value}    获取页面文本内容    xpath=//div[text()='港口及航线手动输入无效']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
+    ${放舱校验_value}    获取页面文本内容    xpath=//div[text()='放舱时，SO与操作详情的箱型箱量是否校验']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
+    ${业务日期校验_value}    获取页面文本内容    xpath=//div[text()='是否启用业务日期校验']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
+    应该要相等    ${订舱代理_value}    否
+    应该要相等    ${附加税率功能_value}    是
+    应该要相等    ${业务新增_value}    是
+    应该要相等    ${舱单_value}    是
+    应该要相等    ${船名航次_value}    否
+    #应该要相等    ${SO_value}    是
+    应该要相等    ${港口_value}    否
+    应该要相等    ${放舱校验_value}    否
+    应该要相等    ${业务日期校验_value}    不校验
+    离开框架
+
+海出订单主列表自定义设置
+    进入指定一级菜单    订单
+    进入指定二级菜单(新icon)    订
+    等待加载层消失
+    进入列表框架
+    点击    xpath=//span[text()='自定义列']/..    #点击自定义列
+    输入    xpath=//span[text()='已选']/../../following-sibling::div[1]//input[@class='ant-input ant-transfer-list-search']    工作号    #筛选工作号
+    勾选记录    xpath=//li[@title='工作号']//input    #勾选工作号
+    点击    xpath=//span[text()='置 顶']/..    #点击置顶
+    点击    xpath=//div[@class='footer-btn-layout']//button[@class='ant-btn ant-btn-primary']    #点击确定按钮
+    Wait Until Page Contains    自定义列保存成功
+    离开框架
+
+设置异常类型
+    点击基础资料
+    点击企业基础资料
+    点击异常类型
+    等待加载层消失
+    进入框架    id=fms-front
+    ${return}    异常类型-查询    海运出口整箱    订舱
+    应该包含    ${return}    共1条
+    ${text}    获取页面文本内容    xpath=//table[@class='ant-table-fixed']//tbody//tr//td[5]
+    ${status}    Run Keyword And Return Status    应该包含    ${text}    订舱异常
+    Run Keyword If    '${status}'=='False'    维护异常类型
+
+维护异常类型
+    点击    xpath=//a[text()='编辑']    #点击编辑
+    点击    xpath=//i[@class='anticon anticon-plus-square-o']/..    #点击异常类型+按钮
+    等待    0.5
+    ${num}    获取匹配xpath的个数    xpath=//label[text()='异常类型']/../following-sibling::div[1]//tbody//tr
+    输入    id=errType.${num}_name    订舱异常
+    点击保存按钮
+    点击    xpath=//span[@class='ant-modal-close-x']/..    #点击关闭按钮
+    ${text}    获取页面文本内容    xpath=//table[@class='ant-table-fixed']//tbody//tr//td[5]
+    应该包含    ${text}    订舱异常
+    离开框架
+
+获取异常数量
+    ${异常数量}    获取页面文本内容    xpath=//li[contains(text(),'异常')][@role='menuitem']
+    ${异常数量_登记}    截取字符    ${异常数量}    异常\\(    \\)
+    [Return]    ${异常数量_登记}

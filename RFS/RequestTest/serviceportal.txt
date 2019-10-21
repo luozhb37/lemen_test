@@ -1,0 +1,52 @@
+*** Settings ***
+Suite Setup       新建外部账号会话
+Suite Teardown    Delete All Sessions
+Library           Collections
+Library           OlymLibrary
+
+*** Variables ***
+${FCL_ecryptCasenumber}    security774baa4df1e26f32f5f5917c    # 用于查询明细数据
+${LCL_ecryptCasenumber}    security508bd9fe98162114d158b64e    # 用于查询明细数据
+
+*** Test Cases ***
+priceTwo_fcl
+    [Documentation]    老版运价查询页, 查询结果包含${ContainValue}
+    ${ContainValue}    set variable    NINGBO
+    ${data}    Create Dictionary    advSearchValue=[{"fieldNum":"1","fieldItem":"loadport","fieldValue":"NINGBO","fieldCnname":"宁波","fieldCnnationname":"中国","fieldId":""}]    pageno=1    pagesize=30
+    #${headers}    Create Dictionary    Content-Type=application/json
+    ${case}    post request    ${session}    /serviceportal/priceTwo.ctrl?$action=fcl&language=undefined&isPage=false    data=${data}
+    ${caseJson}    to json    ${case.text}
+    Should Contain    ${case.text}    ${ContainValue}
+    Set Suite Variable    ${FCL_ecryptCasenumber}    ${caseJson['dataMap']['pageResultEntity']['entityList'][0]['ecryptCasenumber']}
+
+priceTwo_fclDetail
+    [Documentation]    老版运价查询页, 查询结果包含${ContainValue}
+    ${casenumber}    Set Variable    ${FCL_ecryptCasenumber}    #需要打开的casenumber
+    ${case}    get request    ${session}    /serviceportal/priceTwo.ctrl?$action=fclDetail&casenumber=${casenumber}
+    log    ${case.text}
+    Should Contain    ${case.text}    NINGBO
+
+priceTwo_lcl
+    [Documentation]    老版运价查询页, 查询结果包含${ContainValue}
+    ${ContainValue}    set variable    NINGBO
+    ${data}    Create Dictionary    advSearchValue=[{"fieldNum":"1","fieldItem":"loadport","fieldValue":"NINGBO","fieldCnname":"宁波","fieldCnnationname":"中国","fieldId":""}]    pageno=1    pagesize=30
+    #${headers}    Create Dictionary    Content-Type=application/json
+    ${case}    post request    ${session}    /serviceportal/priceTwo.ctrl?$action=lcl&language=undefined&isPage=false    data=${data}
+    ${caseJson}    to json    ${case.text}
+    Should Contain    ${case.text}    ${ContainValue}
+    Set Suite Variable    ${FCL_ecryptCasenumber}    ${caseJson['dataMap']['pageResultEntity']['entityList'][0]['ecryptCasenumber']}
+
+priceTwo_lclDetail
+    [Documentation]    老版运价查询页, 查询结果包含${ContainValue}
+    ${casenumber}    Set Variable    ${LCL_ecryptCasenumber}    #需要打开的casenumber
+    ${case}    get request    ${session}    /serviceportal/priceTwo.ctrl?$action=lclDetail&casenumber=${LCL_ecryptCasenumber}
+    log    ${case.text}
+    Should Contain    ${case.text}    NINGBO
+
+priceNoticeListOneDetail
+    [Documentation]    老版运价查询页, 查询结果包含${ContainValue}
+    ${notice_id}    Set Variable    366    #需要打开的casenumber
+    ${notice_content}    Set Variable    里面有图片    #校验内容是否存在
+    ${case}    get request    ${session}    /serviceportal/priceTwo.ctrl?$action=priceNoticeListOneDetail&op_type=list_onedetail&type=1&notice_id=${notice_id}
+    log    ${case.text}
+    Should Contain    ${case.text}    ${notice_content}

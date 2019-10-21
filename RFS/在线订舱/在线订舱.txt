@@ -1,0 +1,144 @@
+*** Settings ***
+Library           Selenium2Library
+Resource          在线订舱操作关键字.txt
+Resource          整箱操作关键字.txt
+Resource          会员操作关键字.txt
+Resource          main.txt
+Library           OlymLibrary
+
+*** Variables ***
+${目的港}            EDMONTON, AB
+
+*** Test Cases ***
+准备整箱运价数据
+    登录内部账号
+    新增整箱运价    loadport=NINGBO    dischargeport=EDMONTON, AB    carrier=APL    begindate=2016-01-15    validdate=2016-12-25    cycle=2/3
+    ...    sailtime=25    transferport=SHENZHEN    massaddress=进港港区    volumerange=限重    remark=外部备注信息    addfee=附加费说明
+    ...    internetsellprice1=888    internetsellprice2=999    internetsellprice3=1000    internetsellprice4=2000
+    发布整箱运价    loadport=NINGBO    dischargeport=EDMONTON, AB    carrier=APL
+    等待    1
+    [Teardown]    关闭浏览器
+
+买家提交订单
+    [Documentation]    提交订单后，验证卖家待接受列表中是否存在该订单
+    登录外部账号
+    网上营业厅搜索目的港
+    提交订单
+    ${订单号}    获取页面上的元素    xpath=//div[@class="eui-panel-hd"]//li[2]
+    ${result}    Split Data    ${订单号}    ：    #切分字符
+    查看订单详情
+    关闭浏览器
+    登录内部账号
+    进入订单管理
+    输入    css=.eui-input-text    ${result[1].strip()}
+    点击    id=searchOrder
+    验证页面包含某元素    订单详情
+    [Teardown]    关闭浏览器
+
+卖家接受订单
+    登录内部账号
+    进入订单管理
+    ${订单号}    获取页面上的元素    xpath=//div[@class="eui-panel-hd"]//li[2]
+    ${result}    Split Data    ${订单号}    ：    #切分字符
+    接受订单
+    查看订单详情
+    关闭浏览器
+    登录外部账号
+    进入我的订单
+    进入已接受列表
+    输入    css=.eui-input-text    ${result[1].strip()}
+    点击    id=searchOrder
+    验证页面包含某元素    订单详情
+    [Teardown]    关闭浏览器
+
+卖家作业信息维护
+    登录内部账号
+    进入订单管理
+    进入已接受列表
+    查看订单详情
+    点击作业信息
+    订舱确认信息维护
+    预配舱单维护
+    发放通知书维护
+    EIR维护
+    装箱单维护
+    进仓通知维护
+    装箱维护
+    报关维护
+    确认提单
+    提单签发
+    离港
+    [Teardown]    关闭浏览器
+
+买家作业信息内容确认
+    [Documentation]    逐条确认各个的内容及状态
+    @{cheackList1}    create list    船名001    航次001    提单号001    2015-12-01    2015-12-02
+    ...    2015-12-03    报关行代码001    报关行名称001
+    @{cheackList2}    create list    2016-12-01
+    @{cheackList3}    create list    2016-12-02
+    @{cheackList4}    create list    2016-12-03
+    @{cheackList5}    create list    2016-12-04
+    @{cheackList6}    create list    2016-12-05    仓库名称001    仓库地址001    地图001    联系人001
+    ...    联系方式001    仓库电话001    仓库传真001    2016-12-06    2016-12-07    投诉电话001
+    ...    进仓要求001
+    @{cheackList7}    create list    2016-12-08
+    @{cheackList8}    create list    2016-12-09    报关单号001
+    @{cheackList9}    create list    2016-12-10
+    @{cheackList10}    create list    2016-12-11
+    @{cheackList11}    create list    2016-12-12
+    登录外部账号
+    进入我的订单
+    进入已接受列表
+    查看订单详情
+    点击作业信息
+    页面检查多个内容    @{cheackList1}
+    页面检查多个内容    @{cheackList2}
+    页面检查多个内容    @{cheackList3}
+    页面检查多个内容    @{cheackList4}
+    页面检查多个内容    @{cheackList5}
+    页面检查多个内容    @{cheackList6}
+    页面检查多个内容    @{cheackList7}
+    页面检查多个内容    @{cheackList8}
+    页面检查多个内容    @{cheackList9}
+    页面检查多个内容    @{cheackList10}
+    页面检查多个内容    @{cheackList11}
+    Page Should Contain Element    xpath=//div[contains(@class,"complete")]//h3[contains(text(),"订舱确认")]    订舱确认
+    Page Should Contain Element    xpath=//div[contains(@class,"complete")]//h3[contains(text(),"海关预配舱单发送状态")]    海关预配舱单发送状态
+    Page Should Contain Element    xpath=//div[contains(@class,"complete")]//h3[contains(text(),"EIR发放通知书可取")]    EIR发放通知书可取
+    Page Should Contain Element    xpath=//div[contains(@class,"complete")]//h3[contains(text(),"EIR可取")]    EIR可取
+    Page Should Contain Element    xpath=//div[contains(@class,"complete")]//h3[contains(text(),"装箱单可取")]    装箱单可取
+    Page Should Contain Element    xpath=//div[contains(@class,"complete")]//h3[contains(text(),"进仓通知")]    进仓通知
+    Page Should Contain Element    xpath=//div[contains(@class,"complete")]//h3[contains(text(),"货已装箱")]    货已装箱
+    Page Should Contain Element    xpath=//div[contains(@class,"complete")]//h3[contains(text(),"报关完毕")]    报关完毕
+    Page Should Contain Element    xpath=//div[contains(@class,"complete")]//h3[contains(text(),"提单确认")]    确认提单
+    Page Should Contain Element    xpath=//div[contains(@class,"complete")]//h3[contains(text(),"提单可签发")]    提单可签发
+    Page Should Contain Element    xpath=//div[contains(@class,"complete")]//h3[contains(text(),"船已离港")]    船已离港
+    [Teardown]    关闭浏览器
+
+卖家拒绝订单
+    [Documentation]    订单拒绝后，然后去买方的已拒绝的列表内，查询是否存在该票已拒绝的订单来作为验证是否拒绝成功
+    [Setup]
+    登录内部账号
+    进入订单管理
+    ${订单号}    获取页面上的元素    xpath=//div[@class="eui-panel-hd"]//li[2]
+    ${result}    Split Data    ${订单号}    ：    #切分字符
+    点击    xpath=//a[@class="order-detail-link"]
+    等待    3
+    选择页面    订单详情
+    点击    css= .j-orderReject
+    进入框架    xpath=//iframe[contains(@name,win_1002)]
+    输入    id=canceledReason    不想要这订单了
+    点击    id=submitOrderReject
+    等待    2
+    confirm action
+    等待    1
+    @{cheackList}    create list    已拒绝    不想要这订单了
+    页面检查多个内容    @{cheackList}
+    关闭浏览器
+    登录外部账号
+    进入我的订单
+    点击    xpath=//a[contains(text(),"已拒绝")]
+    输入    css=.eui-input-text    ${result[1].strip()}
+    点击    id=searchOrder
+    验证页面包含某元素    订单详情
+    [Teardown]    关闭浏览器

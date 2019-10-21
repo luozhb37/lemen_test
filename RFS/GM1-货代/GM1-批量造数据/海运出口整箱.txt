@@ -1,0 +1,35 @@
+*** Settings ***
+Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+
+*** Test Cases ***
+批量业务新增订单
+    [Setup]    m4-登录
+    读取业务操作字段配置信息
+    设置业务参数
+    点击业务管理
+    点击业务台账
+    ${filename}    Set Variable    ${CURDIR}\\批量造数据编号存储.xls
+    ${sheetname}    Set Variable    海运出口整箱
+    : FOR    ${i}    IN RANGE    5
+    \    log    ${i}
+    \    新增整箱业务单    自揽货
+    \    操作页维护字段信息
+    \    点击保存
+    \    Wait Until Page Contains    操作成功
+    \    ${jiesuandanwei}    获取页面文本内容    xpath=//span[text()="委托单位："]/span
+    \    点击集装箱
+    \    新增集装箱    APZU4116600
+    \    #新增集装箱    SITU2955043
+    \    点击费用    #切换到费用模块
+    \    新增收入费用
+    \    新增支出费用    ${jiesuandanwei}
+    \    点击操作详情
+    \    ${value}    获取元素属性值    xpath=//input[@id='goodsName']@value
+    \    应该要相等    ${value}    ${goodsName}    #判断维护的货物名字
+    \    ${bussinessNO-seaexport}    获取页面文本内容    xpath=//div[@class='dzg-business-info']/span[2]    #获取工作号
+    \    Set Suite Variable    ${bussinessNO-seaexport}
+    \    关闭当前窗口
+    \    切换窗口
+    \    Write Cell    ${filename}    ${sheetname}    ${i}    0    ${bussinessNO-seaexport}
+    #
+    [Teardown]    close all browsers

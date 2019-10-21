@@ -1,0 +1,128 @@
+*** Settings ***
+Suite Setup       Run keywords    变量
+...               AND    登录    #Run keywords | | AND | 登录
+Suite Teardown    关闭浏览器
+Resource          ../../Resources/基础关键字.txt
+Library           Collections
+Library           ExcelLibrary
+
+*** Test Cases ***
+新增权限
+    @{table_ctn}    按单元格读取EXCEL    ${exc_local}    ${exc_start}    ${exc_sheet}    @{exc_list}
+    @{error_name}    Create List    \    # 创建问题集合
+    点击    xpath=//div[@id='rootMenu']//a[contains(text(),"平台管理")]    #平台管理
+    等待    1
+    点击    xpath=//div[@id='treeMenu']/ul/li[2]/div/a[contains(text(),"应用管理")]    #应用管理
+    等待    1
+    点击    xpath=//div[@id='treeMenu']//li[2]//a[contains(text(),"平台应用管理")]    #平台应用管理
+    等待    3
+    进入框架    id=content
+    Double Click Element    xpath=//td[contains(text(),"${ma_app_code}")]    #双击【应用编码】
+    page should contain    ${ma_app_name}
+    #---新增版本信息及权限---
+    进入框架    id=content
+    等待    2
+    #---循环新增应用权限---
+    : FOR    ${i}    IN    @{table_ctn[1:]}
+    \    #---添加所有未添加的权限---
+    \    ${result}    ${returnvalue}    Run Keyword And Ignore Error    添加权限    ${i}
+    \    #---记录新增失败的权限名称---
+    \    @{error_name}    Run Keyword If    '${result}'=='FAIL'    create list    @{error_name}    ${returnvalue}
+    \    点击    id=bt_back    #点击返回
+    \    等待    2
+
+读取文件
+    @{list}    create list    B    D    E    F    G
+    ...    H    I
+    @{table}    按单元格读取EXCEL    C:\\Users\\yusen\\Desktop\\customerInvoice_开票.xls    2    Sheet1    @{list}
+
+*** Keywords ***
+登录
+    #---登录----
+    打开    ${login_url}
+    进入框架    id=loginPanel
+    输入    id=username    ${username}
+    输入    id=password    ${password}
+    点击    id=btn-submit
+    wait until page contains    首页    timeout=3    error=登录失败
+    离开框架
+
+变量
+    #--变量--[支撑登录账号]---
+    set suite variable    ${login_url}    http://www.800jit.com/login.html    #登录地址
+    set suite variable    ${username}    adminuser1    #支撑-登录名
+    set suite variable    ${password}    olymtech    #登录密码
+    #----变量【新增应用-版本】-----
+    set suite variable    ${ma_app_code}    asp_modelhome3    #应用代码
+    set suite variable    ${ma_app_name}    在线货代软件3    #应用名称
+    set suite variable    ${version_name}    GM1-标准版    #版本名称
+    set suite variable    ${version_code}    GM1-2018-v1.1    #版本代码
+    #----权限参数[引用EXCEL]---
+    set suite variable    @{exc_info}    \    #定义 需要逐个存储的 {LIST} ,默认空
+    set suite variable    ${text}    \    #定义 EXCLE 临时读取的单元格内容,默认空
+    set suite variable    ${exc_local}    ${EXECDIR}\\Resources\\public_test_file\\货代权限表.xls    #${EXECDIR}\\自动化测试\\RFS\\Resources\\public_test_file\\货代权限表.xls    # EXCLE 文件路径 （必须是 .xls）,统一放置：../RFS/Resources/public_test_file目录下；【 \ ${EXECDIR} \ 】 表示 RIDE 中脚本所在的根目录；--根据各自的目录结构定义
+    set suite variable    ${exc_sheet}    权限表-GM1    # EXCLE 工作表 名称，默认 sheet1    权限表-GM1
+    set suite variable    ${exc_lie}    A    # EXCLE 列名
+    #----变量【编辑应用-版本】-------
+    set suite variable    ${edit_version_name}    GM1-标准版    #版本名称
+    #----变量【新增权限】-------
+    set suite variable    @{exc_list}    A    D    F    #读取excel的对应列（A：权限代码；D：权限名称；F：权限业务对应value值）
+    Set Suite Variable    ${exc_start}    352    #读取excel的起始行数
+    Set Suite Variable    @{auth_list}    GM1-高级版1.2    GM1-标准版    #读取excel的起始行数
+
+按单元格读取EXCEL
+    [Arguments]    ${excel_local}    ${start_num}    ${excel_sheet}    @{excel_column}
+    [Documentation]    1.根据单元格名字 A1,A2 读取；
+    ...    2.逐行按单元格读取后，拼接成LIST，且第0个是空；
+    ...
+    ...    【变量说明】
+    ...    ${exc_local} ：EXCLE路径
+    ...    ${start_num} \ ：从第X行开始读；（从第一行开始读，若首行是标题，则从2开始）
+    ...    @{exc_column} ：需要读取的列名
+    @{table_info}    create list    \    #
+    #---按 单元格名取---
+    open Excel    ${excel_local}    # 打开 EXECLE 文件
+    ${excel_rows}    Get Row Count    ${excel_sheet}    #获得行数
+    ${excel_rows}    Evaluate    int(${excel_rows})+1    # EXCLE 行数+1，用于循环 ---自动计算
+    : FOR    ${i}    IN RANGE    ${start_num}    ${excel_rows}    #从第1行开始计。第一行是标题，SO从第二行取
+    \    ${row_info}    按列读取单元格    ${excel_sheet}    ${i}    @{excel_column}    #SHEET表，行号，列LIST
+    \    log    ${row_info}
+    \    @{table_info}    Create List    @{table_info}    ${row_info}
+    \    Comment    log    ${table_info}    #获得LIST中，第0个为空，从第1个开始
+    \    Comment    ${get_row_num}    get length    ${table_info}    #获得行数
+    \    Comment    ${get_column_num}    get length    ${table_info[1]}    #获得列数X，实际列数=X-1
+    \    Comment    log    ${table_info[1][1]}    #获得第1行的第1列值
+    \    Comment    log    ${table_info[1][2]}    #获得第1行的第2列值
+    \    Comment    log    ${table_info[1][3]}    #获得第1行的第2列值
+    [Return]    @{table_info}
+
+按列读取单元格
+    [Arguments]    ${excel_sheet}    ${row_index}    @{excel_column}
+    [Documentation]    根据【行号】+【列】list \ \ 返回 每行 的 列组合值
+    @{row_cell_text}    create list    \    #定义
+    : FOR    ${i}    IN    @{excel_column}
+    \    ${row_info}    Read Cell Data By Name    ${excel_sheet}    ${i}${row_index}    # A2
+    \    Append To List    ${row_cell_text}    ${row_info}    # 逐个赋值给 {LIST} 变量租
+    log    ${row_cell_text}
+    [Return]    @{row_cell_text}
+
+循环勾选版本名称
+    [Arguments]    @{list}
+    : FOR    ${name}    IN    @{list}
+    \    点击    xpath=//span[contains(text(),'${name}')]/input    #勾选版本名称
+    \    等待    0.5
+
+添加权限
+    [Arguments]    ${i}    # 循环内容
+    Wait Until Element Is Enabled    id=bt_new_role
+    点击    id=bt_new_role    #点击【新增角色】
+    等待    1.5
+    page should contain    ${ma_app_name}
+    进入框架    id=content
+    等待    2
+    输入    id=approle_code    ${i[1]}    #角色编码
+    输入    id=approle_name    ${i[2]}    #角色名称    id=approle_name
+    下拉选择byValue    id=choose_model    ${i[3]}    #模块名称
+    循环勾选版本名称    @{auth_list}
+    点击    id=bt_save_and_syn    #点击保存并同步
+    wait until page contains    角色保存成功    timeout=10    error=${i[2]}

@@ -1,0 +1,25 @@
+*** Settings ***
+Library           Collections
+Resource          ../Resources/会员接口.txt
+
+*** Test Cases ***
+public_tcFooter_query
+    [Documentation]    /marketing-portal-tc-rest/rest/public/tcFooter/query
+    ...    咖狗网底部数据
+    Create Session    cargo    http://${咖狗网_domain}
+    ${result}    get request    cargo    /marketing-portal-tc-rest/rest/public/tcFooter/query
+    ${resultJson}    to json    ${result.text}
+    log    ${resultJson}
+    Should Be Equal    ${resultJson['resultCode']}    ${100}
+    Delete All Sessions
+
+public_newsNotice_query
+    [Documentation]    /marketing-portal-tc-rest/rest/public/newsNotice/query
+    Create Session    cargo    http://${咖狗网_domain}
+    ${data}    Create Dictionary    newsPageNum=0    newsType=
+    ${headers}    Create Dictionary    Content-Type=application/x-www-form-urlencoded; charset=UTF-8
+    ${result}    post request    cargo    /marketing-portal-tc-rest/rest/public/newsNotice/query    data=${data}    headers=${headers}
+    ${resultJson}    to json    ${result.text}
+    log    ${resultJson}
+    Should Be Equal    ${resultJson['resultCode']}    ${100}
+    Delete All Sessions

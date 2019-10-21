@@ -1,0 +1,56 @@
+*** Settings ***
+Library           OlymLibrary
+Library           Collections
+Resource          ../Resources/会员接口.txt
+Resource          ../Resources/基础设置接口.txt
+
+*** Test Cases ***
+publicDcasLogin_getRSAPublicKey
+    [Documentation]    客户端登录前.获得RSA
+    [Tags]    complete
+    ${backUrl}    GetBackurl    alias=test    username=${掌门人_员工用户名}    password=${掌门人_员工密码_加密}    domain=${掌门人_domain}    userType=1
+    Create Session    login    http://${掌门人_domain}
+    ${headers}    Create Dictionary    Content-Type=application/x-www-form-urlencoded    Accept-Language=zh-CN,zh;q=0.8
+    ${data}    Create Dictionary    accessId=freightClient    backUrl=${backUrl}    username=${掌门人_员工用户名}
+    ${resp}    Post Request    login    /cpmembership/publicDcasLogin.ctrl?$action=getRSAPublicKey    headers=${headers}    data=${data}
+    ${jsondata}    To json    ${resp.content}
+    Should Be Equal    ${jsondata['resultCode']}    ${100}
+    [Teardown]    Delete All Sessions
+
+publicDcasLogin_getDcasLoginInfo
+    [Documentation]    客户端登录前获得登录信息
+    [Tags]    complete
+    ${backUrl}    GetBackurl    alias=test    username=${掌门人_员工用户名}    password=${掌门人_员工密码_加密}    domain=${掌门人_domain}    userType=1
+    ${headers}    Create Dictionary    Content-Type=application/x-www-form-urlencoded    Accept-Language=zh-CN,zh;q=0.8
+    ${data}    FormData to Dict    userName=${掌门人_员工用户名}&password=${掌门人_员工密码_加密}&dcasDomain=${dcasDomain}&backUrl=${backurl}
+    ${resp}    Post Request    test    /cpmembership/publicDcasLogin.ctrl?$action=getRSAPublicKey    headers=${headers}    data=${data}
+    ${jsondata}    To json    ${resp.content}
+    Should Be Equal    ${jsondata['resultCode']}    ${100}
+    [Teardown]    Delete All Sessions
+
+saveOrgInfo
+    [Documentation]    保存公司信息
+    [Tags]    complete
+    ${org_name_en}    Get Timestamp
+    新建掌门人管理员会话
+    ${result}    修改公司信息    org_id=${掌门人_orgid}    org_name_en=${org_name_en}
+    log    ${result}
+    [Teardown]    Delete All Sessions
+
+batchSetUserPurAction
+    [Documentation]    批量操作员工权限
+    [Tags]    complete
+    新建掌门人管理员会话
+    修改员工权限    data_level=部门级
+    [Teardown]    Delete All Sessions
+
+updateServiceportalSet
+    [Documentation]    修改网上查询界面显示
+    [Tags]    complete
+    新建掌门人管理员会话    test
+    ${files_path}    Set Variable    ${EXECDIR}${/}Resources${/}logo_rfs.jpg
+    ${data}    Create Dictionary    serviceportal_logo=    serviceportal_title_cn=7777    serviceportal_title_en=8888    org_referred=999
+    ${result}    Upload Files    test    /cpmembership/org.ctrl?$action=updateServiceportalSet    name=client_logo    files_name=logo_rfs.jpg    Content_Type=image/png
+    ...    files_path=${files_path}    data=${data}
+    log    ${result.text}
+    [Teardown]    Delete All Sessions

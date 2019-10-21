@@ -1,0 +1,63 @@
+*** Settings ***
+Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+
+*** Test Cases ***
+公司信息-保存
+    点击系统设置（主菜单）
+    点击公司管理
+    点击公司信息
+    ${orgNameEn}    Set Variable    AUTO-GM1-cargo    #英文名称
+    ${orgShortEnName}    Set Variable    AUTO-GM1    #英文简称
+    ${linkman}    Set Variable    白玫瑰    #联系人
+    ${email}    Set Variable    cargo@qq.com    #邮箱，必填字段
+    公司信息-保存    ${orgNameEn}    ${orgShortEnName}    ${linkman}    ${email}
+    点击常用地址    #切换到其他模块
+    点击公司信息    #重新回到公司管理模块
+    ${text1}    ${text2}    ${text3}    ${text4}    公司信息-获取内容
+    应该要相等    ${text1}    ${orgNameEn}
+    应该要相等    ${text2}    ${orgShortEnName}
+    应该要相等    ${text3}    ${linkman}
+    应该要相等    ${text4}    ${email}
+
+常用地址-新增/删除
+    点击系统设置（主菜单）
+    点击公司管理
+    点击常用地址
+    ${CY_dataVo.addressName}    Set Variable    AUTO-常用地址    #类别
+    ${CY_dataVo.address}    Set Variable    浙江省宁波市总部壹号    #英文地址
+    ${CY_dataVo.linkman}    Set Variable    咖狗    #联系人
+    进入列表框架
+    ${count}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr    #获取新增前数量
+    ${count+1}    Evaluate    int(${count})+1    #设定新增后+1
+    #新增
+    常用地址-新增    ${CY_dataVo.addressName}    ${CY_dataVo.address}    ${CY_dataVo.linkman}
+    ${count2}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr    #获取新增后数量
+    应该要相等（数字）    ${count2}    ${count+1}
+    #删除
+    点击    xpath=//tbody[@class='ant-table-tbody']/tr[1]//a[text()='删除']    #每次点击第一个删除按钮（删除第一行）
+    点击确定按钮
+    ${count3}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr    #获取删除后数量
+    应该要相等（数字）    ${count3}    ${count}
+    离开框架
+
+打单内容-新增/删除
+    点击系统设置（主菜单）
+    点击公司管理
+    点击打单内容
+    ${DD_dataVo.orgEnName}    Set Variable    AUTO-GM1-cargo    #公司英文名称
+    ${DD_dataVo.linkmanEnName}    Set Variable    AUTO-linkman    #联系人英文名称
+    ${DD_dataVo.enAddress}    Set Variable    AUTO-address    #联系人英文地址
+    进入列表框架
+    ${count}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr    #获取新增前数量
+    ${count+1}    Evaluate    int(${count})+1    #设定新增后+1
+    #新增
+    打单内容-新增    ${DD_dataVo.orgEnName}    ${DD_dataVo.linkmanEnName}    ${DD_dataVo.enAddress}
+    ${count2}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr    #获取新增后数量
+    应该要相等（数字）    ${count2}    ${count+1}
+    #删除
+    勾选记录    xpath=//tbody[@class='ant-table-tbody']/tr[1]//input    #每次勾选第一行
+    点击    xpath=//span[text()='删 除']/..    #点击删除
+    点击确定按钮
+    ${count3}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr    #获取删除后数量
+    应该要相等（数字）    ${count3}    ${count}
+    离开框架

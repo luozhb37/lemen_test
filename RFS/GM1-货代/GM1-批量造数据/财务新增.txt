@@ -1,0 +1,156 @@
+*** Settings ***
+Suite Setup       m4-登录
+Suite Teardown    close all browsers
+Test Setup        回到首页
+Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+
+*** Test Cases ***
+单个财务新增
+    Comment    海出台账主列表自定义设置
+    Set Suite Variable    ${发票抬头}    大香蕉公用
+    ${workno-suit}    新增工作单
+    Set Suite Variable    ${WORKNUMBER}    ${workno-suit}
+    回到首页
+    #维护费用
+    点击业务管理
+    点击业务台账
+    海运出口列表查询业务编号    ${WORKNUMBER}
+    点击业务编号进入详情页    ${WORKNUMBER}
+    sleep    2
+    切换窗口    new
+    ${jiesuandanwei}    获取页面文本内容    xpath=//span[text()="委托单位："]/span
+    点击费用
+    新增收入费用
+    收入费用审核
+    收入费用确认
+    新增支出费用    ${jiesuandanwei}
+    支出费用审核
+    支出费用确认
+    关闭当前窗口
+    #生成对账单
+    回到首页
+    进入指定一级菜单    结算
+    进入指定二级菜单(新icon)    账
+    进入列表框架
+    新增对账单--按工作单页面查询    ${WORKNUMBER}
+    勾选全部
+    点击列表按钮    生成对账单
+    离开框架
+    ${checkaccountno}    生成对账单
+    关闭当前窗口
+    #生成开票通知
+    回到首页
+    进入指定一级菜单    结算
+    #点击费用(结算列表)
+    #点击    xpath=//span[text()='账单列表']/..
+    #等待加载层消失
+    #进入列表框架
+    #输入    id=noKeywordList    ${WORKNUMBER}
+    #下拉框选择(带筛选功能)    xpath=(//div[@class='ant-select-selection__rendered'])[2]    xpath=//div[@class='ant-select-search__field__wrap']/input    类型
+    #下拉框选中(根据代码定位)    xpath=(//div[@class='ant-select-selection__rendered'])[3]    收
+    #点击    xpath=(//div[@class='ant-select-selection__rendered'])[3]
+    #点击    xpath=//li[text='收']
+    #点击    xpath=//span[text()='查 询']/..
+    进入指定二级菜单(新icon)    账
+    点击对账单管理
+    进入列表框架
+    对账单管理页面查询    ${checkaccountno}
+    点击    xpath=(//a[contains(@href,'')])[1]
+    切换窗口    new
+    #勾选全部
+    #点击列表按钮    开票通知
+    离开框架
+    点击    xpath=//span[text()='开票通知']/..
+    ${preInvoiceno}    生成开票通知
+    关闭当前窗口
+    #生成发票
+    回到首页
+    进入指定一级菜单    结算
+    进入指定二级菜单(新icon)    票
+    进入列表框架
+    应收待开票页面查询    ${preInvoiceno}
+    勾选全部
+    点击列表按钮    自定义开票
+    离开框架
+    切换窗口    new
+    勾选全部
+    点击列表按钮    登记发票号
+    ${应收invoice}    生成应收登记发票
+    关闭当前窗口
+    回到首页
+    进入指定一级菜单    结算
+    进入指定二级菜单(新icon)    票
+    点击应收发票管理
+    进入列表框架
+    应收发票管理页面查询    ${应收invoice}
+    勾选全部
+    点击列表按钮    快速核销
+    ${recbillno}    进入快速核销页面核销    recbillno
+    离开框架
+    #账单确认
+    账单确认    ${WORKNUMBER}
+
+批量财务新增
+    ${filename}    Set Variable    ${CURDIR}\\批量造数据编号存储.xls
+    ${sheetname}    Set Variable    空运出口
+    Open Excel    C:\\Users\\叶俊彦\\Desktop\\批量造数据编号存储.xls
+    @{list}    get_column_values    ${sheetname}    0
+    #${list}    Create List    EXP1903061
+    : FOR    ${i}    IN    @{list}
+    \    财务新增    ${i[1]}
+
+*** Keywords ***
+财务新增
+    [Arguments]    ${WORKNUMBER}
+    #生成对账单
+    回到首页
+    进入指定一级菜单    结算
+    进入指定二级菜单(新icon)    账
+    进入列表框架
+    新增对账单--按工作单页面查询    ${WORKNUMBER}
+    勾选全部
+    点击列表按钮    生成对账单
+    离开框架
+    ${checkaccountno}    生成对账单
+    关闭当前窗口
+    #生成开票通知
+    回到首页
+    进入指定一级菜单    结算
+    进入指定二级菜单(新icon)    账
+    点击对账单管理
+    进入列表框架
+    对账单管理页面查询    ${checkaccountno}
+    #勾选全部
+    #点击列表按钮    开票通知
+    点击    xpath=(//a[contains(@href,'')])[1]
+    切换窗口    new
+    离开框架
+    点击    xpath=//span[text()='开票通知']/..
+    ${preInvoiceno}    生成开票通知
+    关闭当前窗口
+    #生成发票
+    回到首页
+    进入指定一级菜单    结算
+    进入指定二级菜单(新icon)    票
+    进入列表框架
+    应收待开票页面查询    ${preInvoiceno}
+    勾选全部
+    点击列表按钮    自定义开票
+    离开框架
+    切换窗口    new
+    勾选全部
+    点击列表按钮    登记发票号
+    ${应收invoice}    生成应收登记发票
+    关闭当前窗口
+    回到首页
+    进入指定一级菜单    结算
+    进入指定二级菜单(新icon)    票
+    点击应收发票管理
+    进入列表框架
+    应收发票管理页面查询    ${应收invoice}
+    勾选全部
+    点击列表按钮    快速核销
+    ${recbillno}    进入快速核销页面核销    recbillno
+    离开框架
+    #账单确认
+    #账单确认    ${WORKNUMBER}

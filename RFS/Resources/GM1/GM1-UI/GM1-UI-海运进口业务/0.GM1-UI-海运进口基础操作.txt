@@ -1,0 +1,63 @@
+*** Settings ***
+Library           AutoItLibrary
+Resource          ../GM1-UI-公共/GM1-UI-引用.txt
+
+*** Keywords ***
+新增海运进口业务单
+    [Arguments]    ${text}
+    [Documentation]    ${text}货物来源
+    进入框架    id=content
+    点击    xpath=//span[text()='新 增']/..
+    Wait Until Element Is Visible    xpath=//label[text()='业务类型']
+    下拉框选中    货物来源    ${text}
+    点击    xpath=//label[text()='委托单位']/../following-sibling::div[1]
+    按键    xpath=//input[@id='customername']    \\13
+    点击    xpath=//span[contains(text(),'确 定')]/..
+    离开框架
+    切换窗口    new
+    Wait Until Page Contains    操作详情
+    勾选记录    xpath=//span[text()='订舱']/../span/input
+    勾选记录    xpath=//span[text()='拖柜']/../span/input
+    勾选记录    xpath=//span[text()='仓储']/../span/input
+    勾选记录    xpath=//span[text()='报关']/../span/input
+    #勾选记录    xpath=//span[text()='保险']/../span/input
+    #勾选记录    xpath=//span[text()='单证']/../span/input
+    Comment    输入    xpath=//input[@id='initDataList[1].ctnCount']    3    #箱型箱量输入数量
+    Comment    点击    xpath=//a[text()='特种']/../following-sibling::div[1]//a    #点击箱型箱量的+号
+    Comment    输入    xpath=//input[@id='initDataList[2].ctnCount']    1    #第二个箱型箱量输入数量
+    Comment    输入    id=bnMains.hblno    循环点击搜索条件叉叉    #英文或数字，不超过30位，都可
+    拉动滚动条（新）    0
+    点击保存
+
+海运进口列表查询业务编号
+    [Arguments]    ${bussinessNO}
+    进入列表框架
+    输入    id=businessNumbers    ${bussinessNO}    #各类编号查询业务订单
+    #Mouse Over    xpath=//span[@class='ant-calendar-picker-input ant-input ant-input-lg']//input[1]    #x悬停至时间
+    #点击    xpath=//span[@class='ant-calendar-picker-input ant-input ant-input-lg']//i    #点击时间的删除
+    等待    1
+    点击    xpath=//span[text()='查 询']/..
+    等待    1    #点击查询后，页面还在刷新
+    ${pages}    获取页面文本内容    css=.ant-pagination-total-text
+    离开框架
+    [Return]    ${pages}
+
+海运进口列表自定义列设置
+    点击业务管理
+    进入指定二级菜单    业务台账    海运进口
+    等待加载层消失
+    进入列表框架
+    点击    xpath=//span[text()='自定义列']/..    #点击自定义列
+    输入    xpath=//span[text()='已选']/../../following-sibling::div[1]//input[@class='ant-input ant-transfer-list-search']    业务编号    #筛选业务编号
+    勾选记录    xpath=//li[@title='业务编号']//input    #勾选业务编号
+    点击    xpath=//span[text()='置 顶']/..    #点击置顶
+    点击    xpath=//button[text()='确 定']    #点击确定按钮
+    Wait Until Page Contains    自定义列保存成功
+    离开框架
+
+点击业务编号进入详情页（海进）
+    [Arguments]    ${bussinessNO}
+    进入列表框架
+    等待    2
+    点击    xpath=//div[@class='ant-table-body-inner']//a[text()='${bussinessNO}']
+    离开框架

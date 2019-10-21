@@ -1,0 +1,42 @@
+*** Settings ***
+Suite Setup       m4-登录
+Suite Teardown    close all browsers
+Resource          ../../Resources/GM1/GM1-UI/m4-公用.txt
+Resource          ../../Resources/GM1/GM1-接口/m4-客商管理.txt
+Resource          ../../Resources/货代业务数据.txt
+
+*** Test Cases ***
+指定的客商-新增联系人
+    [Documentation]    确认 自己的登录环境：
+    ...    1. rescource/货代业务数据/读取配置文件中的excel 换成对应环境名的excel
+    Open Excel    ${CURDIR}\\customer-contact.xls
+    : FOR    ${i}    IN RANGE    2    202
+    \    ${casenumber}    Read Cell Data By Name    contact-B    B${i}
+    \    ${contact-name}    Read Cell Data By Name    contact-B    C${i}
+    \    ${sale}    Read Cell Data By Name    contact-B    G${i}
+    \    ${skzrr}    Read Cell Data By Name    contact-B    I${i}
+    \    保存联系人    businesstype=1    goodsourceid=1    sales=${sale}    accountant=${skzrr}    casenumber=${casenumber}
+    \    ...    name=${contact-name}
+
+指定的客商-新增账户、开票信息
+    Open Excel    ${CURDIR}\\customer-contact.xls
+    : FOR    ${i}    IN RANGE    2    202
+    \    ${customer}    Read Cell Data By Name    contact    A${i}
+    \    ${casenumber}    Read Cell Data By Name    contact    B${i}
+    \    ${accounttype}    获取银行类型
+    \    银行账户信息保存    ${casenumber}    ${accounttype}
+    \    开票信息保存    ${casenumber}    ${customer}
+
+指定的客商-修改客商信息
+    Open Excel    ${CURDIR}\\customer-contact.xls
+    : FOR    ${i}    IN RANGE    2    202
+    \    ${name}    Read Cell Data By Name    contact-A    A${i}
+    \    ${casenumber}    Read Cell Data By Name    contact-A    B${i}
+    \    ${contact-name}    Read Cell Data By Name    contact-A    C${i}
+    \    ${sale}    Read Cell Data By Name    contact-A    G${i}
+    \    ${skzrr}    Read Cell Data By Name    contact-A    I${i}
+    \    ${code}    Read Cell Data By Name    contact-A    K${i}
+    \    ${shortname}    Read Cell Data By Name    contact-A    M${i}
+    \    ${return}    修改客商    ${casenumber}    100000006    ${code}    ${name}
+    \    ...    ${shortname}
+    \    should be equal as strings    ${return['resultCode']}    100

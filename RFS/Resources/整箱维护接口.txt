@@ -1,0 +1,299 @@
+*** Settings ***
+Library           OlymLibrary
+Library           Selenium2Library
+Library           Collections
+
+*** Keywords ***
+查询整箱运价
+    [Arguments]    ${loadport}=    ${dischargeport}=    ${signflag}=    ${carrier}=    ${searoute}=    ${session}=${运价内部_session}
+    [Documentation]    目前只支持一个查询条件
+    ...
+    ...    return: casenumbers \ (list)
+    ${querytype}    Run Keyword If    '${loadport}'!=''    Set Variable    {"fieldnum":1,"fieldCn":"起运港","fieldEn":"loadport","fieldValue":"${loadport}"}
+    ...    ELSE IF    '${dischargeport}'!=''    Set Variable    {"fieldnum":1,"fieldCn":"目的港","fieldEn":"dischargeport","fieldValue":"'${dischargeport}"}
+    ...    ELSE IF    '${signflag}'!=''    Set Variable    {"fieldnum":1,"fieldCn":"符号","fieldEn":"signflag","fieldValue":"${signflag}"}
+    ...    ELSE IF    '${carrier}'!=''    Set Variable    {"fieldnum":1,"fieldCn":"船公司","fieldEn":"carrier","fieldValue":"${carrier}"}
+    ...    ELSE IF    '${searoute}'!=''    Set Variable    {"fieldnum":4,"fieldCn":"航线","fieldEn":"searoute","fieldValue":"${searoute}"}
+    ...    ELSE    Set Variable
+    ${headers}    create dictionary    Content-Type=application/x-www-form-urlencoded
+    ${data}    create dictionary    advancedConditionsTextarea=[${querytype}]    connonQueryValue=-1
+    ${result}    post request    ${session}    /priceservice/priceMaintain.ctrl?$action=fcl_query&pageno=1&connonQueryValue=-1    data=${data}    headers=${headers}
+    @{case}    Re Search All    ${result.text}    value="casenumber=    \\\$
+    [Return]    @{case}
+
+查询整箱运价明细
+    [Arguments]    ${casenumber}    ${session}=${运价内部_session}
+    [Documentation]    return: result.txt (html)
+    ${result}    get request    ${session}    /priceservice/seaMainPrice.ctrl?$action=fcl_detail&casenumber=${casenumber}
+    #log    ${result.text}
+    [Return]    ${result.text}
+
+新增整箱运价
+    [Arguments]    ${loadport}    ${dischargeport}    ${carrier}    ${country}=    ${transferport}=    ${cycle}=
+    ...    ${sailing_date}=    ${massaddress}=    ${carrier_route}=    ${sailtime}=    ${internetsellprice1}=    ${internetsellprice2}=
+    ...    ${internetsellprice3}=    ${signflag}=    ${createby}=    ${modifyby}=    ${owner_employee_id}=    ${createdate}=
+    ...    ${modifydate}=    ${currentDate}=    ${begindate}=    ${remark}=    ${employee_remark}=    ${addfee}=
+    ...    ${validdate}=    ${casenumber}=    ${session}=${运价内部_session}    &{other}
+    [Documentation]    return casenumber
+    #默认日期初始化
+    ${currentDate}    Run Keyword If    '${currentDate}'==''    get time modified    addnumber=0
+    ${begindate}    Run Keyword If    '${begindate}'==''    get time modified    addnumber=0
+    ${validdate}    Run Keyword If    '${validdate}'==''    get time modified    addnumber=7
+    ${createdate}    Run Keyword If    '${createdate}'==''    get time modified    addnumber=0
+    ${modifydate}    Run Keyword If    '${modifydate}'==''    get time modified    addnumber=0
+    #接口操作
+    ${headers}    create dictionary    Content-Type=application/x-www-form-urlencoded    Accept-Language=zh-CN,zh;q=0.8
+    ${data}    create dictionary    searoute=null    currentDate=${currentDate}    org_id=null    isValueChange=true    isReadonly=false
+    ...    isSaleQuery=false    isPublishPage=false    isCopy=false    box_type=common    _ispublish=false    begindate=${begindate}
+    ...    validdate=${validdate}    loadport=${loadport}    dischargeport=${dischargeport}    country=${country}    transferport=${transferport}    cycle=${cycle}
+    ...    sailtime=${sailtime}    carrier=${carrier}    internetsellprice1=${internetsellprice1}    internetsellprice2=${internetsellprice2}    internetsellprice3=${internetsellprice3}    signflag=${signflag}
+    ...    createby=${createby}    createdate=${createdate}    modifyby=${modifyby}    modifydate=${createdate}    \    modifydate=${modifydate}
+    ...    casenumber=    searoutedisplay=    searoute_code=    addfee=${addfee}    remark=${remark}    employee_remark=${employee_remark}
+    ...    sailing_date=${sailing_date}    massaddress=${massaddress}    carrier_route=${carrier_route}
+    ${result}=    post request    ${session}    /priceservice/seaMainPrice.ctrl?$action=fclDetailSave    headers=${headers}
+    #log    ${result.text}
+    ${casenumber}    Re search    ${result.text}    casenumber" type="hidden" value="    "
+    log    ${casenumber}
+    #检查点
+    Should Be Equal As Strings    ${result.status_code}    200    msg=新增整箱运价失败,返回${result.status_code}
+    Should Not Be Empty    ${casenumber}    msg=新增整箱运价失败,返回casenumber: ${casenumber}
+    [Return]    ${casenumber}
+
+修改整箱运价
+    [Arguments]    ${casenumber}    ${loadport}    ${dischargeport}    ${carrier}    ${country}=    ${transferport}=
+    ...    ${cycle}=    ${sailtime}=    ${internetsellprice1}=    ${internetsellprice2}=    ${internetsellprice3}=    ${signflag}=
+    ...    ${createby}=    ${modifyby}=    ${owner_employee_id}=    ${createdate}=    ${modifydate}=    ${currentDate}=
+    ...    ${begindate}=    ${validdate}=    ${session}=${运价内部_session}
+    [Documentation]    return ${result.text}
+    #默认日期初始化
+    ${currentDate}    Run Keyword If    '${currentDate}'==''    get time modified    addnumber=0
+    ${begindate}    Run Keyword If    '${begindate}'==''    get time modified    addnumber=0
+    ${validdate}    Run Keyword If    '${validdate}'==''    get time modified    addnumber=7
+    ${createdate}    Run Keyword If    '${createdate}'==''    get time modified    addnumber=0
+    ${modifydate}    Run Keyword If    '${modifydate}'==''    get time modified    addnumber=0
+    #接口操作
+    ${headers}    create dictionary    Content-Type=application/x-www-form-urlencoded    Accept-Language=zh-CN,zh;q=0.8
+    ${data}    create dictionary    searoute=null    currentDate=${currentDate}    org_id=null    isValueChange=true    isReadonly=false
+    ...    isSaleQuery=false    isPublishPage=false    isCopy=false    box_type=common    _ispublish=false    begindate=${begindate}
+    ...    validdate=${validdate}    loadport=${loadport}    dischargeport=${dischargeport}    country=${country}    transferport=${transferport}    cycle=${cycle}
+    ...    sailtime=${sailtime}    carrier=${carrier}    internetsellprice1=${internetsellprice1}    internetsellprice2=${internetsellprice2}    internetsellprice3=${internetsellprice3}    signflag=${signflag}
+    ...    createby=${createby}    createdate=${createdate}    modifyby=${modifyby}    modifydate=${createdate}    owner_employee_id=${owner_employee_id}    modifydate=${modifydate}
+    ...    casenumber=${casenumber}    searoutedisplay=    searoute_code=
+    ${result}=    post request    ${session}    /priceservice/seaMainPrice.ctrl?$action=fclDetailSave    data=${data}    headers=${headers}
+    #log    ${result.text}
+    [Return]    ${result.text}
+
+发布整箱运价
+    [Arguments]    ${casenumber}    ${session}=${运价内部_session}
+    ${headers}    create dictionary    Content-Type=application/json    Accept-Language=zh-CN,zh;q=0.8
+    ${data}    Json Dumps    {"casenumbers":"[\\"${casenumber}\\"]","queryConditions":"{}","stateFilter":"no_publish","isSelectAll":"false"}
+    ${result}    post request    ${session}    /freight-efcl-rest/rest/efcl/prices/publish    data=${data}    headers=${headers}
+    ${resultToJson}    to json    ${result.text}
+    should be equal    ${100}    ${resultToJson['resultCode']}    msg=发布运价失败
+
+导入整箱运价
+    [Arguments]    ${file_name}    ${files_path}    ${session}=${运价内部_session}
+    [Documentation]    有bug
+    ${data}    create dictionary    hidden_priceType=fcl    hidden_orgId=21289    hidden_userId=198581    hidden_userName=rfs_admin    hidden_employeeName=公司管理员
+    ...    hidden_employeeId=22585
+    ${result}    Upload Files    ${session}    /freight-efcl-rest/rest/efcl/prices/upload/excels    name=File1    files_name=${file_name}    Content_Type=application/vnd.ms-excel
+    ...    files_path=${files_path}    data=${data}
+    log    ${result.text}
+    ${resultToJson}    to json    ${result.text}
+    [Return]    ${resultToJson}
+
+删除整箱运价
+    [Arguments]    ${casenumber}    ${isCanclePub}=true    ${session}=${运价内部_session}
+    [Documentation]    arg:
+    ...
+    ...    第一个参数必须是 *list* 类型, 但用$ 不要用@
+    ...
+    ...    第二个参数必须是, true,false
+    ...
+    ...    如:
+    ...
+    ...    @{a} =['1','2']
+    ...
+    ...    demo1: \ 删除整箱运价 |${a}|true| ${运价内部_session}
+    ...
+    ...    return resultJson
+    ...
+    ...
+    ...    isCanclePub=true \ \ 删除运价并取消发布
+    ${headers}    create dictionary    Content-Type=application/x-www-form-urlencoded
+    ${casecount}    Get Length    ${casenumber}
+    log    ${casecount}
+    ${strCasenumbers}    Json Dumps    ${casenumber}
+    ${data}    create dictionary    strCasenumbers=${strCasenumbers}    isCanclePub=${isCanclePub}
+    ${result}    post request    ${session}    /freight-efcl-rest/rest/efcl/prices/deletes    data=${data}    headers=${headers}
+    ${resultToJson}    to json    ${result.text}
+    should be equal    ${100}    ${resultToJson['resultCode']}    msg=删除运价失败
+
+批量修改整箱运价_底价
+    [Arguments]    ${casenumberString}=    ${advancedConditions}=    ${baseprice1}=1000    ${operation1}=equal    ${session}=${运价内部_session}
+    [Documentation]    arg:
+    ...
+    ...    casenumberstring 格式必须是 \ \ 11111,22222
+    ...
+    ...    暂时不支持全选批量修改
+    ${headers}    create dictionary    Content-Type=application/x-www-form-urlencoded
+    ${data}    FormData To Dict    operationbaseprice1=${operation1}&baseprice1=${baseprice1}&casenumberString=${casenumberString}&connonQueryValue=-1&fclMaintainMode=10&expected_rise=-1
+    ${result}    post request    ${session}    /priceservice/priceMaintain.ctrl?$action=fclBasePriceSave    data=${data}    headers=${headers}
+    log    ${result.text}
+    #should be equal    ${100}    ${resultToJson['resultCode']}    msg=删除运价失败
+
+批量修改整箱运价_成本价
+    [Arguments]    ${casenumberString}=    ${advancedConditions}=    ${sellprice1}=1000    ${sellprice1_operation}=equal    ${internetsellprice1}=1000    ${internetsellprice1_operation}=equal
+    ...    ${session}=${运价内部_session}
+    [Documentation]    arg:
+    ...
+    ...    casenumberstring 格式必须是 \ \ 11111,22222
+    ...
+    ...    暂时不支持全选批量修改
+    ${headers}    create dictionary    Content-Type=application/x-www-form-urlencoded
+    ${data}    create dictionary    jsonStr=[{'myfield':'sellprice1','relation':'sellprice1','operation':'${sellprice1_operation}','fieldValue':'${sellprice1}','inputHidden':'sellprice_increment1'},{'myfield':'internetsellprice1','relation':'internetsellprice1','operation':'${internetsellprice1_operation}','fieldValue':'${internetsellprice1}','inputHidden':'interprice_increment1'}]    isOtherPriceSave=true    casenumberString=${casenumberString}    priceType=fcl    advancedConditionsTextarea=${advancedConditions}
+    ...    p_pagetype=fcl_query
+    ${result}    post request    ${session}    /priceservice/priceMaintain.ctrl?$action=fclSave    data=${data}    headers=${headers}
+    log    ${result.text}
+    #should be equal    ${100}    ${resultToJson['resultCode']}    msg=删除运价失败
+
+批量修改整箱运价_外币附加费
+    [Arguments]    ${casenumberString}=    ${advancedConditions}=    ${BAF}=100    ${session}=${运价内部_session}
+    [Documentation]    [只有老模式客户有]arg:
+    ...
+    ...    casenumberstring 格式必须是 \ \ 11111,22222
+    ...
+    ...    暂时不支持全选批量修改
+    ${headers}    create dictionary    Content-Type=application/x-www-form-urlencoded
+    ${data}    create dictionary    jsonStr=[{"myfield":"BAF","fieldValue":"${BAF}"}]    isOtherPriceSave=true    casenumberString=${casenumberString}    priceType=fcl    advancedConditionsTextarea=${advancedConditions}
+    ...    p_pagetype=fcl_query
+    ${result}    post request    ${session}    /priceservice/priceMaintain.ctrl?$action=fclSave    data=${data}    headers=${headers}
+    log    ${result.text}
+    #should be equal    ${100}    ${resultToJson['resultCode']}    msg=删除运价失败
+    [Return]    ${result}
+
+批量新建整箱运价附加费
+    [Arguments]    ${casenumber}    ${session}=${运价内部_session}
+    ${headers}    create dictionary    Content-Type=application/json;charset=UTF-8
+    ${data}    jsonstr to dict    {"queryConditions":"{}","casenumbers":"[\\\"${casenumber}\\\"]","stateFilter":"no_publish","isSelectAll":"false","surchargeList":[{"code":"ACI","cnname":"加拿大海关申报费","paymentMethod":1,"billUnit":10,"price":"","price1":11,"price2":22,"price3":33,"price4":44,"currency":"USD"}]}
+    ${result}    post request    ${session}    /freight-efcl-rest/rest/efcl/surcharge/batchaddsurcharge?t=1473402916664    headers=${headers}    data=${data}
+    [Return]    ${result.text}
+
+批量删除整箱运价附加费
+    [Arguments]    ${surchargeId}    ${casenumber}    ${session}=${运价内部_session}
+    ${headers}    create dictionary    Content-Type=application/json;charset=UTF-8
+    ${data}    jsonstr to dict    {"surchargeIds":"${surchargeId}","casenumbers":"${casenumber}"}
+    ${result}    post request    ${session}    /freight-efcl-rest/rest/efcl/surcharge/batchDelSurcharge    headers=${headers}    data=${data}
+    ${resultJson}    to json    ${result.text}
+    [Return]    ${resultJson}
+
+进入整箱运价批量删除附加费页面
+    [Arguments]    ${casenumber}    ${session}=${运价内部_session}
+    ${headers}    create dictionary    Content-Type=application/json
+    ${data}    jsonstr to dict    {"queryConditions":"{}","casenumbers":"[\\\"${casenumber}\\\"]","stateFilter":"no_publish","isSelectAll":"false","surchargename":""}
+    ${result}    post request    ${session}    /freight-efcl-rest/rest/efcl/surcharge/queryEfclSurcharge?t=1473407692155    headers=${headers}    data=${data}
+    [Return]    ${result.text}
+
+批量修改航线代码
+    [Arguments]    ${searouteCode}    ${casenumber}    ${session}=${运价内部_session}
+    ${headers}    create dictionary    Content-Type=application/x-www-form-urlencoded
+    ${data}=    create dictionary    isSearouteCodeSave=true    searoute_code=${searouteCode}    casenumberString=${casenumber}    priceType=fcl    connonQueryValue=403
+    ...    p_pagetype=fcl_query
+    ${result}=    post request    ${session}    /priceservice/priceMaintain.ctrl?$action=fclSave    headers=${headers}    data=${data}
+    [Return]    ${result}
+
+批量修改船期/航程/开航日
+    [Arguments]    ${sailtime}    ${sailingDate}    ${cycle}    ${casenumber}    ${session}=${运价内部_session}
+    ${headers}    create dictionary    Content-Type=application/x-www-form-urlencoded
+    ${data}=    create dictionary    isCycleSave=true    cycle=${cycle}    sailtime=${sailtime}    sailing_date=${sailingDate}    casenumberString=${casenumber}
+    ...    connonQueryValue=403    p_pagetype=fcl_query
+    ${result}=    post request    ${session}    /priceservice/priceMaintain.ctrl?$action=fclSave    headers=${headers}    data=${data}
+    [Return]    ${result}
+
+批量修改有效期
+    [Arguments]    ${casenumberString}    ${validdate}    ${begindate}    ${session}=${运价内部_session}
+    ${headers}    create dictionary    Content-Type=application/x-www-form-urlencoded
+    ${data}    create dictionary    isValiddateSave=true    begindate=${begindate}    validdate=${validdate}    casenumberString=${casenumberString}    priceType=fcl
+    ...    p_pagetype=fcl_query    connonQueryValue=403
+    ${result}=    post request    ${session}    /priceservice/priceMaintain.ctrl?$action=fclSave    data=${data}    headers=${headers}
+    [Return]    ${result}
+
+批量修改起运港
+    [Arguments]    ${casenumberString}    ${loadport}    ${session}=${运价内部_session}
+    ${headers}    create dictionary    Content-Type=application/x-www-form-urlencoded
+    ${data}    create dictionary    loadport=${loadport}    dateType=-1    casenumberString=${casenumberString}    connonQueryValue=-1
+    ${result}    post request    ${session}    /priceservice/fclBatchModify.ctrl?$action=saveLoadport    data=${data}    headers=${headers}
+    [Return]    ${result}
+
+批量修改维护人
+    [Arguments]    ${casenumberString}    ${name}    ${employee_id}    ${session}=${运价内部_session}
+    ${headers}    create dictionary    Content-Type=application/x-www-form-urlencoded; charset=UTF-8
+    ${data}    create dictionary    isOwnernameSave=true    name=${name}    employee_id=${employee_id}    casenumberString=${casenumberString}    priceType=fcl
+    ...    connonQueryValue=-1    dateType=-1
+    ${result}=    post request    ${session}    /priceservice/priceMaintain.ctrl?$action=fclSave    data=${data}    headers=${headers}
+    [Return]    ${result}
+
+批量修改整箱备注_追加
+    [Arguments]    ${casenumberString}    ${remark}    ${employee_remark}    ${session}=${运价内部_session}
+    ${headers}    create dictionary    Content-Type=application/x-www-form-urlencoded
+    ${data}    create dictionary    remark=${remark}    casenumberString=${casenumberString}    priceType=fcl    p_pagetype=fcl_query    dateType=-1
+    ...    connonQueryValue=-1    employee_remark=${employee_remark}    isReplace=false
+    ${result}=    post request    ${session}    /priceservice/seaMainPrice.ctrl?$action=addSeaRemark    data=${data}    headers=${headers}
+    [Return]    ${result}
+
+批量修改整箱备注_覆盖
+    [Arguments]    ${casenumberString}    ${remark}    ${employee_remark}    ${session}=${运价内部_session}
+    ${headers}    create dictionary    Content-Type=application/x-www-form-urlencoded
+    ${data}    create dictionary    remark=${remark}    casenumberString=${casenumberString}    priceType=fcl    p_pagetype=fcl_query    dateType=-1
+    ...    connonQueryValue=-1    employee_remark=${employee_remark}    isReplace=true
+    ${result}=    post request    ${session}    /priceservice/seaMainPrice.ctrl?$action=addSeaRemark    data=${data}    headers=${headers}
+    [Return]    ${result}
+
+批量修改整箱附加费说明_覆盖
+    [Arguments]    ${casenumberString}    ${addfee}    ${session}=${运价内部_session}
+    ${headers}    create dictionary    Content-Type=application/json;charset=UTF-8
+    ${data}=    jsonstr to dict    {"queryConditions":"{}","casenumbers":"[\\\"${casenumberString} \\\"]","stateFilter":"all","isSelectAll":"false","batchType":"addfee","modify":"[{\\\"modifyField\\\":\\\"addfee\\\",\\\"modifyValue\\\":\\\"${addfee}\\\", \\\"modifyType\\\":\\\"equal\\\"}]"}
+    log    ${data}
+    ${result}    post request    ${session}    /freight-efcl-rest/rest/efcl/prices/modify/batch    data=${data}    headers=${headers}
+    ${resultTOjson}    to json    ${result.text}
+    should be equal    ${resultTOjson['resultCode']}    ${100}    msg=批量修改整箱运价附加费说明_覆盖失败
+    should be equal    ${resultTOjson['resultMsg']}    yes    msg=批量修改整箱运价附加费说明_覆盖失败
+
+批量修改整箱附加费说明_删除
+    [Arguments]    ${casenumberString}    ${session}=${运价内部_session}
+    ${headers}    create dictionary    Content-Type=application/json;charset=UTF-8
+    ${data}=    jsonstr to dict    {"queryConditions":"{}","casenumbers":"[\\\"${casenumberString} \\\"]","stateFilter":"all","isSelectAll":"false","batchType":"addfee","modify":"[{\\\"modifyField\\\":\\\"addfee\\\",\\\"modifyValue\\\":\\\"\\\", \\\"modifyType\\\":\\\"equal\\\"}]"}
+    log    ${data}
+    ${result}    post request    ${session}    /freight-efcl-rest/rest/efcl/prices/modify/batch    data=${data}    headers=${headers}
+    ${resultTOjson}    to json    ${result.text}
+    should be equal    ${resultTOjson['resultCode']}    ${100}    msg=批量修改拼箱运价附加费说明_删除失败
+    should be equal    ${resultTOjson['resultMsg']}    yes    msg=批量修改拼箱运价附加费说明_删除失败
+
+批量修改整箱更多项目_承运人航线
+    [Arguments]    ${casenumberString}    ${carrier_route}    ${session}=${运价内部_session}
+    ${headers}    create dictionary    Content-Type=application/x-www-form-urlencoded
+    ${data}    create dictionary    isOtherSave=true    jsonStr=[{"myfield":"carrier_route","fieldValue":"${carrier_route}"}]    casenumberString=${casenumberString}    priceType=fcl    connonQueryValue=-1
+    ...    p_pagetype=fcl_query    dateType=-1
+    ${result}=    post request    ${session}    /priceservice/priceMaintain.ctrl?$action=fclSave    data=${data}    headers=${headers}
+    [Return]    ${result}
+
+选择一页数据
+    [Arguments]    ${pagesize}    ${publishstate}    ${invalidstate}    ${session}=${运价内部_session}
+    [Documentation]    invalidState: 是否有效状态：all=全部，valid=有效，invalid=失效的
+    ...
+    ...    publishState：发布状态：all=全部，no_publish=未发布的，published=已发布的
+    ...
+    ...    ${pagesize}:当前页选择多少条运价
+    ${data1}    Create Dictionary    publishState=${publishstate}    pageSize=${pagesize}    pageNum=1    sortColumn=    sortBy=desc
+    ...    queryConditions={}    invalidState=${invalidstate}
+    ${headers1}    Create Dictionary    Content-Type=application/x-www-form-urlencoded
+    ${result}    post request    ${session}    /freight-efcl-rest/rest/efcl/prices/all    data=${data1}    headers=${headers1}
+    ${resultJson}    to json    ${result.text}
+    ${size}    set variable    ${resultJson["data"]["size"]}
+    @{list}    create list
+    : FOR    ${i}    IN RANGE    ${size}
+    \    ${result}    set variable    ${resultJson["data"]["list"][${i}]["casenumber"]}
+    \    append to list    ${list}    ${result}
+    ${pages}    set variable    ${resultJson["data"]["pages"]}
+    log    ${pages}
+    [Return]    @{list}    ${pages}

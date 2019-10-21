@@ -1,0 +1,664 @@
+*** Settings ***
+Suite Setup       m4-登录
+Suite Teardown    close all browsers
+Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-公用.txt
+
+*** Test Cases ***
+服务类型-新增
+    [Documentation]    名称是唯一的
+    ...    以下列的变量依次是：名称，适用业务，启用/禁用，自定义/原始
+    [Template]
+    ${return}    ${servicename}    新增服务类型    1,2,3,4,5,6    1    #启用，自定义
+    should be equal as strings    ${return['resultCode']}    100
+    #组合查询服务名称和各个适用业务类型
+    : FOR    ${num}    IN RANGE    1    7
+    \    ${content}    查询服务类型    ${servicename}    1    ${num}
+    \    Should Be Equal As Integers    ${content['data']['total']}    1
+
+服务类型-启用/禁用
+    ${content}    ${servicename}    新增服务类型    2    2
+    #查询禁用状态
+    ${content1}    查询服务类型    name=${servicename}    enable=2
+    #启用服务类型
+    ${result}    启用/禁用服务类型    ${content1['data']['list'][0]['id']}    1
+    Should Be Equal As Integers    ${result['resultCode']}    100
+    #查询启用状态
+    ${content2}    查询服务类型    name=${servicename}    enable=1
+    #禁用服务类型
+    ${result1}    启用/禁用服务类型    ${content2['data']['list'][0]['id']}    2
+    Should Be Equal As Integers    ${result1['resultCode']}    100
+    log    ${servicename}
+
+货物来源-新增
+    ${return}    ${goodsSource}    新增货物来源    1
+    should be equal as strings    ${return['resultCode']}    100
+    ${result}    查询货物来源    ${goodsSource}    1
+    Should Be Equal As Integers    ${result['data']['total']}    1
+    log    ${goodsSource}
+
+货物来源-启用/禁用
+    #新增禁用状态
+    ${content}    ${goodsSource}    新增货物来源    2
+    #查询禁用状态
+    ${content1}    查询货物来源    name=${goodsSource}    enable=2
+    #启用货物来源
+    ${result}    启用/禁用货物来源    ${content1['data']['list'][0]['id']}    1
+    Should Be Equal As Integers    ${result['resultCode']}    100
+    #查询启用状态
+    ${content2}    查询货物来源    name=${goodsSource}    enable=1
+    #禁用货物来源
+    ${result1}    启用/禁用货物来源    ${content2['data']['list'][0]['id']}    2
+    Should Be Equal As Integers    ${result1['resultCode']}    100
+    log    ${goodsSource}
+
+船期-新增
+    [Template]
+    ${return}    ${exportvoyage}    新增船期    宁波
+    should be equal as strings    ${return['resultCode']}    100
+    ${content}    查询船期    ${exportvoyage}
+    Should Be Equal As Integers    ${content['data']['total']}    1
+
+商品分类-新增
+    ${return}    ${code}    新增商品分类    1
+    should be equal as strings    ${return['resultCode']}    100
+    ${result}    查询商品分类    ${code}    1
+    Should Be Equal As Integers    ${result['data']['total']}    1
+    log    ${code}
+
+商品分类-启用/禁用
+    ${content}    ${code}    新增商品分类    2
+    #查询禁用状态
+    ${content1}    查询商品分类    ${code}    2
+    #启用
+    ${result}    启用/禁用商品分类    ${content1['data']['list'][0]['id']}    1
+    Should Be Equal As Integers    ${result['resultCode']}    100
+    #查询启用状态
+    ${content2}    查询商品分类    ${code}    1
+    #禁用
+    ${result1}    启用/禁用商品分类    ${content2['data']['list'][0]['id']}    2
+    Should Be Equal As Integers    ${result1['resultCode']}    100
+    log    ${code}
+
+成交方式-新增
+    ${return}    ${code}    新增成交方式    1
+    should be equal as strings    ${return['resultCode']}    100
+    ${result}    查询成交方式    ${code}    1
+    Should Be Equal As Integers    ${result['data']['total']}    1
+    log    ${code}
+
+成交方式-启用/禁用
+    ${content}    ${code}    新增成交方式    2
+    #查询禁用状态
+    ${content1}    查询成交方式    ${code}    2
+    #启用
+    ${result}    启用/禁用成交方式    ${content1['data']['list'][0]['id']}    1
+    Should Be Equal As Integers    ${result['resultCode']}    100
+    #查询启用状态
+    ${content2}    查询成交方式    ${code}    1
+    #禁用
+    ${result1}    启用/禁用成交方式    ${content2['data']['list'][0]['id']}    2
+    Should Be Equal As Integers    ${result1['resultCode']}    100
+    log    ${code}
+
+货物状态-新增
+    ${return}    ${status}    新增货物状态    1
+    should be equal as strings    ${return['resultCode']}    100
+    ${result}    查询货物状态    ${status}    1
+    Should Be Equal As Integers    ${result['data']['total']}    1
+    log    ${status}
+
+货物状态-启用/禁用
+    ${content}    ${status}    新增货物状态    2
+    #查询禁用状态
+    ${content1}    查询货物状态    ${status}    2
+    #启用
+    ${result}    启用/禁用货物状态    ${content1['data']['list'][0]['id']}    1
+    Should Be Equal As Integers    ${result['resultCode']}    100
+    #查询启用状态
+    ${content2}    查询货物状态    ${status}    1
+    #禁用
+    ${result1}    启用/禁用货物状态    ${content2['data']['list'][0]['id']}    2
+    Should Be Equal As Integers    ${result1['resultCode']}    100
+    log    ${status}
+
+计费方式和计费单位-新增
+    #新增其中一个业务类型的数据
+    : FOR    ${type}    IN RANGE    1    7
+    \    ${return}    ${modeenname}    ${unitenname}    新增计费方式和计费单位    businessScope=${type}
+    \    should be equal as strings    ${return['resultCode']}    100
+    \    ${result}    查询计费方式和计费单位    ${modeenname}    ${unitenname}    1
+    \    Should Be Equal As Integers    ${result['data']['total']}    1
+    \    log    ${modeenname}
+    #新增包含所有业务模块的记录
+    ${return}    ${modeenname}    ${unitenname}    新增计费方式和计费单位    businessScope=1,2,3,4,5,6,7
+    ${result}    查询计费方式和计费单位    ${modeenname}    ${unitenname}    1
+    Should Be Equal As Integers    ${result['data']['total']}    1
+    log    ${modeenname}
+
+计费方式和计费单位-启用/禁用
+    ${content}    ${modeenname}    ${unitenname}    新增计费方式和计费单位    2
+    #查询禁用状态
+    ${content1}    查询计费方式和计费单位    ${modeenname}    ${unitenname}    2
+    #启用
+    ${result}    启用/禁用计费方式和计费单位    ${content1['data']['list'][0]['id']}    1
+    Should Be Equal As Integers    ${result['resultCode']}    100
+    #查询启用状态
+    ${content2}    查询计费方式和计费单位    ${modeenname}    ${unitenname}    1
+    #禁用
+    ${result1}    启用/禁用计费方式和计费单位    ${content2['data']['list'][0]['id']}    2
+    Should Be Equal As Integers    ${result1['resultCode']}    100
+    log    ${modeenname}
+
+运输条款-新增
+    ${return}    ${code}    新增运输条款    1
+    should be equal as strings    ${return['resultCode']}    100
+    ${result}    查询运输条款    ${code}    1
+    Should Be Equal As Integers    ${result['data']['total']}    1
+    log    ${code}
+
+运输条款-启用/禁用
+    ${content}    ${code}    新增运输条款    2
+    #查询禁用状态
+    ${content1}    查询运输条款    ${code}    2
+    #启用
+    ${result}    启用/禁用运输条款    ${content1['data']['list'][0]['id']}    1
+    Should Be Equal As Integers    ${result['resultCode']}    100
+    #查询启用状态
+    ${content2}    查询运输条款    ${code}    1
+    #禁用
+    ${result1}    启用/禁用运输条款    ${content2['data']['list'][0]['id']}    2
+    Should Be Equal As Integers    ${result1['resultCode']}    100
+    log    ${code}
+
+运费条款-新增
+    ${return}    ${code}    新增运费条款    1
+    should be equal as strings    ${return['resultCode']}    100
+    ${result}    查询运费条款    ${code}    1
+    Should Be Equal As Integers    ${result['data']['total']}    1
+    log    ${code}
+
+运费条款-启用/禁用
+    ${content}    ${code}    新增运费条款    2
+    #查询禁用状态
+    ${content1}    查询运费条款    ${code}    2
+    #启用
+    ${result}    启用/禁用运费条款    ${content1['data']['list'][0]['id']}    1
+    Should Be Equal As Integers    ${result['resultCode']}    100
+    #查询启用状态
+    ${content2}    查询运费条款    ${code}    1
+    #禁用
+    ${result1}    启用/禁用运费条款    ${content2['data']['list'][0]['id']}    2
+    Should Be Equal As Integers    ${result1['resultCode']}    100
+    log    ${code}
+
+箱型箱尺-新增
+    ${return}    ${code}    新增箱型箱尺
+    should be equal as strings    ${return['resultCode']}    100
+    ${result}    查询箱型箱尺    ${code}    1
+    Should Be Equal As Integers    ${result['data']['total']}    1
+    log    ${code}
+
+箱型箱尺-启用/禁用
+    ${content}    ${code}    新增箱型箱尺    enable=2
+    #查询禁用状态
+    ${content1}    查询箱型箱尺    ${code}    2
+    #启用
+    ${result}    启用/禁用箱型箱尺    ${content1['data']['list'][0]['id']}    1
+    Should Be Equal As Integers    ${result['resultCode']}    100
+    #查询启用状态
+    ${content2}    查询箱型箱尺    ${code}    1
+    #禁用
+    ${result1}    启用/禁用箱型箱尺    ${content2['data']['list'][0]['id']}    2
+    Should Be Equal As Integers    ${result1['resultCode']}    100
+    log    ${code}
+
+贸易方式-新增
+    ${return}    ${code}    新增贸易方式
+    should be equal as strings    ${return['resultCode']}    100
+    ${result}    查询贸易方式    ${code}    1
+    Should Be Equal As Integers    ${result['data']['total']}    1
+    log    ${code}
+
+贸易方式-启用/禁用
+    ${content}    ${code}    新增贸易方式    enable=2
+    #查询禁用状态
+    ${content1}    查询贸易方式    ${code}    2
+    #启用
+    ${result}    启用/禁用贸易方式    ${content1['data']['list'][0]['id']}    1
+    Should Be Equal As Integers    ${result['resultCode']}    100
+    #查询启用状态
+    ${content2}    查询贸易方式    ${code}    1
+    #禁用
+    ${result1}    启用/禁用贸易方式    ${content2['data']['list'][0]['id']}    2
+    Should Be Equal As Integers    ${result1['resultCode']}    100
+    log    ${code}
+
+其他基础资料-新增
+    : FOR    ${type}    IN    提单类型    签单方式    特殊用箱    空运特货类型
+    ...    报关成交方式    结汇方式
+    \    ${return}    ${code}    新增其他基础资料    basetype=${type}
+    \    should be equal as strings    ${return['resultCode']}    100
+    \    ${result}    查询其他基础资料    ${code}    type=${type}
+    \    Should Be Equal As Integers    ${result['data']['total']}    1
+    \    log    ${code}
+
+其他基础资料-启用/禁用
+    ${content}    ${code}    新增其他基础资料    enable=2
+    #查询禁用状态
+    ${content1}    查询其他基础资料    ${code}    enable=2
+    #启用
+    ${result}    启用/禁用其他基础资料    ${content1['data']['list'][0]['id']}    1
+    Should Be Equal As Integers    ${result['resultCode']}    100
+    #查询启用状态
+    ${content2}    查询其他基础资料    ${code}    enable=1
+    #禁用
+    ${result1}    启用/禁用其他基础资料    ${content2['data']['list'][0]['id']}    2
+    Should Be Equal As Integers    ${result1['resultCode']}    100
+    log    ${code}
+
+船公司-新增
+    ${return}    ${code}    新增船公司    1
+    should be equal as strings    ${return['resultCode']}    100
+    ${result}    查询船公司    ${code}    1
+    Should Be Equal As Integers    ${result['data']['total']}    1
+    log    ${code}
+
+船公司-启用/禁用
+    ${content}    ${code}    新增船公司    2
+    #查询禁用状态
+    ${content1}    查询船公司    ${code}    2
+    #启用
+    ${result}    启用/禁用船公司    ${content1['data']['list'][0]['id']}    1
+    Should Be Equal As Integers    ${result['resultCode']}    100
+    #查询启用状态
+    ${content2}    查询船公司    ${code}    1
+    #禁用
+    ${result1}    启用/禁用船公司    ${content2['data']['list'][0]['id']}    2
+    Should Be Equal As Integers    ${result1['resultCode']}    100
+    log    ${code}
+
+船舶信息-新增
+    ${return}    ${code}    新增船舶信息    1
+    should be equal as strings    ${return['resultCode']}    100
+    ${result}    查询船舶信息    ${code}    1
+    Should Be Equal As Integers    ${result['data']['total']}    1
+    log    ${code}
+
+船舶信息-启用/禁用
+    ${content}    ${code}    新增船舶信息    2
+    #查询禁用状态
+    ${content1}    查询船舶信息    ${code}    isEnable=2
+    #启用
+    ${result}    启用/禁用船舶信息    ${content1['data']['list'][0]['id']}    1
+    Should Be Equal As Integers    ${result['resultCode']}    100
+    #查询启用状态
+    ${content2}    查询船舶信息    ${code}    isEnable=1
+    #禁用
+    ${result1}    启用/禁用船舶信息    ${content2['data']['list'][0]['id']}    2
+    Should Be Equal As Integers    ${result1['resultCode']}    100
+    log    ${code}
+
+航司代码--新增
+    :FOR    ${index}    IN RANGE    30
+    \    ${result}    新增航司代码    icaocode    billprefix    enname    cnname
+    \    ...    1
+    \    should be equal as strings    ${result['resultCode']}    100
+
+*** Keywords ***
+新增服务类型
+    [Arguments]    ${scope}    ${enable}    ${property}=2
+    [Documentation]    ${servicename}:服务名称
+    ...    ${scope}:适用业务 \ 海运出口、进口，空运出口、进口，陆运出口、进口分别为（1，2，3，4，5，6）多个业务时用逗号隔开
+    ...    ${enable}:启用：1 禁用：2
+    ...    ${property}:原始：1 \ 自定义：2
+    ${servicename}    生成一个带有字符的随机数    service
+    ${return}    m4-post-json    /fms-rest/rest/baseServiceType    {"serviceName":"${servicename}","businessScope":"${scope}","isEnable":"${enable}","nature":"${property}"}
+    [Return]    ${return}    ${servicename}
+
+查询服务类型
+    [Arguments]    ${name}=    ${enable}=    ${scope}=    ${property}=2
+    [Documentation]    ${name}:服务名称
+    ...    ${scope}:适用业务 \ 海运出口、进口，空运出口、进口，陆运出口、进口分别为（1，2，3，4，5，6）多个业务时用逗号隔开
+    ...    ${enable}:启用：1 禁用：2
+    ...    ${property}:原始：1 \ 自定义：2
+    ${data}    create dictionary    serviceName=${name}    nature=${property}    isEnable=${enable}    businessScope=${scope}    page=1
+    ...    pageSize=15
+    ${return}    m4-post-urlencoded    /fms-rest/rest/baseServiceType?_method=get    data=${data}
+    [Return]    ${return}
+
+启用/禁用服务类型
+    [Arguments]    ${ids}    ${enable}
+    ${resultTOjson}    m4-post-json    uri=/fms-rest/rest/baseServiceType/updateEnable?ids=${ids}&isEnable=${enable}
+    [Return]    ${resultTOjson}
+
+新增货物来源
+    [Arguments]    ${enable}    ${property}=2    ${parentid}=3
+    [Documentation]    ${goodsource}:服务来源
+    ...    ${enable}:启用：1 禁用：2
+    ...    ${property}:原始：1 \ \ 自定义：2
+    ...    ${parent}:指定是 【指定货】对应的 【3】，所以查询货物来源脚本里面默认是查询 【指定货】
+    ${goodsSource}    生成一个带有字符的随机数    goodsSource
+    ${return}    m4-post-json    /fms-rest/rest/baseGoodsSource    {"goodsSource":"${goodsSource}","isEnable":"${enable}","nature":"${property}","parentId":${parentid}}
+    [Return]    ${return}    ${goodsSource}
+
+查询货物来源
+    [Arguments]    ${name}=    ${enable}=    ${property}=2    ${parentname}=指定货
+    [Documentation]    ${name}:服务名称
+    ...
+    ...    ${enable}:启用：1 禁用：2
+    ...    ${property}:原始：1 \ 自定义：2
+    ...    上级：写死为 【指定货】查询，因为前面新增时用的是指定货
+    ${data}    create dictionary    goodsSource=${name}    nature=${property}    isEnable=${enable}    parentName=${parentname}    page=1
+    ...    pageSize=15
+    ${return}    m4-post-urlencoded    /fms-rest/rest/baseGoodsSource?_method=get    data=${data}
+    [Return]    ${return}
+
+启用/禁用货物来源
+    [Arguments]    ${ids}    ${enable}
+    ${resultTOjson}    m4-post-json    /fms-rest/rest/baseGoodsSource/updateEnable?ids=${ids}&isEnable=${enable}
+    [Return]    ${resultTOjson}
+
+新增船期
+    [Arguments]    ${port}    ${vessel}=达飞轮船
+    [Documentation]    ${port}:口岸
+    ...    ${vessel}:船名
+    ...    ${exportvoyage}:出口航次
+    ...    ${etc}:截关时间
+    ...    ${etd}:预计离港
+    ...    ${enable}:启用：1 禁用：2
+    ...    ${property}:原始：1 \ \ 自定义：2
+    ${exportvoyage}    生成一个带有字符的随机数    yage
+    ${hour}    ${min}    ${sec}    get time    hour,min,sec
+    ${h}    Catenate    SEPARATOR=:    ${hour}    ${min}    ${sec}
+    ${currentdate}    当前日期加减天数    +0
+    ${date}    当前日期加减天数    +7
+    ${etc}    Catenate    ${currentdate}    ${h}
+    ${etd}    Catenate    ${date}    ${h}
+    ${return}    m4-post-json    /fms-rest/rest/baseShipping    {"port":"${port}","vessel":"${vessel}","exportVoyage":"${exportvoyage}","etc":"${etc}","etd":"${etd}"}
+    [Return]    ${return}    ${exportvoyage}
+
+新增商品分类
+    [Arguments]    ${enable}    ${property}=2    ${type}=自动化
+    [Documentation]    ${code}:代码
+    ...    ${enable}:启用：1 禁用：2
+    ...    ${property}:原始：1 \ \ 自定义：2
+    ...    ${type}:类型， 不是唯一的，所以给个默认值
+    ${code}    生成一个带有字符的随机数
+    ${return}    m4-post-json    /fms-rest/rest/baseCommodityType    {"code":"${code}","commodityType":"${type}","isEnable":"${enable}","nature":"${property}"}
+    [Return]    ${return}    ${code}
+
+查询商品分类
+    [Arguments]    ${code}=    ${enable}=    ${property}=2    ${type}=自动化
+    [Documentation]    ${code}:代码
+    ...
+    ...    ${enable}:启用：1 禁用：2
+    ...    ${property}:原始：1 \ 自定义：2
+    ...    类型：写死为 【自动化】查询，因为前面新增时用的是自动化
+    ${data}    create dictionary    code=${code}    nature=${property}    isEnable=${enable}    commodityType=${type}    page=1
+    ...    pageSize=15
+    ${return}    m4-post-urlencoded    /fms-rest/rest/baseCommodityType?_method=get    data=${data}
+    [Return]    ${return}
+
+启用/禁用商品分类
+    [Arguments]    ${ids}    ${enable}
+    ${resultTOjson}    m4-post-json    /fms-rest/rest/baseCommodityType/updateEnable?ids=${ids}&isEnable=${enable}
+    [Return]    ${resultTOjson}
+
+新增成交方式
+    [Arguments]    ${enable}    ${property}=2    ${cnname}=自动化    ${enname}=automatic
+    [Documentation]    ${code}:代码
+    ...    ${enable}:启用：1 禁用：2
+    ...    ${property}:原始：1 \ \ 自定义：2
+    ...    ${type}:类型， 不是唯一的，所以给个默认值
+    ${code}    生成一个带有字符的随机数
+    ${return}    m4-post-json    /fms-rest/rest/baseTradeWay    {"code":"${code}","tradeCnName":"${cnname}","tradeEnName":"${enname}","isEnable":"${enable}","nature":"${property}"}
+    [Return]    ${return}    ${code}
+
+查询成交方式
+    [Arguments]    ${code}=    ${enable}=    ${property}=2    ${cnname}=自动化    ${enname}=automatic
+    [Documentation]    ${code}:代码
+    ...
+    ...    ${enable}:启用：1 禁用：2
+    ...    ${property}:原始：1 \ 自定义：2
+    ...    类型：默认为 【自动化】查询，因为前面新增时用的是自动化
+    ${data}    create dictionary    code=${code}    nature=${property}    isEnable=${enable}    tradeCnName=${cnname}    tradeEnName=${enname}
+    ...    page=1    pageSize=15
+    ${return}    m4-post-urlencoded    /fms-rest/rest/baseTradeWay?_method=get    data=${data}
+    [Return]    ${return}
+
+启用/禁用成交方式
+    [Arguments]    ${ids}    ${enable}
+    ${resultTOjson}    m4-post-json    /fms-rest/rest/baseTradeWay/updateEnable?ids=${ids}&isEnable=${enable}
+    [Return]    ${resultTOjson}
+
+新增货物状态
+    [Arguments]    ${enable}    ${enname}=automatic
+    [Documentation]    ${code}:代码
+    ...    ${enable}:启用：1 禁用：2
+    ...    ${status}:货物状态，需要唯一
+    ${code}    生成一个带有字符的随机数
+    ${status}    生成一个带有字符的随机数    货物
+    ${data}    create dictionary    statusCode=${code}    id=    statusName=${status}    statusEnname=${enname}    isEnable=${enable}
+    ${return}    m4-post-urlencoded    /fms-rest/rest/baseGoodsStatus?_method=post    data=${data}
+    [Return]    ${return}    ${status}
+
+查询货物状态
+    [Arguments]    ${value}    ${enable}=    ${property}=2
+    [Documentation]    ${value}:代码、货物状态、英文
+    ...
+    ...    ${enable}:启用：1 禁用：2
+    ...    ${property}:原始：1 \ 自定义：2
+    ${data}    create dictionary    searchValue=${value}    nature=${property}    isEnable=${enable}    page=1    pageSize=15
+    ${return}    m4-post-urlencoded    /fms-rest/rest/baseGoodsStatus/page?_method=get    data=${data}
+    [Return]    ${return}
+
+启用/禁用货物状态
+    [Arguments]    ${ids}    ${enable}
+    ${data}    Create Dictionary    strIds=${ids}
+    ${resultTOjson}    m4-post-urlencoded    /fms-rest/rest/baseGoodsStatus/isEnable/${enable}?_method=post    data=${data}
+    [Return]    ${resultTOjson}
+
+新增计费方式和计费单位
+    [Arguments]    ${enable}=1    ${businessScope}=1    ${modecnname}=计费方式    ${unitcnname}=计费单位
+    [Documentation]    ${modeenname}:计费方式
+    ...    ${unitenname}:计费单位
+    ...    ${enable}:启用：1 禁用：2
+    ...    ${status}:货物状态，需要唯一
+    ...    ${businessScope}:业务模块：海运出口：1 海运进口：2 \ 空运出口：3 进口：4 \ 出口陆运：5， 进口陆运：6
+    ${modeenname}    生成一个带有字符的随机数    mode
+    ${unitenname}    生成一个带有字符的随机数    unit
+    ${data}    create dictionary    modeEnname=${modeenname}    id=    modeCnname=${modecnname}    unitEnname=${unitenname}    unitCnname=${unitcnname}
+    ...    isEnable=${enable}    businessScope=${businessScope}
+    ${return}    m4-post-urlencoded    /fms-rest/rest/baseFeeModeUnit?_method=post    data=${data}
+    [Return]    ${return}    ${modeenname}    ${unitenname}
+
+启用/禁用计费方式和计费单位
+    [Arguments]    ${ids}    ${enable}
+    ${data}    Create Dictionary    strIds=${ids}
+    ${resultTOjson}    m4-post-urlencoded    /fms-rest/rest/baseFeeModeUnit/isEnable/${enable}?_method=post    data=${data}
+    [Return]    ${resultTOjson}
+
+查询计费方式和计费单位
+    [Arguments]    ${modeenname}    ${unitenname}    ${enable}=1    ${property}=2
+    [Documentation]    ${modeenname}:计费方式英文、中文
+    ...    ${unitenname}:计费单位英文、中文
+    ...
+    ...    ${enable}:启用：1 禁用：2
+    ...    ${property}:原始：1 \ 自定义：2
+    ${data}    create dictionary    modeEnname=${modeenname}    nature=${property}    isEnable=${enable}    page=1    pageSize=15
+    ...    unitEnname=${unitenname}
+    ${return}    m4-post-urlencoded    /fms-rest/rest/baseFeeModeUnit/page?_method=get    data=${data}
+    [Return]    ${return}
+
+新增运输条款
+    [Arguments]    ${enable}
+    [Documentation]    ${code}:代码
+    ...    ${enable}:启用：1 禁用：2
+    ${code}    生成一个带有字符的随机数    trans
+    ${name}    生成一个带有字符的随机数    trans to
+    ${data}    create dictionary    code=${code}    id=    name=${name}    isEnable=${enable}
+    ${return}    m4-post-urlencoded    /fms-rest/rest/baseTransClause?_method=post    data=${data}
+    [Return]    ${return}    ${code}
+
+查询运输条款
+    [Arguments]    ${value}    ${enable}=    ${property}=2
+    [Documentation]    ${value}:运输条款的代码、名称
+    ...
+    ...    ${enable}:启用：1 禁用：2
+    ...    ${property}:原始：1 \ 自定义：2
+    ${data}    create dictionary    searchValue=${value}    nature=${property}    isEnable=${enable}    page=1    pageSize=15
+    ${return}    m4-post-urlencoded    /fms-rest/rest/baseTransClause/page?_method=get    data=${data}
+    [Return]    ${return}
+
+启用/禁用运输条款
+    [Arguments]    ${ids}    ${enable}
+    ${data}    Create Dictionary    strIds=${ids}
+    ${resultTOjson}    m4-post-urlencoded    /fms-rest/rest/baseTransClause/isEnable/${enable}?_method=post    data=${data}
+    [Return]    ${resultTOjson}
+
+新增运费条款
+    [Arguments]    ${enable}    ${cnname}=自动化
+    [Documentation]    ${code}:代码
+    ...    ${enable}:启用：1 禁用：2
+    ${code}    生成一个带有字符的随机数    freight
+    ${enname}    生成一个带有字符的随机数    freight paid
+    ${data}    create dictionary    code=${code}    id=    enname=${enname}    cnname=${cnname}    isEnable=${enable}
+    ${return}    m4-post-urlencoded    /fms-rest/rest/baseFreightClause?_method=post    data=${data}
+    [Return]    ${return}    ${code}
+
+查询运费条款
+    [Arguments]    ${value}    ${enable}=    ${property}=2
+    [Documentation]    ${value}:运费条款的代码、名称
+    ...
+    ...    ${enable}:启用：1 禁用：2
+    ...    ${property}:原始：1 \ 自定义：2
+    ${data}    create dictionary    searchValue=${value}    nature=${property}    isEnable=${enable}    page=1    pageSize=15
+    ${return}    m4-post-urlencoded    /fms-rest/rest/baseFreightClause/page?_method=get    data=${data}
+    [Return]    ${return}
+
+启用/禁用运费条款
+    [Arguments]    ${ids}    ${enable}
+    ${data}    Create Dictionary    strIds=${ids}
+    ${resultTOjson}    m4-post-urlencoded    /fms-rest/rest/baseFreightClause/isEnable/${enable}?_method=post    data=${data}
+    [Return]    ${resultTOjson}
+
+查询船期
+    [Arguments]    ${exportvoyage}
+    [Documentation]    ${value}:运费条款的代码、名称
+    ...
+    ...    ${enable}:启用：1 禁用：2
+    ...    ${property}:原始：1 \ 自定义：2
+    ${data}    create dictionary    exportVoyage=${exportvoyage}    page=1    pageSize=15
+    ${return}    m4-post-urlencoded    /fms-rest/rest/baseShipping?_method=get    data=${data}
+    [Return]    ${return}
+
+新增箱型箱尺
+    [Arguments]    ${enname}=enname    ${cnname}=cnname    ${smart}=smart    ${inttra}=inttra    ${enable}=1    ${property}=2
+    [Documentation]    ${code}:代码
+    ...    ${enable}:启用：1 禁用：2
+    ...    ${property}:原始：1 \ 自定义：2
+    ${code}    生成一个带有字符的随机数    ctn
+    ${return}    m4-post-json    /fms-rest/rest/baseCtn?_method=post    {"code":"${code}","enName":"${enname}","cnName":"${cnname}","cargosmart":"${smart}","inttra":"${inttra}","isEnable":"${enable}","nature":"${property}"}
+    [Return]    ${return}    ${code}
+
+查询箱型箱尺
+    [Arguments]    ${value}    ${enable}=    ${property}=2
+    [Documentation]    ${name}:代码，名称中文、名称英文
+    ...
+    ...    ${enable}:启用：1 禁用：2
+    ...    ${property}:原始：1 \ 自定义：2
+    ${data}    create dictionary    name=${value}    nature=${property}    isEnable=${enable}    page=1    pageSize=15
+    ${return}    m4-post-urlencoded    /fms-rest/rest/baseCtn?_method=get    data=${data}
+    [Return]    ${return}
+
+启用/禁用箱型箱尺
+    [Arguments]    ${ids}    ${enable}
+    ${resultTOjson}    m4-post-json    /fms-rest/rest/baseCtn/updateEnable?ids=${ids}&isEnable=${enable}
+    [Return]    ${resultTOjson}
+
+新增贸易方式
+    [Arguments]    ${shortTitle}=s-title    ${fullTitle}=f-title    ${enable}=1    ${property}=2
+    [Documentation]    ${code}:代码
+    ...    ${enable}:启用：1 禁用：2
+    ...    ${property}:原始：1 \ \ 自定义：2
+    ${code}    生成一个带有字符的随机数    my
+    ${return}    m4-post-json    /fms-rest/rest/baseTradeMode?_method=post    {"code":"${code}","shortTitle":"${shortTitle}","fullTitle":"${fullTitle}","isEnable":"${enable}","nature":"${property}"}
+    [Return]    ${return}    ${code}
+
+查询贸易方式
+    [Arguments]    ${title}=    ${enable}=    ${property}=2
+    ${return}    m4-post-urlencoded    uri=/fms-rest/rest/baseTradeMode?title=${title}&nature=${property}&isEnable=${enable}&page=1&pageSize=15&_method=get
+    [Return]    ${return}
+
+启用/禁用贸易方式
+    [Arguments]    ${ids}    ${enable}
+    ${resultTOjson}    m4-post-json    /fms-rest/rest/baseTradeMode/updateEnable?ids=${ids}&isEnable=${enable}
+    [Return]    ${resultTOjson}
+
+新增其他基础资料
+    [Arguments]    ${basetype}=提单类型    ${envalue}=envalue    ${cnvalue}=cnvalue    ${businessScope}=1    ${enable}=1
+    [Documentation]    ${modeenname}:计费方式
+    ...    ${unitenname}:计费单位
+    ...    ${enable}:启用：1 禁用：2
+    ...    ${status}:货物状态，需要唯一
+    ...    ${businessScope}:业务模块：海运出口：1 海运进口：2 \ 空运出口：3 进口：4 \ 出口陆运：5， 进口陆运：6
+    ${code}    生成一个带有字符的随机数    coty
+    ${return}    m4-post-json    /fms-rest/rest/baseOther?_method=post    {"baseType":"${basetype}","code":"${code}","cnValue":"${cnvalue}","enValue":"${envalue}","businessScope":"${businessScope}","isEnable":"${enable}","nature":"2"}
+    [Return]    ${return}    ${code}
+
+启用/禁用其他基础资料
+    [Arguments]    ${ids}    ${enable}
+    ${data}    Create Dictionary    ids=${ids}    isEnable=${enable}
+    ${resultTOjson}    m4-post-urlencoded    /fms-rest/rest/baseOther/updateEnable?_method=post    data=${data}
+    [Return]    ${resultTOjson}
+
+查询其他基础资料
+    [Arguments]    ${value}    ${type}=    ${businessScope}=    ${enable}=    ${property}=2
+    ${data}    create dictionary    baseType=${type}    value=${value}    businessScope=${businessScope}    nature=${property}    isEnable=${enable}
+    ...    page=1    pageSize=15
+    ${return}    m4-post-urlencoded    uri=/fms-rest/rest/baseOther?_method=get    data=${data}
+    [Return]    ${return}
+
+新增船公司
+    [Arguments]    ${isEnable}    ${enShortName}=co    ${cnShortName}=马士基    ${scacCode}=scac    ${enFullName}=MASK    ${cnFullName}=马士基船公司
+    ${code}    生成一个带有字符的随机数    carrier
+    ${result}    m4-post-json    /fms-rest/rest/baseCarrier?_method=post    {"code":"${code}","enShortName":"${enShortName}","cnShortName":"${cnShortName}","scacCode":"${scacCode}","enFullName":"${enFullName}","cnFullName":"${cnFullName}","isEnable":"${isEnable}","nature":"2"}
+    [Return]    ${result}    ${code}
+
+查询船公司
+    [Arguments]    ${name}    ${isEnable}=    ${nature}=2
+    ${data}    Create Dictionary    name=${name}    nature=${nature}    isEnable=${isEnable}    page=1    pageSize=15
+    ${result}    m4-post-urlencoded    /fms-rest/rest/baseCarrier?_method=get    ${data}
+    [Return]    ${result}
+
+启用/禁用船公司
+    [Arguments]    ${ids}    ${enable}
+    ${data}    Create Dictionary    ids=${ids}    isEnable=${enable}
+    ${resultTOjson}    m4-post-urlencoded    /fms-rest/rest/baseCarrier/updateEnable?_method=post    data=${data}
+    [Return]    ${resultTOjson}
+
+新增船舶信息
+    [Arguments]    ${isEnable}    ${isArtery}=1    ${cnName}=宁波码头    ${vesselCall}=998998    ${unCode}=UNcode
+    ${enName}    生成一个带有字符的随机数    vessel
+    ${result}    m4-post-json    /fms-rest/rest/baseVesselInfo?_method=post    {"enName":"${enName}","cnName":"${cnName}","isArtery":"${isArtery}","vesselCall":"${vesselCall}","unCode":"${unCode}","isEnable":"${isEnable}","nature":"2"}
+    [Return]    ${result}    ${enName}
+
+查询船舶信息
+    [Arguments]    ${name}    ${isArtery}=1    ${isEnable}=    ${nature}=2
+    [Documentation]    ${isArtery}:1 是主线， 2是支线
+    ${data}    Create Dictionary    name=${name}    nature=${nature}    isEnable=${isEnable}    isArtery=${isArtery}    page=1
+    ...    pageSize=15
+    ${result}    m4-post-urlencoded    /fms-rest/rest/baseVesselInfo?_method=get    ${data}
+    [Return]    ${result}
+
+启用/禁用船舶信息
+    [Arguments]    ${ids}    ${enable}
+    ${data}    Create Dictionary    ids=${ids}    isEnable=${enable}
+    ${resultTOjson}    m4-post-urlencoded    /fms-rest/rest/baseVesselInfo/updateEnable?_method=post    data=${data}
+    [Return]    ${resultTOjson}
+
+新增航司代码
+    [Arguments]    ${icaocode}    ${billprefix}    ${enname}    ${cnname}    ${isenable}
+    ${code}    生成一个带有字符的随机数    hs
+    ${result}    m4-post-json    /fms-base-rest/rest/baseAirways    {"id":"","code":"${code}","icaoCode":"${icaocode}","billPrefix":"${billprefix}","enName":"${enname}","cnName":"${cnname}","isEnable":"${isenable}","nature":"2"}
+    [Return]    ${result}

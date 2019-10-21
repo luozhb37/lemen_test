@@ -1,0 +1,203 @@
+*** Settings ***
+Resource          ../GM1-UI-公共/GM1-UI-引用.txt
+
+*** Keywords ***
+点击公司信息
+    点击    xpath=//a[text()='公司信息']
+    等待加载层消失
+
+点击常用地址
+    点击    xpath=//a[text()='常用地址']
+    等待加载层消失
+
+点击打单内容
+    点击    xpath=//a[text()='打单内容']
+    等待加载层消失
+
+公司信息-保存
+    [Arguments]    ${orgNameEn}    ${orgShortEnName}    ${linkman}    ${email}
+    [Documentation]    ${orgNameEn}：英文名称
+    ...
+    ...    ${orgShortEnName}：英文简称
+    ...
+    ...    ${linkman}：联系人
+    ...
+    ...    ${email}：电子邮件
+    进入列表框架
+    清空输入框内容    id=orgNameEn
+    输入    id=orgNameEn    ${orgNameEn}
+    清空输入框内容    id=orgShortEnName
+    输入    id=orgShortEnName    ${orgShortEnName}
+    清空输入框内容    id=linkman
+    输入    id=linkman    ${linkman}
+    清空输入框内容    id=email
+    输入    id=email    ${email}
+    点击保存按钮
+    离开框架
+
+公司信息-获取内容
+    等待    2    #切换页面后等待页面加载完毕
+    进入列表框架
+    ${text1}    获取元素属性值    id=orgNameEn    value
+    ${text2}    获取元素属性值    id=orgShortEnName    value
+    ${text3}    获取元素属性值    id=linkman    value
+    ${text4}    获取元素属性值    id=email    value
+    离开框架
+    [Return]    ${text1}    ${text2}    ${text3}    ${text4}
+
+常用地址-新增
+    [Arguments]    ${CY_dataVo.addressName}    ${CY_dataVo.address}    ${CY_dataVo.linkman}
+    [Documentation]    ${CY_dataVo.addressName}#类别
+    ...
+    ...    ${CY_dataVo.address}#英文地址
+    ...
+    ...    ${CY_dataVo.linkman}#联系人
+    点击    xpath=//span[text()='新 增']/..
+    输入    id=dataVo.addressName    ${CY_dataVo.addressName}
+    输入    id=dataVo.address    ${CY_dataVo.address}
+    输入    id=dataVo.linkman    ${CY_dataVo.linkman}
+    点击保存按钮
+
+打单内容-新增
+    [Arguments]    ${DD_dataVo.orgEnName}    ${DD_dataVo.linkmanEnName}    ${DD_dataVo.enAddress}
+    [Documentation]    ${DD_dataVo.orgEnName}    #公司英文名称    #联系人英文名称    #联系人英文地址
+    ...
+    ...    ${DD_dataVo.linkmanEnName}
+    ...
+    ...    ${DD_dataVo.enAddress}
+    点击    xpath=//span[text()='新 增']/..
+    勾选收发通属性    发货人
+    点击    xpath=//input[@id='dataVo.businessType']/..    #点击业务下拉框
+    点击    xpath=//li[text()='全部业务']    #点击全部业务
+    输入    id=dataVo.orgEnName    ${DD_dataVo.orgEnName}    #公司英文名称
+    输入    id=dataVo.linkmanEnName    ${DD_dataVo.linkmanEnName}    #联系人英文名称
+    输入    id=dataVo.enAddress    ${DD_dataVo.enAddress}    #联系人英文地址
+    点击保存按钮
+
+生成指定一级部门
+    [Arguments]    ${dep}
+    点击系统设置（主菜单）
+    进入指定二级菜单    公司管理    组织结构    # 进入组织结构
+    进入框架    id=content
+    ${len}    获取匹配xpath的个数    xpath=//ul[@id='stgl_jg_bmgl_leftTree']/li    # 获取一级部门的个数
+    ${flag}    Set Variable    False
+    : FOR    ${index}    IN RANGE    ${len}
+    \    ${dep_name}    获取元素属性值    xpath=//ul[@id='stgl_jg_bmgl_leftTree']/li[${index}+1]/a    title    # 获取列表的一级部门名称
+    \    ${flag}    run keyword if    '${dep_name}'=='${dep}'    Set Variable    True
+    \    run keyword if    '${dep_name}'=='${dep}'    run keywords    log    该一级部门已存在
+    \    ...    AND    Exit For Loop    # 若存在一级部门则创建对应子部门并退出循环
+    run keyword if    '${flag}'=='False'    新增顶级部门    ${dep}
+    离开框架
+
+生成指定一级部门的子部门
+    [Arguments]    ${dep}    ${sub_dep}
+    点击系统设置（主菜单）
+    进入指定二级菜单    公司管理    组织结构    # 进入组织结构
+    进入框架    id=content
+    ${len}    获取匹配xpath的个数    xpath=//ul[@id='stgl_jg_bmgl_leftTree']/li    # 获取一级部门的个数
+    ${flag}    Set Variable    False
+    : FOR    ${index}    IN RANGE    ${len}
+    \    ${dep_name}    获取元素属性值    xpath=//ul[@id='stgl_jg_bmgl_leftTree']/li[${index}+1]/a    title    # 获取列表的一级部门名称
+    \    ${flag}    run keyword if    '${dep_name}'=='${dep}'    Set Variable    True
+    \    run keyword if    '${dep_name}'=='${dep}'    Run Keywords    生成对应子部门    xpath=//ul[@id='stgl_jg_bmgl_leftTree']/li[${index}+1]    ${sub_dep}
+    \    ...    AND    Exit For Loop    # 若存在一级部门则创建对应子部门并退出循环
+    run keyword if    '${flag}'=='False'    log    没有该一级部门
+    离开框架
+
+生成对应子部门
+    [Arguments]    ${locate}    ${sub_dep}    # 一级部门位置|对应子部门名称
+    ${status}    Run Keyword And Return Status    Page Should Contain Element    ${locate}/ul/li
+    ${len}    Run Keyword If    '${status}'=='False'    Set Variable    0
+    ...    ELSE    Get Element Count    ${locate}/ul/li    # 获取子部门个数
+    ${flag}    Set Variable    False
+    : FOR    ${index}    IN RANGE    ${len}    # 多个子部门时查看是否有该部门，部门为0时不会执行循环
+    \    ${dep_name}    获取元素属性值    ${locate}/ul/li[${index}+1]/a    @title    # 获取子部门的名称
+    \    ${flag}    run keyword if    '${dep_name}'=='${sub_dep}'    Set Variable    True
+    \    run keyword if    '${dep_name}'=='${sub_dep}'    run keywords    log    该二级部门已存在
+    \    ...    AND    Exit For Loop    # 若存在子部门将flag设置为True并退出循环
+    run keyword if    '${flag}'=='False'    新增子部门    ${locate}/a    ${sub_dep}    # 无子部门时则新增
+
+新增子部门
+    [Arguments]    ${locate}    ${sub_dep}
+    点击    ${locate}    # 点击一级部门
+    Wait Until Page Contains    添加下级
+    点击    id=addNextNote    # 点击添加下级部门按钮
+    输入    xpath=//div[@id='stgl_jg_bmgl_box']//table/tbody/tr[1]/td/input    ${sub_dep}    # 输入子部门名称
+    点击    xpath=//button[text()='提交']    # 点击提交按钮
+    Wait Until Page Contains    操作成功
+
+新增顶级部门
+    [Arguments]    ${dep}
+    点击    xpath=//a[text()='添加顶级部门']    # 点击添加顶级部门按钮
+    输入    xpath=//div[@id='stgl_jg_bmgl_box']//table/tbody/tr[1]/td/input    ${dep}    # 输入部门名称
+    点击    xpath=//button[text()='提交']    # 点击提交按钮
+    Wait Until Page Contains    操作成功
+
+生成指定部门的用户
+    [Arguments]    ${name}    ${dep}    ${sub_dep}=
+    [Documentation]    关键字使用前提：需要选择的指定一级部门或二级部门已存在
+    ...
+    ...    参数说明：
+    ...    ${name}：需要修改的用户账号
+    ...    ${dep}：需要选择的指定一级部门名称(若存在多个同名的一级部门，则会选择第一个)
+    ...    ${sub_dep}：需要选择的指定一级部门下的指定二级部门名称
+    点击系统设置（主菜单）
+    进入指定二级菜单    公司管理    用户管理    # 进入用户管理
+    进入框架    id=content
+    输入    xpath=//div[@id='user_toolbar']//input[@name='username']    ${name}    # 输入用户名进行查询
+    点击    xpath=//button[text()='查询']    # 点击查询按钮
+    ${count}    获取匹配xpath的个数    xpath=//table[@class='datagrid-btable']/tbody/tr
+    run keyword if    ${count}>0    修改用户部门    ${name}    ${dep}    ${sub_dep}
+    ...    ELSE    新增指定部门的员工    ${name}    ${dep}    ${sub_dep}
+    离开框架
+
+选择全部职员类型
+    ${len}    获取匹配xpath的个数    xpath=//th[text()='职员类型：']/../td//input    # 获取职员类型下的岗位个数
+    : FOR    ${index}    IN RANGE    ${len}
+    \    点击    xpath=//th[text()='职员类型：']/../td/span[${index}+1]/input    # 勾选岗位名称
+
+修改用户部门
+    [Arguments]    ${name}    ${dep}    ${sub_dep}=
+    点击    xpath=//div[contains(@class,'datagrid-cell-c1-username')][text()='${name}']/../../td[2]//a    # 点击账号对应行的姓名打开详情
+    等待    1
+    点击    xpath=//input[@id='deptName2']/..
+    选择指定部门    ${dep}    ${sub_dep}
+    点击    xpath=//button[text()='保存']    # 点击保存按钮
+
+新增指定部门的员工
+    [Arguments]    ${name}    ${dep}    ${sub_dep}=
+    点击    xpath=//span[text()='添加']/../..    # 点击添加按钮
+    等待    1
+    输入    xpath=//th[text()='账号：']/../td/input    ${name}    # 输入新生成的账号名
+    清空输入框内容    xpath=//th[text()='密码：']/../td/input
+    输入    xpath=//th[text()='密码：']/../td/input    a111111    # 输入指定的密码
+    ${family_name}    生成指定位数的随机字符串    3
+    输入    xpath=//th[text()='姓：']/../td/input    ${family_name}    # 输入姓
+    输入    xpath=//th[text()='名：']/../td/input    ${name}    # 输入名
+    输入    xpath=//th[text()='手机号：']/../td/input    15711111111    # 输入手机号
+    输入    xpath=//th[text()='电子邮箱：']/../td/input    a@a.com    # 输入电子邮箱
+    点击    xpath=//th[text()='部门：']/../td/a    # 点击部门
+    选择指定部门    ${dep}    ${sub_dep}
+    选择全部职员类型
+    点击    xpath=//button[text()='保存']    # 点击保存按钮
+
+选择指定部门
+    [Arguments]    ${dep}    ${sub_dep}=
+    ${len}    获取匹配xpath的个数    xpath=//ul[@id='dept_lookup_tree']/li    # 获取一级部门的个数
+    : FOR    ${index}    IN RANGE    ${len}
+    \    ${dep_name}    获取元素属性值    xpath=//ul[@id='dept_lookup_tree']/li[${index}+1]/a    title    # 获取列表的一级部门名称
+    \    run keyword if    '${dep_name}'=='${dep}' and '${sub_dep}'==''    run keywords    点击    xpath=//ul[@id='dept_lookup_tree']/li[${index}+1]/a
+    \    ...    AND    Exit For Loop
+    \    ...    ELSE IF    '${dep_name}'=='${dep}' and '${sub_dep}'<>''    run keywords    选择指定的二级部门    xpath=//ul[@id='dept_lookup_tree']/li[${index}+1]/ul
+    \    ...    ${sub_dep}
+    \    ...    AND    Exit For Loop
+    \    ...    ELSE    log    该一级部门不存在    # 点击一级部门并退出循环    # 点击二级部门并退出循环
+
+选择指定的二级部门
+    [Arguments]    ${locate}    ${sub_dep}
+    ${len}    Get Element Count    ${locate}/li    # 获取二级部门的个数
+    : FOR    ${index}    IN RANGE    ${len}
+    \    ${sub_name}    获取元素属性值    ${locate}/li[${index}+1]/a    title    # 获取列表的二级部门名称
+    \    run keyword if    '${sub_dep}'=='${sub_name}'    run keywords    点击    ${locate}/li[${index}+1]/a
+    \    ...    AND    Exit For Loop
+    \    ...    ELSE    log    该二级部门不存在    # 点击指定的二级部门并退出循环

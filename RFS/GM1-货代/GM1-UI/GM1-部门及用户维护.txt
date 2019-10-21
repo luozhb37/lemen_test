@@ -1,0 +1,160 @@
+*** Settings ***
+Suite Setup       Run keywords    m4-登录    变量
+Suite Teardown    Close All Browsers
+Test Setup        reload page
+Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+Library           AutoItLibrary
+Library           ExcelLibrary
+Library           Collections
+
+*** Test Cases ***
+组织结构-增删
+    [Setup]
+    # --进入系统设置---
+    点击系统设置（主菜单）
+    点击公司管理
+    ${u_depart}    Catenate    SEPARATOR=    部门测试-A    1
+    #--新增顶级部门---
+    点击    xpath=//a[@target='content'][contains(text(),"组织结构")]    #点【组织结构】
+    进入框架    id=content
+    点击    xpath=//span[text()='财务部']
+    点击    id=addNextNote
+    新增部门（顶级）    ${u_depart}
+    #---删除新增的部门---
+    点击    xpath=//span[text()='${u_depart}']    #点 新增的部门名称
+    点击    id=dela    #点【删除】
+    点击    xpath=//span[text()='确定']    #点【确定】确认删除
+    离开框架
+    [Teardown]
+
+员工管理-新增
+    [Setup]
+    #部门初始化    @{emplyee_depart}
+    # --进入系统设置---
+    点击系统设置（主菜单）
+    点击公司管理
+    ${u_gonghao}    Evaluate    23333    #=初始工号+循环值
+    ${u_last_name}    Catenate    SEPARATOR=    yeye    #输入【姓】
+    ${u_first_name}    Catenate    SEPARATOR=    jy    #输入【名】
+    ${u_email}    Catenate    SEPARATOR=    wwe@233.com    #输入【邮箱】
+    ${u_moblie}    Random Num    1000    10000
+    #${u_moblie}    Catenate    SEPARATOR=    12345678900    #输入【手机】
+    ${u_depart}=    Catenate    SEPARATOR=    测试部
+    点击    xpath=//a[@target='content'][contains(text(),"员工管理")]    #点【员工管理】
+    #---新增员工
+    进入框架    id=content
+    点击    xpath=//span[text()='新 增']/..    #点【新建】
+    下拉框选中（特殊）    编制部门    财务部
+    #点击    xpath=//span[contains(@id,"dept_lookup_tree_")][text()='${u_depart}']    #选择部门
+    输入    id=personCode    ${u_gonghao}    #员工工号
+    输入    id=surName    ${u_last_name}    #姓
+    输入    id=firstName    ${u_first_name}    #名
+    输入    id=emailAddress    ${u_email}    #邮件
+    输入    id=mobile    ${u_moblie}    #手机号
+    下拉框选中（最后一个元素）    岗位    操作    #设置【职员类型】
+    点击    xpath=//span[text()='保 存']/..    #点【保存】
+    wait until page contains    成功    timeout=6    error=保存失败
+    离开框架
+
+员工管理-激活
+    # --进入系统设置---
+    点击系统设置（主菜单）
+    点击公司管理
+    ${u_gonghao}    Evaluate    23333    #=初始工号+循环值
+    ${u_last_name}    Catenate    SEPARATOR=    yeye    #输入【姓】
+    ${u_first_name}    Catenate    SEPARATOR=    jy    #输入【名】
+    点击    xpath=//a[@target='content'][contains(text(),"员工管理")]    #点【员工管理】
+    #-----查询员工
+    ${u_all_name}    Catenate    SEPARATOR=    ${u_last_name}    ${u_first_name}
+    员工查询    ${u_all_name}
+    #---激活员工
+    #员工激活    工号    ${u_gonghao}    #按‘工号’OR ‘姓名’判断，根据哪个参数定位
+    升级为用户
+
+员工管理-删除
+    # --进入系统设置---
+    点击系统设置（主菜单）
+    点击公司管理
+    ${u_gonghao}    Evaluate    233    #=初始工号+循环值
+    ${u_last_name}    Catenate    SEPARATOR=    yeye    #输入【姓】
+    ${u_first_name}    Catenate    SEPARATOR=    jy    #输入【名】
+    点击    xpath=//a[@target='content'][contains(text(),"员工管理")]    #点【员工管理】
+    #-----查询员工
+    ${u_all_name}    Catenate    SEPARATOR=    ${u_last_name}    ${u_first_name}
+    员工查询    ${u_all_name}
+    #---删除员工
+    #员工删除    工号    ${u_gonghao}    #按‘工号’OR ‘姓名’判断，根据哪个参数定位
+    #员工查询    ${u_all_name}
+    员工删除（新）
+
+用户管理-新增
+    ${temp}    生成一个带有字符的随机数    ye
+    set suite variable    ${temp}
+    ${u_moblie}    Random Num    1000    10000
+    #部门初始化    @{user_depart}
+    #----进入用户管理----
+    点击系统设置（主菜单）
+    点击公司管理
+    点击用户管理
+    #--添加用户----
+    ${u_depart}=    Catenate    SEPARATOR=    测试部
+    #--新增员工---
+    进入框架    id=content
+    点击    xpath=//span[text()='新 增']/..    #点【添加】
+    输入    id=username    ${temp}
+    输入    id=pwd    a111111
+    输入    id=surName    ye
+    输入    id=firstName    ye
+    下拉框选中（特殊）    编制部门    财务部
+    输入    id=emailAddress    11@test.olymtest
+    输入    id=mobile    ${u_moblie}
+    下拉框选中（最后一个元素）    岗位    操作
+    点击    xpath=//span[text()='保 存']/..    #点【保存】
+    wait until page contains    成功    timeout=6    error=保存失败
+    离开框架
+
+用户管理-权限设置
+    #----进入用户管理----
+    点击系统设置（主菜单）
+    点击公司管理
+    点击用户管理
+    #--查找用户并维护权限----
+    #${u_name}    set variable    ${temp}
+    进入框架    id=content
+    输入    id=name    ${temp}    #按‘用户名’查找 【或用 @{u_name} \ \ 】
+    点击    //span[text()="查 询"]/..    #点【查询】
+    点击    xpath=(//table/tbody/tr[1]//input)[last()]
+    点击    xpath=//span[text()='权限分配']/..    #点击权限管理
+    Comment    离开框架
+    Comment    #---业务权限(全权限）--
+    Comment    sleep    3
+    Comment    进入框架    xpath=//iframe[contains(@id,"win_")][contains(@src,"${u_name}")]    #进入用户权限维护框架
+    Comment    点击    xpath=//span[contains(text(),"业务权限设置")]
+    Comment    sleep    3
+    Comment    进入框架    id=iframe2    #进入业务权限维护框架
+    点击    xpath=//div[@class='role_list ant-transfer']//div[@class='ant-transfer-list-header']/label/span/input[@class='ant-checkbox-input']    #点 待选列表的【全选】
+    点击    xpath=//i[@class='anticon anticon-right']/../..    #点击-移动到右侧
+    点击    id=saveBtn    #点 【保存】
+    wait until page contains    成功    timeout=6    error=保存失败
+    离开框架
+    #---维护运价权限----
+    #运价权限设置    ${u_name}
+    #点击    xpath=//span[@class="ant-modal-close-x"]/..    #点【关闭】
+    sleep    0.01
+
+用户管理-删除
+    #----进入用户管理----
+    点击系统设置（主菜单）
+    点击公司管理
+    点击用户管理
+    #--查找用户并维护权限----
+    #${u_name}    set variable    ${temp}
+    进入框架    id=content
+    输入    id=name    ${temp}    #按‘用户名’查找 【或用 @{u_name} \ \ 】
+    点击    //span[text()="查 询"]/..    #点【查询】
+    点击    xpath=(//table/tbody/tr[1]//input)[last()]    #点击权限管理
+    点击    xpath=//span[text()='清空权限']/..
+    gm1弹出框确认
+    点击    xpath=(//a[text()='删除'])[last()]
+
+*** Keywords ***

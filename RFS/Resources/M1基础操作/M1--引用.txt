@@ -1,0 +1,10 @@
+*** Settings ***
+Library           ExcelLibrary
+Library           Selenium2Library
+Library           Collections
+Resource          ../基础关键字.txt
+Resource          ../货代业务数据.txt
+Resource          M1--初始化.txt
+Resource          M1--菜单.txt
+Resource          M1--业务.txt
+Resource          M1--结算.txt

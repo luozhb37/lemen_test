@@ -1,0 +1,43 @@
+*** Settings ***
+Resource          会员接口.txt
+
+*** Keywords ***
+多级运价金额最低限价设定
+
+修改公司信息
+    [Arguments]    ${org_id}    ${org_name_en}=    ${contact}=    ${tel}=    ${fax}=    ${mobile}=
+    ...    ${service_tel}=    ${email}=    ${province_id}=    ${city_id}=    ${postcode}=    ${address}=
+    ...    ${website}=    ${session}=${运价内部_session}
+    ${headers}    Create Dictionary    Content-Type=application/x-www-form-urlencoded    Accept-Language=zh-CN,zh;q=0.8
+    ${data}    FormData To Dict    $action=saveMemCompanyDetail&org_id=${org_id}&org_name_en=${org_name_en}&contact=${contact}&tel=${tel}&fax=${fax}&mobile=${mobile}&service_tel=${service_tel}&email=${email}&province_id=${province_id}&city_id=${city_id}&postcode=${postcode}&address=${address}&website=${website}
+    ${resp}    Post Request    ${session}    /cpmembership/org.ctrl?$action=saveOrgInfo    headers=${headers}    data=${data}
+    [Return]    ${resp.content}
+
+修改员工权限
+    [Arguments]    ${data_level}    ${session}=${运价内部_session}
+    [Documentation]    设置员工的 *客户信息查询级别*    #部门级 f_data_level_dept    #公司级 f_data_level_company
+    ...
+    ...    ${data_level}=个人级 f_data_level_personal
+    ...
+    ...    ${data_level}=部门级 f_data_level_dept
+    ...
+    ...    ${data_level}=公司级 f_data_level_company
+    ...
+    #设置级别
+    ${f_data_level}    Run Keyword If    '${data_level}'=='个人级'    Set Variable    f_data_level_personal
+    ...    ELSE IF    '${data_level}'=='部门级'    Set Variable    f_data_level_dept
+    ...    ELSE    '${data_level}'=='公司级'    Set Variable    f_data_level_company
+    ${headers}    Create Dictionary    Content-Type=application/x-www-form-urlencoded; charset=UTF-8
+    ${data}    Create Dictionary    param={"lic":{"freight":{"status":"0"}},"pur":{"userPur":[],"service_ids":[],"group_ids":[],"employee_ids":["${掌门人_员工EmployeeId}"]},"dataPur":["${f_data_level}","f_data_edit_custom"],"edit":{"efcl":{"searoute":{"switch":0,"ids":[]},"loadport":{"switch":0,"ids":[]},"booking":{"switch":0,"ids":[]},"carrier":{"switch":0,"ids":[]}},"elcl":{"searoute":{"switch":0,"ids":[]},"loadport":{"switch":0,"ids":[]},"booking":{"switch":0,"ids":[]}},"ilcl":{"searoute":{"switch":0,"ids":[]},"disport":{"switch":0,"ids":[]}}},"query":{"efcl":{"searoute":{"switch":0,"ids":[]},"loadport":{"switch":0,"ids":[]},"booking":{"switch":0,"ids":[]},"carrier":{"switch":0,"ids":[]}},"elcl":{"searoute":{"switch":0,"ids":[]},"loadport":{"switch":0,"ids":[]},"booking":{"switch":0,"ids":[]}},"ilcl":{"searoute":{"switch":0,"ids":[]},"disport":{"switch":0,"ids":[]}}},"publish":{"efcl":{"searoute":{"switch":0,"ids":[]},"loadport":{"switch":0,"ids":[]},"booking":{"switch":0,"ids":[]},"carrier":{"switch":0,"ids":[]}},"elcl":{"searoute":{"switch":0,"ids":[]},"loadport":{"switch":0,"ids":[]},"booking":{"switch":0,"ids":[]}},"ilcl":{"searoute":{"switch":0,"ids":[]},"disport":{"switch":0,"ids":[]}}},"employee_ids":["${掌门人_员工EmployeeId}"]}
+    ${resp}    Post Request    ${session}    /cpmembership/purMemUser.ctrl?$action=batchSetUserPurAction&licenseFlag=&serviceFlag=&queryPurFlag=replace    headers=${headers}    data=${data}
+    ${respJson}    to json    ${resp.text}
+    #log    ${resp.text}
+    Should Be Equal    ${respJson['success']}    true
+
+修改网上查询界面显示
+    [Arguments]    ${serviceportal_title_cn}=    ${serviceportal_title_en}=    ${org_referred}=    ${session}=${运价内部_session}
+    ${headers}    Create Dictionary    Content-Type=multipart/form-data; boundary=----WebKitFormBoundarypBWTDA41v6fahLid
+    ${data}    Create Dictionary    serviceportal_title_cn=999    serviceportal_title_en=999    org_referred=999
+    ${resp}    Post Request    ${session}    /cpmembership/org.ctrl?$action=updateServiceportalSet    headers=${headers}    data=${data}    files=test.jpg
+    log    ${resp.text}
+    [Return]    ${resp.content}

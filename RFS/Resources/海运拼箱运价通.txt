@@ -1,0 +1,105 @@
+*** Settings ***
+Resource          基础关键字.txt
+Library           Selenium2Library
+
+*** Keywords ***
+进入拼箱运价维护
+    点击    id=home_freight
+    等待    1
+    点击    xpath=//*[@id='menu']//a[text()='运价维护']
+    等待    1
+    点击    xpath=//*[@id="menu"]//a[text()='海运出口拼箱维护']
+    等待    1
+
+进入拼箱运价查询
+    点击    id=home_freight
+    等待    1
+    点击    xpath=//*[@id='menu']//a[text()='运价查询']
+    等待    1
+    点击    xpath=//*[@id="menu"]//a[text()='海运出口拼箱查询']
+    等待    1
+
+执行js语句
+    [Arguments]    ${js}    # 输入的js语句
+    Execute Javascript    ${js}
+
+获取xpath个数(返回数字)
+    [Arguments]    ${xpath}
+    ${count}=    Get Element Count    ${xpath}
+
+新增运价
+    进入框架    xpath=//iframe[starts-with(@name,'win_')]
+    点击    id=begindate    # 输入有效日期
+    点击    xpath=//button[text()='今天']
+    点击    id=validdate    # 输入有效日期
+    点击    xpath=//button[text()='今天']
+    # js选择时间 待研究---start----
+    Comment    执行js语句    $("#begindate").val("2018-7-12")    # 输入有效日期
+    Comment    执行js语句    $("#validdate").val("2018-7-28")    # 输入有效日期
+    # ----end----
+    默认选择第一个选项    id=loadport
+    默认选择第一个选项    id=dischargeport
+    输入    id=cbmsellprice    1    # 输入底价
+    点击    id=bt_save    # 点击保存
+    页面弹出框选择确定
+    点击    xpath=//span[text()='关闭']/..    # 点击关闭
+    离开框架
+
+复制运价
+    进入框架    xpath=//iframe[starts-with(@name,'win_')]    # 进入弹框
+    点击    id=bt_save    # 点击保存
+    点击确定关闭弹框
+    点击    xpath=//span[text()='关闭']/..    # 点击关闭
+    离开框架
+
+点击确定关闭弹框
+    Dismiss Alert    true    # 点击确定关闭弹框
+    等待    1
+
+切换运价状态
+    [Arguments]    ${switch_name}    # 切换的状态名
+    [Documentation]    点击未发布按钮保证列表数据状态均为未发布
+    Comment    执行js语句    document.getElementById("for-j-stateBtn").style.display="block"    # 将未发布下拉框的状态修改为显示
+    进入框架    id=mainFrame
+    点击    id=j-stateBtn
+    点击    xpath=//div[@id="for-j-stateBtn"]//a[text()="${switch_name}"]    # 点击对应切换按钮
+    离开框架
+
+发布运价
+    点击    xpath=//table//tbody/tr[1]/td[2]/input    # 点击第一条运价记录
+    点击    xpath=//a[text()='发布运价']    # 点击发布运价
+
+获取页面底价
+    进入框架    id=mainFrame
+    点击    xpath=//table/tbody/tr[1]//a[text()='明细']    # 点击明细
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@name,'win_')]
+    ${return}    获取页面值    id=cbmsellprice
+    点击    xpath=//span[text()='关闭']/..    # 点击关闭按钮
+    离开框架
+    [Return]    ${return}
+
+点击复制按钮
+    点击    xpath=//a[text()='复制']    # 点击复制按钮
+
+维护第一条运价成本价
+    [Arguments]    ${cbmsellprice}    ${num}
+    进入框架    id=mainFrame
+    点击第一条运价记录
+    点击    id=j-test    # 点击批量维护
+    点击    xpath=//div[@id='for-j-test']//a[text()='成本价']    # 选择成本价
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@name,'win_')]
+    下拉选择byValue    id=fieldcbmsellprice    cbmsellprice    # 根据成本价
+    输入    id=cbmsellprice    ${num}    #
+    ${exp_price}    Evaluate    int(${cbmsellprice})+int(${num})
+    点击    xpath=//input[starts-with(@value,'确定')]    # 点击确定按钮
+    等待    1
+    离开框架
+    [Return]    ${exp_price}
+
+默认选择第一个选项
+    [Arguments]    ${location}
+    点击    ${location}
+    press key    ${location}    \ue015
+    press key    ${location}    \\13

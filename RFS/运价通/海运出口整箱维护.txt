@@ -1,0 +1,155 @@
+*** Settings ***
+Suite Setup       run keywords    登陆
+...               AND    点击进入海运整箱维护
+Suite Teardown    关闭浏览器
+Test Setup
+Test Teardown
+Resource          ../Resources/基础资料操作关键字.txt
+Resource          ../Resources/整箱操作关键字.txt
+Resource          ../Resources/会员操作关键字.txt
+Resource          ../Resources/基础关键字.txt
+Resource          ../Resources/运价通/运价通-引用.txt
+
+
+*** Test Cases ***
+新增海运整箱运价
+    进入列表框架
+    # 获取新增前列表的行数
+    ${count1}    获取匹配xpath的个数    xpath=//*[@id='j-tableFixScroll']//table//tbody/tr
+    ${new_count}    Evaluate    int(${count1})+1    # 原列表数+1作为最后期望值
+    # 新增一条数据
+    新增海运整箱运价    NINGBO    XIAMEN    CCL    2    2    2
+    ...    2    test111
+    # 验证是否新增成功
+    进入框架    id=mainFrame
+    ${count2}    获取匹配xpath的个数    xpath=//*[@id='j-tableFixScroll']//table//tbody/tr
+    离开框架
+    Should Be Equal As Strings    ${count2}    ${new_count}
+
+发布海运整箱运价
+    ${count}=    运价列表查询    test111
+    Run Keyword If    '${count}'=='0'    fail    msg=没有可批量操作的运价，请先新增
+    ...    ELSE    点击全选运价
+    #发布运价
+    点击发布运价
+    sleep    2
+    页面弹出框选择确定
+    #验证是否发布
+    ${count1}    获取列表记录数
+    Should Be Equal As Integers    ${count1}    0
+
+复制海运整箱运价
+    刷新海运整箱维护页面
+    新增整箱运价
+    点击进入海运整箱维护
+    ${count}=    运价列表查询    test111
+    Run Keyword If    '${count}'=='0' and '${count}'>=2    fail    msg=没有可批量操作的运价，请先新增
+    ...    ELSE    点击全选运价
+    ${new_count}    Evaluate    int(${count})+1    # 原列表数+1作为最后期望值
+    # 复制运价
+    复制单条海运整箱运价
+    # 验证是否新增成功
+    ${count2}    获取列表记录数
+    离开框架
+    Should Be Equal As Strings    ${count2}    ${new_count}
+
+批量修改成本价
+    刷新海运整箱维护页面
+    ${count}=    运价列表查询    test111
+    Run Keyword If    '${count}'=='0'    fail    msg=没有可批量操作的运价，请先新增
+    ...    ELSE    点击全选运价
+    #批量修改
+    #批量修改成本价    22
+    #验证是否修改成功
+    进入列表框架
+    Page Should Contain    2
+    离开框架
+
+编辑海运整箱运价
+    刷新海运整箱维护页面
+    ${count}=    运价列表查询    test111
+    Run Keyword If    '${count}'=='0'    fail    msg=没有可批量操作的运价，请先新增
+    ...    ELSE    点击全选运价
+    #编辑
+    编辑海运整箱运价    4/4    7
+    #验证是否编辑成功
+    ${count}=    运价列表查询    test111
+    进入列表框架
+    ${a1}    获取页面文本内容    xpath=//*[@id="fclmaintain_home1"]/tbody/tr[1]/td[10]/span
+    应该包含    ${a1}    7
+
+删除海运出口整箱维护
+    刷新海运整箱维护页面
+    ${count}=    运价列表查询    test111
+    Run Keyword If    '${count}'=='0'    fail    msg=没有可批量操作的运价，请先新增
+    ...    ELSE    点击全选运价
+    #删除运价
+    删除运价
+    #验证是否删除
+    刷新海运整箱维护页面
+    ${count1}    运价列表查询    test111
+    作为字符串应该相等    ${count1}    0
+    离开框架
+
+删除海运已发布整箱运价
+    刷新海运整箱维护页面
+    ${count}=    已发布运价列表查询    test111
+    Run Keyword If    '${count}'=='0'    fail    msg=没有可批量操作的运价，请先新增
+    ...    ELSE    点击全选运价
+    #删除运价
+    删除运价
+    #验证是否删除
+    刷新海运整箱维护页面
+    ${count1}    已发布运价列表查询    test111
+    作为字符串应该相等    ${count1}    0
+    离开框架
+
+整箱报价单附加费模板增加
+    Reload Page
+    ${temp}    生成一个带有字符的随机数    A
+    点击进入整箱报价单附加费模板
+    进入列表框架
+    点击    id=j-surcharge-add
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@name,'win_')]
+    点击    xpath=//a[@class='nui-btn mr10 j_addsurcharge']    #点击新增
+    #输入    xpath=//input[@vmsg='备注名称']    Hello
+    #输入    xpath=//input[@vmsg='备注内容']    ${temp}
+    输入    id=surchargename    ${temp}
+    点击    xpath=(//input[@vmsg='费用代码'])[2]
+    默认选择下拉框第一个选项    xpath=(//input[@vmsg='费用代码'])[2]
+    #输入    xpath=//input[@vmsg='费用中文']    ${temp}
+    输入    xpath=(//input[@vmsg='金额'])[last()]    22
+    点击    xpath=//span[text()='保存']/..
+    离开框架
+
+生成整箱报价单
+    进入列表框架
+    新增海运整箱运价    NINGBO    XIAMEN    CCL    2    2    2
+    ...    2    test111
+    ${count}=    运价列表查询    test111
+    点击全选运价
+    点击发布运价
+    sleep    2
+    页面弹出框选择确定
+    Reload Page
+    点击进入整箱报价单查询
+    进入框架    xpath=//iframe[starts-with(@name,'win_')]
+    点击    id=div_advancedConditionsBY
+    点击    xpath=//a[@href="javascript:setAdvancedSelect('signflag');"]
+    输入    id=advancedConditionsValue    test111
+    点击    xpath=//span[@id='span_advancedSearch']/..//button
+    点击    xpath=(//input[@type='checkbox'])[3]
+    点击    xpath=//span[text()='生成报价单']/..
+    切换窗口    new
+    点击    id=companyName
+    点击    xpath=(//ul/li/a)[1]
+    点击    id=contactName
+    点击    xpath=(//ul/li/a)[1]
+    移动滚动条（M3）    600
+    点击    xpath=//button[text()='生成报价单']
+    sleep    4
+    Page Should Contain    诚祝贵公司日益兴旺
+    关闭当前窗口
+
+*** Keywords ***

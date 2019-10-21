@@ -1,0 +1,68 @@
+*** Settings ***
+Suite Setup       登陆
+Suite Teardown    关闭浏览器
+Test Setup        Reload Page
+Resource          ../Resources/运价通/运价通-引用.txt
+
+*** Test Cases ***
+驳船费管理-新增驳船费
+    [Documentation]    选择日期的时候在该月的最后一天会报错
+    [Setup]
+    ${date}    get time    year,month,day
+    ${day}    Evaluate    int(${date[2]})
+    ${day2}    Evaluate    int(${day})+1
+    log    ${day}
+    点击进入支线费用
+    #新增
+    点击    id=addBarge
+    进入框架    name=win_1002
+    输入    id=receiveArea    AABBCC
+    默认选择下拉框第一个选项    recaddressEnname
+    默认选择下拉框第一个选项    unloadport
+    默认选择下拉框第一个选项    searouteCnname
+    默认选择下拉框第一个选项    carrier
+    点击    effectiveDate
+    点击    xpath=//a[text()='${day}']
+    点击    invalidDate
+    点击    xpath=//a[text()='${day2}']
+    点击    id=save
+    sleep    2
+    离开框架
+    点击    xpath=//a[@title='关闭']
+    #验证
+    输入    id=receiveArea    AABBCC
+    点击    id=search
+    ${num}    获取匹配xpath的个数    xpath=//table[@class='result-table \ result-table-sms']/tbody/tr
+    Should Be Equal    ${num}    1
+    [Teardown]
+
+驳船费管理-发布驳船费
+    点击进入支线费用
+    输入    id=receiveArea    AABBCC
+    点击    id=search
+    点击    id=jselAll
+    点击    id=publishBarge
+    sleep    2
+    #验证
+    点击    xpath=//a[@class='nui-btn mr0 ']
+    点击    xpath=//a[text()='已发布']
+    输入    id=receiveArea    AABBCC
+    点击    id=search
+    ${num}    获取匹配xpath的个数    xpath=//table[@class='result-table \ result-table-sms']/tbody/tr
+    Should Be Equal    ${num}    1
+
+驳船费管理-删除已发布驳船费
+    点击进入支线费用
+    点击    xpath=//a[@class='nui-btn mr0 ']
+    点击    xpath=//a[text()='已发布']
+    输入    id=receiveArea    AABBCC
+    点击    id=search
+    #删除
+    点击    id=jselAll
+    点击    id=deleteBarge
+    点击    id=btn-yes
+    sleep    2
+    输入    id=receiveArea    AABBCC
+    点击    id=search
+    ${num}    获取匹配xpath的个数    xpath=//table[@class='result-table \ result-table-sms']/tbody/tr
+    Should Be Equal    ${num}    1

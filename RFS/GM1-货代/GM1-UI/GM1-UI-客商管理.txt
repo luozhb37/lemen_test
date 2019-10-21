@@ -1,0 +1,301 @@
+*** Settings ***
+Suite Setup       m4-登录
+Suite Teardown    关闭浏览器
+Test Teardown     切换窗口    main
+Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+
+*** Test Cases ***
+客商资料--新增
+    [Documentation]    客商的用例都需要依赖该新增关键字，除非 其它的用例，自己组装传入客户名称，也是可以的
+    进入指定一级菜单    客商
+    进入指定二级菜单(新icon)    资
+    ${customer-fullname}    生成一个带有字符的随机数    ks
+    ${code}    生成一个带有字符的随机数
+    新增客商    ${customer-fullname}    ${code}
+    ${number}    客商列表查询    ${customer-fullname}
+    应该要相等（数字）    ${number}    1
+    Set Suite Variable    ${customer-fullname}
+
+联系方式--新增
+    [Documentation]    业务逻辑：
+    ...
+    ...    1. 若系统参数控制手机是必填项，则控制联系人里面手机号唯一；若选择电话为必填，则 电话、手机没有唯
+    ...
+    ...    一控制
+    进入指定一级菜单    客商
+    进入指定二级菜单(新icon)    资
+    查询正式客商    ${customer-fullname}    # ${customer-fullname}
+    进入客商详情    ${customer-fullname}    # ${customer-fullname}
+    ${name1}    生成一个带有字符的随机数    contact1
+    ${name2}    生成一个带有字符的随机数    contact2
+    ${date}    Get Timestamp
+    ${key-telphone}    连接字符    tel    ${date}
+    ${other-telphone}    连接字符    other    ${date}
+    新增联系人    ${name1}    自揽货    ${key-telphone}    业务关键人
+    新增联系人    ${name2}    自揽货    ${other-telphone}    其他联系人
+    #验证确实新增了两条不同属性的联系人
+    联系人列表查询    ${key-telphone}
+    页面应该包含    业务关键人
+    联系人列表查询    ${other-telphone}
+    页面应该包含    其他联系人
+    #客商详情内的货物类型从联系人自动获取
+    点击客商详情内的tab    基本信息
+    ${goodsource}    获取元素属性值    id=goodsType    value
+    应该要相等    ${goodsource}    自揽货
+    ${businesstype}    获取元素属性值    id=businessTypes    value
+    应该包含    ${businesstype}    全部业务
+    Set Suite Variable    ${key-telphone}
+    Set Suite Variable    ${other-telphone}
+    关闭当前窗口
+    切换窗口
+
+联系方式--删除
+    [Documentation]    业务逻辑：
+    ...
+    ...    若是 委托客户、供应商、经营单位这三类客商类别，则必须要存在一条业务关键人
+    ...
+    ...    所以，这里的删除的结果是依赖于 仅存在一条业务关键人的前提下进行的
+    进入指定一级菜单    客商
+    进入指定二级菜单(新icon)    资
+    查询正式客商    ${customer-fullname}
+    进入客商详情    ${customer-fullname}    # ${customer-fullname}
+    点击客商详情内的tab    联系方式
+    #删除其他联系人
+    联系人列表查询    ${other-telphone}    # other1563860959    # ${other-telphone}
+    勾选列表记录（多列表）    联系人列表    1
+    删除联系人
+    Wait Until Page Contains    删除成功
+    #删除业务关键人
+    联系人列表查询    ${key-telphone}    # tel1563860959    # ${key-telphone}
+    勾选列表记录（多列表）    联系人列表    1
+    删除联系人
+    Wait Until Page Contains    批量删除失败！至少有一条业务关键人
+    ${number1}    获取页面列表条数    联系人列表
+    应该要相等（数字）    ${number1}    1
+    [Teardown]    run keywords    关闭当前窗口
+    ...    AND    切换窗口
+
+收发通--新增
+    进入指定一级菜单    客商
+    进入指定二级菜单(新icon)    资
+    查询正式客商    ${customer-fullname}
+    进入客商详情    ${customer-fullname}    # ${customer-fullname}
+    点击客商详情内的tab    联系方式
+    ${number}    获取页面列表条数    收发通列表
+    ${custenname}    生成一个带有字符的随机数    cust
+    ${contactsenname}    生成一个带有字符的随机数    cont
+    新增收发通    ${custenname}    0574-8888    fax9987    ${contactsenname}    zhejaing address
+    ${number1}    获取页面列表条数    收发通列表
+    ${number2}    Evaluate    ${number}+1
+    应该要相等（数字）    ${number2}    ${number1}
+    点击    xpath=(//b[text()='收发通列表']/../../../../following-sibling::div[1]//table//tbody//a[text()='全部业务'])[${number2}]
+    ${content}    获取页面文本内容    xpath=//label[text()='打单内容']/../following-sibling::div[1]//textarea
+    应该不相等    ${content}    ${EMPTY}
+    关闭当前窗口
+    切换窗口
+
+收发通--删除
+    进入指定一级菜单    客商
+    进入指定二级菜单(新icon)    资
+    查询正式客商    ${customer-fullname}
+    进入客商详情    ${customer-fullname}
+    点击客商详情内的tab    联系方式
+    ${number}    获取页面列表条数    收发通列表
+    勾选列表记录（多列表）    收发通列表    1
+    删除收发通
+    ${number1}    获取页面列表条数    收发通列表
+    ${number2}    Evaluate    ${number}-1
+    应该要相等（数字）    ${number2}    ${number1}
+    [Teardown]    run keywords    关闭当前窗口
+    ...    AND    切换窗口
+
+客商自己集团内--关联
+    进入指定一级菜单    客商
+    进入指定二级菜单(新icon)    资
+    查询正式客商    ${customer-fullname}
+    #维护关联公司
+    进入客商详情    ${customer-fullname}    # ${customer-fullname}
+    点击客商详情内的tab    关联公司
+    ${number}    获取页面列表条数    客商集团内关联关系
+    新增关联自己集团    下级
+    ${number1}    获取页面列表条数    客商集团内关联关系
+    ${number2}    Evaluate    ${number}+1
+    应该要相等（数字）    ${number2}    ${number1}
+    关闭当前窗口
+    切换窗口
+    [Teardown]
+
+客商自己集团内--删除
+    进入指定一级菜单    客商
+    进入指定二级菜单(新icon)    资
+    查询正式客商    ${customer-fullname}
+    进入客商详情    ${customer-fullname}
+    点击客商详情内的tab    关联公司
+    ${number}    获取页面列表条数    客商集团内关联关系
+    删除关联关系
+    ${number1}    获取页面列表条数    客商集团内关联关系
+    ${number2}    Evaluate    ${number}-1
+    应该要相等（数字）    ${number2}    ${number1}
+    [Teardown]    run keywords    关闭当前窗口
+    ...    AND    切换窗口
+
+关联客户--关联
+    进入指定一级菜单    客商
+    进入指定二级菜单(新icon)    资
+    查询正式客商    ${customer-fullname}
+    进入客商详情    ${customer-fullname}
+    点击客商详情内的tab    关联公司
+    点击客商详情内的tab    关联客户
+    ${number}    获取页面列表条数    客户的关联关系
+    ${company}    新增关联客户    发货人
+    ${number1}    获取页面列表条数    客户的关联关系
+    ${number2}    Evaluate    ${number}+1
+    应该要相等（数字）    ${number2}    ${number1}
+    关闭当前窗口
+    切换窗口
+
+关联客户--删除
+    进入指定一级菜单    客商
+    进入指定二级菜单(新icon)    资
+    查询正式客商    ${customer-fullname}
+    进入客商详情    ${customer-fullname}
+    点击客商详情内的tab    关联公司
+    点击客商详情内的tab    关联客户
+    ${number}    获取页面列表条数    客户的关联关系
+    勾选列表记录（多列表）    客户的关联关系    1
+    删除关联关系
+    ${number1}    获取页面列表条数    客户的关联关系
+    ${number2}    Evaluate    ${number}-1
+    应该要相等（数字）    ${number2}    ${number1}
+    [Teardown]    run keywords    关闭当前窗口
+    ...    AND    切换窗口
+
+银行账户信息--新增
+    进入指定一级菜单    客商
+    进入指定二级菜单(新icon)    资
+    查询正式客商    ${customer-fullname}    # ${customer-fullname}
+    进入客商详情    ${customer-fullname}
+    ${shortname}    生成一个带有字符的随机数    银行简称
+    ${bank}    生成一个带有字符的随机数    银行
+    点击客商详情内的tab    结算信息
+    ${num}    获取银行账户信息列表的条数
+    新增-银行账户信息    ${shortname}    ${bank}    6228666754    CNY    公账
+    ${num1}    获取银行账户信息列表的条数
+    ${number2}    Evaluate    ${num}+1
+    应该要相等（数字）    ${number2}    ${num1}
+    关闭当前窗口
+    切换窗口
+
+银行账户信息--复制
+    进入指定一级菜单    客商
+    进入指定二级菜单(新icon)    资
+    查询正式客商    ${customer-fullname}    #${customer-fullname}
+    进入客商详情    ${customer-fullname}
+    点击客商详情内的tab    结算信息
+    ${num}    获取银行账户信息列表的条数
+    ${bank}    复制银行账户信息
+    ${num1}    获取银行账户信息列表的条数
+    ${number2}    Evaluate    ${num}+1
+    应该要相等（数字）    ${number2}    ${num1}
+    [Teardown]    run keywords    关闭当前窗口
+    ...    AND    切换窗口
+
+银行账户信息--删除
+    进入指定一级菜单    客商
+    进入指定二级菜单(新icon)    资
+    查询正式客商    ${customer-fullname}
+    进入客商详情    ${customer-fullname}
+    点击客商详情内的tab    结算信息
+    ${num}    获取银行账户信息列表的条数
+    删除银行账户信息
+    ${num1}    获取银行账户信息列表的条数
+    ${number2}    Evaluate    ${num}-1
+    应该要相等（数字）    ${number2}    ${num1}
+    [Teardown]    run keywords    关闭当前窗口
+    ...    AND    切换窗口
+
+开票信息--新增
+    进入指定一级菜单    客商
+    进入指定二级菜单(新icon)    资
+    查询正式客商    ${customer-fullname}
+    进入客商详情    ${customer-fullname}    # ${customer-fullname}
+    点击客商详情内的tab    结算信息
+    点击结算信息列表内的tab    开票信息
+    #因为这里有双倍的tr数，故用input
+    ${num}    获取开票信息列表条数
+    新增-开票信息    增值税普通发票    USD    发票抬头1
+    ${num1}    获取开票信息列表条数
+    ${number2}    Evaluate    ${num}+1
+    应该要相等（数字）    ${number2}    ${num1}
+    关闭当前窗口
+    切换窗口
+
+开票信息--复制
+    进入指定一级菜单    客商
+    进入指定二级菜单(新icon)    资
+    查询正式客商    ${customer-fullname}
+    进入客商详情    ${customer-fullname}
+    点击客商详情内的tab    结算信息
+    点击结算信息列表内的tab    开票信息
+    #因为这里有双倍的tr数，故用input
+    ${num}    获取开票信息列表条数
+    复制开票信息    浙江省宁波市
+    ${num1}    获取开票信息列表条数
+    ${number2}    Evaluate    ${num}+1
+    应该要相等（数字）    ${number2}    ${num1}
+    [Teardown]    run keywords    关闭当前窗口
+    ...    AND    切换窗口
+
+开票信息--删除
+    进入指定一级菜单    客商
+    进入指定二级菜单(新icon)    资
+    查询正式客商    ${customer-fullname}
+    进入客商详情    ${customer-fullname}
+    点击客商详情内的tab    结算信息
+    点击结算信息列表内的tab    开票信息
+    ${num}    获取开票信息列表条数
+    勾选列表记录（多列表）    开票信息列表    1
+    删除开票信息
+    ${num1}    获取开票信息列表条数
+    ${number2}    Evaluate    ${num}-1
+    应该要相等（数字）    ${number2}    ${num1}
+    [Teardown]    run keywords    关闭当前窗口
+    ...    AND    切换窗口
+
+账单信息---新增
+    [Documentation]    若本来就存在一条记录，则点击新增按钮会直接报错，这样可以知道 该功能脚本没有运行
+    进入指定一级菜单    客商
+    进入指定二级菜单(新icon)    资
+    查询正式客商    ${customer-fullname}
+    进入客商详情    ${customer-fullname}
+    点击客商详情内的tab    结算信息
+    点击结算信息列表内的tab    账单信息
+    ${num}    获取账单信息列表条数
+    新增账单信息    -3    2    4
+    ${num1}    获取账单信息列表条数
+    应该要相等（数字）    ${num1}    1
+    关闭当前窗口
+    切换窗口
+    [Teardown]
+
+信控信息--新增
+    ${year}    Evaluate    time.strftime('%Y',time.localtime(time.time()))    time    # 获取当天所在年
+    ${month}    Evaluate    time.strftime('%m',time.localtime(time.time()))    time    # 获取当天所在月
+    Comment    ${month}    Evaluate    int(${month})
+    ${day}    Evaluate    time.strftime('%d',time.localtime(time.time()))    time    # 获取当天所在日
+    Comment    ${day}    Evaluate    int(${day})
+    进入指定一级菜单    客商
+    进入指定二级菜单(新icon)    资
+    查询正式客商    ${customer-fullname}    # ${customer-fullname}
+    进入客商详情    ${customer-fullname}    # ${customer-fullname}
+    点击客商详情内的tab    结算信息
+    点击结算信息列表内的tab    信控信息
+    ${num}    获取指定信息列表条数    账期信息列表
+    ${exp_num}    Evaluate    ${num}+1
+    新增信控信息    收款    全部业务    ${year}/${month}/${day}    ${year}/${month}/${day}    月结    业务日期
+    ...    1号    每一个月结
+    ${num1}    获取指定信息列表条数    账期信息列表
+    应该要相等（数字）    ${num1}    ${exp_num}
+    关闭当前窗口
+    切换窗口
+    [Teardown]

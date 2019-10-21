@@ -1,0 +1,126 @@
+*** Settings ***
+Suite Setup       登录
+Suite Teardown    close all browsers
+Resource          ../../Resources/M3基础操作/M3--引用.txt
+
+*** Test Cases ***
+循环新增用户
+    登录
+    点击公司管理
+    点击用户管理
+    ${user_password}    Set Variable    a111111
+    ${xing}    Set Variable    zsc-auto
+    : FOR    ${i}    IN RANGE    205    206    #循环新增：zsc-auto1~9的用户
+    \    log    ${i}
+    \    ${user_name}    Catenate    SEPARATOR=    ${xing}    ${i}
+    \    ${last_name}    Set Variable    ${xing}
+    \    ${first_name}    Set Variable    ${i}
+    \    点击用户维护
+    \    进入列表页面框架
+    \    点击    id=bt_add_user
+    \    输入    id=user_name    ${user_name}
+    \    ${user_name}    获取页面值    id=user_name
+    \    输入    id=sur_name    ${last_name}
+    \    输入    id=first_name    ${first_name}
+    \    输入    id=password    ${user_password}
+    \    输入    id=repeat_password    ${user_password}
+    \    输入    id=email    11@qq.com
+    \    勾选记录    xpath=//*[@id="pg_add_user_tbl7"]/tbody/tr[2]/td[2]/table/tbody/tr/td[1]/span/input    #勾选操作员 \
+    \    勾选记录    xpath=//*[@id="pg_add_user_tbl7"]/tbody/tr[2]/td[2]/table/tbody/tr/td[2]/span/input    #勾选客服 \
+    \    勾选记录    xpath=//*[@id="pg_add_user_tbl7"]/tbody/tr[2]/td[2]/table/tbody/tr/td[5]/span/input    #勾选商务 \
+    \    勾选记录    xpath=//*[@id="pg_add_user_tbl7"]/tbody/tr[2]/td[2]/table/tbody/tr/td[8]/span/input    #勾选销售员
+    \    点击    id=bt_save_and_set_role    #点击保存并设置角色
+    \    勾选记录    name=token[]
+    \    点击    id=bt_next    #点击下一步
+    \    点击    id=pg_user_app_model_role_save    #点保存
+    \    sleep    0.5
+    \    离开框架
+    [Teardown]    close all browsers
+
+循环修改用户
+    [Timeout]
+    登录
+    点击公司管理
+    点击用户管理    # 循环修改用户权限
+    ${zsc_cargo}    create list    gjf    cn    zh    qh    sjl
+    ...    pyc    hjh_zsc    cyj    hyd1    sss    cammy
+    ...    zw    zsc-jingnaw    cjy    wyc1    zdd    lgy
+    ...    sq    cf    wjn-3    helen2    testhovi    wsg
+    ...    wyczsc    chengjie    hml    lj    ykzsc    xxf
+    ...    px    leos    xy    hovi2
+    ${zsc_xhw}    Set Variable    zsc-auto
+    ${list_test}    create list    m3-auto1    m3-auto2    m3-auto3    m3-auto4    m3-auto5
+    ...    m3-auto6    m3-auto7    m3-auto8    m3-auto9    m3-auto10
+    #: FOR    ${i}    IN    @{zsc_cargo}
+    : FOR    ${i}    IN RANGE    200    201
+    \    log    ${i}
+    \    #${user_name}    Set Variable    ${i}
+    \    ${user_name}    Catenate    SEPARATOR=    ${zsc_xhw}    ${i}
+    \    点击用户维护
+    \    #用户查询
+    \    进入框架    id=content
+    \    输入    id=user_name_search    ${user_name}
+    \    点击    id=bt_search
+    \    离开框架
+    \    #用户角色、权限维护
+    \    打开用户详情
+    \    保存职员类型
+    \    进入框架    id=content
+    \    点击    id=bt_save_and_set_role    #点击保存并设置角色
+    \    勾选记录    name=token[]
+    \    点击    id=bt_next    #点击下一步
+    \    点击    id=pg_user_app_model_role_save    #点保存
+    \    ${page}    获取页面文本内容    css=.list-middle-show    #检查‘保存成功’信息
+    \    ${return}    run keyword and return status    应该包含    ${page}    保存成功    #用户和角色关系保存成功！
+    \    离开框架
+    [Teardown]    close all browsers
+
+循环修改组机构
+    登录
+    点击公司管理
+    #循环 修改组织结构
+    点击    xpath=//*[contains(text(),'组织机构')]
+    : FOR    ${i}    IN RANGE    10
+    \    点击    xpath=//*[contains(text(),'部门信息')]
+    \    进入框架    id=content
+    \    点击    id=pg_usergroup_system_save
+    \    sleep    0.2
+    \    ${page}    获取页面文本内容    css=.list-middle-show    #检查‘保存成功’信息
+    \    ${return}    run keyword and return status    应该包含    ${page}    保存成功
+    \    离开框架
+    \    点击    xpath=//*[contains(text(),'上下级信息（NEW）')]
+    \    进入框架    id=content
+    \    进入框架    id=allocate
+    \    点击    id=pg_usergroup_system_save
+    \    sleep    0.2
+    \    ${page}    获取页面文本内容    css=.list-middle-show    #检查‘保存成功’信息
+    \    ${return}    run keyword and return status    应该包含    ${page}    保存成功
+    \    离开框架
+    [Teardown]    close all browsers
+
+循环删除用户
+    登录
+    点击公司管理
+    点击用户管理
+    ${user_password}    Set Variable    a111111
+    ${xing}    Set Variable    zsc-auto
+    : FOR    ${i}    IN RANGE    200    201    #循环新增：zsc-auto1~9的用户
+    \    log    ${i}
+    \    ${user_name}    Catenate    SEPARATOR=    ${xing}    ${i}
+    \    ${last_name}    Set Variable    ${xing}
+    \    ${first_name}    Set Variable    ${i}
+    \    点击    xpath=//a[text()='职员维护']
+    \    等待加载层消失
+    \    进入列表页面框架
+    \    输入    id=full_name    ${user_name}
+    \    点击    id=bt_search
+    \    点击    name=SHEET_ROW_SELECT_ALL
+    \    点击    bt_delete
+    \    页面弹出框选择确定
+    \    离开框架
+    \    点击用户维护
+    \    进入列表页面框架
+    \    输入    id=user_name_search    ${user_name}
+    \    点击    xpath =// img[@alt='关闭']/..
+    \    页面弹出框选择确定
+    \    离开框架

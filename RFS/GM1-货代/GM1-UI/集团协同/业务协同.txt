@@ -1,0 +1,32 @@
+*** Settings ***
+Suite Teardown    Close All Browsers
+Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-公用.txt
+
+*** Test Cases ***
+业务订舱协同
+    #必须是集团公司，且人员有协同身份
+    读取货代登录配置信息（集团A公司）
+    读取货代登陆配置信息（集团B公司）
+    GM1-登录（集团A公司）
+    点击业务管理
+    点击业务台账
+    新增整箱业务单    ${M4_ServiceRuleTypeCode}
+    点击保存
+    Wait Until Page Contains    操作成功
+    Wait Until Element Is Visible    xpath=//span[text()='协 同']    #有协同按钮
+    点击    xpath=//span[text()='协 同']/..    #点击协同按钮
+    点击    xpath=//div[@id='booking.childOrgName']/div/div    #点击指派公司下拉框
+    点击    xpath=//li[contains(text(),'${M4-ORGNAME_B}')]    #选择指派公司
+    点击    xpath=//div[@id='booking.childDistributeFullName']/div/div    #点击协同人
+    点击    xpath=//li[contains(text(),'${M4-FULLNAME_B}')]    #选择协同人
+    点击确定按钮
+    Wait Until Page Contains    保存成功
+    ${teamworkMainBusinessNo}    获取页面文本内容    xpath=//tr[@class='ant-table-row \ ant-table-row-level-0']/td[6]/div/span    #获取协同工作号
+    Close All Browsers
+    GM1-登录（集团B公司）
+    点击业务管理
+    点击业务台账
+    等待加载层消失
+    Wait Until Page Contains    海运出口    timeout=3    error=失败
+    ${pages}    海运出口列表查询业务编号    ${teamworkMainBusinessNo}
+    应该包含    ${pages}    共1条

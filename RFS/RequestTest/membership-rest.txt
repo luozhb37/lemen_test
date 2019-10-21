@@ -1,0 +1,42 @@
+*** Settings ***
+Library           Collections
+Library           OlymLibrary
+
+*** Test Cases ***
+public_register_checkLoginName
+    [Documentation]    /membership-rest/rest/public/register/checkLoginName
+    ...    咖狗网注册检查用户名
+    Create Session    membership    http://${咖狗网_domain}
+    ${headers}    Create Dictionary    Content-Type=application/x-www-form-urlencoded; charset=UTF-8
+    ${data}    FormData to Dict    loginName=13754316563&mobilephone=&_password=&password=&smsCode=&fullName=&tradeType=10
+    ${resp}    Post Request    membership    /membership-rest/rest/public/register/checkLoginName    headers=${headers}    data=${data}
+    ${jsondata}    To json    ${resp.content}
+    Should Be Equal    ${jsondata['data']}    ${false}
+    Delete All Sessions
+
+public_register
+    [Documentation]    /membership-rest/rest/public/register
+    ...    咖狗网注册
+    Create Session    membership    http://${咖狗网_domain}
+    ${headers}    Create Dictionary    Content-Type=application/x-www-form-urlencoded; charset=UTF-8
+    ${data}    Create Dictionary    loginName=13967880231    mobilephone=13967880231    password=c0044a0b04bd32a0f0d3ea0db5ba48491e2962620ab3675217ce3e1a1ef44e8dcd7aebfff9291692fa03c22f6f13e65b829894ff6c984cdb93631fa72c29aa3fd098922060f90496bff871a4617f663fb5fb90719b638c60f3b0e5f71c8fa4570c1b96178277498ccbd5b266ed25f813dfe571f462e5f799496c1a0f02c4c07d    _password=111111.    smsCode=228482
+    ...    fullName=fff    tradeType=20
+    ${resp}    Post Request    membership    /membership-rest/rest/public/register    headers=${headers}    data=${data}
+    ${jsondata}    To json    ${resp.content}
+    log    ${resp.text}
+    #当前手机号已存在的情况
+    Should Be Equal    ${jsondata['resultCode']}    ${1007}
+    Delete All Sessions
+
+member_updateMemInfo
+    [Documentation]    /membership-rest/rest/member/updateMemInfo 保存会员信息
+    新建咖狗账号会话
+    ${headers}    Create Dictionary    Content-Type=application/x-www-form-urlencoded; charset=UTF-8
+    ${data}    Create Dictionary    id=129736    orgId=10163    userName=13967880231    contactName=章鱼哥    email=
+    ...    tel=    qq=    tradeType=20    companyId=-1
+    ${resp}    Post Request    membership    /membership-rest/rest/member/updateMemInfo    headers=${headers}    data=${data}
+    log    ${resp.text}
+    #${jsondata}    To json    ${resp.content}
+    #当前手机号已存在的情况
+    #Should Be Equal    ${jsondata['resultCode']}    ${1007}
+    Delete All Sessions

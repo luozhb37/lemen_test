@@ -1,0 +1,318 @@
+*** Settings ***
+Library           Collections
+Resource          ../GM1-UI/GM1-UI-公共/GM1-UI-公用.txt
+Resource          ../../基础关键字.txt
+
+*** Keywords ***
+初始化配置
+    Set Global Variable    ${HOST}    https://api.800jit.com    # 配置请求的接口的host
+    Set Global Variable    ${API}    /openplatform-rest/rest/api    # 配置请求的接口的api
+    Set Global Variable    ${APP_KEY}    yjt_test    # 配置app_key
+    Set Global Variable    ${SECRET}    123456    # 配置secret
+    Set Global Variable    ${M4_INTER_DIR}    ${CURDIR}/../../    # 获取当前文件目录
+    Set Global Variable    ${API_EXCEL}    ${M4_INTER_DIR}\\inter_file\\数据驱动_api.xls    # 读取的文件目录
+    Set Global Variable    ${RESULT_EXCEL}    ${M4_INTER_DIR}\\inter_file\\result_数据驱动_api.xls    # 生成的文件目录
+    Set Global Variable    ${DATA_FILEPATH}    ${M4_INTER_DIR}\\inter_data_file\\    # 数据文件存放路径
+    Set Global Variable    ${RESULT_DATA_FILEPATH}    ${M4_INTER_DIR}\\inter_data_result_file\\    # 数据文件存放路径
+
+生成接口data
+    [Arguments]    ${dict}
+    ${strip_string}    Evaluate    '${dict}'.replace(' ','')
+    ${data}    Evaluate    urllib.quote('${strip_string}')    urllib
+    [Return]    ${data}
+
+读取Excel数据
+    [Arguments]    ${sheetname}    ${col_count}    ${row_count}
+    @{excel_data}    create list
+    : FOR    ${row}    IN RANGE    ${row_count}
+    \    @{row_data}    读取Excel各行数据    ${sheetname}    ${col_count}    ${row}
+    \    Append To List    ${excel_data}    ${row_data}
+    \    log many    @{excel_data}
+    log many    @{excel_data}
+    [Return]    @{excel_data}
+
+读取Excel各行数据
+    [Arguments]    ${sheetname}    ${col_count}    ${row}
+    @{row_data}    Create List
+    : FOR    ${i}    IN RANGE    ${col_count}
+    \    ${row_info}    Read Cell Data By Coordinates    ${sheetname}    ${i}    ${row}    # 根据列行编号读取Excel
+    \    log    ${row_info}
+    \    Append To List    ${row_data}    ${row_info}    # 逐个赋值给 {LIST} 变量租
+    log many    @{row_data}
+    [Return]    @{row_data}
+
+写入列名
+    [Arguments]    ${filename}    ${sheetname}
+    Write Cell    ${filename}    ${sheetname}    0    14    运行结果
+    Write Cell    ${filename}    ${sheetname}    0    15    错误原因
+
+模拟接口并写入结果(无需登录)
+    [Arguments]    ${filename}    ${sheetname}    ${data}
+    # ----- 读取Excel 内容 -----
+    ${no}    Set Variable    ${data[0]}    # 获取接口序号
+    ${api_name}    Set Variable    ${data[2]}    # 获取接口名称
+    ${api_version}    Set Variable    ${data[3]}    # 获取接口版本
+    ${method}    Set Variable    ${data[4]}    # 获取接口请求方法
+    ${param_type}    Set Variable    ${data[5]}    # 获取参数的来源方式
+    ${val_field}    Set Variable    ${data[10]}    # 获取预期验证字段1
+    ${exp_data}    Set Variable    ${data[11]}    # 获取预期结果1值
+    # ------ 获取当前时间 ------
+    ${time}    获取当前时间    %Y-%m-%d %H:%M:%S
+    # ------ 模拟生成data ------
+    ${dict}    Create Dictionary    loadport=    dischargeport=    searoute=    carrier=    recaddressEnname=
+    ...    transferport=    massaddress=    searouteCode=    quoteorg=    validdate=    publishdate=
+    ...    cycle=    carrierRoute=    priceHolder=    pageNum=1    pageSize=30
+    ${data}    生成接口data    ${dict}
+    # ------ \ 拼接参数 \ ------
+    ${dict}    Create Dictionary    name=${api_name}    version=${api_version}    app_key=${app_key}    data=${data}    timestamp=${time}
+    ...    format=json
+    ${data}    run keyword if    '${param_type}'=='File'    获取File类型数据
+    ...    ELSE    Set Variable    ${dict}
+    ${sign}    Build Sign    ${data}    ${secret}    # 根据规则生成签名
+    ${data}    Set To Dictionary    ${data}    sign=${sign}
+    ${content}    run keyword if    '${method}' == 'POST'    模拟post请求    ${host}    ${api}    ${data}
+    ${content_string}    Convert To String    ${content}    # 转换为字符串用于进行校验
+    ${result}    Run Keyword And Return Status    should contain    ${exp_data}    ${exp_data}
+    run keyword if    ${result}    写入结果正确    ${filename}    ${sheetname}    ${no}
+    ...    ELSE    写入结果错误    ${filename}    ${sheetname}    ${no}    ${content_string}
+
+写入结果正确
+    [Arguments]    ${filename}    ${sheetname}    ${row}    ${res_col}    ${msg_col}
+    log    ${row}
+    Write Cell    ${filename}    ${sheetname}    ${row}    ${res_col}    成功
+    Write Cell    ${filename}    ${sheetname}    ${row}    ${msg_col}    \    # 记录失败原因
+    log    写入成功
+
+写入结果错误
+    [Arguments]    ${filename}    ${sheetname}    ${row}    ${data}    ${res_col}    ${msg_col}
+    ...    ${color}=2
+    Write Cell    ${filename}    ${sheetname}    ${row}    ${res_col}    失败    ${color}
+    ...    # 记录运行失败
+    Write Cell    ${filename}    ${sheetname}    ${row}    ${msg_col}    ${data[:500]}    # 记录失败原因
+    log    写入成功
+    [Teardown]
+
+获取当前时间
+    [Arguments]    ${format}
+    [Documentation]    参数：
+    ...    \ \ format：获取当前时间的返回格式，如：%Y-%m-%d %H:%M:%S，返回年-月-日 时：分：秒
+    # 获取当前时间
+    ${time}    Evaluate    time.strftime('${format}',time.localtime(time.time()))    time
+    [Return]    ${time}
+
+m4-get(带参数)
+    [Arguments]    ${uri}    ${data}    ${hd}=${m4-session}
+    ${cookies}    get cookies
+    ${header}    create dictionary    Content-Type=application/x-www-form-urlencoded;charset=utf-8    Cookie=${cookies}
+    ${total_uri}    Catenate    SEPARATOR=?    ${uri}    ${data}
+    log    ${total_uri}
+    ${result}    Get Request    ${hd}    uri=${total_uri}    headers=${header}
+    ${content}    to json    ${result.text}
+    [Return]    ${content}
+
+拼接生成参数
+
+模拟接口并写入结果(需登录)
+    [Arguments]    ${filename}    ${sheetname}    ${data}
+    # ----- 读取Excel 内容 -----
+    ${no}    Set Variable    ${data[0]}    # 获取接口序号
+    ${api_name}    Set Variable    ${data[2]}    # 获取接口名称
+    ${api_version}    Set Variable    ${data[3]}    # 获取接口版本
+    ${method}    Set Variable    ${data[4]}    # 获取接口请求方法
+    ${param_type}    Set Variable    ${data[5]}    # 获取参数的来源方式
+    ${val_field}    Set Variable    ${data[10]}    # 获取验证的字段名
+    ${exp_data}    Set Variable    ${data[11]}    # 获取验证字段的预计结果
+    # ------ 获取当前时间 ------
+    ${time}    获取当前时间    %Y-%m-%d %H:%M:%S
+    # ------ \ 模拟生成data ------
+    ${dict}    Create Dictionary    loadport=    dischargeport=    searoute=    carrier=    recaddressEnname=
+    ...    transferport=    massaddress=    searouteCode=    quoteorg=    validdate=    publishdate=
+    ...    cycle=    carrierRoute=    priceHolder=    pageNum=1    pageSize=30
+    ${data}    生成接口data    ${dict}
+    # ------ \ 拼接参数 \ ------
+    ${dict}    Create Dictionary    name=${api_name}    version=${api_version}    app_key=${app_key}    data=${data}    timestamp=${time}
+    ...    format=json
+    log    ${dict}
+    ${sign}    Build Sign    ${dict}    ${secret}    # 根据规则生成签名
+    log    ${sign}
+    ${dict}    Set To Dictionary    ${dict}    sign=${sign}
+    log    ${dict}
+    Comment    ${param}    run keyword if    '${param_type}'=='File'    读取文件参数    ${param}
+    ...    ELSE    Set Variable    ${param}
+    ${content}    run keyword if    '${method}' == 'POST'    m4-post-json    uri=${api}    data=${dict}
+    log many    ${content}
+    Comment    ${content_string}    Convert To String    ${content}    # 转换为字符串用于进行校验
+    Comment    ${result}    Run Keyword And Return Status    should contain    ${exp}    ${content_string}
+    run keyword if    '${exp}' in '${content_string}'    写入结果正确    ${filename}    ${sheetname}    ${no}
+    ...    ELSE    写入结果错误    ${filename}    ${sheetname}    ${no}    ${content_string}
+
+模拟post请求
+    [Arguments]    ${host}    ${api}    ${data}
+    # 模拟Post请求
+    CreateSession    api    ${host}
+    ${headers}    Create Dictionary    Content-Type=application/json
+    ${resp}    Post Request    api    ${api}    data=${data}    headers=${headers}
+    ${json}    to json    ${resp.content}
+    [Return]    ${json}
+
+获取File类型数据
+    [Arguments]    ${dict}
+    ${dict}
+
+分步模拟接口并写入结果(无需登录)
+    [Arguments]    ${filename}    ${sheetname}    ${row}    ${data}
+    # ----- 读取Excel 内容 -----
+    ${param_type}    run keyword if    '${data[5]}' != ''    Set Variable    ${data[5]}
+    ...    ELSE    Set Variable    ${param_type}    # 获取参数的来源方式
+    Set Suite Variable    ${param_type}
+    # ------ 模拟生成接口 ------
+    run keyword if    '${param_type}' == 'Data'    data方式模拟运行接口    ${filename}    ${sheetname}    ${row}    ${data}
+    ...    ELSE IF    '${param_type}' == 'File'    File方式模拟运行接口    ${filename}    ${sheetname}    ${row}
+    ...    ${data}
+
+模拟运行接口
+    [Arguments]    ${method}    ${data}
+    ${sign}    Build Sign    ${data}    ${SECRET}    # 根据规则生成签名
+    ${data}    Set To Dictionary    ${data}    sign=${sign}
+    ${content}    run keyword if    '${method}' == 'POST'    模拟post请求    ${HOST}    ${API}    ${data}
+    ${result}    Convert To String    ${content}    # 转换为字符串用于进行校验
+    [Return]    ${result}
+
+接口校验字段并写入结果
+    [Arguments]    ${filename}    ${sheetname}    ${row}    ${exp_data}    ${data}    ${res_col}=14
+    ...    ${msg_col}=15
+    [Documentation]    filename：校验字段后写入结果的excel文件名(全路径)
+    ...    sheetname：校验字段后写入结果的excel文件的表名
+    ...    row：校验字段后写入结果的excel行位置
+    ...    exp_data：比较字段的预计结果内容
+    ...    data：比较字段后可能需要写入的实际结果
+    ...    res_col：写入结果是否成功的excel文件的位置列
+    ...    msg：写入结果的预计excel文件的位置列
+    ${result}    Run Keyword And Return Status    Should Contain    ${data}    ${exp_data}
+    run keyword if    ${result}    写入结果正确    ${filename}    ${sheetname}    ${row}    ${res_col}
+    ...    ${msg_col}
+    ...    ELSE    写入结果错误    ${filename}    ${sheetname}    ${row}    ${data}
+    ...    ${res_col}    ${msg_col}
+
+接口计数统计并写入结果
+    [Arguments]    ${filename}    ${sheetname}    ${row}    ${col}    ${exp_data}    ${data}
+    [Documentation]    ${exp_data} : 需要统计个数的字符串
+    ...    ${data} : 被统计的字符串
+    ...
+    ...    e.g：${data} = 'aaabbbccc' \ \ \ \ \ \ ${exp_data} = 'a'
+    ...    则：结果返回为3
+    ...
+    ...    filename：统计数量后写入结果的excel文件名(全路径)
+    ...    sheetname：统计数量后写入结果的excel文件的表名
+    ...    row：统计数量后写入计数结果的excel行位置
+    ...    col：统计数量后写入计数结果的excel的位置列
+    ${len}    Evaluate    len(str(${data}))
+    ${count}    Evaluate    '${data}'.count('${exp_data}')
+    log    ${count}
+    ${count}    Evaluate    str('${count}')
+    Write Cell    ${filename}    ${sheetname}    ${row}    ${col}    ${count}
+
+接口相等判断并写入结果
+    [Arguments]    ${filename}    ${sheetname}    ${row}    ${exp_data}    ${data}    ${res_col}=14
+    ...    ${msg_col}=15
+    [Documentation]    filename：判断相等后写入结果的excel文件名(全路径)
+    ...    sheetname：判断相等后写入结果的excel文件的表名
+    ...    row：判断相等后写入结果的excel行位置
+    ...    exp_data：比较字段的预计结果内容
+    ...    data：需要进行比较的原excel中记录的比较字段值
+    ...    res_col：写入结果是否成功的excel文件的位置列
+    ...    msg：写入结果的预计excel文件的位置列
+    ${comp_data}    Evaluate    '${data}'.strip('$}{')
+    log    ${comp_data}
+    ${comp_value}    open_and_read_cell    ${filename}    ${sheetname}    ${comp_data}
+    ${result}    Run Keyword And Return Status    应该要相等    ${exp_data}    ${comp_value}
+    run keyword if    ${result}    写入结果正确    ${filename}    ${sheetname}    ${row}    ${res_col}
+    ...    ${msg_col}
+    ...    ELSE    写入结果错误    ${filename}    ${sheetname}    ${row}    ${comp_value}
+    ...    ${res_col}    ${msg_col}
+
+data方式模拟运行接口
+    [Arguments]    ${filename}    ${sheetname}    ${row}    ${data}
+    ${no}    run keyword if    '${data[0]}' != ''    Set Variable    ${data[0]}    # 获取接口序号
+    ${api_name}    run keyword if    '${data[2]}' != ''    Set Variable    ${data[2]}    # 获取接口名称
+    ${api_version}    run keyword if    '${data[3]}' != ''    Set Variable    ${data[3]}    # 获取接口版本
+    ${method}    run keyword if    '${data[4]}' != ''    Set Variable    ${data[4]}    # 获取接口请求方法
+    ${val_field}    Set Variable    ${data[11]}    # 获取预期验证字段1
+    ${exp_data}    Set Variable    ${data[12]}    # 获取预期结果1值
+    ${comp_data}    run keyword if    '${data[13]}' != ''    Set Variable    ${data[13]}    # 预计比较值
+    # ------ 获取当前时间 ------
+    ${time}    获取当前时间    %Y-%m-%d %H:%M:%S
+    # ------ 模拟生成data ------
+    ${param}    Set Variable    ${data[6]}
+    ${param}    生成接口data    ${param}
+    ${dict}    Create Dictionary    name=${api_name}    version=${api_version}    app_key=${app_key}    data=${param}    timestamp=${time}
+    ...    format=json
+    ${resp}    run keyword if    ${no}>0    模拟运行接口    ${method}    ${dict}
+    ...    ELSE    Set Variable    ${resp}
+    log many    ${resp}
+    run keyword if    ${resp} != ''    Set Suite Variable    ${resp}
+    # ------ 校验结果 ------
+    # ------- 校验方式为字段 ------
+    run keyword if    '${val_field}' == '字段'    接口校验字段并写入结果    ${filename}    ${sheetname}    ${row}    ${exp_data}
+    ...    ${resp}
+    # ------- 校验方式为计数 ------
+    run keyword if    '${val_field}' == '计数'    接口计数统计并写入结果    ${filename}    ${sheetname}    ${row}    13
+    ...    ${exp_data}    ${resp}
+    # ------- 校验方式为应该相等 ------
+    run keyword if    '${val_field}' == '应该相等'    接口相等判断并写入结果    ${filename}    ${sheetname}    ${row}    ${exp_data}
+    ...    ${comp_data}
+
+File方式模拟运行接口
+    [Arguments]    ${filename}    ${sheetname}    ${row}    ${data}
+    ${no}    run keyword if    '${data[0]}' != ''    Set Variable    ${data[0]}    # 获取接口序号
+    ${api_name}    run keyword if    '${data[2]}' != ''    Set Variable    ${data[2]}    # 获取接口名称
+    ${api_version}    run keyword if    '${data[3]}' != ''    Set Variable    ${data[3]}    # 获取接口版本
+    ${method}    run keyword if    '${data[4]}' != ''    Set Variable    ${data[4]}    # 获取接口请求方法
+    ${val_field}    Set Variable    ${data[11]}    # 获取预期验证字段1
+    ${exp_data}    Set Variable    ${data[12]}    # 获取预期结果1值
+    ${comp_data}    run keyword if    '${data[13]}' != ''    Set Variable    ${data[13]}    # 预计比较值
+    # ------ 获取文件中数据 ------
+    ${param_filename}    Set Variable    ${data[6]}
+    ${param_file}    连接字符    ${DATA_FILEPATH}    ${param_filename}
+    ${param_sheet}    Set Variable    ${data[7]}
+    ${start_row}    Set Variable    ${data[8]}
+    ${end_row}    Set Variable    ${data[9]}
+    ${check_col}    Set Variable    ${data[10]}
+    ${return}    Xls To Result Dic    ${param_file}    ${param_sheet}    ${start_row}    ${end_row}    ${check_col}
+    ${result_datafile}    连接字符    ${RESULT_DATA_FILEPATH}    ${comp_data}
+    Open Excel    ${param_file}
+    ${row_count}    Get Row Count    ${param_sheet}
+    ${col_count}    Get Column Count    ${param_sheet}
+    @{excel_data}    读取Excel数据    ${param_sheet}    ${col_count}    ${row_count}
+    Write All Excel    ${result_datafile}    ${param_sheet}    ${excel_data}
+    log many    ${return}
+    ${key}    Set Variable    ${start_row}
+    ${key}    Evaluate    int(${key}) - 1
+    : FOR    ${item}    IN    @{return}
+    \    ${param}    Set Variable    ${item[0]}
+    \    ${param}    生成接口data    ${param}
+    \    @{check}    Set Variable    ${item[1]}
+    \    ${time}    获取当前时间    %Y-%m-%d %H:%M:%S
+    \    ${dict}    Create Dictionary    name=${api_name}    version=${api_version}    app_key=${app_key}    data=${param}
+    \    ...    timestamp=${time}    format=json
+    \    ${resp}    模拟运行接口    ${method}    ${dict}
+    \    log many    ${resp}
+    \    File方式循环验证结果    ${result_datafile}    ${param_sheet}    ${resp}    ${key}    ${check_col}
+    \    ...    @{check}
+    \    ${key}    Evaluate    int(${key}) + 1
+
+File方式循环验证结果
+    [Arguments]    ${filename}    ${sheetname}    ${resp}    ${row}    ${check_col}    @{check}
+    ${count}    Evaluate    len(@{check})
+    : FOR    ${item}    IN RANGE    ${count}
+    \    ${val_field}    Set Variable    ${check[${item}]}
+    \    ${exp_col}    Evaluate    int(${item})+1
+    \    ${comp_col}    Evaluate    int(${item})+2
+    \    ${res_col}    Evaluate    int(${item})+19
+    \    ${msg_col}    Evaluate    int(${item})+20
+    \    run keyword if    '${val_field}' == '字段'    接口校验字段并写入结果    ${filename}    ${sheetname}    ${row}
+    \    ...    ${check[${exp_col}]}    ${resp}    ${res_col}    ${msg_col}
+    \    run keyword if    '${val_field}' == '计数'    接口计数统计并写入结果    ${filename}    ${sheetname}    ${row}
+    \    ...    ${res_col}    ${check[${exp_col}]}    ${resp}
+    \    run keyword if    '${val_field}' == '应该相等'    接口相等判断并写入结果    ${filename}    ${sheetname}    ${row}
+    \    ...    ${check[${exp_col}]}    ${check[${comp_col}]}    ${res_col}    ${msg_col}

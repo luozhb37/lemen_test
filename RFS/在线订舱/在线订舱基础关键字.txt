@@ -1,0 +1,27 @@
+*** Settings ***
+Library           Selenium2Library
+
+*** Keywords ***
+提示框包含某名称
+    [Arguments]    ${名称}
+    Alert Should Be Present    ${名称}
+
+确认对话框
+    Confirm Action
+
+获取页面上的元素
+    [Arguments]    ${location}
+    ${result}    Get Text    ${location}
+    [Return]    ${result}
+
+选择页面
+    [Arguments]    ${页面}
+    Select Window    ${页面}
+
+验证页面不包含某元素
+    [Arguments]    ${元素}
+    Page Should Not Contain    ${元素}
+
+验证页面包含某元素
+    [Arguments]    ${元素}
+    Page Should Contain    ${元素}

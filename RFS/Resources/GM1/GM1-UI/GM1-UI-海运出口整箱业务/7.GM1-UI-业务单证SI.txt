@@ -1,0 +1,115 @@
+*** Settings ***
+Resource          ../GM1-UI-公共/GM1-UI-引用.txt
+
+*** Keywords ***
+点击SI
+    点击    xpath=//div[text()='SI']
+
+单证新增
+    [Arguments]    ${newNO}
+    点击    xpath=//span[text()='新 建']/..    #点击新增提单按钮
+    等待    1
+    输入    id=bnHousebills.hblMasterBlNo    ${newNO}
+    点击保存按钮
+    Wait Until Page Contains    操作成功
+    ${count2}    获取匹配xpath的个数    xpath=//div[@class='ant-table-body-inner']//span[text()='提单号']/../../../..//tbody//tr    #获取table个数
+    [Return]    ${count2}
+
+单证修改
+    [Arguments]    ${editNO}
+    点击    xpath=//div[@class='ant-table-body-inner']/table/tbody/tr[1]/td[2]    #点击第一条提单
+    等待    0.5
+    输入    id=bnHousebills.hblMasterBlNo    ${editNO}
+    点击保存按钮
+    Wait Until Page Contains    操作成功
+    ${str}    获取页面文本内容    xpath=//span[text()='提单号']/../../../../tbody//tr[1]//td[2]    #获取第一条提单号
+    [Return]    ${str}
+
+单证复制
+    [Arguments]    ${newNO}
+    勾选记录    xpath=//div[@class='ant-table-body-inner']/table/tbody/tr[1]//input    #勾选第一行
+    点击    xpath=//span[text()='并 单']/../following-sibling::button[1]    #点击复制按钮
+    输入    id=newHblNo    ${newNO}    #输入要复制生成的提单号
+    点击确定按钮
+    Wait Until Page Contains    操作成功
+    ${count2}    获取匹配xpath的个数    xpath=//span[text()='提单号']/../../../..//tbody//tr    #获取table个数
+    [Return]    ${count2}
+
+单证删除
+    [Arguments]    ${count2}
+    勾选记录    xpath=//div[@class='ant-table-body-inner']/table/tbody/tr[${count2}]//input    #勾选最后一行
+    点击    xpath=//button[@class='ant-btn mr4 ant-btn-defualt ant-btn-sm']    #点击删除按钮
+    点击确定按钮
+    Wait Until Page Contains    操作成功
+    点击订舱    #切换下模块
+    点击单证
+    ${count3}    获取匹配xpath的个数    xpath=//div[@class='ant-table-body-inner']/table/tbody//tr    #获取table个数
+    [Return]    ${count3}
+
+单证并单
+    [Arguments]    ${newNO}
+    [Documentation]    \#${num1} | ${num2}勾选第几行和第几行，并单要求是主单且提单未确认状态
+    勾选记录    xpath=//div[@class='ant-table-body-inner']/table/tbody/tr[1]//input    #勾选第一行
+    勾选记录    xpath=//div[@class='ant-table-body-inner']/table/tbody/tr[2]//input    #勾选第二行
+    点击    xpath=//span[text()='并 单']/..    #点击并单
+    输入    id=newHblNo    ${newNO}    #输入要并单生成的提单号
+    点击确定按钮
+    Wait Until Page Contains    操作成功
+    ${count2}    获取匹配xpath的个数    xpath=//span[text()='提单号']/../../../..//tbody//tr    #获取table个数
+    [Return]    ${count2}
+
+单证拆分
+    [Arguments]    ${spit}    ${spit_role}
+    [Documentation]    ${spit}：拆分数量
+    ...    ${spit_role}：拆分规则
+    勾选记录    xpath=//div[@class='ant-table-body-inner']/table/tbody/tr[1]//input    #勾选第一行
+    点击    xpath=//span[text()='拆 分']/..    #点击拆分按钮
+    输入    xpath=//input[@class='ant-input-number-input']    ${spit}    #输入拆分数量
+    点击    xpath=//div[@id='bnSiSplitDialog-space']/div[3]/div[2]/div/div/div/div    #点击拆分编号下拉框
+    点击    xpath=//li[text()='${spit_role}']    #点击下拉框里存在的编号    #首次拆分可选，二次拆分只读且不可选
+    点击确定按钮
+    Wait Until Page Contains    操作成功
+    ${count2}    获取匹配xpath的个数    xpath=//span[text()='提单号']/../../../..//tbody//tr    #获取table个数
+    [Return]    ${count2}
+
+单证列表自定义列设置
+    点击    xpath=//span[text()='自定义列']/..    #点击自定义列
+    输入    xpath=//span[text()='已选']/../../following-sibling::div[1]//input[@class='ant-input ant-transfer-list-search']    提单状态    #筛选业务编号
+    勾选记录    xpath=//li[@title='提单状态']//input    #勾选业务编号
+    点击    xpath=//span[text()='置 顶']/..    #点击置顶
+    点击    xpath=//button[text()='确 定']    #点击确定按钮
+    Wait Until Page Contains    自定义列保存成功
+
+单证提单确认
+    [Arguments]    ${newNO}
+    勾选记录    xpath=//div[@class='ant-table-body-inner']//span[@title='${newNO}']/../../../td[1]//input    #勾选新增的这条提单
+    点击    xpath=//span[text()='提单确认']/..    #点击提单确认
+    点击确定按钮
+    Wait Until Page Contains    操作成功
+    ${td_status2}    获取页面文本内容    xpath=//div[@class='ant-table-fixed-left']/../div[1]//tbody//span[@title='${newNO}']/../../following-sibling::td[2]
+    [Return]    ${td_status2}
+
+单证提单取消
+    [Arguments]    ${newNO}
+    勾选记录    xpath=//div[@class='ant-table-body-inner']//span[@title='${newNO}']/../../../td[1]//input    #勾选新增的这条提单
+    点击    xpath=//span[text()='提单确认']/../following-sibling::button[1]    #点击提单确认边上的下拉框
+    点击    xpath=//li[text()='提单取消']    #点击提单取消
+    点击确定按钮
+    Wait Until Page Contains    操作成功
+    ${td_status3}    获取页面文本内容    xpath=//div[@class='ant-table-fixed-left']/../div[1]//tbody//span[@title='${newNO}']/../../following-sibling::td[2]
+    [Return]    ${td_status3}
+
+单证提单关联集装箱
+    拉动滚动条（新）    1800
+    输入    xpath=//textarea[@id='bnHousebills.hblGoodsdesc']    Goodsdesc    #货物描述
+    点击保存按钮
+    点击    xpath=//span[text()='选择集装箱']/..    #点击选择集装箱按钮
+    勾选记录    xpath=//div[@class='ant-table ant-table-small ant-table-bordered ant-table-fixed-header ant-table-scroll-position-left']//tbody/tr[1]//input    #勾选第一个箱子
+    点击    xpath=//span[text()='选 择']/..    #点击选择按钮
+    输入    xpath=//tr[@class='ant-table-row \ ant-table-row-level-0']/td[6]//input    111    #输入件数
+    输入    xpath=//tr[@class='ant-table-row \ ant-table-row-level-0']/td[7]//input    222    #输入毛重
+    输入    xpath=//tr[@class='ant-table-row \ ant-table-row-level-0']/td[8]//input    333    #输入体积
+    点击保存按钮
+    Wait Until Page Contains    操作成功
+    ${ctn_text2}    获取页面文本内容    xpath=//div[@class='ant-col-offset-12']/div[1]    #获取箱量
+    [Return]    ${ctn_text2}

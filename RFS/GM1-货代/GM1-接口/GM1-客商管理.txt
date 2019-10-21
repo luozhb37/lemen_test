@@ -1,0 +1,70 @@
+*** Settings ***
+Suite Setup       m4-登录
+Suite Teardown    close all browsers
+Resource          ../../Resources/GM1/GM1-UI/m4-公用.txt
+Resource          ../../Resources/GM1/GM1-接口/m4-客商管理.txt
+Resource          ../../Resources/货代业务数据.txt
+
+*** Test Cases ***
+新增客商
+    [Documentation]    其它用例都需要用到本用例中的 casenumber
+    ${return}    ${name}    保存客商
+    should be equal as strings    ${return['resultCode']}    100
+    #以下的用例都用这个casenumber
+    ${CASENUMBER-SUIT}    Set Variable    ${return['data']['casenumber']}
+    Set Suite Variable    ${CASENUMBER-SUIT}
+    log    ${name}
+
+联系人-新增
+    ${name1}    生成一个带有字符的随机数    联系人
+    ${return}    保存联系人    businesstype=1    goodsourceid=1    sales=${m4-fullname}    accountant=${m4-fullname}    casenumber=${CASENUMBER-SUIT}
+    ...    name=${name1}
+    should be equal as strings    ${return['resultCode']}    100
+    #删除联系人需要用
+    ${CONTACT-ID-SUIT}    Set Variable    ${return['data']['id']}
+    Set Suite Variable    ${CONTACT-ID-SUIT}
+
+联系人-删除
+    ${name1}    生成一个带有字符的随机数    联系人
+    ${return}    保存联系人    businesstype=1    goodsourceid=1    sales=${m4-fullname}    accountant=${m4-fullname}    casenumber=${CASENUMBER-SUIT}
+    ...    name=${name1}
+    ${return1}    删除联系人    ${CASENUMBER-SUIT}    ${return['data']['id']}
+    should be equal as strings    ${return1['resultCode']}    100
+
+收发通-新增
+    [Documentation]    以下字段 用的是 【新增联系人】中的默认值，功能上有该用法
+    ...    ${customer-enname} \ \ ${contact-enname} \ ${address} \ ${tel}
+    ${return}    保存收发通    ${CASENUMBER-SUIT}
+    should be equal as strings    ${return['resultCode']}    100
+    ${SENDER-ID-SUIT}    Set Variable    ${return['data']['id']}
+    Set Suite Variable    ${SENDER-ID-SUIT}
+
+收发通-删除
+    ${return}    保存收发通    ${CASENUMBER-SUIT}
+    ${return1}    删除收发通    ${CASENUMBER-SUIT}    ${return['data']['id']}
+    should be equal as strings    ${return1['resultCode']}    100
+
+解析模板-新增
+    [Documentation]    占舱委托：21
+    ...
+    ...    空运占舱：23
+    ${return}    ${template-no}    保存解析模板    casenumber=${CASENUMBER-SUIT}    type=1
+    should be equal as strings    ${return['resultCode']}    100
+    log    ${template-no}
+    #后面删除模板用
+    ${TEMPLATE-ID-SUIT}    Set Variable    ${return['data']['id']}
+    Set Suite Variable    ${TEMPLATE-ID-SUIT}
+
+解析模板-删除
+    ${return}    ${template-no}    保存解析模板    casenumber=${CASENUMBER-SUIT}    type=1
+    ${return1}    删除解析模板    ${CASENUMBER-SUIT}    ${return['data']['id']}
+    should be equal as strings    ${return1['resultCode']}    100
+
+新增银行账户信息
+    ${accounttype}    获取银行类型
+    ${return}    银行账户信息保存    ${CASENUMBER-SUIT}    ${accounttype}
+    Should Be Equal As Integers    ${return['resultCode']}    100
+
+新增开票信息
+    ${return}    开票信息保存    ${CASENUMBER-SUIT}
+    Should Be Equal As Integers    ${return['resultCode']}    100

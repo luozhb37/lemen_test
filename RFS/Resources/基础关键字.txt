@@ -1,0 +1,325 @@
+*** Settings ***
+Library           Selenium2Library
+Resource          main.txt
+Library           OlymLibrary
+Library           Screenshot
+Library           OperatingSystem
+
+*** Keywords ***
+打开
+    [Arguments]    ${url}    # 客户地址
+    [Documentation]    打开一个浏览器(chrome),并打开客户地址
+    Open Browser    ${url}    browser=Chrome    remote_url=${remote_url}
+    Maximize Browser Window
+
+关闭浏览器
+    close Browser
+
+点击
+    [Arguments]    ${locator}
+    [Documentation]    可以点击任何元素。
+    click element    ${locator}
+    sleep    1
+
+点击链接
+    [Arguments]    ${locator}
+    [Documentation]    带 <a> 标签的都可以
+    ...    描述信息 可以是 id，name，href和link text
+    Click Link    ${locator}
+
+输入
+    [Arguments]    ${locator}    ${text}
+    [Documentation]    文本框输入
+    input text    ${locator}    ${text}
+    等待    1
+
+清空输入框内容
+    [Arguments]    ${locator}
+    Clear Element Text    ${locator}
+
+输入_处理弹框
+    [Arguments]    ${locator}    ${text}
+    [Documentation]    当输入后,失去焦点含有弹框,则自动点击
+    input text    ${locator}    ${text}
+    ${Status}=    Run Keyword And Return Status    confirm action
+    sleep    1
+
+鼠标悬停
+    [Arguments]    ${locator}    # 选择器
+    #Mouse Over    ${locator}
+    Execute Javascript    ${locator}
+    #Execute Javascript    jQuery(\"${jQuerySelector}\").trigger('mouseenter');
+    #Execute Javascript    jQuery(\"li:contains('运价维护')\").mouseover();
+    sleep    1
+
+鼠标离开
+    [Arguments]    ${jQuerySelector}
+    [Documentation]    鼠标悬停事件, (不点击鼠标)
+    ...
+    ...    _${jQuerySelector}_ 例如是
+    ...
+    ...    a:contains('基础资料')
+    ...
+    ...    li:contains('帮助中心 ')
+    ...
+    ...    详细参考jQuery文档
+    #mouseleave
+    Execute Javascript    jQuery(\"${jQuerySelector}\").trigger('mouseleave');
+
+按键
+    [Arguments]    ${locator}    ${key}
+    [Documentation]    键盘按键，key值对应的acci码值
+    press key    ${locator}    ${key}
+    等待    1.5
+
+进入框架
+    [Arguments]    ${locator}
+    [Documentation]    进入一个iframe
+    select Frame    ${locator}
+
+离开框架
+    [Documentation]    进入最前端frame
+    Unselect Frame
+
+切换窗口
+    [Arguments]    ${locator}=
+    select window    ${locator}
+
+关闭当前窗口
+    Close Window
+
+重载当前页
+    Reload Page
+    等待    1
+
+截屏
+    Take Screenshot
+
+移动滚动条（M3）
+    [Arguments]    ${i}    # 值为document.body.scrollHeight ，是底部，为0，则为顶部，也可调整为其它数字
+    [Documentation]    以上方式若无效的话，再用这个：
+    ...
+    ...    Execute Javascript $('.ant-layout-content div').scrollTop(1000)
+    ...
+    ...    改变这个数字即可
+    Execute Javascript    window.scrollTo(0,${i})
+
+下拉选择byIndex
+    [Arguments]    ${locator}    ${value}
+    Select From List By Index    ${locator}    ${value}
+
+下拉选择byValue
+    [Arguments]    ${locator}    ${value}
+    select from list by value    ${locator}    ${value}
+    等待    1
+
+下拉选择byLabel
+    [Arguments]    ${locator}    ${label}
+    Select From List By Label    ${locator}    ${label}
+
+获取下拉框选中的一个内容
+    [Arguments]    ${loacator}    # 下拉框的定位
+    ${return}    Get Selected List Value    ${loacator}
+    [Return]    ${return}
+
+勾选记录
+    [Arguments]    ${locator}
+    select checkbox    ${locator}
+
+单选框选择
+    [Arguments]    ${group_name}    ${value}
+    select radio button    ${group_name}    ${value}
+
+切分数据
+    [Arguments]    ${string}    ${str}=
+    [Documentation]    默认按空格切分
+    @{list}=    Split Data    ${string}    ${str}
+    [Return]    @{list}
+
+截取字符
+    [Arguments]    ${str}    ${L_str}    ${R_str}
+    [Documentation]    若遇到特殊符号，则需要用双斜杠 \\
+    ...    集装箱（7），要截取括号里的数字
+    ...    则：截取字符 集装箱（7） 集装箱\\( \ \ \ \ \ \\)
+    ${return_str}    re search    ${str}    ${L_str}    ${R_str}
+    #若遇到特殊符号，则需要用双斜杠 \\ 集装箱（7），要截取括号里的数字 则：截取字符    集装箱（7）    集装箱\\(    \ \ \ \ \ \\)
+    [Return]    ${return_str}
+
+连接字符
+    [Arguments]    ${a}    ${b}    ${label}=    ${c}=    # 中间分隔符，如果没有就留空，要连接的字符
+    ${return}    Catenate    SEPARATOR=${label}    ${a}    ${b}    ${c}
+    [Return]    ${return}    # 连接后返回的字符串
+
+等待
+    [Arguments]    ${time}
+    sleep    ${time}
+
+获取页面文本内容
+    [Arguments]    ${locator}
+    ${return}    get text    ${locator}
+    [Return]    ${return}
+
+获取页面值
+    [Arguments]    ${locator}
+    ${return}    get value    ${locator}
+    [Return]    ${return}
+
+获取元素属性值
+    [Arguments]    ${locator1}    ${locator2}    # 格式：位置 | 获取属性
+    [Documentation]    @属性：想要获取的属性标签
+    ${val}    Get Element Attribute    ${locator1}    ${locator2}
+    [Return]    ${val}
+
+获取匹配xpath的个数
+    [Arguments]    ${xpath}
+    ${return}    Get Matching Xpath Count    ${xpath}
+    [Return]    ${return}
+
+生成一个带有字符的随机数
+    [Arguments]    ${zifu}=
+    ${num}    Random Num    100    100000
+    ${return}    Catenate    SEPARATOR=    ${zifu}    ${num}
+    [Return]    ${return}
+
+当前日期加减天数
+    [Arguments]    ${day}
+    [Documentation]    ${day}:
+    ...    在当前日期加 2天： +2
+    ...    在当前日期-2天： -2
+    ...
+    ...    当前日期：+0
+    ${date}    get time    year,month,day    NOW${day}day
+    ${gettime}    catenate    SEPARATOR=-    ${date[0]}    ${date[1]}    ${date[2]}
+    [Return]    ${gettime}
+
+页面弹出框选择确定
+    ${message}    Confirm Action
+    等待    2
+    choose OK on next confirmation
+    等待    1
+    [Return]    ${message}
+
+关闭弹出框
+    离开框架
+    Execute Javascript    $("a[title='关闭']").click();
+
+选择文件
+    [Arguments]    ${locator}    ${file_path}
+    [Documentation]    file path:文件所在的路径，用变量${CURDIR}，把待上传文件放在rfs的rescource下即可
+    choose file    ${locator}    ${file_path}
+
+移除文件
+    [Arguments]    ${文件所在的路径}
+    remove file    ${文件所在的路径}    #路径里面包含文件名
+
+文件不存在
+    [Arguments]    ${文件所在的路径}    # 包含文件名
+    file should not exist    ${文件所在的路径}
+
+文件存在
+    [Arguments]    ${文件所在的路径}    # 包含文件名
+    file should exist    ${文件所在的路径}    msg=${文件所在的路径}这个目录下检测到下载的文件，下载成功
+
+点击附件名下载
+    [Arguments]    ${file}    # 文件名
+    点击    xpath=//a[contains(text(),'${file}')]
+    等待    2
+
+检查元素存在内容
+    [Arguments]    ${locator}    ${expected}    ${message}=
+    Element Should Contain    ${locator}    ${expected}    ${message}=
+
+应该包含
+    [Arguments]    ${content}    ${content1}
+    should contain    ${content}    ${content1}
+
+页面应该包含
+    [Arguments]    ${text}
+    Page Should Contain    ${text}
+
+应该要相等
+    [Arguments]    ${content}    ${content1}
+    should be equal    ${content}    ${content1}
+
+应该要相等（数字）
+    [Arguments]    ${content}    ${content1}
+    Should Be Equal As Integers    ${content}    ${content1}
+
+应该不相等
+    [Arguments]    ${content}    ${content1}
+    Should Not Be Equal    ${content}    ${content1}
+
+作为字符串应该相等
+    [Arguments]    ${value1}    ${value2}
+    should be equal as strings    ${value1}    ${value2}
+
+作为字符串应该不相等
+    [Arguments]    ${str1}    ${str2}
+    Should Not Be Equal As Strings    ${str1}    ${str2}
+
+post-json
+    [Arguments]    ${uri}    ${hd}    ${data}=
+    ${cookies}    get cookies
+    ${header}    create Dictionary    Content-Type=application/json;charset=utf-8    Cookie=${cookies}
+    ${result}    post request    ${hd}    uri=${uri}    data=${data}    headers=${header}
+    ${resultTOjson}    to json    ${result.text}
+    [Return]    ${resultTOjson}
+
+post-urlencoded
+    [Arguments]    ${uri}    ${hd}    ${data}=
+    ${cookies}    get cookies
+    ${header}    create dictionary    Content-Type=application/x-www-form-urlencoded;charset=utf-8    Cookie=${cookies}
+    ${result}    post request    ${hd}    uri=${uri}    headers=${header}    data=${data}
+    ${result1}    to json    ${result.text}
+    [Return]    ${result1}
+
+get
+    [Arguments]    ${uri}    ${hd}
+    ${cookies}    get cookies
+    ${header}    create dictionary    Content-Type=application/x-www-form-urlencoded;charset=utf-8    Cookie=${cookies}
+    ${result}    get request    ${hd}    uri=${uri}    headers=${header}
+    ${content}    to json    ${result.text}
+    [Return]    ${content}
+
+设定ID
+    [Arguments]    ${locator}    ${my_ID}
+    [Documentation]    ${locator}元素定位；；；
+    ...    ${my_ID}给元素设定唯一性ID
+    Assign Id To Element    ${locator}    ${my_ID}
+
+等待直到关键字成功
+    [Arguments]    ${end_time}    ${interval_time}    ${keyword}    @{args}
+    [Documentation]    等待直到某个关键字执行成功
+    ...    参数：1.end_time \ \ \ # 超时时间
+    ...    \ \ \ \ \ \ 2.interval_time \ \ \ # 重新操作的间隔时间
+    ...    \ \ \ \ \ 3.keyword \ \ \ # 需要执行的关键字名称
+    ...    \ \ \ \ 4.args \ \ \ \ # 执行的关键字所需要的参数
+    ...
+    ...
+    ...    E.G. ：
+    ...    wait until keyword succeeds \ \ \ 2 min \ \ \ 5 sec \ \ \ input text \ \ \ //*[@id="user-name"] \ \ \ ${user}
+    Wait Until Keyword Succeeds    ${end_time}    ${interval_time}    ${keyword}    @{args}
+
+拉动滚动条（新）
+    [Arguments]    ${height}    # 滚动高度
+    [Documentation]    $('.ant-layout-content div').scrollTop(0)：表示拉到顶部
+    ...
+    ...    往下拉的话，维护数字
+    Execute Javascript    $('.ant-layout-content div').scrollTop(${height})
+
+拉动滚动条(新2)
+    [Arguments]    ${heightend}    ${heightbeg}=0    #起始位置|指定位置
+    Execute Javascript    window.scrollTo(${heightbeg}, ${heightend})
+
+清空输入框
+    [Arguments]    ${locator}    ${count}
+    : FOR    ${i}    IN RANGE    ${count}
+    \    Press Key    ${locator}    \\8
+
+赋值为空
+    [Arguments]    ${locator}    ${empty}
+    input Text    ${locator}    ${empty}
+
+获取当前时间
+    ${time}    Get Time    epoch
+    [Return]    ${time}

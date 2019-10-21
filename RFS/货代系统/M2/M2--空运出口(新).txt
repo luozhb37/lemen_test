@@ -1,0 +1,80 @@
+*** Settings ***
+Suite Setup       登录    # \ Run keywords | 系统参数设置 | AND | 往来单位初始化
+Suite Teardown    close all browsers
+Test Setup        回到首页
+Resource          ../../Resources/M2基础操作/M2--引用.txt
+
+*** Test Cases ***
+删除空运出口(新)业务台帐
+    [Tags]    completed
+    新增空运出口(新)业务台帐
+    列表查询业务编号    ${AIR-EXPORT-BUSINESSNO-SUIT}
+    选中包含业务编号的台帐    ${AIR-EXPORT-BUSINESSNO-SUIT}
+    删除业务台帐
+    ${pages}    列表查询业务编号    ${AIR-EXPORT-BUSINESSNO-SUIT}
+    应该包含    ${pages}    共0条
+
+新增空运出口(新)业务台帐
+    新增空运出口(新)业务台帐
+    ${pages}    列表查询业务编号    ${AIR-EXPORT-BUSINESSNO-SUIT}
+    应该包含    ${pages}    共1条    #验证新增的业务编号在列表上可以查询到一条记录
+
+复制空运出口(新)业务台帐
+    [Tags]    completed
+    点击业务管理
+    点击业务台帐
+    点击空运出口(新)
+    列表查询业务编号    ${AIR-EXPORT-BUSINESSNO-SUIT}
+    选中包含业务编号的台帐    ${AIR-EXPORT-BUSINESSNO-SUIT}
+    ${businessNo1}    复制业务台帐
+    ${pages}    列表查询业务编号    ${businessNo1}
+    应该包含    ${pages}    共1条
+
+空运出口(新)批量完成--提单确认
+    [Tags]    completed
+    点击业务管理
+    点击业务台帐
+    点击空运出口(新)
+    列表查询业务编号    ${AIR-EXPORT-BUSINESSNO-SUIT}
+    选中包含业务编号的台帐    ${AIR-EXPORT-BUSINESSNO-SUIT}
+    批量提单确认
+    ${content}    获取台帐详情提单确认状态    ${AIR-EXPORT-BUSINESSNO-SUIT}
+    应该要相等    ${content}    true
+
+空运出口(新)批量完成--应收费用制单
+    点击业务管理
+    点击业务台帐
+    点击空运出口(新)
+    ${pages}    列表查询业务编号    ${AIR-EXPORT-BUSINESSNO-SUIT}
+    选中包含业务编号的台帐    ${AIR-EXPORT-BUSINESSNO-SUIT}    #选中该业务
+    鼠标移至批量完成
+    点击应收费用制单
+    选中包含业务编号的台帐    ${AIR-EXPORT-BUSINESSNO-SUIT}    #选中该业务
+    ${content}    获取台帐详情应收费用制单确认状态
+    应该要相等    ${content}    已完成
+
+空运出口(新)批量完成--应付费用制单
+    点击业务管理
+    点击业务台帐
+    点击空运出口(新)
+    ${pages}    列表查询业务编号    ${AIR-EXPORT-BUSINESSNO-SUIT}
+    选中包含业务编号的台帐    ${AIR-EXPORT-BUSINESSNO-SUIT}    #选中该业务
+    鼠标移至批量完成
+    点击应付费用制单
+    选中包含业务编号的台帐    ${AIR-EXPORT-BUSINESSNO-SUIT}    #选中该业务
+    ${content}    获取台帐详情应付费用制单确认状态
+    应该要相等    ${content}    已完成
+
+空运出口(新)批量完成--业务制单--取消业务制单
+    点击业务管理
+    点击业务台帐
+    点击空运出口(新)
+    列表查询业务编号    ${AIR-EXPORT-BUSINESSNO-SUIT}
+    选中包含业务编号的台帐    ${AIR-EXPORT-BUSINESSNO-SUIT}
+    批量业务制单完成
+    ${content}    获取空运台帐详情锁定后的业务制单状态    ${AIR-EXPORT-BUSINESSNO-SUIT}
+    应该要相等    ${content}    已完成
+    选中包含业务编号的台帐    ${AIR-EXPORT-BUSINESSNO-SUIT}
+    批量取消业务制单完成
+    ${content1}    获取台帐详情未锁定的业务制单状态    ${AIR-EXPORT-BUSINESSNO-SUIT}
+    应该要相等    ${content1}    false

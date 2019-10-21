@@ -1,0 +1,65 @@
+*** Settings ***
+Resource          ../../Resources/运价通/运价通-引用.txt
+
+*** Keywords ***
+默认选择下拉框第一个选项
+    [Arguments]    ${location}
+    点击    ${location}
+    press key    ${location}    \ue015
+    press key    ${location}    \\13
+
+点击进入空运维护
+    点击    id=home_freight
+    sleep    3
+    鼠标悬停    jQuery(\"li:contains('运价维护')\").mouseover();
+    sleep    3
+    点击    xpath=//a[text()='空运维护']
+    sleep    3
+    mouse out    id=home_freight
+
+新增空运运价
+    进入列表框架
+    点击    xpath=//a[text()='新增']
+    sleep    3
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@name,'win_')]    #进入新增弹出窗口框架
+    #输入相关数据
+    默认选择下拉框第一个选项    id=loadport
+    默认选择下拉框第一个选项    id=dischargeport
+    输入    id=cycle    7
+    输入    id=quoteorg    110
+    点击    id=begindate
+    设定当天时间和结束时间
+    点击    id=bt_save
+    页面弹出框选择确定
+    点击    xpath=//span[text()='关闭']/..
+    离开框架
+
+空运列表查询
+    [Arguments]    ${sign}
+    进入框架    id=mainFrame
+    点击    id=div_advancedConditionsBY
+    点击    xpath=//a[@href="javascript:setAdvancedSelect('quoteorg');"]
+    输入    id=advancedConditionsValue    ${sign}
+    点击    xpath=//span[@id='span_advancedSearch']/..//button
+    离开框架
+    ${count}=    获取列表记录数
+    [Return]    ${count}
+
+点击进入整箱报价单附加费模板
+    点击    id=home_freight
+    sleep    3
+    鼠标悬停    jQuery(\"li:contains('运价维护')\").mouseover();
+    sleep    3
+    点击    xpath=//a[text()='整箱报价单附加费模板']
+    sleep    3
+    mouse out    id=home_freight
+
+点击进入整箱报价单查询
+    点击    id=home_freight
+    sleep    3
+    鼠标悬停    jQuery(\"li:contains('运价查询')\").mouseover();
+    sleep    3
+    点击    xpath=//a[text()='海运出口整箱查询']
+    sleep    3
+    mouse out    id=home_freight

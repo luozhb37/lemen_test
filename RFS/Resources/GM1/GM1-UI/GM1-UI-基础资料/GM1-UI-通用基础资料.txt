@@ -1,0 +1,331 @@
+*** Settings ***
+Resource          ../GM1-UI-公共/GM1-UI-引用.txt
+
+*** Keywords ***
+币别信息--查询
+    [Arguments]    ${currency}
+    进入列表框架
+    输入    id=search_code    ${currency}    #输入代码
+    点击    xpath=//span[text()='查 询']/..
+    离开框架
+
+币别信息--新增
+    [Arguments]    ${currency}
+    进入列表框架
+    点击    xpath=//span[text()='新 增']/..
+    输入    id=code    ${currency}
+    输入    id=name    ${currency}
+    点击    xpath=//span[text()='保 存']/..
+    等待    2
+    离开框架
+
+币别信息--删除
+    进入列表框架
+    勾选全部
+    点击    xpath=//span[text()='删 除']/..
+    离开框架
+
+结算类型--查询
+    [Arguments]    ${name}
+    进入列表框架
+    输入    id=qy_base_settletypes_code    ${name}    #输入结算方式代码
+    点击    id=bt_query
+    离开框架
+
+结算类型--新增
+    [Arguments]    ${name}
+    进入列表框架
+    点击    xpath=//span[text()='新增']/..
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]
+    输入    xpath=//input[contains(@id,'base_settletypes_code')]    ${name}
+    输入    xpath=//input[contains(@id,'base_settletypes_name')]    ${name}
+    点击    id=bt_save
+    离开框架
+    点击    css=.icon-close
+    等待    1
+
+结算类型--删除
+    进入列表框架
+    勾选记录    name=SHEET_ROW_SELECT_ALL    #勾选全部
+    点击    id=bt_delete
+    ${message}    confirm action    #点击确定
+    等待    2
+    choose OK on next confirmation
+    等待    1
+    离开框架
+
+费用分类管理--新增
+    [Arguments]    ${name}
+    进入列表框架
+    点击    xpath=//span[text()='新 增']/..
+    输入    id=code    ${name}    #编号
+    输入    id=name    ${name}    #费用类别名称
+    输入    id=remark    ${name}    #备注
+    点击    xpath=//span[text()='保 存']/..
+    等待    1
+    离开框架
+
+费用分类管理--删除
+    [Arguments]    ${name}
+    进入列表框架
+    勾选记录    xpath=//a[text()='${name}']/../..//input[@class='ant-checkbox-input']
+    点击    xpath=//span[text()='删 除']/..
+    离开框架
+
+货物信息列表查询
+    [Arguments]    ${d}
+    进入框架    id=content
+    输入    id=qy_base_goodses_code    ${d}
+    点击    id=bt_query    #点击查询
+    离开框架
+
+城市或国家列表信息查询
+    [Arguments]    ${searchNo}
+    输入    id=searchNo    ${searchNo}
+    点击    xpath=//span[text()='查 询']/..    # 点击查询
+    ${count}    获取匹配xpath的个数    xpath=//table/tbody/tr
+    离开框架
+
+包装列表信息查询
+    [Arguments]    ${base_packagetypes_code}
+    进入框架    id=content
+    输入    id=qy_base_packagetypes_code    ${base_packagetypes_code}
+    点击    id=bt_query    #点击查询
+    离开框架
+
+新增国家
+    [Arguments]    ${country}    ${enName}
+    进入框架    id=content
+    点击    xpath=//span[text()='新 增']/..
+    输入    id=code    ${country}
+    输入    id=enName    ${enName}
+    点击保存按钮
+    离开框架
+
+新增城市
+    [Arguments]    ${city}    ${code}    ${enName}
+    进入框架    id=content
+    点击    xpath=//span[text()='新 增']/..
+    输入    id=code    ${city}
+    输入    id=enName    ${code}
+    #下拉框选中(多列)    国家    ${enName}
+    点击    xpath=//label[contains(text(),'国家')]/../following-sibling::div[1]    #点击下拉框,暂用
+    等待    3
+    点击    xpath=(//p[contains(text(),'${enName}')]/..)[1]
+    点击保存按钮
+    离开框架
+
+下拉框选中（最后一个元素）
+    [Arguments]    ${cnname}    ${content}
+    点击    xpath=(//label[contains(text(),'${cnname}')]/../following-sibling::div[1])[last()]    #点击下拉框
+    等待    0.5
+    点击    xpath=//li[contains(text(),'${content}')]    #选中下拉框的一条记录
+
+其他基础资料列表信息查询
+    [Arguments]    ${aa}
+    输入    id=valueSearch    ${aa}
+    点击    xpath=//span[text()='查 询']/..    # 点击查询
+    ${count}    获取匹配xpath的个数    xpath=//table/tbody/tr
+    离开框架
+    [Return]    ${count}
+
+货物状态信息列表查询
+    [Arguments]    ${aa}
+    输入    id=searchValueSearch    ${aa}
+    点击    xpath=//span[text()='查 询']/..    # 点击查询
+    ${count}    获取匹配xpath的个数    xpath=//table/tbody/tr
+    离开框架
+    [Return]    ${count}
+
+商品分类信息列表查询
+    [Arguments]    ${goodscode}
+    输入    id=codeSearch    ${goodscode}
+    点击    xpath=//span[text()='查 询']/..    # 点击查询
+    ${count}    获取匹配xpath的个数    xpath=//table/tbody/tr
+    离开框架
+    [Return]    ${count}
+
+贸易信息列表查询
+    [Arguments]    ${code}
+    输入    id=titleSearch    ${code}
+    点击    xpath=//span[text()='查 询']/..    # 点击查询
+    ${count}    获取匹配xpath的个数    xpath=//table/tbody/tr
+    离开框架
+    [Return]    ${count}
+
+计费方式和单位信息列表查询
+    [Arguments]    ${modeEnname}
+    输入    id=unitEnnameSearch    ${modeEnname}
+    点击    xpath=//span[text()='查 询']/..    # 点击查询
+    ${count}    获取匹配xpath的个数    xpath=//table/tbody/tr
+    离开框架
+    [Return]    ${count}
+
+删除国家或者城市第一条记录
+    点击    xpath=//table/tbody/tr/td[1]//input    # 点击第一行勾选框
+    点击    xpath=//span[text()='删 除']/..    # 点击删除按钮
+    点击    xpath=//span[text()='确 认']/..    # 点击确认按钮
+
+新增其他基础资料
+    [Arguments]    ${code}    ${cnValue}
+    进入框架    id=content
+    点击    xpath=//span[text()='新 增']/..
+    下拉框选中（最后一个元素）    类型    签单方式
+    输入    id=dataVo.code    ${code}
+    输入    id=dataVo.cnValue    ${cnValue}
+    点击保存按钮
+
+启用和禁用
+    进入框架    id=content
+    点击    xpath=//table/tbody/tr[1]//input    # 点击checkbox
+    点击    xpath=//span[text()='启 用']/..    # 点击启用按钮
+    Page Should Contain Element    xpath=//table/tbody/tr[1]/td[text()='启用']
+    点击    xpath=//table/tbody/tr[1]//input    # 点击checkbox
+    点击    xpath=//span[text()='禁 用']/..    # 点击禁用按钮
+    Page Should Contain Element    xpath=//table/tbody/tr[1]/td[text()='禁用']
+    离开框架
+
+新增货物状态
+    [Arguments]    ${statusCode}    ${statusName}    ${statusEnname}
+    进入框架    id=content
+    点击    xpath=//span[text()='新 增']/..
+    输入    id=dataVo.statusCode    ${statusCode}
+    输入    id=dataVo.statusName    ${statusName}
+    输入    id=dataVo.statusEnname    ${statusEnname}
+    点击保存按钮
+
+新增商品分类
+    [Arguments]    ${goodscode}    ${commodityType}
+    进入框架    id=content
+    点击    xpath=//span[text()='新 增']/..
+    输入    id=code    ${goodscode}
+    输入    id=commodityType    CCC
+    点击保存按钮
+
+新增货物信息
+    [Arguments]    ${goodses_code}    ${goodses_name}
+    进入框架    id=content
+    点击    id=bt_add
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]
+    输入    id=base_goodses_code    ${goodses_code}
+    输入    id=base_goodses_name    ${goodses_name}
+    点击    id=bt_save_close
+    离开框架
+
+新增贸易方式
+    [Arguments]    ${typecode}    ${shortTitle}    ${fullTitle}
+    进入框架    id=content
+    点击    xpath=//span[text()='新 增']/..
+    输入    id=code    ${typecode}
+    输入    id=shortTitle    ${shortTitle}
+    输入    id =fullTitle    ${fullTitle}
+    点击保存按钮
+
+新增成交方式
+    [Arguments]    ${dealcode}    ${tradeCnName}    ${tradeEnName}
+    进入框架    id=content
+    点击    xpath=//span[text()='新 增']/..
+    输入    id=code    ${dealcode}
+    输入    id=tradeCnName    ${tradeCnName}
+    输入    id =tradeEnName    ${tradeEnName}
+    点击保存按钮
+
+新增计费方式和单位
+    [Arguments]    ${modeEnname}    ${modeCnname}    ${unitEnname}    ${unitCnname}
+    进入框架    id=content
+    点击    xpath=//span[text()='新 增']/..
+    #输入    id=dataVo.modeEnname    ${modeEnname}
+    #输入    id=dataVo.modeCnname    ${modeCnname}
+    下拉框选中（最后一个元素）    计费方式英文    ${modeEnname}
+    下拉框选中（最后一个元素）    计费方式中文    ${modeCnname}
+    点击    xpath=//a[text()='全选']/..
+    输入    id =dataVo.unitEnname    ${unitEnname}
+    输入    id =dataVo.unitCnname    ${unitCnname}
+    点击保存按钮
+
+新增包装类型
+    [Arguments]    ${base_packagetypes_code}    ${base_packagetypes_name}
+    进入框架    id=content
+    点击    id=bt_add
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]
+    输入    id=base_packagetypes_code    ${base_packagetypes_code}
+    输入    id=base_packagetypes_name    ${base_packagetypes_name}
+    点击    id=bt_save_close
+    离开框架
+
+删除国家或城市记录并校验
+    进入框架    id=content
+    删除国家或者城市第一条记录
+    ${count}    获取匹配xpath的个数    xpath=//table/tbody/tr    # 获取匹配的xpath个数
+    应该要相等（数字）    ${count}    0
+    离开框架
+
+删除包装类型并校验
+    [Arguments]    ${h}
+    进入框架    id=content
+    点击    xpath=//input[@name='SHEET_ROW_SELECT_ALL']
+    点击    id=bt_delete
+    页面弹出框选择确定
+    离开框架
+    包装列表信息查询    ${h}
+    进入框架    id=content
+    ${text}    获取页面文本内容    xpath=//span[@class='view-page']
+    应该包含    ${text}    共0条
+    离开框架
+
+货物信息或包装类型新增验证
+    [Arguments]    ${temp}    ${a}
+    进入框架    id=content
+    输入    id=${temp}    ${a}
+    点击    id=bt_query    #点击查询
+    ${text}    获取页面文本内容    xpath=//span[@class='view-page']
+    应该包含    ${text}    共1条
+    页面应该包含    ${a}
+    离开框架
+
+验证是否新增
+    [Arguments]    ${id}    ${a}
+    输入    id=${id}    ${a}
+    等待    1    #这个等待时间必须要有，新增及修改的提示语刚好把查询按钮遮挡了
+    点击    xpath=//span[text()='查 询']/..
+    ${text}    获取页面文本内容    css=.ant-pagination-total-text
+    应该包含    ${text}    共1条
+
+国家或城市启用和禁用
+    进入框架    id=content
+    点击    xpath=//table/tbody/tr[1]//input    # 点击checkbox
+    点击    xpath=//div[contains(@class,'olym_table_select')]//span[text()='启 用']/..    # 点击启用按钮
+    Page Should Contain Element    xpath=//table/tbody/tr[1]/td[text()='启用']
+    点击    xpath=//table/tbody/tr[1]//input    # 点击checkbox
+    点击    xpath=//div[contains(@class,'olym_table_select')]//span[text()='禁 用']/..    # 点击禁用按钮
+    Page Should Contain Element    xpath=//table/tbody/tr[1]/td[text()='禁用']
+    离开框架
+
+删除货物信息并校验
+    [Arguments]    ${d}
+    进入框架    id=content
+    点击    xpath=//input[@name='SHEET_ROW_SELECT_ALL']
+    点击    id=bt_delete
+    页面弹出框选择确定
+    离开框架
+    货物信息列表查询    ${d}
+    进入框架    id=content
+    ${text}    获取页面文本内容    xpath=//span[@class='view-page']
+    应该包含    ${text}    共0条
+    离开框架
+
+成交方式信息列表查询
+    [Arguments]    ${code}
+    输入    id=codeSearch    ${code}
+    点击    xpath=//span[text()='查 询']/..    # 点击查询
+    ${count}    获取匹配xpath的个数    xpath=//table/tbody/tr
+    离开框架
+
+下拉框选中（特殊）
+    [Arguments]    ${cnname}    ${content}
+    点击    xpath=(//label[contains(text(),'${cnname}')]/../following-sibling::div[1])[last()]    #点击下拉框
+    等待    0.5
+    点击    xpath=//span[text()="技术部"]/..    #选中下拉框的一条记录

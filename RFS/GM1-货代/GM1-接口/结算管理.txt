@@ -1,0 +1,143 @@
+*** Settings ***
+Suite Setup       m4-登录    # m4-登录
+Suite Teardown    close all browsers    # close all browsers
+Resource          ../../Resources/GM1/GM1-UI/m4-公用.txt
+Resource          ../../Resources/结算管理接口.txt
+Resource          ../../Resources/GM1/GM1-接口/m4-接口-新订单基础操作.txt
+
+*** Variables ***
+
+*** Test Cases ***
+1
+    ${WORKNUMBER}    Set Suite Variable
+    ${CASENUMBER订单}    Set Suite Variable
+    ${CASENUMBER业务}    Set Suite Variable
+    ${ID订单费用}    Set Suite Variable
+
+新增业务
+    ${casenumber订单}    ${worknumber}    ${casenumber业务}    新增订单并审核通过
+    ${etd}    get time    yyy-mm-dd
+    订舱--离港日期    ${casenumber订单}    ${casenumber业务}    ${worknumber}    ${etd}
+    ${id订单费用}    获取订单费用    ${casenumber业务}
+    #设置全局变量
+    Set Suite Variable    ${ETD}    ${etd}
+    Set Suite Variable    ${WORKNUMBER}    ${worknumber}
+    Set Suite Variable    ${CASENUMBER订单}    ${casenumber订单}
+    Set Suite Variable    ${CASENUMBER业务}    ${casenumber业务}
+    Set Suite Variable    ${ID订单费用}    ${id订单费用}
+
+新增收入费用
+    #获取当前时间戳
+    ${time}    get time    epoch
+    ${id应收}    维护收入费用    ${CASENUMBER订单}    ${CASENUMBER业务}    ${WORKNUMBER}    ${ETD}    ${ID订单费用}
+    ...    ${time}
+    Set Suite Variable    ${ID应收}    ${id应收}
+
+新增支出费用
+    #获取当前时间戳
+    ${time}    get time    epoch
+    ${id应付}    维护支出费用    ${CASENUMBER订单}    ${CASENUMBER业务}    ${WORKNUMBER}    ${ETD}    ${ID订单费用}
+    ...    ${time}
+    Set Suite Variable    ${ID应付}    ${id应付}
+
+删除收入费用
+    #获取当前时间戳
+    ${time}    get time    epoch
+    ${id应收}    维护收入费用    ${CASENUMBER订单}    ${CASENUMBER业务}    ${WORKNUMBER}    ${ETD}    ${ID订单费用}
+    ...    ${time}
+    ${feeActionType}    Set Variable    recDelete    #删除收入
+    费用页面费用(收入/支出)    ${CASENUMBER业务}    ${id应收}    ${feeActionType}
+
+删除支出费用
+    #获取当前时间戳
+    ${time}    get time    epoch
+    ${id应付}    维护支出费用    ${CASENUMBER订单}    ${CASENUMBER业务}    ${WORKNUMBER}    ${ETD}    ${ID订单费用}
+    ...    ${time}
+    ${feeActionType}    Set Variable    payDelete    #删除支出
+    费用页面费用(收入/支出)    ${CASENUMBER业务}    ${id应付}    ${feeActionType}
+
+收入费用审核
+    ${feeActionType}    Set Variable    recAudit    #审核收入
+    费用页面费用(收入/支出)    ${CASENUMBER业务}    ${ID应收}    ${feeActionType}
+
+收入费用取消审核
+    ${feeActionType}    Set Variable    recCancelAudit    #取消审核收入
+    费用页面费用(收入/支出)    ${CASENUMBER业务}    ${ID应收}    ${feeActionType}
+
+支出费用审核
+    ${feeActionType}    Set Variable    payAudit    #审核支出
+    费用页面费用(收入/支出)    ${CASENUMBER业务}    ${ID应付}    ${feeActionType}
+
+支出费用取消审核
+    ${feeActionType}    Set Variable    payCancelAudit    #取消审核支出
+    费用页面费用(收入/支出)    ${CASENUMBER业务}    ${ID应付}    ${feeActionType}
+
+收入费用确认
+    ${feeActionType}    Set Variable    recConfirm    #确认收入
+    费用页面费用(收入/支出)    ${CASENUMBER业务}    ${ID应收}    ${feeActionType}
+
+收入费用取消确认
+    ${feeActionType}    Set Variable    recCancelConfirm    #取消确认收入
+    费用页面费用(收入/支出)    ${CASENUMBER业务}    ${ID应收}    ${feeActionType}
+
+支出费用确认
+    ${feeActionType}    Set Variable    payConfirm    #确认支出
+    费用页面费用(收入/支出)    ${CASENUMBER业务}    ${ID应付}    ${feeActionType}
+
+支出费用取消确认
+    ${feeActionType}    Set Variable    payCancelConfirm    #取消确认支出
+    费用页面费用(收入/支出)    ${CASENUMBER业务}    ${ID应付}    ${feeActionType}
+
+打印应收账单
+    ${casenumber账单}    打印账单    ${CASENUMBER业务}    ${ID应收}
+
+打印应付账单
+    ${casenumber账单}    打印账单    ${CASENUMBER业务}    id应付=${ID应付}
+
+应收账单--导出
+
+应收账单--作废
+    ${time}    get time    epoch
+    ${id应收}    维护收入费用    ${CASENUMBER订单}    ${CASENUMBER业务}    ${WORKNUMBER}    ${ETD}    ${ID订单费用}
+    ...    ${time}
+    ${casenumber账单}    打印账单    ${CASENUMBER业务}    ${id应收}
+    作废账单    ${casenumber账单}
+
+应付账单--确认
+    ${casenumber账单}    打印账单    ${CASENUMBER业务}    id应付=${ID应付}
+    确认账单    ${casenumber账单}
+
+应付账单--删除
+    [Setup]
+    ${casenumber业务}    ${id应付}    新增支出费用
+    ${casenumber账单}    打印账单    ${casenumber业务}    id应付=${id应付}
+    删除账单    ${casenumber账单}
+
+123
+    ${result}    get time    yyyy-mm-dd hh24:mi:ss
+    ${result1}    get time    epoch
+    ${result2}    get time    \    ${result1}
+    #${result3}=    Convert Date    ${result}    epoch
+    ${result4}    get time    NOW
+    log    ${result}
+    log    ${result1}
+    log    ${result2}
+    新增收入费用
+
+ceshi
+    ${url}    set variable    http://www.baidu.com
+    ${r}    requests.get    ${url}
+    log    ${r.status_code}
+
+ceshi2
+    ${url}    set variable    http://www.baidu.com
+    ${r}    requests.get    ${url}
+    log    ${r.status_code}
+    \    get request
+
+12
+    ${result}    Get    ${m4-session}    uri=/fms-rest/rest/basePorts/search?_method=get
+    ${content}    to json    ${result.text}
+    log    ${content}
+
+*** Keywords ***

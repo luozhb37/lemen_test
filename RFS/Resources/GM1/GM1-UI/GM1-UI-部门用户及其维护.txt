@@ -1,0 +1,228 @@
+*** Settings ***
+Resource          ../GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+
+*** Keywords ***
+去除管理员权限
+    [Arguments]    ${u_name}
+    进入框架    id=content
+    点击    xpath=//a[contains(@href,"${u_name}&name=")][@title='权限管理']
+    离开框架
+    进入框架    xpath=//iframe[contains(@id,"win_")][contains(@src,"${u_name}")]
+    点击    xpath=//span[contains(text(),"业务权限设置")]
+    sleep    3
+    进入框架    id=iframe2
+    输入    xpath=(//input[@placeholder='请输入权限名'])[last()]    管理员
+    Run Keyword And Ignore Error    点击    xpath=//li[@title='系统设置-管理员']//label//span//input[@type='checkbox']    # 逐个选择左侧待选择权限
+    Run Keyword And Ignore Error    点击    xpath=//i[@class='anticon anticon-left']/../..    #点击-左移 OR 右移 （由参数决定）
+    点击    id=saveBtn    #点 【保存】
+    wait until page contains    保存成功    timeout=6    error=保存失败
+    离开框架
+    点击    xpath=//i[@class='icon-close']
+
+按列取-行列号
+    [Arguments]    ${excel_sheet}    ${row_index}    @{excel_column_num}
+    @{row_cell_text}    create list    \    #定义
+    : FOR    ${j}    IN    @{ @{excel_column_num}
+    \    ${row_info}    Read Cell Data By Coordinates    ${excel_sheet}    ${j}    ${row_index}
+    \    Append To List    ${row_cell_text}    ${row_info}    # 逐个赋值给 {LIST} 变量租
+    log    ${row_cell_text}
+    [Return]    @{row_cell_text}
+
+按列取-单元格
+    [Arguments]    ${excel_sheet}    ${row_index}    @{excel_column}
+    [Documentation]    根据【行号】+【列】list \ \ 返回 每行 的 列组合值
+    @{row_cell_text}    create list    \    #定义
+    : FOR    ${i}    IN    @{excel_column}
+    \    ${row_info}    Read Cell Data By Name    ${excel_sheet}    ${i}${row_index}
+    \    Append To List    ${row_cell_text}    ${row_info}    # 逐个赋值给 {LIST} 变量租
+    log    ${row_cell_text}
+    [Return]    @{row_cell_text}
+
+读取EXCLE（按行列号）
+
+读取EXCLE（按单元格）
+    [Arguments]    ${excel_local}    ${start_num}    ${excel_sheet}    @{excel_column}
+    [Documentation]    1.根据单元格名字 A1,A2 读取；
+    ...    2.逐行按单元格读取后，拼接成LIST，且第0个是空；
+    ...
+    ...    【变量说明】
+    ...    ${exc_local} ：EXCLE路径
+    ...    ${start_num} \ ：从第X行开始读；（从第一行开始读，若首行是标题，则从2开始）
+    ...    @{exc_column} ：需要读取的列名
+    @{table_info}    create list    \    #
+    #---按 单元格名取---
+    open Excel    ${excel_local}    # 打开 EXECLE 文件
+    ${excel_rows}    Get Row Count    ${excel_sheet}    #获得行数
+    ${excel_rows}    Evaluate    int(${excel_rows})+1    # EXCLE 行数+1，用于循环 ---自动计算
+    : FOR    ${i}    IN RANGE    ${start_num}    ${excel_rows}    #从第1行开始计。第一行是标题，SO从第二行取
+    \    ${row_info}    按列取-单元格    ${excel_sheet}    ${i}    @{excel_column}    #SHEET表，行号，列LIST
+    \    log    ${row_info}
+    \    @{table_info}    create list    @{table_info}    ${row_info}
+    log    ${table_info}    #获得LIST中，第0个为空，从第1个开始
+    ${get_row_num}    get length    ${table_info}    #获得行数
+    ${get_column_num}    get length    ${table_info[1]}    #获得列数X，实际列数=X-1
+    log    ${table_info[1][1]}    #获得第1行的第1列值
+    log    ${table_info[1][2]}    #获得第1行的第2列值
+    [Return]    @{table_info}
+
+部门初始化
+    [Arguments]    @{init_depart}
+    # --进入系统设置---
+    ${u_depart}    set variable    \    #默认值为空，存储上一个‘部门名称’
+    点击系统设置（主菜单）
+    点击公司管理
+    点击组织结构
+    进入框架    id=content
+    : FOR    ${i}    IN    @{init_depart}
+    \    Exit For Loop If    '${u_depart}' == '${i}'    #若重复部门，则退出循环
+    \    ${u_depart}    set variable    ${i}
+    \    ${num}    获取匹配xpath的个数    xpath=//span[contains(@id,"stgl_jg_bmgl_leftTree_")][text()='${u_depart}']    #查找目标部门
+    \    Run Keyword If    ${num} == 0    新增部门（顶级）    ${u_depart}
+    \    ...    ELSE IF    ${num} >1    log    存在多个同名部门，请检查！
+    离开框架
+    sleep    0.1
+
+新增部门（顶级）
+    [Arguments]    ${u_depart}
+    #进入框架    id=content
+    输入    //th[text()='部门名称：']/../td/input[@name='deptName']    ${u_depart}    #输入部门名称（默认顶级）
+    点击    xpath=//button[@class='btn btn-primary']    #点击【保存】
+    离开框架
+    点击    xpath=//a[@target='content'][contains(text(),"组织结构")]    #点【组织结构】,刷新结构树
+    进入框架    id=content
+    检查元素存在内容    xpath=//span[text()='${u_depart}']    ${u_depart}    #检查页面是否包含新增的部门
+
+增减用户权限
+    [Arguments]    ${u_action}
+    #根据传参定义‘加权限、减权限’操作
+    ${user_list}=    Set Variable If    '${u_action}' == '加权限'    用户的可选权限    用户对应的权限    #定义从左侧OR 右侧选权限
+    ${user_action}=    Set Variable If    '${u_action}' == '加权限'    anticon anticon-right    anticon anticon-left    #定义 权限右移（加权限） OR 左移（减权限）
+    #---读取 EXCLE 权限列表----
+    open Excel    ${exc_local}    # 打开 EXECLE 文件
+    ${exc_rows}    Get Row Count    ${exc_sheet}
+    ${exc_rows}    Evaluate    int(${exc_rows})+1    # EXCLE 行数+1，用于循环 ---自动计算
+    : FOR    ${i}    IN RANGE    1    ${exc_rows}
+    \    ${text}    Read Cell Data By Name    ${exc_sheet}    ${exc_lie}${i}    # 逐个读取 EXCEL 单元格内容
+    \    log    ${text}
+    \    Append To List    ${exc_info}    ${text}    # 逐个赋值给 {LIST} 变量租
+    \    输入    xpath=//span[text()='${user_list}']/../../following-sibling::div//input[@placeholder='请输入权限名']    ${text}
+    \    Run Keyword And Ignore Error    点击    xpath=//li[@title='${text}']//label//span//input[@type='checkbox']    # 逐个选择左侧待选择权限
+    \    Run Keyword And Ignore Error    点击    xpath=//i[@class='${user_action}']/../..    #点击-左移 OR 右移 （由参数决定）
+    log    ${exc_info}
+
+运价权限设置
+    [Arguments]    ${u_name}
+    #---维护运价权限----
+    进入框架    xpath=//iframe[contains(@id,"win_")][contains(@src,"${u_name}")]    #进入用户权限维护框架
+    点击    xpath=//span[contains(text(),"运价权限设置")]
+    进入框架    id=iframe3    #进入运价权限维护框架
+    点击    xpath=//a[@product_code='freight']    #产品选择：点【运价通】产品
+    Run Keyword And Ignore Error    点击    xpath=//a[contains(text(),"全选")]    # 服务选择：点【全选】；
+    点击    xpath=//a[contains(@purview_code,"f_cus_company_modify") ]    #点【客户管理】
+    #点击    xpath=//a[contains(@purview_code,"f_employee_manage") ]    #点【管理员】
+    点击    xpath=//a[contains(@purview_code,"f_notice_read") ]    #点【运价查询】
+    点击    xpath=//a[contains(@purview_code,"f_notice_edit") ]    #点【运价维护】
+    点击    xpath=//span[contains(text(),"保存设置")]    #点【保存设置】
+    wait until page contains    保存成    timeout=3    error=保存失败
+    Capture Page Screenshot
+    离开框架
+
+员工删除
+    [Arguments]    ${u_type}    ${u_value}
+    [Documentation]    \#根据{u_type}判断按‘工号’OR ‘姓名’定位
+    ${del_info}=    Set Variable If    '${u_type}' == '工号'    xpath=//div[@class='datagrid-cell datagrid-cell-c1-personCode'][text()='${u_value}']/../following-sibling::td[@field='operation']/div/a[text()='删除']    xpath=//a[@title='用户详情'][text()='${u_value}']/../../following-sibling::td[@field='operation']/div/a[text()='删除']    #根据{u_type}判断按‘工号’OR ‘姓名’定位
+    进入框架    id=content
+    点击    ${del_info}    #根据参数（工号OR姓名）判断，点【删除】
+    点击    xpath=//span[text()='确定']    #点【确定】删除
+    wait until page contains    删除成功    timeout=5    error=删除失败
+    离开框架
+
+员工激活
+    [Arguments]    ${u_type}    ${u_value}
+    [Documentation]    \#根据{u_type}判断按‘工号’OR ‘姓名’定位
+    ${active_info}=    Set Variable If    '${u_type}' == '工号'    xpath=//div[@class='datagrid-cell datagrid-cell-c1-personCode'][text()='${u_value}']/../..@datagrid-row-index    xpath=//a[@title='用户详情'][text()='${u_value}']/../../..@datagrid-row-index    #根据{u_type}判断按‘工号’OR ‘姓名’定位
+    进入框架    id=content
+    ${u_index}    Get Element Attribute    ${active_info}    #按【工号、姓名】获得员工所在行index,用于勾选
+    log    ${u_index}
+    点击    xpath=//tr[@id='datagrid-row-r1-1-${u_index}']/td[@field='ck']    #根据${u_index}确定勾选第X个记录
+    点击    xpath=//a[@title='升级为账号']    #点【升级为账号】
+    wait until page contains    成功    timeout=5    error=升级失败
+    点击    //button[text()="查询"]    #点【查询】,用于刷新页面数据
+    ${u_active_username}    Get Text    xpath=//tr[@datagrid-row-index='${u_index}']/td[@field='username']/div    #根据${u_index}确定获取第X个记录    #xpath=//tr[@id='datagrid-row-r1-2-${u_index}']/td[@field='username']/div
+    log    ${u_active_username}
+    离开框架
+    Capture Page Screenshot
+    sleep    0.5
+
+员工查询
+    [Arguments]    ${u_all_name}
+    进入框架    id=content
+    输入    id=name    ${u_all_name}    #输入【姓名】
+    点击    //span[text()="查 询"]/..    #点【查询】
+    page should contain    ${u_all_name}    #验证：检索结果是否1条，确保绑定正确（注：测试环境犹豫一个数据，返回结果按GM1-库和老货代库同步检索后拼接，导致2条。生产、准生产则显示1条）
+    sleep    0.2
+    离开框架
+
+职员类型
+    [Arguments]    @{zy_type}
+    ${index}    set variable    -1    #用于数组【index】取值，从=0开始，即从数组的第1个值取值
+    : FOR    ${i}    IN    @{zy_type}
+    \    ${index}    Evaluate    int(${index})+1    #类似于【index】自增，从0开始
+    \    点击    xpath=//input[contains(@name,"person_type")][@value='@{zy_type}[${index}]']    #选择职员类型（根据@{zy_type} list值
+
+变量
+    [Documentation]    PS:
+    ...    1. 用户修改、删除、权限设置： 均以【 ${user_name} 】 为查询条件
+    ...    2. 【用户管理、员工管理】的【部门】使用规则：
+    ...    A. 若部门都相同，则设置1个即可；
+    ...    B. 若都不同，则一一对应设置；
+    ...    C. 但不支持【部分相同】,请分批执行脚本
+    ${temp}    生成一个带有字符的随机数    ye
+    #--组织结构（部门信息）---
+    set suite variable    ${_depart}    部门测试-A
+    #员工管理--（导入）--
+    #set suite variable    ${load_file}    ${EXECDIR}\\RFS\\Resources\\GM1\\GM1-UI\\importStaffBasic.xls    # EXCLE 文件路径 （必须是 .xls）,统一放置：../RFS/Resources/public_test_file目录下；【 \ ${EXECDIR} \ 】 表示 RIDE 中脚本所在的根目录；--根据各自的目录结构定义
+    set suite variable    ${load_file}    ${EXECDIR}\\RFS\\Resources\\public_test_file\\员工导入_importStaffBasic.xls
+    set suite variable    ${file_sheet}    Sheet1    # EXCLE 工作表 名称，默认 sheet1
+    set suite variable    @{file_lie}    D    E    #获取EXCLE 的 CD2列组成【姓名】,J列=工号
+    set suite variable    @{result_info}    \    #定义 需要逐个存储的 {LIST} ,默认空
+    #--员工管理-(增删改）---
+    set suite variable    ${emplyee_gonghao}    10    #定义工号前X位（工号需唯一）
+    set suite variable    @{emplyee_last_name}    测试-A    测试-B
+    set suite variable    @{emplyee_first_name}    -1    -1
+    set suite variable    @{emplyee_email}    11@test.olymtest    11@test.olymtest
+    set suite variable    @{emplyee_depart}    测试部    #若均为相同部门，则设置1个即可（不支持部分相同）
+    #--职员类型-参考备注
+    set suite variable    @{person_type}    1    2    5    8
+    #--用户信息（新/查/改/删/权限）---    #用户修改、删除、权限设置： 均以【 ${user_name} 】 为查询条件
+    set suite variable    @{user_name}    ${temp}
+    set suite variable    @{user_pwd}    a111111
+    set suite variable    @{user_last_name}    W-小李
+    set suite variable    @{user_first_name}    -
+    set suite variable    @{user_mobile}    99990000001
+    set suite variable    @{user_email}    11@test.olymtest
+    set suite variable    @{user_depart}    测试部
+    #--用户权限设置---
+    #--(单)权限参数[引用EXCEL]---
+    set suite variable    @{exc_info}    \    #定义 需要逐个存储的 {LIST} ,默认空
+    set suite variable    ${text}    \    #定义 EXCLE 临时读取的单元格内容,默认空
+    set suite variable    ${exc_local}    ${EXECDIR}\\RFS\\Resources\\GM1\\GM1-UI\\货代权限表.xls    # EXCLE 文件路径 （必须是 .xls）,统一放置：../RFS/Resources/public_test_file目录下；【 \ ${EXECDIR} \ 】 表示 RIDE 中脚本所在的根目录；--根据各自的目录结构定义
+    set suite variable    ${exc_sheet}    Sheet4    # EXCLE 工作表 名称，默认 sheet1
+    set suite variable    ${exc_lie}    A    # EXCLE 列名
+    set suite variable    ${set_user_rights}    加权限    #调整个别权限；若值=加权限，则给用户增加权限
+
+升级为用户
+    进入框架    id=content
+    点击    xpath=(//table/tbody/tr[1]//input)[last()]
+    点击    xpath=//span[text()='升级为用户']/..
+    gm1弹出框确认
+    Page Should Contain    成功
+    离开框架
+
+员工删除（新）
+    进入框架    id=content
+    点击    xpath=(//table/tbody/tr[1]//input)[last()]
+    点击    xpath=//span[text()='删 除']/..
+    gm1弹出框确认
+    Page Should Contain    成功
+    离开框架

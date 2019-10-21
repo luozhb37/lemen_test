@@ -1,0 +1,70 @@
+*** Settings ***
+Documentation     功能基本上同整箱，脚本copy整箱，若调整，需注意关键字是否共用
+Suite Setup       m4-登录
+Suite Teardown    Close All Browsers
+Test Setup        重载当前页
+Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+
+*** Test Cases ***
+新增订单
+    点击订单管理
+    点击订单中心
+    ${WORKNO-Railway export}    订单新增（铁路出口）    铁路运输出口    goodssource1=自揽货
+    #草稿状态
+    点击状态tab    draftBtn
+    订单列表查询    ${WORKNO-Railway export}
+    ${content}    获取订单列表记录数
+    应该包含    ${content}    共1条
+    Set Suite Variable    ${WORKNO-Railway export}
+
+提交订单
+    点击订单管理
+    点击订单中心
+    订单列表查询    ${WORKNO-Railway export}
+    点击提交订单    ${WORKNO-Railway export}
+    #这两步都是为了刷新页面
+    点击订单管理
+    点击订单中心
+    点击状态tab    pendingBtn    #待处理
+    订单列表查询    ${WORKNO-Railway export}
+    ${content}    获取订单列表记录数
+    应该包含    ${content}    共1条
+
+审核通过
+    点击订单管理
+    点击审单中心
+    订单列表查询    ${WORKNO-Railway export}
+    进入订单详情    ${WORKNO-Railway export}
+    切换窗口    new
+    点击审核通过（铁路出口）
+    点击订单管理
+    点击审单中心
+    点击状态tab    auditPassBtn    #审核通过
+    订单列表查询    ${WORKNO-Railway export}
+    ${content}    获取订单列表记录数
+    应该包含    ${content}    共1条
+
+铁路出口台账列表进入详情
+    点击订单管理
+    点击业务管理
+    进入指定二级菜单    业务台账    铁路运输出口
+    等待加载层消失
+    ${pages}    铁路出口列表查询    ${WORKNO-Railway export}
+    应该包含    ${pages}    共1条
+    #点击业务编号进入详情
+    进入列表框架
+    等待    2
+    点击    xpath=//div[@class='ant-table-body-inner']//a[text()='${WORKNO-Railway export}']
+    离开框架
+    切换窗口    new
+    Page Should Contain    铁路运输出口
+    Set Suite Variable    ${WORKNO-Railway export}
+
+铁路操作详情点击保存
+    点击操作详情    #点击进入操作详情页
+    点击    xpath=//input[@id='bnMains.portagency']/../../..    #点击口岸代理字段
+    按键    xpath=//input[@id='bnMains.portagency']    \ue015    #点击向下符号
+    按键    xpath=//input[@id='bnMains.portagency']    \\13    #点击enter按钮
+    输入    id=bnMainsEfclBooking.customPlace    rail-bg    #报关地
+    点击保存按钮
+    Page Should Contain    操作成功

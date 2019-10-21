@@ -1,0 +1,287 @@
+*** Settings ***
+Documentation     所有的互联、导入操作依赖于 \ 该掌柜 是付费掌柜、互联数、导入数充足的前提下，且掌门已设置 运营规则为 区域为NINGBO,目的港为DUBAI,船公司为ANL
+Suite Setup
+Suite Teardown
+Test Setup        Run Keywords    初始化绑定数据
+...               AND    初始化掌门运价数据
+...               AND    初始化掌柜运价数据
+Test Teardown     delete all sessions
+Resource          ../Resources/会员接口.txt
+Resource          ../Resources/掌柜互联接口.txt
+Resource          ../Resources/整箱维护接口.txt
+Library           Selenium2Library
+
+*** Variables ***
+${loadport}       NANJING    # 起运港
+${dischargeport}    DUBAI    # 目的港
+${carrier}        ANL    # 船公司
+${carrier_casenumber}    100992933    # 基础资料表中ANL对应的casenumber
+&{整箱运价}           loadport=NANJING    dischargeport=DUBAI    country=中国    transferport=YANTIAN    cycle=1/2    sailtime=23    carrier=APL
+...               sailing_date=2016-11-12    massaddress=在南京进港    carrier_route=承运人的航线    internetsellprice1=1000    internetsellprice2=2000    internetsellprice3=3000    signflag=yunjiaweihu
+...               createby=${掌门人_员工employeeName}    modifyby=${掌门人_员工employeeName}    owner_employee_id=${掌门人_员工EmployeeId}    addfee=附加费说明信息    remark=外部备注信息    casenumber=    publishcasenumber=
+...               # 用于导入后的验证
+&{导入后的数据}         loadport=NANJING    dischargeport=DUBAI    country=中国    transferport=YANTIAN    cycle=1/2    sailtime=23    carrier=APL
+...               sailing_date=2016-11-12    massaddress=在南京进港    carrier_route=承运人的航线    internetsellprice1=1000    internetsellprice2=2000    internetsellprice3=3000    signflag=yunjiaweihu
+...               createby=系统    owner_name=系统    quoteorg=自动化测试-掌门人专用    addfee=附加费说明信息    employee_remark=外部备注信息
+
+*** Test Cases ***
+首页--整箱搜索
+    [Tags]    complete
+    新建掌柜管理员会话
+    ${result}    整箱询价    loadport=&{整箱运价}[loadport]    dischargeport=&{整箱运价}[dischargeport]
+    should contain    ${result}    ${掌门人_公司名称}    msg=掌柜互联查找运价失败
+    [Teardown]    delete all sessions
+
+首页--查找掌门
+    [Tags]    complete
+    新建掌柜管理员会话
+    ${result}=    查找掌门    orgname=${掌门人_公司名称}
+    should contain    ${result}    ${掌门人_orgid}    msg=无法找到该掌门人
+    [Teardown]    delete all sessions
+
+互联并取消互联
+    [Tags]    complete
+    新建掌柜管理员会话
+    #申请互联
+    ${result1}=    申请互联
+    #验证互联是否成功
+    ${bindstatus}    re search    ${result1}    bindStatus":    ,
+    should be equal    ${bindstatus}    10    msg=互联失败
+    ${result2}=    进入我的掌门页面并搜索公司名称    bind_orgName=${掌门人_公司名称}
+    should contain    ${result2}    ${掌门人_公司名称}    msg=互联失败
+    新建掌门人管理员会话    alias=掌门人_session
+    ${result6}=    进入我的掌柜页面并搜索公司名称    importOrgName=${掌柜_公司名称}    session=掌门人_session
+    should contain    ${result6}    ${掌柜_公司名称}    msg=互联失败
+    #取消互联
+    取消互联    bind_OrgId=${掌门人_orgid}
+    #验证取消互联是否成功
+    ${result4}=    进入我的掌门页面并搜索公司名称    bind_orgName=${掌门人_公司名称}
+    should not contain    ${result4}    ${掌门人_公司名称}    msg=取消互联失败
+    新建掌门人管理员会话    alias=掌门人_session
+    ${result7}=    进入我的掌柜页面并搜索公司名称    importOrgName=${掌柜_公司名称}    session=掌门人_session
+    should not contain    ${result7}    ${掌柜_公司名称}    msg=取消互联失败
+    [Teardown]    delete all sessions
+
+运价查询
+    [Tags]    complete
+    新建掌柜管理员会话
+    ${result1}=    申请互联
+    #验证互联是否成功
+    ${bindstatus}    re search    ${result1}    bindStatus":    ,
+    should be equal    ${bindstatus}    10    msg=互联失败
+    ${result2}=    进入我的掌门页面并搜索公司名称    bind_orgName=${掌门人_公司名称}
+    should contain    ${result2}    ${掌门人_公司名称}
+    #运价查询
+    ${result}=    运价查询    loadport=${loadport}    dischargeport=${dischargeport}
+    should contain    ${result}    ${掌门人_公司名称}
+    [Teardown]    delete all sessions
+
+同步运价
+    [Tags]
+    新建掌柜员工会话
+    #申请互联
+    ${result1}=    申请互联
+    #验证互联是否成功
+    ${bindstatus}    re search    ${result1}    bindStatus":    ,
+    should be equal    ${bindstatus}    10    msg=互联失败
+    ${result2}=    进入我的掌门页面并搜索公司名称    bind_orgName=${掌门人_公司名称}
+    should contain    ${result2}    ${掌门人_公司名称}    msg=我的掌门页面无该掌门
+    #点击同步运价前获取可导数
+    ${importNumberBefore}=    获取可导数
+    点击确定扣费提示
+    ${importNumberAfter}=    获取可导数
+    ${status}    Evaluate    ${importNumberBefore}-${1}
+    Should Be Equal As Integers    ${status}    ${importNumberAfter}    msg=导入扣费失败
+    #确定导入
+    点击确定导入
+    sleep    3
+    #验证运价是否已导入到掌柜
+    @{casenumber}    查询整箱运价    signflag=&{整箱运价}[signflag]
+    log    @{casenumber}
+    ${casenumberL}    code str    ${casenumber}
+    ${result}=    查询整箱运价明细    ${casenumberL}
+    ${resultList}    获取运价各字段值    ${result}
+    ${list}=    dict values    ${导入后的数据}
+    should be equal as strings    ${list}    ${resultList}
+    : FOR    ${j}    IN RANGE    16
+    \    log    @{list}[${j}]
+    \    should contain    ${result}    @{list}[${j}]
+    \    log    1
+    [Teardown]    delete all sessions
+
+批量询价
+    [Tags]    complete
+    新建掌柜管理员会话
+    ${beforeTotal}=    进入我的询价列表页面
+    log    ${beforeTotal}
+    ${token}=    获取批量询价页面的token值
+    批量询价    loadport_enname=NINGBO    loadport_cnname=宁波    discharge_enname=DUBAI    dischargeport_cnname=迪拜    cycle=4    carrier_code=ANL
+    ...    carrier_cnname=澳航    num1=2    num2=3    num3=4    num4=5    bind_orgId=${掌门人_orgid}
+    ...    bind_orgName=${掌门人_公司名称}    waiterId=${掌门人_管理员UserId}    remarks=自动化备注信息    waiterName=${掌门人_管理员employeeName}    token=${token}
+    ${afterTotal}=    进入我的询价列表页面
+    log    ${afterTotal}
+    ${status}=    evaluate    ${beforeTotal}+${1}
+    should be equal as integers    ${status}    ${afterTotal}    msg=发起询价失败
+    [Teardown]    delete all sessions
+
+小二管理
+    [Tags]    complete
+    #查看询价页面的小二人员为“公司管理员”
+    新建掌门人管理员会话
+    #修改小二为员工
+    ${resultCode1}=    设置小二    waiterId=${掌门人_员工UserId}    waiterName=${掌门人_员工employeeName}
+    should be equal as strings    ${resultCode1}    true    msg=设置小二失败
+    #查询询价页面的小二显示为员工
+    ${result}    整箱询价    loadport=${loadport}    dischargeport=${dischargeport}
+    ${waiterName}=    re search    ${result}    waiterName":"    "
+    ${waiterUserId}=    re search    ${result}    waiterUserId":"    "
+    should be equal as strings    ${waiterName}    ${掌门人_员工employeeName}    msg=询价页面显示的小二不是员工
+    should be equal as strings    ${waiterUserId}    ${掌门人_员工UserId}    msg=询价页面显示的小二不是员工
+    #将小二再重置回“公司管理员”
+    ${resultCode2}=    设置小二    waiterId=${掌门人_管理员UserId}    waiterName=${掌门人_管理员employeeName}
+    should be equal as strings    ${resultCode2}    true    msg=设置小二失败
+    #验证小二已设置
+    ${result}    整箱询价    loadport=${loadport}    dischargeport=${dischargeport}
+    ${waiterName1}=    re search    ${result}    waiterName":"    "
+    ${waiterUserId1}=    re search    ${result}    waiterUserId":"    "
+    should be equal as strings    ${waiterName1}    ${掌门人_管理员employeeName}    msg=询价页面显示的小二不是管理员
+    should be equal as strings    ${waiterUserId1}    ${掌门人_管理员UserId}    msg=询价页面显示的小二不是管理员
+    [Teardown]    delete all sessions
+
+批量设置服务人员
+    [Tags]    complete
+    #掌柜申请互联
+    新建掌柜管理员会话
+    #申请互联
+    ${result1}=    申请互联
+    #验证互联是否成功
+    ${bindstatus}    re search    ${result1}    bindStatus":    ,
+    should be equal    ${bindstatus}    10    msg=互联失败
+    ${result2}=    进入我的掌门页面并搜索公司名称    bind_orgName=${掌门人_公司名称}
+    should contain    ${result2}    ${掌门人_公司名称}    msg=互联失败
+    #掌门设置服务人员为员工
+    新建掌门人管理员会话
+    ${result}=    批量设置服务人员    import_orgId=${掌柜_orgid}    employeeId=${掌门人_员工EmployeeId}
+    should be equal as strings    ${result}    true
+    ${result3}=    进入权限设置页面    importOrgid=${掌柜_orgid}
+    should contain    ${result3}    ${掌门人_员工EmployeeId}
+    #掌门设置服务人员为管理员
+    ${result4}=    批量设置服务人员    import_orgId=${掌柜_orgid}    employeeId=${掌门人_管理员EmployeeId}
+    should be equal as strings    ${result4}    true
+    ${result5}=    进入权限设置页面    importOrgid=${掌柜_orgid}
+    should contain    ${result5}    ${掌门人_管理员EmployeeId}
+    [Teardown]    delete all sessions
+
+应用多级运价规则
+    [Tags]    complete
+    #清理掌柜维护页面的数据
+    新建掌柜管理员会话    alias=掌柜_session
+    @{casenumber}=    查询整箱运价    loadport=${loadport}    dischargeport=${dischargeport}    session=掌柜_session
+    ${length}=    get length    ${casenumber}
+    run keyword if    ${length}>0    删除整箱运价    casenumber=${casenumber}    session=掌柜_session
+    #申请互联
+    ${result1}=    申请互联    session=掌柜_session
+    #验证互联是否成功
+    ${bindstatus}    re search    ${result1}    bindStatus":    ,
+    should be equal    ${bindstatus}    10    msg=互联失败
+    ${result2}=    进入我的掌门页面并搜索公司名称    bind_orgName=${掌门人_公司名称}    session=掌柜_session
+    should contain    ${result2}    ${掌门人_公司名称}    msg=互联失败
+    #设置多级运价规则并应用
+    新建掌门人管理员会话    alias=掌门人_session
+    ${ruld_id}=    新建多级运价规则    carrier_casenumber=${carrier_casenumber}    carrier=${carrier}    ruleName=船公司${carrier}规则    20GP_operation=+    20GPprice=100
+    ...    40GP_operation=+    40GPprice=100    40HQoperation=+    40HQprice=100    session=掌门人_session
+    ${code}=    应用规则    rule_id=${ruld_id}    importOrgId=${掌柜_orgid}    session=掌门人_session
+    should be equal as strings    ${code}    true
+    #点击确定导入运价
+    点击确定导入    session=掌柜_session
+    sleep    3
+    #验证运价是否已导入到掌柜
+    @{casenumber1}=    查询整箱运价    loadport=${loadport}    dischargeport=${dischargeport}    carrier=${carrier}    session=掌柜_session
+    ${length} =    Get Length    ${casenumber1}
+    log    ${casenumber1}
+    should be equal as integers    ${length}    1
+    ${casenumberN}    code str    s=${casenumber1}
+    log    ${casenumberN}
+    #验证多级运价规则已被应用上
+    ${result3}=    查询整箱运价明细    casenumber=${casenumberN}    session=掌柜_session
+    should contain    ${result3}    111
+    should contain    ${result3}    122
+    should contain    ${result3}    133
+    [Teardown]    delete all sessions
+
+获取运价内容
+    新建掌门人员工会话
+    ${result}=    查询整箱运价明细    casenumber=&{整箱运价}[casenumber]
+    log    ${result}
+    log    &{整箱运价}[casenumber]
+    ${list}=    获取运价各字段值    result=${result}
+    log    ${list}
+
+1
+    ${result}    convert to string    @{导入后的数据}
+    log    ${result}
+
+*** Keywords ***
+初始化掌门运价数据
+    新建掌门人员工会话
+    @{casenumber}=    查询整箱运价    signflag=&{整箱运价}[signflag]
+    log    ${casenumber}
+    ${length}=    get length    ${casenumber}
+    run keyword if    ${length}>0    删除整箱运价    ${casenumber}
+    ${newcasenumber}=    新增整箱运价    &{整箱运价}
+    Set To Dictionary    ${整箱运价}    casenumber=${newcasenumber}
+    发布整箱运价    ${newcasenumber}
+    sleep    3
+    [Teardown]    delete all sessions
+    [Return]    ${casenumber}
+
+初始化绑定数据
+    新建掌柜员工会话
+    ${result}=    进入我的掌门页面并搜索公司名称    bind_orgName=${掌门人_公司名称}
+    ${number}=    re search    ${result}    totalNumber":    ,
+    #如果存在，就先解绑
+    run keyword if    ${number}==1    取消互联    bind_OrgId=${掌门人_orgid}
+    #验证是否解绑成功
+    ${result3}=    进入我的掌门页面并搜索公司名称    bind_orgName=${掌门人_公司名称}
+    should not contain    ${result3}    ${掌门人_公司名称}    mst=取消互联失败
+    [Teardown]    delete all sessions
+
+初始化掌柜运价数据
+    新建掌柜员工会话
+    #查询我的掌门页面是否已存在该掌门公司
+    @{casenumber}=    查询整箱运价    signflag=&{整箱运价}[signflag]
+    ${length} =    Get Length    ${casenumber}
+    Run Keyword If    ${length} > 0    删除整箱运价    ${casenumber}
+    [Teardown]    delete all sessions
+
+获取运价各字段值
+    [Arguments]    ${result}    # 运价详情页面返回的页面
+    ${loadport}    re search    ${result}    \\\(this,'loadPort'\\\);" value="    "
+    ${dischargeport}    re search    ${result}    \\\(this,'dischargePort'\\\);" value="    "
+    ${country}    re search    ${result}    国家" onchange="onchange_fieldname\\\(this\\\);" readonly="true" value="    "
+    ${transport}    re search    ${result}    中转港" onchange="onchange_fieldname\\\(this\\\);" onfocus="portComboGrid\\\(this\\\);" value="    "
+    ${cycle}    re search    ${result}    船期" onchange="onchange_fieldname\\\(this\\\);" value="    "
+    ${sailtime}    re search    ${result}    航程" onchange="onchange_fieldname\\\(this\\\);" value="    "
+    ${carrier}    re search    ${result}    carrierComboGrid\\\(this\\\);" value="    "
+    ${sailing_date}    re search    ${result}    开航日" onchange="onchange_fieldname\\\(this\\\);" value="    "
+    ${massaddress}    re search    ${result}    进港港区" onchange="onchange_fieldname\\\(this\\\);" value="    "
+    ${carrier_route}    re search    ${result}    承运人航线" onchange="onchange_fieldname\\\(this\\\);" value="    "
+    ${baseprice1}    re search    ${result}    baseprice1" validate="n0-8 0" onchange="onchange_baseprice\\\(this\\\);" value="    "
+    ${baseprice2}    re search    ${result}    baseprice2" validate="n0-8 0" onchange="onchange_baseprice\\\(this\\\);" value="    "
+    ${baseprice3}    re search    ${result}    baseprice3" validate="n0-8 0" onchange="onchange_baseprice\\\(this\\\);" value="    "
+    ${bookingagent}    re search    ${result}    bookingagentComboGrid\\\(this\\\);" value="    "
+    ${rakeoff}    re search    ${result}    佣金" onchange="onchange_fieldname\\\(this\\\);" value="    "
+    ${signflag}    re search    ${result}    符号" onchange="onchange_fieldname\\\(this\\\);" value="    "
+    ${inputCoverCnt}    re search    ${result}    出单方式" onchange="onchange_fieldname\\\(this\\\);" value="    "
+    ${volumerange}    re search    ${result}    限重" onchange="onchange_fieldname\\\(this\\\);" value="    "
+    ${addfee}    re search    ${result}    附加费说明" onchange="onchange_fieldname\\\(this\\\);" value="    "
+    ${employee_remark}    re search    ${result}    内部备注" onchange="onchange_fieldname\\\(this\\\);"\\\>    \\\<
+    ${createby}    re search    ${result}    createby" readonly="true" value="    "
+    ${owner_name}    re search    ${result}    owner_name" style="width:60px;" readonly="true" value="    "
+    ${owner_employee_id}    re search    ${result}    owner_employee_id" value="    "
+    ${priceList}    create list    ${loadport}    ${dischargeport}    ${country}    ${transport}    ${cycle}
+    ...    ${sailtime}    ${carrier}    ${sailing_date}    ${massaddress}    ${carrier_route}    ${baseprice1}
+    ...    ${baseprice2}    ${baseprice3}    ${bookingagent}    ${rakeoff}    ${signflag}    ${inputCoverCnt}
+    ...    ${volumerange}    ${addfee}    ${employee_remark}    ${createby}    ${owner_name}    ${owner_employee_id}
+    log    ${priceList}
+    [Return]    ${priceList}

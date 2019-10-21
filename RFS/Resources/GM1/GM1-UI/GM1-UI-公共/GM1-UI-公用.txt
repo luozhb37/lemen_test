@@ -1,0 +1,409 @@
+*** Settings ***
+Resource          GM1-UI-引用.txt
+
+*** Keywords ***
+m4-登录
+    读取货代登录配置信息
+    Set Selenium Implicit Wait    5
+    打开    http://${M4-OPEN-URL}/login.html
+    进入框架    id=loginPanel
+    Wait Until Element Is Visible    id=username
+    输入    id=username    ${M4-USERNAME}
+    输入    id=password    ${M4-PASSWORD}
+    点击    id=btn-submit
+    等待    5
+    wait until page contains    工作台
+    关闭更新弹框
+    #等待    2
+    离开框架
+    Comment    create session    ${M4-SESSION}    http://${M4-URL}
+    Comment    读取订单内容-接口调用
+    Comment    读取订单内容-UI调用
+
+m4-get
+    [Arguments]    ${uri}    ${hd}=${m4-session}
+    [Documentation]    与基础关键字的区别是：固定session名称，统一方便M4调用
+    ${cookies}    get cookies
+    ${header}    create dictionary    Content-Type=application/x-www-form-urlencoded;charset=utf-8    Cookie=${cookies}
+    ${result}    get request    ${hd}    uri=${uri}    headers=${header}
+    ${content}    to json    ${result.text}
+    [Return]    ${content}
+
+m4-post-json
+    [Arguments]    ${uri}    ${data}=    ${hd}=${m4-session}
+    ${cookies}    get cookies
+    ${header}    create Dictionary    Content-Type=application/json;charset=utf-8    Cookie=${cookies}
+    ${result}    post request    ${hd}    uri=${uri}    data=${data}    headers=${header}
+    ${resultTOjson}    to json    ${result.text}
+    [Return]    ${resultTOjson}
+
+m4-post-urlencoded
+    [Arguments]    ${uri}    ${data}=    ${hd}=${m4-session}
+    ${cookies}    get cookies
+    ${header}    create dictionary    Content-Type=application/x-www-form-urlencoded;charset=utf-8    Cookie=${cookies}
+    ${result}    post request    ${hd}    uri=${uri}    headers=${header}    data=${data}
+    ${result1}    to json    ${result.text}
+    [Return]    ${result1}
+
+m4-post-multipart
+    [Arguments]    ${uri}    ${filename}    ${dir}    ${filetype}    ${hd}=${m4-session}
+    [Documentation]    上传附件
+    ...    Content-Type: multipart/form-data
+    ...
+    ...    ${filename} :文件名
+    ...    ${dir}：文件所在路径
+    ...    ${filetype}：文件的类型（F12看接口请求中可知道）
+    ...    如：
+    ...    ('222.txt',open('C:/Users/hovi/Desktop/222.txt','rb'),'text/plain')
+    ${cookies}    get cookies
+    ${header}    Create Dictionary    Cookie=${cookies}
+    ${file_tup}    Evaluate    ('${filename}',open('${dir}','rb'),'${filetype}')    #参考备注里的例子
+    ${mult-files}    Create Dictionary    file=${file_tup}
+    ${res}    Post Request    ${hd}    uri=${uri}    files=${mult-files}    headers=${header}
+    log    ${res.text}
+    ${resultTOjson}    to json    ${res.text}
+    [Return]    ${resultTOjson}
+
+读取订单内容-接口调用
+    Open Excel    ${CURDIR}\\booking.xls
+    #读取booking_data
+    ${customername}    Read Cell Data By Name    booking_data    A2
+    #${sales}    Read Cell Data By Name    booking_data    B2
+    ${goodssource-bf}    Read Cell Data By Name    booking_data    C2    #货物来源
+    #${op}    Read Cell Data By Name    booking_data    D2
+    #${businesspeople}    Read Cell Data By Name    booking_data    E2
+    ${customerType-bf}    Read Cell Data By Name    booking_data    F2    #客户类型
+    ${contractName}    Read Cell Data By Name    booking_data    G2    #合约公司
+    ${goodssource}    Evaluate    int(${goodssource-bf})
+    ${customerType}    Evaluate    int(${customerType-bf})
+    ${sono}    Read Cell Data By Name    booking_data    H2
+    ${agreementNo}    Read Cell Data By Name    booking_data    I2
+    ${freeBoxDays-bf}    Read Cell Data By Name    booking_data    J2    #免用箱申请
+    ${freeHeapDays-bf}    Read Cell Data By Name    booking_data    K2    #免堆申请
+    ${freeBoxDays}    Evaluate    int(${freeBoxDays-bf})
+    ${freeHeapDays}    Evaluate    int(${freeHeapDays-bf})
+    ${goodsClass}    Read Cell Data By Name    booking_data    L2    #商品分类
+    ${goodsname}    Read Cell Data By Name    booking_data    M2
+    ${goodsdesc}    Read Cell Data By Name    booking_data    N2    #英文品名
+    ${hsCode-bf}    Read Cell Data By Name    booking_data    O2
+    ${hsCode}    evaluate    int(${hsCode-bf})
+    ${packkind}    Read Cell Data By Name    booking_data    P2    #包装
+    ${count-main-bf}    Read Cell Data By Name    booking_data    Q2    #件数
+    ${count-main}    Evaluate    int(${count-main-bf})
+    ${weight}    Read Cell Data By Name    booking_data    R2
+    ${volume}    Read Cell Data By Name    booking_data    S2
+    ${tradeterm}    Read Cell Data By Name    booking_data    T2    #成交方式
+    ${billtype}    Read Cell Data By Name    booking_data    U2
+    ${shipper}    Read Cell Data By Name    booking_data    V2
+    ${consignee}    Read Cell Data By Name    booking_data    W2
+    ${notify}    Read Cell Data By Name    booking_data    X2
+    ${goodsType}    Read Cell Data By Name    booking_data    Y2
+    ${transclause-bf}    Read Cell Data By Name    booking_data    Z2
+    ${freightclause-bf}    Read Cell Data By Name    booking_data    AA2
+    ${sendtype-bf}    Read Cell Data By Name    booking_data    AB2
+    ${hblFreightclause-bf}    Read Cell Data By Name    booking_data    AC2
+    ${hblSendtype-bf}    Read Cell Data By Name    booking_data    AD2
+    ${freeBoxBy-bf}    Read Cell Data By Name    booking_data    AE2    #免用箱申请
+    ${freeHeapBy-bf}    Read Cell Data By Name    booking_data    AF2    #免堆申请
+    ${transclause}    Evaluate    int(${transclause-bf})
+    ${freightclause}    Evaluate    int(${freightclause-bf})
+    ${sendtype}    Evaluate    int(${sendtype-bf})
+    ${hblFreightclause}    Evaluate    int(${hblFreightclause-bf})
+    ${hblSendtype}    Evaluate    int(${hblSendtype-bf})
+    ${freeBoxBy}    Evaluate    int(${freeBoxBy-bf})
+    ${freeHeapBy}    Evaluate    int(${freeHeapBy-bf})
+    #读取linkman_data
+    ${customerlinkman}    Read Cell Data By Name    linkman_data    A2
+    ${customertel}    Read Cell Data By Name    linkman_data    B2
+    ${customermobile-bf}    Read Cell Data By Name    linkman_data    C2
+    ${customeremail}    Read Cell Data By Name    linkman_data    D2
+    ${customeraddress}    Read Cell Data By Name    linkman_data    E2
+    ${despatchCustomerlinkman}    Read Cell Data By Name    linkman_data    F2
+    ${despatchCustomertel}    Read Cell Data By Name    linkman_data    G2
+    ${despatchCustomermobile-bf}    Read Cell Data By Name    linkman_data    H2
+    ${despatchCustomeremail}    Read Cell Data By Name    linkman_data    I2
+    ${despatchCustomeraddress}    Read Cell Data By Name    linkman_data    J2
+    ${customermobile}    Evaluate    int(${customermobile-bf})
+    ${despatchCustomermobile}    Evaluate    int(${despatchCustomermobile-bf})
+    #读取sea_data
+    ${carrier}    Read Cell Data By Name    sea_data    A2
+    ${loadportcode}    Read Cell Data By Name    sea_data    B2
+    ${loadport}    Read Cell Data By Name    sea_data    C2
+    ${loadportCountryCnname}    Read Cell Data By Name    sea_data    D2
+    ${dischargeportcode}    Read Cell Data By Name    sea_data    E2
+    ${dischargeport}    Read Cell Data By Name    sea_data    F2
+    ${dischargeportCountryCnname}    Read Cell Data By Name    sea_data    G2
+    ${vesselname}    Read Cell Data By Name    sea_data    H2
+    ${voyno}    Read Cell Data By Name    sea_data    I2
+    ${transferportCode}    Read Cell Data By Name    sea_data    J2
+    ${transferport}    Read Cell Data By Name    sea_data    K2
+    ${transferportCountryCnname}    Read Cell Data By Name    sea_data    L2
+    ${transfersType-bf}    Read Cell Data By Name    sea_data    M2    #中转方式
+    ${voyage}    Read Cell Data By Name    sea_data    N2    #航程
+    ${transfersType}    evaluate    int(${transfersType-bf})
+    ${paymentplace}    Read Cell Data By Name    sea_data    O2
+    ${routeCode}    Read Cell Data By Name    sea_data    P2
+    #读取ctn_data
+    ${ctn}    Read Cell Data By Name    ctn_data    A2
+    ${ctnCount-bf}    Read Cell Data By Name    ctn_data    B2
+    ${perCtnWeight}    Read Cell Data By Name    ctn_data    C2
+    ${perCtnVolume}    Read Cell Data By Name    ctn_data    D2
+    ${ctnCount}    Evaluate    int(${ctnCount-bf})
+    #读取receipts_data
+    ${count}    Read Cell Data By Name    receipts_data    A2
+    ${currency}    Read Cell Data By Name    receipts_data    B2
+    ${feeitem}    Read Cell Data By Name    receipts_data    C2
+    ${price}    Read Cell Data By Name    receipts_data    D2
+    ${unit-bf}    Read Cell Data By Name    receipts_data    E2    #计费单位
+    ${freightclause-bf}    Read Cell Data By Name    receipts_data    F2    #付费方式
+    ${amount}    Read Cell Data By Name    receipts_data    G2
+    ${rate-bf}    Read Cell Data By Name    receipts_data    H2
+    ${unit}    Evaluate    int(${unit-bf})
+    ${freightclause}    Evaluate    int(${freightclause-bf})
+    ${rate}    Evaluate    int(${rate-bf})
+    #booking_data设置全局
+    Set Global Variable    ${customername}
+    #Set Global Variable    ${sales}
+    Set Global Variable    ${goodssource}
+    #Set Global Variable    ${op}
+    #Set Global Variable    ${businesspeople}
+    Set Global Variable    ${customerType}
+    Set Global Variable    ${contractName}
+    Set Global Variable    ${goodssource}
+    Set Global Variable    ${customerType}
+    Set Global Variable    ${sono}
+    Set Global Variable    ${agreementNo}
+    Set Global Variable    ${freeBoxDays}
+    Set Global Variable    ${freeHeapDays}
+    Set Global Variable    ${goodsClass}
+    Set Global Variable    ${goodsname}
+    Set Global Variable    ${goodsdesc}
+    Set Global Variable    ${hsCode}
+    Set Global Variable    ${packkind}
+    Set Global Variable    ${count-main}
+    Set Global Variable    ${weight}
+    Set Global Variable    ${volume}
+    Set Global Variable    ${tradeterm}
+    Set Global Variable    ${billtype}
+    Set Global Variable    ${shipper}
+    Set Global Variable    ${consignee}
+    Set Global Variable    ${notify}
+    Set Global Variable    ${goodsType}
+    Set Global Variable    ${transclause}
+    Set Global Variable    ${freightclause}
+    Set Global Variable    ${sendtype}
+    Set Global Variable    ${hblFreightclause}
+    Set Global Variable    ${hblSendtype}
+    Set Global Variable    ${freeBoxBy}
+    Set Global Variable    ${freeHeapBy}
+    #linkman_data设置全局
+    Set Global Variable    ${customerlinkman}
+    Set Global Variable    ${customertel}
+    Set Global Variable    ${customermobile}
+    Set Global Variable    ${customeremail}
+    Set Global Variable    ${customeraddress}
+    Set Global Variable    ${despatchCustomerlinkman}
+    Set Global Variable    ${despatchCustomertel}
+    Set Global Variable    ${despatchCustomermobile}
+    Set Global Variable    ${despatchCustomeremail}
+    Set Global Variable    ${despatchCustomeraddress}
+    #sea_data设置全局
+    Set Global Variable    ${carrier}
+    Set Global Variable    ${loadportcode}
+    Set Global Variable    ${loadport}
+    Set Global Variable    ${loadportCountryCnname}
+    Set Global Variable    ${dischargeportcode}
+    Set Global Variable    ${dischargeport}
+    Set Global Variable    ${dischargeportCountryCnname}
+    Set Global Variable    ${vesselname}
+    Set Global Variable    ${voyno}
+    Set Global Variable    ${transferportCode}
+    Set Global Variable    ${transferport}
+    Set Global Variable    ${transferportCountryCnname}
+    Set Global Variable    ${transfersType-bf}
+    Set Global Variable    ${voyage}
+    Set Global Variable    ${transfersType}
+    Set Global Variable    ${voyage}
+    Set Global Variable    ${transfersType}
+    Set Global Variable    ${paymentplace}
+    Set Global Variable    ${routeCode}
+    #ctn_data设置全局
+    Set Global Variable    ${ctn}
+    Set Global Variable    ${ctnCount}
+    Set Global Variable    ${perCtnWeight}
+    Set Global Variable    ${perCtnVolume}
+    #receipts_data设置全局
+    Set Global Variable    ${count}
+    Set Global Variable    ${currency}
+    Set Global Variable    ${feeitem}
+    Set Global Variable    ${price}
+    Set Global Variable    ${unit}
+    Set Global Variable    ${freightclause}
+    Set Global Variable    ${amount}
+    Set Global Variable    ${rate}
+
+读取订单内容-UI调用
+    Open Excel    ${CURDIR}\\booking_ui.xls
+    ${XSY}    Read Cell Data By Name    booking_ui_data    A2    #销售员
+    ${HWLY}    Read Cell Data By Name    booking_ui_data    B2    #货物来源
+    ${WTDW}    Read Cell Data By Name    booking_ui_data    C2    #委托单位
+    Set Suite Variable    ${XSY}
+    Set Suite Variable    ${HWLY}
+    Set Suite Variable    ${WTDW}
+
+进入列表框架
+    进入框架    id=content
+
+回到首页
+    [Documentation]    保证主页面（欢迎您使用本系统）只有一个；
+    ...    刷新主页面，保证页面没有点击过任何菜单
+    切换窗口    欢迎您使用本系统
+    重载当前页
+
+勾选列表记录
+    [Arguments]    ${n}
+    [Documentation]    处在第一个table里，且勾选第一条记录（不是全选哈）
+    ...
+    ...    ${n}：对应table里面第几行
+    勾选记录    xpath=//table//tbody//tr[1]//input[${n}]
+
+选择日期（字段名称）
+    [Arguments]    ${date_name}    ${month}    ${date}
+    [Documentation]    ${date_name} ：时间字段名称
+    ...
+    ...    ${month} ：月份，输入格式：五月
+    ...
+    ...    ${date}：日期，格式：2018年5月23日（写当前年-上述所写月-自己想定义的日子）
+    点击    xpath=//label[text()='${date_name}']/../following-sibling::div[1]//input    #点击时间框
+    点击    xpath=//a[@class='ant-calendar-month-select']    #点击月份
+    点击    xpath=//a[text()='${month}']    #选择月
+    点击    xpath=//td[contains(@title,'${date}')]    #选择日
+    Run Keyword And Return Status    点击    xpath=//a[text()='确 定']    #有些时间有确定按钮
+
+选择日期（locator）
+    [Arguments]    ${locator}    ${month}    ${date}
+    [Documentation]    ${locator} ：时间控件的locator
+    ...
+    ...    【如果是字段名称的时间框：xpath=//label[text()='${date_name}']/../following-sibling::div[1]//input
+    ...    ${date_name}为相应字段名称：如预计开船时间】
+    ...
+    ...    ${month}： 月份，输入格式：五月
+    ...
+    ...    ${date}：日期，格式：2018年5月23日（写当前年-上述所写月-自己想定义的日子）
+    点击    ${locator}    #点击时间框
+    点击    xpath=//a[@class='ant-calendar-month-select']    #点击月份
+    点击    xpath=//a[text()='${month}']    #选择月
+    点击    xpath=//td[@title='${date}']    #选择日
+    Run Keyword And Return Status    点击    xpath=//a[text()='确 定']    #有些时间有确定按钮
+
+获取页面数据条数
+    ${result}    获取页面文本内容    xpath=//li[@class='ant-pagination-total-text']
+    ${实际值}    截取字符    ${result}    共    条
+    [Return]    ${实际值}
+
+获取页面列表条数
+    [Arguments]    ${listname}    # 列表名称
+    ${return}    获取匹配xpath的个数    xpath=//b[text()='${listname}']/../../../../following-sibling::div[1]//table//tbody/tr
+    [Return]    ${return}
+
+获取列表数量
+    [Arguments]    ${xpath}=//ul[contains(@class,'ant-table-pagination')]/li[1]    # "共xx条"所在位置的xpath
+    [Documentation]    参数：xpath：默认值为大列表的分页位置xpath；若页面中存在多个列表时需自己传参
+    ...
+    ...
+    ...
+    ...    原理：判断"共xx条，"所在的xpath是否存在，如果存在，则截取条数；否则为0
+    ${list_count}    获取匹配xpath的个数    ${xpath}
+    ${count}    run keyword if    ${list_count}>0    获取列表总条数    ${xpath}    str_l=共    str_r=条
+    ...    ELSE    Set Variable    0
+    [Return]    ${count}    # 返回列表总数
+
+等待加载层消失
+    #等待加载层消失
+    Wait Until Element Is Not Visible    xpath=//div[contains(@class,'ant-spin-spinning')]
+
+等待loading消失
+    Run Keyword And Return Status    Wait Until Element Is Not Visible    xpath=//div[@class='dzg-spinner-container']    timeout=120    #等待loading消失
+
+关闭更新弹框
+    ${count}    获取匹配xpath的个数    xpath=//div[@class='odw-body']//span[text()='不再提示']    # 判断是否存在更新弹框的不再提示按钮
+    run keyword if    ${count}>0    点击    xpath=//span[text()='不再提示']/..    # 如果存在更新弹框则点击按钮关闭
+    Wait Until Element Is Not Visible    xpath=//span[text()='不再提示']/..
+
+GM1-登录（集团A公司）
+    Set Selenium Implicit Wait    5
+    打开    http://${M4-OPEN-URL}/login.html
+    进入框架    id=loginPanel
+    Wait Until Element Is Visible    id=username
+    输入    id=username    ${M4-USERNAME_A}
+    输入    id=password    ${M4-PASSWORD_A}
+    点击    id=btn-submit
+    等待    5
+    wait until page contains    业务管理
+    关闭更新弹框
+    #等待    2
+    离开框架
+    create session    ${M4-SESSION}    http://${M4-URL}
+    读取订单内容-接口调用
+    读取订单内容-UI调用
+
+GM1-登录（集团B公司）
+    Set Selenium Implicit Wait    5
+    打开    http://${M4-OPEN-URL}/login.html
+    进入框架    id=loginPanel
+    Wait Until Element Is Visible    id=username
+    输入    id=username    ${M4-USERNAME_B}
+    输入    id=password    ${M4-PASSWORD_B}
+    点击    id=btn-submit
+    等待    5
+    wait until page contains    业务管理
+    关闭更新弹框
+    #等待    2
+    离开框架
+    create session    ${M4-SESSION}    http://${M4-URL}
+    读取订单内容-接口调用
+    读取订单内容-UI调用
+
+gm1弹出框确认
+    点击    xpath=//div[@class="ant-modal-body"]//span[text()="确 定"]/..
+
+进入fms框架
+    进入框架    id=fms-front
+
+进入finance框架
+    进入框架    id=fmsfinance-front
+
+基石列表高级查询-内部不可引用(双列)
+    [Arguments]    ${key}    ${value}    ${type}=精确    ${is_clear}=1
+    [Documentation]    key:高级查询条件名
+    ...
+    ...    value：高级查询条件查询内容
+    ...
+    ...    type:两列时选择的精确/模糊；默认为精确
+    ...
+    ...    is_clear：1/0 \ \ \ 是否清空已存在的查询条件内容；1表示需要清空；0表示不需要清空
+    Wait Until Element Is Visible    xpath=//div[@id='dzg-adsearch-alledit']//input
+    清空输入框内容    xpath=//div[@id='dzg-adsearch-alledit']//input
+    输入    xpath=//div[@id='dzg-adsearch-alledit']//input    ${key}
+    ${count}    获取匹配xpath的个数    xpath=//span[text()='${key}']/../span[contains(@class, 'ant-checkbox-checked')]
+    run keyword if    ${count}==0    点击    xpath=//div[@class='ant-modal-content']//span[text()='${key}']
+    # 选择查询类型
+    点击    xpath=//div[@id='dzg-adSearch-condition-sort']//label[text()='${key}']/../following-sibling::div[1]//div[@class='ant-select-selection__rendered']
+    点击    xpath=//ul[contains(@class,'ant-select-dropdown-menu')]//li[text()='${type}']
+    # 输入查询内容
+    run keyword if    ${is_clear} ==1    清空已选择高级查询条件内容    ${key}
+    输入    xpath=//div[@id='dzg-adSearch-condition-sort']//label[text()='${key}']/../../../following-sibling::div[1]//input    ${value}
+
+基石列表高级查询-内部不可引用(单列)
+    [Arguments]    ${key}    ${value}    ${is_clear}=1
+    Wait Until Element Is Visible    xpath=//div[@id='dzg-adsearch-alledit']//input
+    清空输入框内容    xpath=//div[@id='dzg-adsearch-alledit']//input
+    输入    xpath=//div[@id='dzg-adsearch-alledit']//input    ${key}
+    ${count}    获取匹配xpath的个数    xpath=//span[text()='${key}']/../span[contains(@class, 'ant-checkbox-checked')]
+    run keyword if    ${count}==0    点击    xpath=//div[@class='ant-modal-content']//span[text()='${key}']
+    # 输入查询内容
+    run keyword if    ${is_clear} ==1    清空已选择高级查询条件内容    ${key}
+    输入    xpath=//div[@id='dzg-adSearch-condition-sort']//label[text()='${key}']/../following-sibling::div[1]//input    ${value}
+    按键    xpath=//div[@id='dzg-adSearch-condition-sort']//label[text()='${key}']/../following-sibling::div[1]//input    \\13
+    ${count}    获取匹配xpath的个数    xpath=//div[@id='dzg-adSearch-condition-sort']//label[text()='${key}']/../following-sibling::div[1]//li[@class='ant-select-selection__choice']//div[text()='${value}']
+    run keyword if    ${count}==0    点击    xpath=//ul[contains(@class, 'ant-select-dropdown-menu-root')]//li[text()='${value}']

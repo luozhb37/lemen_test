@@ -1,0 +1,103 @@
+*** Settings ***
+Suite Setup       登录    # \ Run keywords | 系统参数设置 | AND | 往来单位初始化
+Suite Teardown    close all browsers
+Test Setup        回到首页
+Resource          ../../Resources/M2基础操作/M2--引用.txt
+
+*** Test Cases ***
+删除空运出口业务台账
+    新增空运出口业务台账
+    ${pages}    列表查询业务编号    ${AIR-EXPORT-OLD-BUSINESSNO-SUIT}
+    选中包含业务编号的台帐    ${AIR-EXPORT-OLD-BUSINESSNO-SUIT}
+    删除业务台帐
+    ${pages}    列表查询业务编号    ${AIR-EXPORT-OLD-BUSINESSNO-SUIT}
+    应该包含    ${pages}    共0条
+    进入列表页面框架
+    按键    id=qybu_serialnumber    \\01    #选中ctrl+A
+    按键    id=qybu_serialnumber    \\8    #backpace清空
+    点击    id=bt_query
+    离开框架
+
+新增空运出口业务台帐
+    [Documentation]    \#新增业务台帐
+    [Tags]
+    新增空运出口业务台账
+    ${pages}    列表查询业务编号    ${AIR-EXPORT-OLD-BUSINESSNO-SUIT}
+    应该包含    ${pages}    共1条    #验证新增的业务编号在列表上可以查询到一条记录
+
+复制空运出口业务台账
+    点击业务管理
+    点击业务台帐
+    点击空运出口
+    选中包含业务编号的台帐    ${AIR-EXPORT-OLD-BUSINESSNO-SUIT}
+    ${businessNo}    复制业务台帐
+    ${pages}    列表查询业务编号    ${businessNo}
+    应该包含    ${pages}    共1条
+
+空运出口批量完成--提单确认
+    点击业务管理
+    点击业务台帐
+    点击空运出口
+    ${pages}    列表查询业务编号    ${AIR-EXPORT-OLD-BUSINESSNO-SUIT}
+    选中包含业务编号的台帐    ${AIR-EXPORT-OLD-BUSINESSNO-SUIT}
+    批量提单确认
+    ${content}    获取台帐详情提单确认状态    ${AIR-EXPORT-OLD-BUSINESSNO-SUIT}
+    应该要相等    ${content}    true
+    #为了运行结束后取消勾选
+    进入列表页面框架
+    点击    id=bt_query
+    离开框架
+
+空运出口批量完成--应收费用制单
+    点击业务管理
+    点击业务台帐
+    点击空运出口
+    ${pages}    列表查询业务编号    ${AIR-EXPORT-OLD-BUSINESSNO-SUIT}
+    选中包含业务编号的台帐    ${AIR-EXPORT-OLD-BUSINESSNO-SUIT}    #选中该业务
+    鼠标移至批量完成
+    点击应收费用制单
+    选中包含业务编号的台帐    ${AIR-EXPORT-OLD-BUSINESSNO-SUIT}    #选中该业务
+    ${content}    获取台帐详情应收费用制单确认状态
+    应该要相等    ${content}    已完成
+
+空运出口批量完成--应付费用制单
+    点击业务管理
+    点击业务台帐
+    点击空运出口
+    ${pages}    列表查询业务编号    ${AIR-EXPORT-OLD-BUSINESSNO-SUIT}
+    选中包含业务编号的台帐    ${AIR-EXPORT-OLD-BUSINESSNO-SUIT}    #选中该业务
+    鼠标移至批量完成
+    点击应付费用制单
+    选中包含业务编号的台帐    ${AIR-EXPORT-OLD-BUSINESSNO-SUIT}    #选中该业务
+    ${content}    获取台帐详情应付费用制单确认状态
+    应该要相等    ${content}    已完成
+
+空运出口批量完成--业务制单--取消业务制单
+    点击业务管理
+    点击业务台帐
+    点击空运出口
+    ${pages}    列表查询业务编号    ${AIR-EXPORT-OLD-BUSINESSNO-SUIT}
+    选中包含业务编号的台帐    ${AIR-EXPORT-OLD-BUSINESSNO-SUIT}
+    批量业务制单完成
+    ${content}    获取空运台帐详情锁定后的业务制单状态    ${AIR-EXPORT-OLD-BUSINESSNO-SUIT}
+    应该要相等    ${content}    已完成
+    选中包含业务编号的台帐    ${AIR-EXPORT-OLD-BUSINESSNO-SUIT}
+    批量取消业务制单完成
+    ${content1}    获取台帐详情未锁定的业务制单状态    ${AIR-EXPORT-OLD-BUSINESSNO-SUIT}
+    应该要相等    ${content1}    false
+
+空运出口-标记退关-取消退关
+    点击业务管理
+    点击业务台帐
+    点击空运出口
+    ${pages}    列表查询业务编号    ${AIR-EXPORT-OLD-BUSINESSNO-SUIT}
+    选中包含业务编号的台帐    ${AIR-EXPORT-OLD-BUSINESSNO-SUIT}
+    标记退关
+    已退关状态里查询是否存在
+    应该包含    ${pages}    共1条
+    选中包含业务编号的台帐    ${AIR-EXPORT-OLD-BUSINESSNO-SUIT}
+    点击取消退关
+    未退关状态里查询是否存在
+    应该包含    ${pages}    共1条
+    进入列表页面框架
+    恢复退关操作后页面数据

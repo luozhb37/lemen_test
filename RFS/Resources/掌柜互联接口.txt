@@ -1,0 +1,134 @@
+*** Settings ***
+Library           OlymLibrary
+
+*** Keywords ***
+整箱询价
+    [Arguments]    ${loadport}    ${dischargeport}    ${alias}=${运价内部_session}
+    ${result}=    get request    ${alias}    /impdata-rest/rest/enquiry/efcl/queryfreight?t=1471832402554&loadPort=${loadport}&dischargePort=${dischargeport}&isDirected=0&pageSize=10&pageNum=1
+    log    ${result.text}
+    [Return]    ${result.text}
+
+查找掌门
+    [Arguments]    ${orgname}    ${session}=${运价内部_session}
+    ${headers}    create dictionary    Content-Type=application/json    Accept-Language=zh-CN,zh;q=0.8
+    ${data}    create dictionary    orgName=${orgname}
+    ${result}=    post request    ${session}    /impdata-rest/rest/mastersManageCtrl/querySearchMasters    data=${data}    headers=${headers}
+    [Return]    ${result.text}
+
+申请互联
+    [Arguments]    ${bindOrgName}=${掌门人_公司名称}    ${bindOrgDomain}=${掌门人_domain}    ${bindOrgId}=${掌门人_orgid}    ${session}=${运价内部_session}
+    #添加掌门人的参数
+    ${headers}    create dictionary    Content-Type=application/x-www-form-urlencoded; charset=UTF-8    Accept-Language=zh-CN,zh;q=0.8
+    ${data}    create dictionary    bindOrgId=${bindOrgId}    bindOrgName=${bindOrgName}    domain=${bindOrgDomain}    applySource=0
+    #添加掌门人
+    ${result}    Post Request    ${session}    /impdata-rest/rest/cooperationCtrl/addBindOrgId    data=${data}    headers=${headers}
+    [Return]    ${result.text}
+
+进入我的掌门页面并搜索公司名称
+    [Arguments]    ${bind_orgName}    ${session}=${运价内部_session}
+    ${headers}    create dictionary    Content-Type=application/json
+    ${result}=    post request    ${session}    /impdata-rest/rest/mastersManageCtrl/queryMyMasters    headers=${headers}    data={"orgName":"${bind_orgName}","pageNum":1,"pageSize":5}
+    log    ${result.text}
+    [Return]    ${result.text}
+
+取消互联
+    [Arguments]    ${bind_OrgId}    ${session}=${运价内部_session}
+    ${headers}    create dictionary    Content-Type=application/x-www-form-urlencoded; charset=UTF-8
+    ${data}    create dictionary    id=0    bindOrgId=${bind_OrgId}
+    post request    ${session}    /impdata-rest/rest/impdataManageCtrl/unBind    headers=${headers}    data=${data}
+
+运价查询
+    [Arguments]    ${loadport}    ${dischargeport}    ${session}=${运价内部_session}
+    ${headers}    create dictionary    Content-Type=application/x-www-form-urlencoded; charset=UTF-8
+    ${data}    create dictionary    loadPort=${loadport}    dischargePort=${dischargeport}    isDirected=0    pageSize=5    sortBy=
+    ...    sortColumn=    pageNum=1
+    ${result}=    post request    ${session}    /impdata-rest/rest/compareFclCtrl/compare/queryfreight?t=1472025724941    headers=${headers}    data=${data}
+    [Return]    ${result.text}
+
+进入我的掌柜页面并搜索公司名称
+    [Arguments]    ${importOrgName}    ${session}=${运价内部_session}
+    ${headers}    create dictionary    Content-Type=application/x-www-form-urlencoded; charset=UTF-8
+    ${data}    create dictionary    importOrgName=${importOrgName}    pagenum=1    bindStatus=
+    ${result}=    post request    ${session}    /membermgmt/subForwarders.ctrl?_t=1472087987847    headers=${headers}    data=${data}
+    [Return]    ${result.text}
+
+点击确定导入
+    [Arguments]    ${session}=${运价内部_session}
+    #点击确定导入
+    ${headers}    create dictionary    Content-Type=application/x-www-form-urlencoded; charset=UTF-8
+    ${data}    create dictionary    autoAdd=1    masterOrgId=${掌门人_orgid}    dataFieldstr=[]    addrouteRelaIdsstr=[471]
+    post request    ${session}    /impdata-rest/rest/dataFieldCtrl/saveDataField    headers=${headers}    data=${data}
+
+点击确定扣费提示
+    [Arguments]    ${session}=${运价内部_session}
+    #点击同步运价后的确定扣费提示框
+    ${headers}    create dictionary    Content-Type=application/x-www-form-urlencoded; charset=UTF-8
+    ${data}    create dictionary    bindOrgId=${掌门人_orgid}
+    post request    ${session}    /impdata-rest/rest/impdataManageCtrl/updateEffectStatus    headers=${headers}    data=${data}
+
+获取可导数
+    [Arguments]    ${session}=${运价内部_session}
+    ${result}=    post request    ${session}    /impdata-rest/rest/impdataManageCtrl/getHasImport
+    ${resultTojson}    to json    ${result.text}
+    log    ${resultTojson}
+    [Return]    ${resultTojson['leaveConnect']}
+
+批量询价
+    [Arguments]    ${loadport_enname}    ${loadport_cnname}    ${discharge_enname}    ${dischargeport_cnname}    ${cycle}    ${carrier_code}
+    ...    ${carrier_cnname}    ${num1}    ${num2}    ${num3}    ${num4}    ${bind_orgId}
+    ...    ${bind_orgName}    ${waiterId}    ${waiterName}    ${remarks}    ${token}    ${session}=${运价内部_session}
+    ${headers}=    create dictionary    Content-Type=application/x-www-form-urlencoded; charset=UTF-8
+    ${data}=    create dictionary    loadport=${loadport_enname}    loadportCnname=${loadport_cnname}    dischargeport=${discharge_enname}    dischargeportCnname=${dischargeport_cnname}    cycles=${cycle}
+    ...    carrieis=${carrier_code}&${carrier_cnname}    GP20=${num1}    GP40=${num2}    HQ40=${num3}    HQ45=${num4}    theMainOrg=${bind_orgId}&${bind_orgName}&${waiterId}&${waiterName}
+    ...    remarks=${remarks}    validity=7    token=${token}
+    ${result}=    post request    ${session}    /impdata-rest/rest/tenderManageCtrl/saveBidding    headers=${headers}    data=${data}
+    log    ${result.content}
+
+获取批量询价页面的token值
+    [Arguments]    ${session}=${运价内部_session}
+    ${result}=    post request    ${session}    /impdata-rest/rest/tenderManageCtrl/bidding
+    ${token}=    re search    ${result.text}    token" value="    "
+    log    ${token}
+    [Return]    ${token}
+
+进入我的询价列表页面
+    [Arguments]    ${session}=${运价内部_session}
+    ${headers}=    create dictionary    Content-Type=application/x-www-form-urlencoded; charset=UTF-8
+    ${data}=    create dictionary    pageSize=5    pageNum=1    transactionStatus=0
+    ${result}=    post request    ${session}    /impdata-rest/rest/tenderManageCtrl/getTenderList    headers=${headers}    data=${data}
+    ${total}=    re search    ${result.text}    total":    ,
+    log    ${total}
+    [Return]    ${total}
+
+设置小二
+    [Arguments]    ${waiterId}    ${waiterName}    ${session}=${运价内部_session}
+    ${headers}=    create dictionary    Content-Type=application/x-www-form-urlencoded; charset=UTF-8
+    ${data}=    create dictionary    waiterId=${waiterId}    waiterName=${waiterName}    areaId=1    carrierId=535
+    ${result}=    post request    ${session}    /impdata-rest/rest/masterControl/saveRTWaiter    headers=${headers}    data=${data}
+    [Return]    ${result.text}
+
+批量设置服务人员
+    [Arguments]    ${import_orgId}    ${employeeId}    ${session}=${运价内部_session}
+    ${result}=    get request    ${session}    /membermgmt/importOrgAuthority/updateServerBatch.ctrl?_t=1472721869351&importOrgIds%5B%5D=${import_orgId}&employeeIds%5B%5D=${employeeId}
+    [Return]    ${result.text}
+
+进入权限设置页面
+    [Arguments]    ${importOrgid}    ${session}=${运价内部_session}
+    ${result}=    get request    ${session}    /membermgmt/importOrgAuthority/getModifyPurview.ctrl?importOrgId=${importOrgid}&importOrgName=%E9%83%91%E7%BB%B4%E5%85%AC%E5%8F%B8
+    [Return]    ${result.text}
+
+新建多级运价规则
+    [Arguments]    ${carrier_casenumber}    ${carrier}    ${ruleName}    ${20GP_operation}    ${20GPprice}    ${40GP_operation}
+    ...    ${40GPprice}    ${40HQoperation}    ${40HQprice}    ${session}=${运价内部_session}
+    ${headers}=    create dictionary    Content-Type=application/x-www-form-urlencoded; charset=UTF-8
+    ${data}=    create dictionary    jsonStr={"rule_id":0,"rule_name":"${ruleName}","is_public":false,"isCanEdit":true,"price_type":1,"priceTypeDetail":{"efcl":{"priceType":"efcl","categoryDetail":{"carrier":{"categoryCode":"carrier","listValue":[{"value":"${carrier_casenumber}","showName":"${carrier}[ANL]"}]}}}},"caclDetail":{"efcl":{"priceType":"efcl","ctnDetail":[{"freight_name":"fcl_ctn_type1","show_freight_name":"20\'GP：","freight_type":"internetsellprice","operation":"${20GP_operation}","price":"${20GPprice}"},{"freight_name":"fcl_ctn_type2","show_freight_name":"40\'GP：","freight_type":"internetsellprice","operation":"${40GP_operation}","price":"${40GPprice}"},{"freight_name":"fcl_ctn_type3","show_freight_name":"40\'HQ：","freight_type":"internetsellprice","operation":"${40HQoperation}","price":"${40HQprice}"}]}}}
+    ${result}=    post request    ${session}    /priceservice/ruleMainSetNew.ctrl?$action=saveRule    headers=${headers}    data=${data}
+    log    ${result.text}
+    [Return]    ${result.text}
+
+应用规则
+    [Arguments]    ${rule_id}    ${importOrgId}    ${session}=${运价内部_session}
+    ${headers}=    create dictionary    Content-Type=application/x-www-form-urlencoded; charset=UTF-8
+    ${data}=    create dictionary    rule_id[]=${rule_id}    impdataImportOrgId=${importOrgId}
+    ${result}=    post request    ${session}    /priceservice/ruleMainSetNew.ctrl?$action=saveRuleToImpdataImportOrg    data=${data}    headers=${headers}
+    [Return]    ${result.text}

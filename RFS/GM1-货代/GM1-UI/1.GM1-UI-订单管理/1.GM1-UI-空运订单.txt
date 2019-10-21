@@ -1,0 +1,118 @@
+*** Settings ***
+Suite Setup       Run keywords    m4-登录
+...               AND    空运出口初始化    # Run keywords | m4-登录 | AND | 空运出口初始化
+Suite Teardown    close all browsers    # close all browsers
+Test Setup        切换窗口    main    # 切换窗口 | main
+Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+Library           DateTime
+
+*** Test Cases ***
+新增订单
+    进入指定一级菜单    订单
+    进入指定二级菜单(新icon)    订
+    全业务列表进入对应视图    全部
+    进入指定的订单标签
+    ${WORKNO}    新增空运订单
+    重载当前页
+    关闭更新弹框
+    进入指定一级菜单    订单
+    进入指定二级菜单(新icon)    订
+    订单列表高级查询(双列)    各类编号    ${WORKNO}    精确
+    ${content}    获取订单列表记录数
+    应该包含    ${content}    共1条
+    Set Suite Variable    ${WORKNO}
+
+修改订单
+    进入指定一级菜单    订单
+    进入指定二级菜单(新icon)    订
+    进入指定的订单标签
+    订单列表高级查询(双列)    各类编号    ${WORKNO}    精确    \    # ${WORKNO}
+    进入框架    id=content
+    点击    xpath=//a[text()='${WORKNO}']    # ${WORKNO}    //a[text()='WK2018110001']
+    切换窗口    new
+    ${text}    生成指定位数的随机字符串    4    True
+    输入    xpath=//label[text()='委托编号']/../following-sibling::div[1]//input    ${text}    # 修改委托编号内容
+    点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+    Wait Until Page Contains    保存成功    10
+    离开框架
+    重载当前页
+    Wait Until Element Is Visible    xpath=//label[text()='委托编号']/../following-sibling::div[1]//input
+    ${value}    获取页面值    xpath=//label[text()='委托编号']/../following-sibling::div[1]//input
+    应该要相等    ${text}    ${value}
+    关闭当前窗口
+
+提交订单
+    进入指定一级菜单    订单
+    进入指定二级菜单(新icon)    订
+    进入指定的订单标签    草 稿    #草稿
+    订单列表高级查询(双列)    各类编号    ${WORKNO}    精确    \    # ${WORKNO}
+    进入框架    id=content
+    ${count}    获取列表总条数    xpath=//li[@class='ant-pagination-total-text']    str_l=共    str_r=条
+    离开框架
+    log    ${count}
+    ${number}    Run Keyword If    ${count}==0    新增空运订单
+    ...    ELSE    Set Variable    ${WORKNO}    # ${WORKNO}
+    离开框架
+    重载当前页
+    关闭更新弹框
+    进入指定一级菜单    订单
+    进入指定二级菜单(新icon)    订
+    订单列表高级查询(双列)    各类编号    ${number}    精确    \    # ${WORKNO}
+    提交空运订单    ${number}
+    进入指定一级菜单    订单
+    进入指定二级菜单(新icon)    订
+    进入指定的订单标签    待处理    #待处理
+    订单列表高级查询(双列)    各类编号    ${number}    精确
+    进入框架    id=content
+    ${content}    获取列表总条数    xpath=//li[@class='ant-pagination-total-text']    str_l=共    str_r=条
+    应该包含    ${content}    1
+
+空运订单-审核
+    进入指定一级菜单    订单
+    进入指定二级菜单(新icon)    订
+    订单列表高级查询(双列)    各类编号    ${WORKNO}    精确
+    进入空运订单详情    ${WORKNO}    # ${WORKNO}
+    切换窗口    new
+    点击空运审核通过并关闭页面
+    进入指定一级菜单    订单
+    进入指定二级菜单(新icon)    订
+    进入指定的订单标签    审核通过    #审核通过
+    订单列表高级查询(双列)    各类编号    ${WORKNO}    精确
+    ${content}    获取订单列表记录数
+    应该包含    ${content}    共1条
+
+空运订单-审核撤回
+    进入指定一级菜单    订单
+    进入指定二级菜单(新icon)    订
+    进入指定的订单标签    审核通过    #审核通过
+    订单列表高级查询(双列)    各类编号    ${WORKNO}    精确    \    # KY-CK2019070072
+    进入空运订单详情    ${WORKNO}    # ${WORKNO}
+    切换窗口    new
+    点击空运审核撤回并关闭页面    撤回该订单
+    进入指定一级菜单    订单
+    进入指定二级菜单(新icon)    订
+    进入指定的订单标签    待处理    # 待处理
+    订单列表高级查询(双列)    各类编号    ${WORKNO}    精确
+    ${count}    获取订单列表记录数
+    应该包含    ${count}    共1条
+
+空运订单新增-提交-审核
+    ${WORKNO1}    空运订单新增-提交-审核
+    等待    1
+    进入指定的订单标签    审核通过    #审核通过
+    订单列表高级查询(双列)    各类编号    ${WORKNO1}    精确
+    ${content}    获取订单列表记录数
+    应该包含    ${content}    共1条
+
+test
+    @{weekday}    create list    周一    周二    周三    周四    周五
+    ...    周六    周七
+    ${day}    Set Variable    days
+    ${time_str}    set variable    2018-11-12 14:40:35
+    ${new_date}    Evaluate    datetime.datetime.now() + datetime.timedelta(${day}=-1)    datetime
+    log    ${new_date}
+    Comment    ${time}    Evaluate    datetime.datetime.strptime('${time_str}', "%Y-%m-%d %H:%M:%S") + 1day    datetime
+    Comment    ${time}    Evaluate    datetime.datetime.strptime('${time_str}', "%Y-%m-%d %H:%M:%S").weekday()    datetime
+    Comment    ${weekday}    Set Variable    @{weekday}[${time}]
+    Comment    ${day}    Catenate    ${time_str}    ${weekday}
+    Comment    log    ${day}

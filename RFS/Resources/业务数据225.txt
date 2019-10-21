@@ -1,0 +1,40 @@
+*** Settings ***
+Documentation     基本数据
+
+*** Variables ***
+${dcasDomain}     dcas2.td.ngrok.900jit.com    # dcas2.qa.ngrok.900jit.com | dcas.400jit.com
+${运价内部_session}    neibu
+${运价外部_session}    waibu
+${掌门人_orgid}      21334
+${掌门人_domain}     xxw.800jit.com
+${掌门人_URL}        http://${掌门人_domain}
+${掌门人_管理员用户名}     xxw_admin
+${掌门人_管理员密码}      a123456
+${掌门人_管理员密码_加密}    4c4216063c21021ddc12f7df213062684cb57cfa7c5c59a57f93e1a1d65331a27c5eb5876b306c21c30444402dd5cf15ab55f41aa7b73098a9f7c6a8cf7a8738b5555b94c6cc71cabf95c49384e80a25f8960fcd752ac3391be47fb86a201f2dc23286adf40e856919a3e81af12d255848d7968b554bc1cc1c2c00a8bd657a3d
+${掌门人_员工用户名}      99994666666
+${掌门人_员工EmployeeId}    45241
+${掌门人_员工密码}       a123456
+${掌门人_员工密码_加密}    4c4216063c21021ddc12f7df213062684cb57cfa7c5c59a57f93e1a1d65331a27c5eb5876b306c21c30444402dd5cf15ab55f41aa7b73098a9f7c6a8cf7a8738b5555b94c6cc71cabf95c49384e80a25f8960fcd752ac3391be47fb86a201f2dc23286adf40e856919a3e81af12d255848d7968b554bc1cc1c2c00a8bd657a3d
+${掌门人_客户用户名}      15267855761
+${掌门人_客户密码}       a123456
+${掌门人_客户密码_加密}    4c4216063c21021ddc12f7df213062684cb57cfa7c5c59a57f93e1a1d65331a27c5eb5876b306c21c30444402dd5cf15ab55f41aa7b73098a9f7c6a8cf7a8738b5555b94c6cc71cabf95c49384e80a25f8960fcd752ac3391be47fb86a201f2dc23286adf40e856919a3e81af12d255848d7968b554bc1cc1c2c00a8bd657a3d
+${掌柜_domain}      xxw.700jit.com
+${掌柜_URL}         http://${掌柜_domain}
+${掌柜_管理员用户名}      xxw_admin
+${掌柜_管理员密码}       a123456
+${掌柜_管理员密码_加密}    4c4216063c21021ddc12f7df213062684cb57cfa7c5c59a57f93e1a1d65331a27c5eb5876b306c21c30444402dd5cf15ab55f41aa7b73098a9f7c6a8cf7a8738b5555b94c6cc71cabf95c49384e80a25f8960fcd752ac3391be47fb86a201f2dc23286adf40e856919a3e81af12d255848d7968b554bc1cc1c2c00a8bd657a3d
+${掌柜_员工用户名}       99994888888
+${掌柜_员工密码}        a123456
+${掌柜_员工密码_加密}     4c4216063c21021ddc12f7df213062684cb57cfa7c5c59a57f93e1a1d65331a27c5eb5876b306c21c30444402dd5cf15ab55f41aa7b73098a9f7c6a8cf7a8738b5555b94c6cc71cabf95c49384e80a25f8960fcd752ac3391be47fb86a201f2dc23286adf40e856919a3e81af12d255848d7968b554bc1cc1c2c00a8bd657a3d
+${掌柜_客户用户名}       13967880231    #无该帐号
+${掌柜_客户密码}        111111.
+${掌柜_客户密码_加密}     35bc5f798722795a728da5417cd666edcaafd1d54bda28d0dc7ff4e57776c456d2ccb4fd27038d435c48f6368c4bb37fb270974d8fbd80dc2ef08e88b77829c558a72e37dd5e396b57c22977ee8c68d2a89656e10d285d63c264933bbb4558deb8c4081a1624c90d41dcf82b968fdf3456101697dc28a4db8aa4f4f4cbf9c423
+${咖狗网_domain}     cargotest.200jit.com    # 咖狗网地址
+${掌门人_管理员UserId}    815150
+${掌门人_管理员employeeName}    公司管理员
+${掌门人_管理员EmployeeId}    44717
+${掌门人_公司名称}       自动化测试-掌门人专用
+${掌柜_公司名称}        自动化测试-掌柜公司
+${掌门人_员工UserId}    815864
+${掌门人_员工employeeName}    胡伟小
+${掌柜_orgid}       21320

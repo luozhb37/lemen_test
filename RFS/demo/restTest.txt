@@ -1,0 +1,145 @@
+*** Settings ***
+Suite Teardown    Delete All Sessions
+Library           Collections
+Library           OlymLibrary
+Resource          ../Resources/会员接口.txt
+Library           Selenium2Library
+Resource          ../Resources/整箱维护接口.txt
+Library           Collections
+
+*** Variables ***
+${session}        session
+
+*** Test Cases ***
+Post
+    ${session}=    login    test4    dcas.400jit.com    test4.100jit.com
+    ${data2}    Create Dictionary    advancedConditionsTextarea=[{"fieldnum":1,"fieldCn":"目的港","fieldEn":"dischargeport","fieldValue":"dubai"}]
+    ${resp2}    Post Request    ${session}    /priceservice/priceMaintain.ctrl?$action=fcl_query&pageno=1&connonQueryValue=-1    data=${data2}
+    log    ${resp2.text}
+
+Login
+    Create Session    dcas2    http://dcas.400jit.com
+    ${headers}    Create Dictionary    Content-Type=application/x-www-form-urlencoded    Accept-Language=zh-CN,zh;q=0.8
+    ${data}    Create Dictionary    accessId=freightClient    backUrl=aHR0cDovL3Rlc3Q0LjEwMGppdC5jb20vY3BtZW1iZXJzaGlwL3ByaXZhdGVMb2cuY3RybD8kYWN0aW9uPXJvdXRlJl9sX3I9MTQ1MjIxNjI5MTUzMg    username=13967880231    password=d0dd9bbf3cd458ac1f4031ed775da83b06437b0302d72a56f210fa020fce65bce1fe1a72fd69e26187fa2689fe72a0982885755f8fdf468910e7bbd214d616f0d92687a45e7009889c936f05fb012545364166c48f6112d46c0bb5b71c9e7c6482b81abbc2ad4ed300aeaf683a99579267b572775d50c6db99cf1211950a5230    domain=test4.100jit.com
+    ...    tokenId=ZJsaEMSesj/SMO9QrpHLyxp0hy7SVI3T8Qo/isG8+kGXnsimmR0eIcOBS6w=    userType=1
+    ${resp}    Post Request    dcas2    /dcas2/rest/login    data=${data}    headers=${headers}
+    #Log    ${resp.content}
+    ${data2}    Create Dictionary    advancedConditionsTextarea=[{"fieldnum":1,"fieldCn":"目的港","fieldEn":"dischargeport","fieldValue":"dubai"}]
+    Set Session Url    dcas2    http://test4.100jit.com
+    ${resp2}    Post Request    dcas2    /priceservice/priceMaintain.ctrl?$action=fcl_query&pageno=1&connonQueryValue=-1    data=${data2}
+    log    ${resp2.text}
+
+cpmembership
+    ${ddd}    Evaluate    requests.Session()    requests
+    ${headers}    Create Dictionary    Content-Type=application/x-www-form-urlencoded    Accept-Language=zh-CN,zh;q=0.8
+    ${data}    Create Dictionary    accessId=freightClient    backUrl=aHR0cDovL3Rlc3Q0LjEwMGppdC5jb20vY3BtZW1iZXJzaGlwL3ByaXZhdGVMb2cuY3RybD8kYWN0aW9uPXJvdXRlJl9sX3I9MTQ1MjIxNjI5MTUzMg    username=13967880231    password=d0dd9bbf3cd458ac1f4031ed775da83b06437b0302d72a56f210fa020fce65bce1fe1a72fd69e26187fa2689fe72a0982885755f8fdf468910e7bbd214d616f0d92687a45e7009889c936f05fb012545364166c48f6112d46c0bb5b71c9e7c6482b81abbc2ad4ed300aeaf683a99579267b572775d50c6db99cf1211950a5230    domain=test4.100jit.com
+    ...    tokenId=ZJsaEMSesj/SMO9QrpHLyxp0hy7SVI3T8Qo/isG8+kGXnsimmR0eIcOBS6w=    userType=1
+    ${resp}    Post Request    ${ddd}    /dcas2/rest/login    data=${data}    headers=${headers}
+    Log    ${resp.content}
+
+getRSAPublicKey
+    Create Session    login    http://test4.100jit.com
+    ${headers}    Create Dictionary    Content-Type=application/x-www-form-urlencoded    Accept-Language=zh-CN,zh;q=0.8
+    ${data}    Create Dictionary    accessId=freightClient    backUrl=aHR0cDovL3Rlc3Q0LjEwMGppdC5jb20vY3BtZW1iZXJzaGlwL3ByaXZhdGVMb2cuY3RybD8kYWN0aW9uPXJvdXRlJl9sX3I9MTQ1MjIxNjI5MTUzMg    username=13967880231    password=d0dd9bbf3cd458ac1f4031ed775da83b06437b0302d72a56f210fa020fce65bce1fe1a72fd69e26187fa2689fe72a0982885755f8fdf468910e7bbd214d616f0d92687a45e7009889c936f05fb012545364166c48f6112d46c0bb5b71c9e7c6482b81abbc2ad4ed300aeaf683a99579267b572775d50c6db99cf1211950a5230    domain=test4.100jit.com
+    ...    tokenId=ZJsaEMSesj/SMO9QrpHLyxp0hy7SVI3T8Qo/isG8+kGXnsimmR0eIcOBS6w=    userType=1
+    ${resp}    Post Request    login    /cpmembership/publicDcasLogin.ctrl?$action=getRSAPublicKey    headers=${headers}
+    ${jsondata}    To json    ${resp.content}
+    Log    ${jsondata['data']['modulus']}
+    #Dictionary Should Contain Value
+
+getDcasLoginInfo
+    Create Session    login    http://test4.100jit.com
+    ${headers}    Create Dictionary    Content-Type=application/x-www-form-urlencoded    Accept-Language=zh-CN,zh;q=0.8
+    ${data}    Create Dictionary    userName=13967880231    password=d0dd9bbf3cd458ac1f4031ed775da83b06437b0302d72a56f210fa020fce65bce1fe1a72fd69e26187fa2689fe72a0982885755f8fdf468910e7bbd214d616f0d92687a45e7009889c936f05fb012545364166c48f6112d46c0bb5b71c9e7c6482b81abbc2ad4ed300aeaf683a99579267b572775d50c6db99cf1211950a5230    dcasDomain=test4.100jit.com    backUrl=aHR0cDovL3Rlc3Q0LjEwMGppdC5jb20vY3BtZW1iZXJzaGlwL3ByaXZhdGVMb2cuY3RybD8k YWN0aW9uPWNsaWVudExvZ2luQ2FsbEJhY2s*
+    ${resp}    Post Request    login    /cpmembership/publicDcasLogin.ctrl?$action=getDcasLoginInfo    headers=${headers}    data=${data}
+    ${jsondata}    To json    ${resp.content}
+    Log    ${resp.content}
+    ${jsondata3}    to json    { \ \ \ "resultMsg" :"", \ \ \ "data" :{ \ \ \ \ \ \ "action" :"http://dcas.400jit.com/dcas2/rest/directLogin?accessId=freightPcClient&securityKey=1454047060947.42f8bd3070e8b24f497a3c9eb016fd1c&userType=1" \ \ \ }, \ \ \ "resultCode" :100 }
+    Dictionaries Should Be Equal    ${jsondata}    ${jsondata3}    msg=结果比较错误
+    #Dictionary Should Contain Value
+
+dell
+    [Setup]    session
+    [Template]    do
+
+删除运价-循环
+    新建掌门人管理员会话
+    @{list}    ${pages}    选择一页数据    pagesize=500    publishstate=all    invalidstate=all
+    :FOR    ${i}    in range    ${pages}
+    \    @{list1}    选择一页数据    pagesize=500    publishstate=all    invalidstate=all
+    \    log    i=${i}
+    \    删除整箱运价    casenumber=${list1}
+
+删除运价-数据驱动
+    [Setup]    新建掌门人管理员会话
+    [Template]    删除
+    1
+    2
+    3
+    4
+    5
+    [Teardown]
+
+*** Keywords ***
+login
+    [Arguments]    ${alias}    ${dcasDomain}    ${domain}
+    [Documentation]    ${dcasDomain} =dcas域名 比如 \ dcas.400jit.com
+    ...
+    ...    ${domain}= 客户域名 比如 \ test4.100jit.com
+    ...    都不带http://
+    Create Session    ${alias}    http://${dcasDomain}
+    ${headers}    Create Dictionary    Content-Type=application/x-www-form-urlencoded    Accept-Language=zh-CN,zh;q=0.8
+    ${data}    Create Dictionary    accessId=freightClient    backUrl=aHR0cDovL3Rlc3Q0LjEwMGppdC5jb20vY3BtZW1iZXJzaGlwL3ByaXZhdGVMb2cuY3RybD8kYWN0aW9uPXJvdXRlJl9sX3I9MTQ1MjIxNjI5MTUzMg    username=13967880231    password=d0dd9bbf3cd458ac1f4031ed775da83b06437b0302d72a56f210fa020fce65bce1fe1a72fd69e26187fa2689fe72a0982885755f8fdf468910e7bbd214d616f0d92687a45e7009889c936f05fb012545364166c48f6112d46c0bb5b71c9e7c6482b81abbc2ad4ed300aeaf683a99579267b572775d50c6db99cf1211950a5230    domain=${domain}
+    ...    tokenId=ZJsaEMSesj/SMO9QrpHLyxp0hy7SVI3T8Qo/isG8+kGXnsimmR0eIcOBS6w=    userType=1
+    ${resp}    Post Request    ${alias}    /dcas2/rest/login    data=${data}    headers=${headers}
+    Set Session Url    ${alias}    http://${domain}
+    [Return]    ${alias}
+
+session
+    Create Session    ${session}    http://dcas.400jit.com
+    ${headers}    Create Dictionary    Content-Type=application/x-www-form-urlencoded    Accept-Language=zh-CN,zh;q=0.8
+    ${data}    Create Dictionary    accessId=freightClient    backUrl=aHR0cDovL2xmbG9naXN0aWNzLjEwMGppdC5jb20vY3BtZW1iZXJzaGlwL3ByaXZhdGVMb2cuY3RybD8kYWN0aW9uPXJvdXRlJl9sX3I9MTQ1NzA5MDI3NjM0MQ**    username=xxw_admin    password=4c4216063c21021ddc12f7df213062684cb57cfa7c5c59a57f93e1a1d65331a27c5eb5876b306c21c30444402dd5cf15ab55f41aa7b73098a9f7c6a8cf7a8738b5555b94c6cc71cabf95c49384e80a25f8960fcd752ac3391be47fb86a201f2dc23286adf40e856919a3e81af12d255848d7968b554bc1cc1c2c00a8bd657a3d    domain=xxw.700jit.com
+    ...    tokenId=N3TBDctXBQp2S8XvMeUq/EsuH0f+XxT91JdlKWzL0wKp7k/Ss8tZMT0QmWI=    userType=1
+    ${resp}    Post Request    ${session}    /dcas2/rest/login    data=${data}    headers=${headers}
+    log    ${resp.text}
+    Should Contain    ${resp.text}    class="logo">运价通</a>    msg=登录失败
+    Set Session Url    ${session}    http://lflogistics.100jit.com
+
+do
+    [Arguments]    ${num}
+    ${data1}    Create Dictionary    publishState=all    invalidState=invalid    pageSize=500    pageNum=1    sortColumn=
+    ...    sortBy=desc    queryConditions={}
+    ${headers1}    Create Dictionary    Content-Type=application/x-www-form-urlencoded
+    ${result}    post request    ${session}    /freight-efcl-rest/rest/efcl/prices/all    data=${data1}    headers=${headers1}
+    ${resultJson}    to json    ${result.text}
+    ${sss}    Get value    ${resultJson}
+    log    ${resultJson}
+    ${headers2}    Create Dictionary    Content-Type=application/json
+    ${data2}    json Dumps    ${sss}
+    ${result2}    post request    ${session}    /freight-efcl-rest/rest/efcl/prices/deletes    data=${data2}    headers=${headers2}
+    ${result2Json}    to json    ${result2.text}
+    log    -----> ${num}
+
+删除
+    [Arguments]    ${num}    ${session}=${运价内部_session}    ${isCanclePub}=true
+    ${data1}    Create Dictionary    publishState=all    pageSize=100    pageNum=1    sortColumn=    sortBy=desc
+    ...    queryConditions={}    invalidState=all
+    ${headers1}    Create Dictionary    Content-Type=application/x-www-form-urlencoded
+    ${result}    post request    ${session}    /freight-efcl-rest/rest/efcl/prices/all    data=${data1}    headers=${headers1}
+    ${resultJson}    to json    ${result.text}
+    #${sss}    Get value    ${resultJson}
+    #log    ${resultJson["data"]["list"][0]["casenumber"]}
+    ${size}    set variable    ${resultJson["data"]["size"]}
+    @{list}    create list
+    :FOR    ${i}    in range    ${size}
+    \    ${result}    set variable    ${resultJson["data"]["list"][${i}]["casenumber"]}
+    \    append to list    ${list}    ${result}
+    log    ${list}
+    ${headers}    create dictionary    Content-Type=application/x-www-form-urlencoded
+    ${casecount}    Get Length    ${list}
+    log    ${casecount}
+    ${strCasenumbers}    Json Dumps    ${list}
+    ${data}    create dictionary    strCasenumbers=${strCasenumbers}    isCanclePub=${isCanclePub}
+    ${result}    post request    ${session}    /freight-efcl-rest/rest/efcl/prices/deletes    data=${data}    headers=${headers}
+    ${resultToJson}    to json    ${result.text}
+    should be equal    ${100}    ${resultToJson['resultCode']}    msg=删除运价失败

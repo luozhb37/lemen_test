@@ -1,0 +1,211 @@
+*** Settings ***
+Library           Selenium2Library
+Library           Tool.py
+Resource          基础关键字.txt
+Resource          会员操作关键字.txt
+
+*** Keywords ***
+新增整箱运价
+    [Arguments]    ${loadport}    ${dischargeport}    ${carrier}    ${begindate}    ${validdate}    ${searoute_code}=
+    ...    ${transferport}=    ${cycle}=    ${sailtime}=    ${sailing_date}=    ${massaddress}=    ${internetsellprice1}=
+    ...    ${internetsellprice2}=    ${internetsellprice3}=    ${internetsellprice4}=    ${isnor1}=    ${quoteorg}=    ${rakeoff}=
+    ...    ${signflag}=    ${sendtype}=    ${volumerange}=    ${addfee}=    ${linkinfo}=    ${remark}=
+    ...    ${employee_remark}=    ${iscommend}=
+    [Documentation]    通用的新增功能,参数格式控制见实际业务数据
+    打开页面    运价通    运价维护    海运出口整箱维护
+    #点击新增按钮
+    进入框架    id=mainFrame    #进入新增页面
+    点击链接    新增
+    离开框架
+    #新增
+    进入框架    //iframe[contains(@src,"fcl_detail")]    #进入新增页面
+    输入    id=loadport    ${loadport}
+    sleep    1
+    ${addPort}=    Run Keyword And Return Status    点击链接    点击新增此港口
+    sleep    1
+    Run Keyword If    ${addPort}    新增港口数据
+    输入    id=dischargeport    ${dischargeport}
+    sleep    1
+    ${dischargeport}=    Run Keyword And Return Status    点击链接    点击新增此港口
+    sleep    1
+    Run Keyword If    ${dischargeport}    新增港口数据
+    输入    id=carrier    ${carrier}
+    Execute Javascript    document.getElementById("begindate").value="${begindate}"    #有效起始日期
+    Execute Javascript    document.getElementById("validdate").value="${validdate}"    #有效结束日期
+    输入    id=searoute_code    ${searoute_code}
+    输入    id=transferport    ${transferport}
+    输入    id=cycle    ${cycle}    #船期
+    输入    id=sailtime    ${sailtime}    #航程
+    输入    id=sailing_date    ${sailing_date}    #开航日
+    输入    id=massaddress    ${massaddress}    #进港港区
+    输入    id=internetsellprice1    ${internetsellprice1}    #标准报价1
+    输入    id=internetsellprice2    ${internetsellprice2}    #标准报价2
+    输入    id=internetsellprice3    ${internetsellprice3}    #标准报价3
+    输入    id=internetsellprice4    ${internetsellprice4}    #标准报价4
+    Run Keyword If    "${isnor1}"=="是"    Select Checkbox    id=isnor1    #是否是冷代干价格1
+    输入    id=quoteorg    ${EMPTY}    #订舱代理 (先不使用)
+    输入    id=rakeoff    ${rakeoff}    #佣金
+    输入    id=signflag    ${signflag}    #符号
+    输入    id=sendtype    ${sendtype}    #出单方式
+    输入    id=volumerange    ${volumerange}    #限重
+    输入    id=addfee    ${addfee}    #附加费说明
+    输入    id=linkinfo    ${linkinfo}    #联系方式
+    输入    id=remark    ${remark}    #外部备注
+    输入    id=employee_remark    ${employee_remark}    #内部备注
+    Run Keyword If    "${iscommend}"=="是"    Select Checkbox    id=iscommend
+    点击链接    保存
+    sleep    3
+    ${message}=    Confirm Action
+    Capture Page Screenshot
+    点击链接    关闭
+    离开框架
+    sleep    2
+
+查询整箱运价
+    [Arguments]    ${loadport}=    ${dischargeport}=    ${searoute}=    ${carrier}=
+    [Documentation]    通过查询条件查询出运价条数(支持一页内的数据,超出一页按一页最大值统计)
+    打开页面    运价通    运价维护    海运出口整箱维护
+    #输入查询条件并搜索
+    输入    id=qy_loadport_temp    ${loadport}
+    Run Keyword If    "${loadport}"!=""    点击    id=loadport
+    输入    id=qy_dischargeport_temp    ${dischargeport}
+    Run Keyword If    "${dischargeport}"!=""    点击    id=dischargeport
+    输入    id=qy_searoute_temp    ${searoute}
+    Run Keyword If    "${searoute}"!=""    点击    id=searoute
+    输入    id=qy_carrier_temp    ${carrier}
+    Run Keyword If    "${carrier}"!=""    点击    id=carrier
+    sleep    2
+    进入框架    id=mainFrame    #进入列表页面
+    ${count}    获取表格行数    id    fclmaintain_home1
+    [Return]    ${count}    # 运价条数
+
+删除整箱运价
+    [Arguments]    ${loadport}=    ${dischargeport}=    ${searoute}=    ${carrier}=
+    [Documentation]    通过查询条件查询出运价全选并删除
+    打开页面    运价通    运价维护    海运出口整箱维护
+    进入框架    id=mainFrame    #进入列表页面
+    #输入查询条件并搜索
+    输入    id=qy_loadport_temp    ${loadport}
+    Run Keyword If    "${loadport}"!=""    点击    id=loadport
+    输入    id=qy_dischargeport_temp    ${dischargeport}
+    Run Keyword If    "${dischargeport}"!=""    点击    id=dischargeport
+    输入    id=qy_searoute_temp    ${searoute}
+    Run Keyword If    "${searoute}"!=""    点击    id=searoute
+    输入    id=qy_carrier_temp    ${carrier}
+    Run Keyword If    "${carrier}"!=""    点击    id=carrier
+    sleep    2
+    #查询出所有状态的运价
+    点击链接    id=j-stateBtn
+    点击链接    全部
+    sleep    2
+    ${count}    获取表格行数    id    fclmaintain_home1
+    Run Keyword If    "${count}"!="0"    点击    id=sheet_row_select_all    #点击全选
+    Run Keyword If    "${count}"!="0"    点击链接    删除
+    sleep    1
+    Run Keyword If    "${count}"!="0"    Confirm Action    #警告提醒点确定
+    sleep    1
+    Run Keyword If    "${count}"!="0"    Confirm Action    #删除成功点确定
+    关闭弹出框
+    sleep    2
+    [Return]    ${count}    # 运价条数
+
+删除整箱发布运价
+    [Arguments]    ${loadport}=    ${dischargeport}=    ${searoute}=    ${carrier}=
+    [Documentation]    通过查询条件查询出发布记录全选并删除
+    打开页面    运价通    更多功能    xpath=//a[contains(@href,"海运出口整箱发布记录")]
+    #输入查询条件并搜索
+    进入框架    xpath=//iframe[contains(@src,"FclHistoryQuery")]
+    输入    id=loadport    ${loadport}
+    输入    id=dischargeport    ${dischargeport}
+    下拉选择    id=searoute    ${searoute}
+    输入    id=carrier    ${carrier}
+    点击链接    查询
+    sleep    2
+    ${count}    获取表格行数    id    fclPriceHistory
+    Run Keyword If    "${count}"!="0"    点击    id=allselect    #点击全选
+    Run Keyword If    "${count}"!="0"    点击链接    删除
+    Run Keyword If    "${count}"!="0"    Confirm Action    #弹出警告
+    sleep    1
+    Run Keyword If    "${count}"!="0"    Confirm Action    #删除成功点确定
+    sleep    1
+    关闭弹出框
+    sleep    2
+    [Return]    ${count}    # 运价条数
+
+发布整箱运价
+    [Arguments]    ${loadport}=    ${dischargeport}=    ${searoute}=    ${carrier}=
+    [Documentation]    通过查询条件查询出运价全选并发布
+    打开页面    运价通    运价维护    海运出口整箱维护
+    进入框架    id=mainFrame    #进入列表页面
+    #输入查询条件并搜索
+    输入    id=qy_loadport_temp    ${loadport}
+    Run Keyword If    "${loadport}"!=""    点击    id=loadport
+    输入    id=qy_dischargeport_temp    ${dischargeport}
+    Run Keyword If    "${dischargeport}"!=""    点击    id=dischargeport
+    输入    id=qy_searoute_temp    ${searoute}
+    Run Keyword If    "${searoute}"!=""    点击    id=searoute
+    输入    id=qy_carrier_temp    ${carrier}
+    Run Keyword If    "${carrier}"!=""    点击    id=carrier
+    sleep    2
+    #查询出所有状态的运价
+    点击链接    id=j-stateBtn
+    点击链接    全部
+    sleep    2
+    ${count}    获取表格行数    id    fclmaintain_home1
+    点击    id=sheet_row_select_all    #点击全选
+    点击链接    发布运价
+    sleep    3
+    ${msg}    Confirm Action    #发布成功弹出框
+    Run Keyword If    "${msg}"=="存在本周内已发布的运价,是否要继续发布运价?"    Confirm Action
+    sleep    2
+    [Return]    ${count}    # 运价条数
+
+新增港口数据
+    离开框架
+    进入框架    //iframe[contains(@src,"baseSeaportFclExport")]
+    下拉选择byIndex    id=searoute    1
+    ${ennamevalue}    Execute Javascript    return $("input[name='enname']").val()
+    点击链接    保存
+    sleep    4
+    ${result}=    Confirm Action
+    点击链接    关闭
+    离开框架
+    进入框架    //iframe[contains(@src,"fcl_detail")]
+    #Steplog    新增港口${ennamevalue} : ${result}
+
+新增并发布驳船费
+    [Arguments]    ${recaddressEnname}    ${unloadport}    ${searouteCnname}    ${carrier}    ${dischargeport}=    ${receiveArea}=
+    ...    ${transportDays}=    ${effectiveDate}=    ${bargePrice1}=    ${bargePrice2}=    ${bargePrice3}=    ${bargePrice4}=
+    [Documentation]    以下参数必须基础资料存在, *收货地英文* , *卸货地*, \ *目的港*, \ *航线*, *船公司*
+    ...
+    ...    生效日期未填,则维护今天
+    打开页面    运价通    支线费用    驳船费管理
+    #新增
+    点击链接    新增
+    sleep    1
+    进入框架    //iframe[contains(@src,"addbarge")]
+    输入    id=receiveArea    ${receiveArea}    #收获区域
+    ${recaddressEnname}=    Evaluate    "${recaddressEnname}".upper()    #防止小写导致找不到数据
+    输入_处理弹框    id=recaddressEnname    ${recaddressEnname}    #收货地
+    输入_处理弹框    id=searouteCnname    ${searouteCnname}    #航线
+    ${unloadport}=    Evaluate    "${unloadport}".upper()
+    输入_处理弹框    id=unloadport    ${unloadport}    #卸货地
+    ${dischargeport}=    Evaluate    "${dischargeport}".upper()
+    输入_处理弹框    id=dischargeport    ${dischargeport}    #目的港
+    ${carrier}=    Evaluate    "${carrier}".upper()
+    输入_处理弹框    id=carrier    ${carrier}    #船公司
+    输入    id=transportDays    ${transportDays}    #转运天数
+    ${effectiveDate}=    Run Keyword If    "${effectiveDate}"==""    获取当前日期
+    Execute Javascript    $("#effectiveDate").val("${effectiveDate}")    #生效日期
+    输入    id=bargePrice1    ${bargePrice1}    #20gp
+    输入    id=bargePrice2    ${bargePrice2}    #40gp
+    输入    id=bargePrice3    ${bargePrice3}    #40hq
+    输入    id=bargePrice4    ${bargePrice4}    #特殊港口1
+    点击链接    保存
+    sleep    1
+    点击链接    发布
+    sleep    3
+    ${Success}    Run Keyword And Return Status    Get Webelement    id=bargePrice1
+    Run Keyword If    ${Success}    Take Screenshot
+    Run Keyword If    ${Success}    log    新增驳船费失败,详见log截图!!!
+    Run Keyword If    ${Success}    关闭弹出框

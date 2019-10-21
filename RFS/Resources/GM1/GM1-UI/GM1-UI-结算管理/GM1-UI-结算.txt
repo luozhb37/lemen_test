@@ -1,0 +1,667 @@
+*** Settings ***
+Resource          ../GM1-UI-公共/GM1-UI-引用.txt
+
+*** Keywords ***
+新增工作单
+    进入指定一级菜单    订单
+    进入指定二级菜单(新icon)    订
+    新增整箱业务单    海运出口整箱    国际运输
+    点击保存
+    等待loading消失
+    ${bussinessNO-seaexport}    获取页面文本内容    xpath=//div[@class='dzg-business-info']/span[2]    #获取工作号
+    关闭当前窗口
+    切换窗口
+    [Return]    ${bussinessNO-seaexport}
+
+点击结算单保存按钮
+    点击    xpath=//span[text()='保存结算单']/..
+
+点击业务保存(非结算单)
+    点击    xpath=//span[text()='保 存']/..
+
+收款水单(接口)
+    Comment    ${result}    m4-post-json    uri=/fms-rest/rest/simpleossfile-upload/upload    data={------WebKitFormBoundarygBf2VW0yAN3sTVD5 Content-Disposition: form-data; name="file"; filename="user_login-体验.xls" Content-Type: application/vnd.ms-excel \ \ ------WebKitFormBoundarygBf2VW0yAN3sTVD5--}
+    ${cookies}    get cookies
+    ${img}    evaluate    ('DJI_0070.jpg',open('D:/DJI_0070.jpg', 'rb'), 'image/png')
+    ${file}    create Dictionary    file=${img}
+    ${result}    post request    ${M4-SESSION}    uri=/fms-rest/rest/simpleossfile-upload/upload    files=${file}    headers=${cookies}
+    ${resultTOjson}    to json    ${result.text}
+
+勾选全部
+    勾选记录    xpath=//thead[@class='ant-table-thead']//input[@class='ant-checkbox-input']
+
+关闭多余窗口
+    ${titles}    Get Window Titles
+    ${length}    Get Length    ${titles}
+    : FOR    ${i}    IN RANGE    ${length}
+    \    ${title}    Get From List    ${titles}    ${i}
+    \    Run Keyword If    ${title}!=欢迎您使用本系统    切换并关闭窗口    ${title}
+
+切换并关闭窗口
+    [Arguments]    ${title}
+    切换窗口    ${title}
+    关闭当前窗口
+
+获取总计毛利折合CNY
+    ${result}    获取匹配xpath的个数    xpath=//div[@class='flex-inline']
+    ${total}    Run Keyword If    ${result}>0    获取折合CNY
+    ...    ELSE    Evaluate    0
+    [Return]    ${total}
+
+获取折合CNY
+    ${total1}    获取页面文本内容    xpath=//label[text()='总计毛利']/../..//div[@class='ant-form-item-control ']//span[contains(@class,'折合CNY_color')]
+    ${total}    Remove String    ${total1}    【折合CNY:    】
+    [Return]    ${total}
+
+费用详情点击开票通知
+    ${size}    获取匹配xpath的个数    xpath=//div[@id='fee-table']//div[@class='ant-table-scroll']//tbody[@class='ant-table-tbody']/tr
+    拉动滚动条（新）    1000
+    勾选记录    xpath=//div[@id='fee-table']//div[@class='ant-table-fixed-left']//tbody[@class='ant-table-tbody']/tr[${size}]/td//input[@class='ant-checkbox-input']
+    Mouse Over    xpath=//span[text()='开票通知 ']/..
+    Wait Until Element Is Enabled    xpath=//span[text()='开票申请']/..
+    点击    xpath=//span[text()='开票申请']/..
+
+点击列表按钮
+    [Arguments]    ${按钮名称}
+    #支持只有当前页面只有一个列表
+    点击    xpath=//span[text()='自定义列']/../../../..//span[text()='${按钮名称}']/..    #点击按钮
+    等待loading消失
+
+点击收入列表按钮
+    [Arguments]    ${按钮名称}
+    #只支持有'应收费用列表'
+    点击    xpath=//span[text()='应收']/../../..//span[text()='${按钮名称}']/..    #点击按钮
+
+点击支出列表按钮
+    [Arguments]    ${按钮名称}
+    #只支持有'应付费用列表'
+    Wait Until Element Is Enabled    xpath=//span[text()='应付']/../../..//span[text()='${按钮名称}']/..
+    点击    xpath=//span[text()='应付']/../../..//span[text()='${按钮名称}']/..    #点击按钮
+
+整票确认
+    点击    xpath=//span[text()='整票确认']/..
+    等待    2
+
+新增收入费用
+    [Arguments]    ${customername}=2222    ${invoicename}=2222    ${type}=1
+    [Documentation]    \#${customername}：结算单位    #${invoicename}：发票单位    #${type}：结算单，保存按钮比较特殊。默认正常业务，结算单需要特殊传入
+    点击收入列表按钮    新 增
+    ${size}    获取匹配xpath的个数    xpath=//div[@id='fee-table']//div[@class='ant-table-scroll']//tbody[@class='ant-table-tbody']/tr
+    ${size-1}    Evaluate    ${size}-1
+    #费用项目
+    点击    xpath=//div[@id='fee-table']//div[@class='ant-table-fixed-left']//div[@id='bnReceiptsList-${size-1}.feeitem']//div[@class='ant-select-selection__rendered']    #先定位应收/应付列表，再定位固定列表，再定位费用项目，最后定位选择框
+    输入    xpath=//div[@id='fee-table']//div[@class='ant-table-fixed-left']//input[@id='bnReceiptsList-${size-1}.feeitem']    海运费
+    Comment    按键    xpath=//input[@id='bnReceiptsList-${size-1}.feeitem']    \ue015
+    按键    xpath=//div[@id='fee-table']//div[@class='ant-table-fixed-left']//input[@id='bnReceiptsList-${size-1}.feeitem']    \\13
+    #结算单位
+    点击    xpath=//div[@id='bnReceiptsList-${size-1}.customername']//div[@class='ant-select-selection__rendered']
+    输入    xpath=//input[@id='bnReceiptsList-${size-1}.customername']    ${customername}
+    点击    xpath=//li[text()='${customername}']
+    Comment    Run Keyword If    ${customername}!=2222    费用添加结算单位    ${customername}    ${size-1}
+    #服务环节
+    点击    xpath=//div[@id='bnReceiptsList-${size-1}.serviceItemName']//div[@class='ant-select-selection__rendered']
+    点击    xpath=//li[text()='产地证']
+    #计费单位
+    点击    xpath=//div[@id='bnReceiptsList-${size-1}.chargingInfo']//div[@class='ant-select-selection__rendered']
+    点击    xpath=//li[text()='票']
+    #箱号
+    点击    xpath=//div[@id='bnReceiptsList-${size-1}.ctnno']//div[@class='ant-select-selection__rendered']
+    ${a}    Run Keyword And Return Status    Page Should Not Contain    无匹配结果
+    Run Keyword If    ${a} == True    按键    xpath=//input[@id='bnReceiptsList-${size-1}.ctnno']    \\13
+    #单价
+    清空输入框内容    id=bnReceiptsList-${size-1}.price
+    输入    id=bnReceiptsList-${size-1}.price    100.1234
+    #数量
+    清空输入框内容    id=bnReceiptsList-${size-1}.count
+    输入    id=bnReceiptsList-${size-1}.count    2.3456
+    #币别
+    点击    xpath=//div[@id='bnReceiptsList-${size-1}.currency']//div[@class='ant-select-selection-selected-value']
+    输入    xpath=//input[@id='bnReceiptsList-${size-1}.currency']    CNY
+    等待    2
+    按键    xpath=//input[@id='bnReceiptsList-${size-1}.currency']    \\13
+    #税率
+    Run Keyword And Ignore Error    输入    id=bnReceiptsList-${size-1}.additionalrate    0
+    #发票抬头
+    Comment    点击    xpath=//div[@id='bnReceiptsList-${size-1}.fullname']//div[@class='ant-select-selection__rendered']
+    Comment    点击    xpath=//li[text()='${invoicename}']
+    Comment    Run Keyword If    ${invoicename}!=2222    费用添加发票抬头    ${invoicename}    ${size-1}
+    #获取折合CNY
+    ${新增金额}    获取页面文本内容    xpath=//span[text()='应收']/../../../../..//tbody[@class='ant-table-tbody']/tr[${size}]/td[16]
+    #保存（业务、结算单）
+    Run Keyword If    "${type}"=="结算单"    点击结算单保存按钮
+    ...    ELSE    点击业务保存(非结算单)
+    等待loading消失
+    [Return]    ${新增金额}
+
+新增支出费用
+    [Arguments]    ${customername}    ${invoicename}=2222    ${type}=1
+    [Documentation]    \#${customername}：结算单位    #${invoicename}：发票单位    #${type}：结算单，保存按钮比较特殊。默认正常业务，结算单需要特殊传入
+    点击支出列表按钮    新 增
+    ${size}    获取匹配xpath的个数    xpath=//div[@id='pay-table']//div[@class='ant-table-scroll']//tbody[@class='ant-table-tbody']/tr
+    ${size-1}    Evaluate    ${size}-1
+    #费用项目
+    点击    xpath=//div[@id='pay-table']//div[@class='ant-table-fixed-left']//div[@id='bnPaysList-${size-1}.feeitem']//div[@class='ant-select-selection__rendered']    #先定位应收/应付列表，再定位固定列表，再定位费用项目，最后定位选择框
+    输入    xpath=//div[@id='pay-table']//div[@class='ant-table-fixed-left']//input[@id='bnPaysList-${size-1}.feeitem']    海运费
+    Comment    按键    xpath=//input[@id='bnPaysList-${size-1}.feeitem']    \ue015
+    按键    xpath=//div[@id='pay-table']//div[@class='ant-table-fixed-left']//input[@id='bnPaysList-${size-1}.feeitem']    \\13
+    #结算单位
+    点击    xpath=//div[@id='bnPaysList-${size-1}.customername']//div[@class='ant-select-selection__rendered']
+    输入    xpath=//input[@id='bnPaysList-${size-1}.customername']    ${customername}
+    点击    xpath=//li[text()='${customername}']
+    #服务环节
+    点击    xpath=//div[@id='bnPaysList-${size-1}.serviceItemName']//div[@class='ant-select-selection__rendered']
+    点击    xpath=//li[text()='产地证']
+    #计费单位
+    点击    xpath=//div[@id='bnPaysList-${size-1}.chargingInfo']//div[@class='ant-select-selection__rendered']
+    点击    xpath=//li[text()='票']
+    #箱号
+    点击    xpath=//div[@id='bnPaysList-${size-1}.ctnno']//div[@class='ant-select-selection__rendered']
+    ${a}    Run Keyword And Return Status    Page Should Not Contain    无匹配结果
+    Run Keyword If    ${a} == True    按键    xpath=//input[@id='bnPaysList-${size-1}.ctnno']    \\13
+    #单价
+    清空输入框内容    id=bnPaysList-${size-1}.price
+    输入    id=bnPaysList-${size-1}.price    100.1234
+    #数量
+    清空输入框内容    id=bnPaysList-${size-1}.count
+    输入    id=bnPaysList-${size-1}.count    2.3456
+    #币别
+    点击    xpath=//div[@id='bnPaysList-${size-1}.currency']//div[@class='ant-select-selection-selected-value']
+    输入    xpath=//input[@id='bnPaysList-${size-1}.currency']    CNY
+    等待    2
+    按键    xpath=//input[@id='bnPaysList-${size-1}.currency']    \\13
+    #税率
+    Run Keyword And Ignore Error    输入    id=bnPaysList-${size-1}.additionalrate    0
+    #开票单位
+    Comment    点击    xpath=//div[@id='bnPaysList-${size-1}.invoiceorgname']//div[@class='ant-select-selection__rendered']
+    Comment    点击    xpath=//li[text()='${invoicename}']
+    Comment    Run Keyword If    ${invoicename}!=2222    费用添加发票抬头    ${invoicename}    ${size-1}
+    #获取折合CNY
+    ${新增金额}    获取页面文本内容    xpath=//span[text()='应付']/../../../../..//tbody[@class='ant-table-tbody']/tr[${size}]/td[16]
+    #保存（业务、结算单）
+    Run Keyword If    "${type}"=="结算单"    点击结算单保存按钮
+    ...    ELSE    点击业务保存(非结算单)
+    等待loading消失
+    [Return]    ${新增金额}
+
+删除收入费用
+    ${size}    获取匹配xpath的个数    xpath=//div[@id='fee-table']//div[@class='ant-table-scroll']//tbody[@class='ant-table-tbody']/tr
+    Comment    ${size-1}    Evaluate    ${size}-1
+    勾选记录    xpath=//div[@id='fee-table']//div[@class='ant-table-fixed-left']//tbody[@class='ant-table-tbody']/tr[${size}]/td//input[@class='ant-checkbox-input']
+    点击收入列表按钮    删 除
+    等待    1
+    点击    xpath=//span[text()='确 定']/..
+    等待loading消失
+    等待    1
+
+删除支出费用
+    ${size}    获取匹配xpath的个数    xpath=//div[@id='pay-table']//div[@class='ant-table-scroll']//tbody[@class='ant-table-tbody']/tr
+    Comment    ${size-1}    Evaluate    ${size}-1
+    勾选记录    xpath=//div[@id='pay-table']//div[@class='ant-table-fixed-left']//tbody[@class='ant-table-tbody']/tr[${size}]/td//input[@class='ant-checkbox-input']
+    点击支出列表按钮    删 除
+    等待    1
+    点击    xpath=//span[text()='确 定']/..
+    等待loading消失
+    等待    1
+
+新增结算单
+    #委托单位
+    等待loading消失
+    点击    xpath=//div[@id='customername']//div[@class='ant-select-selection__rendered']
+    输入    xpath=//input[@id='customername']    ${往来单位}
+    #服务类型
+    点击    xpath=//div[@id='serviceTypeName']//div[@class='ant-select-selection__rendered']
+    点击    xpath=//li[text()='0税']
+    #业务部门
+    点击    xpath=//div[@id='bnFinanceVo.businessDeptId']//div[@class='ant-select-selection__rendered']
+    点击    xpath=//li[text()='财务部']
+    #业务人
+    点击    xpath=//div[@id='personName']//div[@class='ant-select-selection__rendered']
+    按键    xpath=//input[@id='personName']    \\13
+    新增收入费用    ${往来单位}    ${发票抬头}    结算单
+    Comment    点击    xpath=//span[text()='保存结算单']/..
+    等待loading消失
+    ${businessno}    获取页面文本内容    xpath=//div[@id='businessno_id_div']//div[@class='ant-form-item-control ']//span
+    [Return]    ${businessno}
+
+点击新增结算单按钮
+    Mouse Over    xpath=//span[text()='结算单 ']/..
+    Wait Until Element Is Enabled    xpath=//span[text()='新建结算单']    30
+    Mouse Over    xpath=//span[text()='新建结算单']/..
+    Wait Until Element Is Visible    xpath=//span[text()='新建结算单']/..    3
+    等待    1
+    点击    xpath=//span[text()='新建结算单']/..
+    等待loading消失
+
+点击复制结算单按钮
+    Mouse Over    xpath=//span[text()='结算单 ']/..
+    Wait Until Element Is Enabled    xpath=//span[text()='复制结算单']    30
+    Mouse Over    xpath=//span[text()='复制结算单']/../..
+    Wait Until Element Is Visible    xpath=//span[text()='复制结算单']/..    3
+    等待    0.5
+    点击    xpath=//span[text()='复制结算单']/..
+    等待loading消失
+
+点击删除结算单按钮
+    Mouse Over    xpath=//span[text()='结算单 ']/..
+    Wait Until Element Is Enabled    xpath=//span[text()='删除结算单']    30
+    Mouse Over    xpath=//span[text()='删除结算单']/../..
+    Wait Until Element Is Visible    xpath=//span[text()='删除结算单']/..    3
+    等待    0.5
+    点击    xpath=//span[text()='删除结算单']/..
+    等待loading消失
+
+生成对账单
+    切换窗口    new
+    ${checkaccountno}    获取页面值    id=checkaccountno
+    点击    xpath=//span[text()='生成对账单']/..
+    等待    2
+    [Return]    ${checkaccountno}
+
+生成开票通知
+    等待    2
+    切换窗口    new
+    等待loading消失
+    输入    id=invoiceExplain    循环点击搜索条件叉叉
+    Comment    ${preInvoiceno}=    execute javascript    return window.document.getElementById("preInvoiceno").value;
+    ${preInvoiceno}    获取元素属性值    id=preInvoiceno    value
+    点击    xpath=//span[text()='确 定']/..    #点击确定
+    离开框架
+    [Return]    ${preInvoiceno}
+
+生成应收登记发票
+    ${invoice}    获取元素属性值    id=invoice    value
+    Wait Until Element Is Enabled    xpath=//span[text()='确 定']/..
+    点击    xpath=//span[text()='确 定']/..
+    等待    2
+    [Return]    ${invoice}
+
+生成应付登记发票
+    [Arguments]    ${invoice}
+    输入    id=invoice    ${invoice}
+    Wait Until Element Is Enabled    xpath=//span[text()='确 定']/..
+    点击    xpath=//span[text()='确 定']/..
+    等待    2
+    [Return]    ${invoice}
+
+生成收款单
+    [Arguments]    ${currency}    ${amount}    ${bankType}    ${customer}    ${invoicename}
+    等待    2
+    点击列表按钮    收款登记
+    #获取收款单号
+    ${recbillno}    获取元素属性值    id=recbillno    value
+    #选择币别
+    点击    xpath=//div[contains(@class,'currency ant-select-lg ant-select')]//div[@class='ant-select-selection__rendered']    #点击币别
+    点击    xpath=//li[text()='${currency}']    #选择币别
+    等待    2
+    #回款金额
+    点击    id=amount
+    Execute Javascript    document.getElementById("amount").value=""
+    Comment    清空输入框内容    xpath=//input[@id='amount']
+    输入    id=amount    ${amount}
+    #上传收款水单
+    Comment    点击    xpath=//span[text()='选择文件']/..
+    Comment    上传文件
+    Comment    收款水单(接口)
+    #结算单位
+    点击    xpath=//div[contains(@class,'customer ant-select-lg customer ant-select')]//div[@class='ant-select-selection__rendered']
+    输入    xpath=//input[@id='customer']    ${customer}
+    按键    xpath=//input[@id='customer']    \\13
+    #银行类型
+    点击    xpath=//div[contains(@class,'accountType ant-select-lg ant-select')]//div[@class='ant-select-selection__rendered']
+    点击    xpath=//li[text()='${bankType}']
+    #备注
+    输入    id=remark    哇哈哈
+    #保存
+    点击    xpath=//span[text()='保 存']/..
+    等待loading消失
+    [Return]    ${recbillno}
+
+完善收款单
+    输入    id=billcode    11011
+    点击    xpath=//span[text()='保 存']/..
+    等待    2
+
+收款单添加费用--按发票
+    [Arguments]    ${invoice}
+    等待    1
+    点击    xpath=//span[text()='添加费用']/..
+    等待    2
+    点击    xpath=//div[text()='按发票']
+    输入    xpath=//div[text()='添加费用']/../..//input[@id='multi_number']    ${invoice}
+    点击    xpath=//div[text()='添加费用']/../..//span[text()='查 询']/..
+    点击    xpath=//div[text()='添加费用']/../..//thead[@class='ant-table-thead']//input[@class='ant-checkbox-input']    #勾选全部/有两个列表
+    点击    xpath=//div[text()='添加费用']/../..//span[text()='确 定']/..
+    等待loading消失
+    Comment    点击    xpath=//span[text()='保 存']/..
+    点击    xpath=//span[text()='提交财务']/..
+    等待    2
+
+收款单添加费用--按对账单
+    [Arguments]    ${checkaccountno}
+    等待    1
+    点击    xpath=//span[text()='添加费用']/..
+    等待    2
+    点击    xpath=//div[text()='按对账单']
+    输入    xpath=//div[text()='添加费用']/../..//input[@id='multi_number']    ${checkaccountno}    #输入对账单号
+    点击    xpath=//div[text()='添加费用']/../..//span[text()='查 询']/..    #查询
+    点击    xpath=//div[text()='添加费用']/../..//thead[@class='ant-table-thead']//input[@class='ant-checkbox-input']    #勾选全部/有两个列表
+    点击    xpath=//div[text()='添加费用']/../..//span[text()='确 定']/..
+    等待loading消失
+    点击    xpath=//span[text()='自动勾选']/..    #点击自动勾选
+    Comment    点击    xpath=//span[text()='保 存']/..
+    点击    xpath=//span[text()='提交财务']/..
+    等待    2
+
+收款单添加费用--按工作单
+    [Arguments]    ${worknumber}
+    等待    1
+    点击    xpath=//span[text()='添加费用']/..
+    等待    2
+    点击    xpath=//div[text()='按工作单']
+    输入    xpath=//div[text()='添加费用']/../..//input[@id='multi_number']    ${worknumber}
+    点击    xpath=//div[text()='添加费用']/../..//span[@class='ant-calendar-picker-icon']    #去除时间
+    点击    xpath=//div[text()='添加费用']/../..//span[text()='查 询']/..
+    点击    xpath=//div[text()='添加费用']/../..//thead[@class='ant-table-thead']//input[@class='ant-checkbox-input']    #勾选全部/有两个列表
+    点击    xpath=//div[text()='添加费用']/../..//span[text()='确 定']/..
+    等待loading消失
+    点击    xpath=//span[text()='自动勾选']/..    #点击自动勾选
+    Comment    点击    xpath=//span[text()='保 存']/..
+    点击    xpath=//span[text()='提交财务']/..
+    等待    2
+
+收款单详情核销
+    切换窗口    new
+    等待loading消失
+    点击    xpath=//span[text()='核 销']/..
+    等待    2
+
+生成请款单
+    [Arguments]    ${bankType}
+    等待    2
+    切换窗口    new
+    #获取请款单号
+    ${applyNo}    获取元素属性值    id=applyNo    value
+    #选择最迟付款日期
+    点击    xpath=//input[@class='ant-calendar-picker-input ant-input ant-input-lg']    #点击最迟付款日
+    点击    xpath=//a[@class='ant-calendar-today-btn ']    #选择今天
+    #选择银行类型
+    点击    xpath=//div[@class='bankType ant-select-lg auto ant-select ant-select-enabled']//div[@class='ant-select-selection__rendered']
+    点击    xpath=//li[text()='${bankType}']
+    #保存
+    点击    xpath=//span[text()='保 存']/..
+    等待    2
+    点击    xpath=//span[text()='确 定']/..
+    等待    2
+    [Return]    ${applyNo}
+
+请款单详情页面设置付款依据
+    等待    2
+    切换窗口    new
+    点击    xpath=//div[@class='ant-select-selection__placeholder']
+    点击    xpath=//li[text()='应收已收']
+    点击    xpath=//span[text()='保 存']/..
+
+生成待付款单
+    等待    2
+    #${待付款单号}    获取页面值    xpath=//div[text()='受理&生成待付款单']/../..//tbody/tr/td[3]/div/span
+    #供应商银行
+    #点击    xptah=//div[@class='o-form o-form-explain-bottom o-form-item-label--4em o-form-item-input--small']//div[@class='ant-select-selection__rendered']
+    #按键    xptah=//div[@class='o-form o-form-explain-bottom o-form-item-label--4em o-form-item-input--small']//div[@class='ant-select-selection__rendered']    \\13
+    点击    xpath=//span[text()='确 认']/..
+
+待付款单审核
+    点击    xpath=//span[text()='审 核']/..
+    等待    2
+    点击    xpath=//span[text()='确 定']/..
+    等待    1
+
+待付款单生成付款单并核销
+    等待    2
+    切换窗口    new
+    #获取付款单号
+    ${paybillno}    获取元素属性值    id=paybillno    value
+    #付款金额
+    输入    id=amount    2000
+    #银行账单
+    输入    id=bankStatement    11011
+    #供应商银行
+    #点击    xpath=//div[@class='baseCustomersBankAccount ant-select-lg auto ant-select ant-select-enabled']//div[@class='ant-select-selection__rendered']
+    #按键    xpath=//div[@class='baseCustomersBankAccount ant-select-lg auto ant-select ant-select-enabled']//div[@class='ant-select-selection__rendered']    \\13
+    Comment    #选择文件
+    Comment    点击    xpath=//span[text()=' 选择文件']/..
+    Comment    上传文件
+    #核销
+    点击    xpath=//span[text()='自动选择']/..
+    点击    xpath=//span[text()='核 销']/..
+    等待    2
+    点击    xpath=//span[text()='确 定']/..
+    [Return]    ${paybillno}
+
+进入快速核销页面核销
+    [Arguments]    ${type}
+    等待loading消失
+    ${billno}    获取元素属性值    id=${type}    value
+    点击    xpath=//div[@class='ant-modal-body']//span[text()='核 销']/..    #点击核销按钮
+    等待loading消失
+    [Return]    ${billno}
+
+删除全部凭证
+    勾选全部
+    Comment    Mouse Over    xpath=//button[@class='ant-btn ant-dropdown-trigger ant-btn-sm']
+    Mouse Over    xpath=//span[text()='输出 ']/..
+    Wait Until Element Is Visible    xpath=//span[text()='删除凭证']/..
+    等待    0.5
+    点击    xpath=//span[text()='删除凭证']/..
+    点击    xpath=//button[@class='ant-btn ant-btn-primary ant-btn-lg']
+    等待loading消失
+
+检查并维护客商
+    [Arguments]    ${往来单位}    ${code}
+    进入客商列表
+    客商列表查询    ${往来单位}
+    等待    3
+    进入列表框架
+    ${result}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr
+    ${return}    run keyword and return status    应该要相等（数字）    ${result}    1
+    离开框架
+    run keyword if    '${return}'!='True'    新增客商    ${往来单位}    ${code}
+
+检查并维护币别信息
+    [Arguments]    ${currency}
+    币别信息--查询    ${currency}
+    进入列表框架
+    ${result}    获取页面列表条数    列表信息
+    ${return}    run keyword and return status    应该要相等（数字）    ${result}    1
+    离开框架
+    run keyword if    '${return}'!='True'    币别信息--新增    ${currency}
+    #验证银行类型存在
+    币别信息--查询    ${currency}
+    进入列表框架
+    ${result}    获取页面数据条数
+    应该要相等（数字）    ${result}    1
+    离开框架
+
+检查并维护浮动汇率
+    [Arguments]    ${f_currency}    ${c_currency}    ${floatrate_type}    ${rate}    ${lower}    ${upper}
+    浮动汇率--查询    ${f_currency}    ${c_currency}    ${floatrate_type}
+    #验证条数
+    进入列表框架
+    ${result}    获取页面列表条数    浮动汇率列表
+    离开框架
+    run keyword if    '${result}'>'0'    浮动汇率--删除    #保证数据不重复
+    离开框架
+    #处理
+    浮动汇率--新增    ${f_currency}    ${c_currency}    ${floatrate_type}    ${rate}    ${lower}    ${upper}
+
+检查并维护账户类型
+    [Arguments]    ${bankType}
+    账户类型--查询    ${bankType}
+    进入列表框架
+    ${result}    获取页面列表条数    账户类型列表
+    ${return}    run keyword and return status    应该要相等（数字）    ${result}    1
+    离开框架
+    run keyword if    '${return}'!='True'    账户类型--新增    ${bankType}
+    #验证银行类型存在
+    账户类型--查询    ${bankType}
+    进入列表框架
+    ${result}    获取页面数据条数
+    应该要相等（数字）    ${result}    1
+    离开框架
+
+检查并维护银行账户
+    [Arguments]    ${bankname}    ${bankaccount}    ${bankType}    ${currency}
+    银行账户--查询    ${bankname}
+    进入列表框架
+    ${result}    获取页面列表条数    银行信息列表
+    ${return}    run keyword and return status    应该要相等（数字）    ${result}    1
+    离开框架
+    run keyword if    '${return}'!='True'    银行账户--新增    ${bankname}    ${bankaccount}    ${bankType}    ${currency}
+    #验证银行类型存在
+    进入列表框架
+    ${result}    获取页面数据条数
+    应该要相等（数字）    ${result}    1
+    离开框架
+
+维护结算相关基础信息
+    m4-登录
+    #维护系统参数
+    点击系统设置（主菜单）
+    点击系统设置（菜单）
+    进入列表框架    #####
+    点击    xpath=//div[text()='海运出口业务管理模块是否支持新增业务']/..//span[text()='是']/..//input[@class='ant-radio-input']    #海运出口业务管理模块是否支持新增业务
+    点击    xpath=//div[text()='应付收票是否需要确认']/..//span[text()='是']/..//input[@class='ant-radio-input']
+    点击    xpath=//div[text()='附加税率功能']/..//span[text()='是']/..//input[@class='ant-radio-input']
+    点击    xpath=//div[text()='浮动汇率有效期设置是否按月份']/..//span[text()='是']/..//input[@class='ant-radio-input']
+    点击    xpath=//span[text()='保 存']/..
+    离开框架
+    点击基础资料
+    进入指定二级菜单    业务基础资料    通用基础资料
+    #币别信息
+    点击币别信息
+    检查并维护币别信息    WYC
+    点击基础资料
+    点击企业基础资料
+    #浮动汇率
+    点击浮动汇率
+    检查并维护浮动汇率    USD    CNY    记账汇率    5    4    6
+    ...    # -1 表示全部    #后面三个 汇率、下限、上限
+    检查并维护浮动汇率    USD    CNY    发票汇率    5    4    6
+    ...    # -1 表示全部    #后面三个 汇率、下限、上限
+    检查并维护浮动汇率    USD    CNY    销账汇率    5    4    6
+    ...    # -1 表示全部    #后面三个 汇率、下限、上限
+    #银行类型
+    点击账户类型
+    检查并维护账户类型    公账
+    #银行账户
+    点击银行账户
+    检查并维护银行账户    杭州银行CNY    312312    公账    CNY
+    #维护客商
+    检查并维护客商    ${往来单位}    110
+    进入客商详情    ${往来单位}
+    #维护客商银行信息(CNY+公账)
+    点击客商详情内的tab    结算信息
+    ${num}    获取结算信息列表条数    银行账户信息
+    ${time}    get time    epoch
+    新增-银行账户信息    宁波银行-${time}    6228666754    CNY    公账
+    #维护开票信息CNY
+    点击结算信息列表内的tab    开票信息
+    ${num}    获取匹配xpath的个数    xpath=//b[text()='开票信息']/../../../../following-sibling::div[1]//table/tbody/tr//input    #因为这里有双倍的tr数，故用input
+    新增-开票信息    增值税普通发票    CNY    大香蕉公用
+    点击    xpath=//div[text()='开票信息']
+    关闭当前窗口
+    关闭浏览器
+
+员工部门设置
+    点击系统设置（主菜单）
+    点击公司管理
+    点击员工管理
+    进入列表框架
+    输入    name=username    ${M4-FULLNAME}
+    点击    xpath=//button[@class='btn btn-primary btn-small']
+    等待    2
+    点击    xpath=//a[text()='${M4-FULLNAME}']
+
+维护基础信息
+    点击基础资料
+    进入指定二级菜单    业务基础资料    通用基础资料
+    #币别信息
+    点击币别信息
+    检查并维护币别信息    WYC
+    #银行类型
+    点击基础资料
+    点击企业基础资料
+    点击账户类型
+    检查并维护账户类型    公账
+
+清除搜素条件(条件按)
+    ${num}    获取匹配xpath的个数    xpath=//div[@class='panel__body']/div[3]//div[@class='ant-col-23']/div[1]/div
+    : FOR    ${i}    IN RANGE    1    ${num}
+    \    点击    xpath=//div[@class='panel__body']/div[3]//div[@class='ant-col-23']/div[1]/div[1]//i[@class='anticon anticon-cross']
+    \    等待    1
+
+收入费用审核
+    点击    xpath=(//thead[@class='ant-table-thead'])[1]//input
+    点击    xpath=//span[text()="审 核"]/..
+    sleep    1
+    Page Should Contain    成功
+
+收入费用确认
+    点击    xpath=(//thead[@class='ant-table-thead'])[1]//input
+    点击    xpath=//span[text()="确 认"]/..
+    sleep    1
+    Page Should Contain    成功
+
+支出费用审核
+    点击    xpath=(//thead[@class='ant-table-thead'])[2]//input
+    点击    xpath=(//span[text()="审 核"]/..)[2]
+    sleep    1
+    Page Should Contain    成功
+
+支出费用确认
+    点击    xpath=(//thead[@class='ant-table-thead'])[2]//input
+    点击    xpath=(//span[text()="确 认"]/..)[2]
+    sleep    1
+    Page Should Contain    成功
+
+账单确认
+    [Arguments]    ${WORKNUMBER}
+    回到首页
+    #维护费用
+    #点击结算管理
+    #点击费用(结算列表)
+    #点击    xpath=//span[text()='费用列表']/..
+    #进入列表框架
+    #输入    id=noKeywordList    ${WORKNUMBER}
+    #点击    xpath=//span[text()='查 询']/..
+    #点击    xpath=(//a[contains(@href,'')])[2]
+    #离开框架
+    #点击业务管理
+    #点击业务台账
+    #海运出口列表查询业务编号    ${WORKNUMBER}
+    进入指定二级菜单    业务台账    空运出口
+    点击业务编号进入详情页    ${WORKNUMBER}
+    sleep    2
+    切换窗口    new
+    点击费用
+    点击    xpath=//div[text()='账单']
+    sleep    2
+    进入框架    xpath=//iframe[contains(@src,'fmsfinance-front')]
+    点击    xpath=(//input[@class='ant-checkbox-input'])[1]
+    点击    xpath=//span[text()="确认账单"]/..
+    sleep    2
+    离开框架
+    点击    xpath=//div[text()='费用列表']
+    点击    xpath=//span[text()="关 账"]/..
+    点击    xpath=//span[text()="确 定"]/..
+    Page Should Contain    成功
+
+费用添加结算单位
+    [Arguments]    ${customername}    ${size-1}
+    点击    xpath=//div[@id='bnReceiptsList-${size-1}.customername']//div[@class='ant-select-selection__rendered']
+    输入    xpath=//input[@id='bnReceiptsList-${size-1}.customername']    ${customername}
+    点击    xpath=//li[text()='${customername}']
+
+费用添加发票抬头
+    [Arguments]    ${invoicename}    ${size-1}
+    点击    xpath=//div[@id='bnReceiptsList-${size-1}.fullname']//div[@class='ant-select-selection__rendered']
+    点击    xpath=//li[text()='${invoicename}']

@@ -1,0 +1,144 @@
+*** Settings ***
+Resource          ../GM1-UI-公共/GM1-UI-引用.txt
+
+*** Keywords ***
+设置为非代操作公司
+    点击系统设置（主菜单）
+    点击系统设置（菜单）
+    进入框架    id=content
+    设置业务参数(单选)    是否为代操作公司    否    # 设置为非代操作公司
+    点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+    离开框架
+
+设置服务内容默认状态
+    [Arguments]    ${service}    ${order}    ${work}    # 需要设置的服务内容名称|是否默认订单(是/否)|是否默认工作单(是/否)
+    点击基础资料
+    等待加载层消失    # 等待加载层消失
+    进入指定二级菜单    企业基础资料    服务类型
+    等待加载层消失    # 等待加载层消失
+    进入框架    id=content
+    点击    xpath=//a[text()='${service}']    # 点击对应服务内容
+    点击    xpath=//label[text()='默认订单']/../following-sublings::div[1]//span[text()='${order}']/../span[1]/input    # 点击是否默认订单
+    点击    xpath=//label[text()='默认工作单']/../following-sublings::div[1]//span[text()='${order}']/../span[1]/input    # 点击是否默认订单
+    点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+    离开框架
+
+新建工作单
+    ${sales}    Set Variable    俞森
+    ${goods}    Set Variable    公司货
+    ${company}    Set Variable    yusen测试
+    点击业务管理
+    进入指定二级菜单    业务台账    空运出口    # 进入空运出口
+    进入框架    id=content
+    Wait Until Element Is Enabled    xpath=//span[text()='新 增']/..
+    点击    xpath=//span[text()='新 增']/..    # 点击新增按钮
+    ${prefix}    获取页面文本内容    xpath=//div[@id='BUSINESS_NO_id_div']//div[@class='ant-select-selection-selected-value']    # 获取企业编码前缀
+    ${code}    获取页面值    xpath=//div[@id='BUSINESS_NO_id_div']//input    # 获取企业编码值
+    ${WORKNO}    连接字符    ${prefix}    ${code}
+    下拉框选中(筛选功能下拉框)    销售    ${sales}    # 输入销售名称
+    下拉框选中    货物来源    ${goods}    # 输入货物来源
+    下拉框选中(多列)    委托单位    ${company}    # 输入委托单位
+    点击    xpath=//span[text()='确 定']/..
+    页面应该包含    ${WORKNO}
+    离开框架
+    Set Suite Variable    ${WORKNO}
+
+生成机场
+    [Arguments]    ${airport}
+    [Documentation]    查询是否存在指定机场，若没有，则生成该机场
+    进入指定一级菜单    资料
+    进入指定二级菜单    业务基础资料    空运基础资料
+    进入框架    id=content
+    输入    id=searchNo    ${airport}
+    点击    xpath=//span[text()='查 询']/..    # 点击查询按钮
+    ${count}    获取匹配xpath的个数    xpath=//a[text()='${airport}']
+    run keyword if    ${count}==0    新增机场    ${airport}    test_city
+    离开框架
+
+生成航线
+    进入指定一级菜单    资料
+    进入指定二级菜单    业务基础资料    空运基础资料
+    点击    xpath=//a[text()='空运航线']    # 点击空运航线菜单
+    进入框架    id=content
+    输入    id=cnname    测试航线
+    点击    xpath=//span[text()='查 询']/..    # 点击查询按钮
+    ${count}    获取匹配xpath的个数    xpath=//table[@id='qp_base_airroutes_tbl5']/tbody/tr
+    run keyword if    ${count}==1    run keywords    点击    id=bt_add
+    ...    AND    离开框架
+    ...    AND    新增航线
+    ...    AND    进入框架    id=content
+    离开框架
+
+勾选服务项
+    [Arguments]    ${service}
+    ${count}    获取匹配xpath的个数    xpath=//span[text()='${service}']/preceding-sibling::span[contains(@class,'ant-checkbox-checked')]
+    run keyword if    ${count}==0    点击    xpath=//span[text()='${service}']/preceding-sibling::span[1]
+
+系统参数-设置指定单选参数
+    [Arguments]    ${name}    ${ishidden}=false
+    [Documentation]    设置系统参数--空运出口提货报关仓储tab是否隐藏
+    ...    选择为true时空运出口隐藏提货报关仓储tab
+    ...    选择为false时空运出口显示提货报关仓储tab
+    ...
+    ...    参数ishidden，默认取值为false
+    进入指定一级菜单    设置
+    进入指定二级菜单    系统设置    业务参数
+    进入框架    id=content
+    Run Keyword If    '${ishidden}'=='true'    设置业务参数(单选)    ${name}    是
+    ...    ELSE    设置业务参数(单选)    ${name}    否
+    点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+    离开框架
+
+业务点击新增指定按钮
+    [Arguments]    ${name}
+    [Documentation]    $name：新增按钮下拉对应的按钮名称
+    进入框架    id=content
+    Wait Until Element Is Enabled    xpath=//span[text()='新增 ']/..    10
+    click element    xpath=//span[text()='新增 ']/..
+    Wait Until Element Is Visible    xpath=//div[contains(@class, 'ant-dropdown-placement-bottomLeft')]//span[text()='${name}']/..
+    mouse over    xpath=//div[contains(@class, 'ant-dropdown-placement-bottomLeft')]//span[text()='${name}']/..
+    点击    xpath=//div[contains(@class, 'ant-dropdown-placement-bottomLeft')]//span[text()='${name}']/..
+    离开框架
+
+全业务列表进入对应视图
+    [Arguments]    ${name}
+    进入框架    id=content
+    Wait Until Element Is Enabled    xpath=//span[text()='视图']/..
+    mouse over    xpath=//span[text()='视图']/..
+    Wait Until Element Is Visible    xpath=//div[contains(@class, 'ant-dropdown-placement-bottomLeft')]//li[text()='${name}']
+    mouse over    xpath=//div[contains(@class, 'ant-dropdown-placement-bottomLeft')]//li[text()='${name}']
+    点击    xpath=//div[contains(@class, 'ant-dropdown-placement-bottomLeft')]//li[text()='${name}']
+    离开框架
+
+新增业务选择业务类型
+    [Arguments]    ${name}
+    点击    id=businesstype
+    Wait Until Element Is Visible    xpath=//li[contains(text(),'${name}')]
+    点击    xpath=//li[contains(text(),'${name}')]
+
+新增业务选择指定的服务类型
+    [Arguments]    ${name}
+
+生成服务类型
+    [Arguments]    ${type}    ${name}
+    进入指定一级菜单    资料
+    进入指定二级菜单    企业基础资料    服务类型
+    进入框架    id=content
+    输入    xpath=//input[@id='serviceTypeName']    ${name}
+    点击    id=businessType
+    点击    xpath=//ul[contains(@class, 'ant-select-dropdown-menu-root')]//li[text()='${type}']
+    点击    xpath=//span[text()='查 询']/..
+    ${count}    获取匹配xpath的个数    xpath=//div[contains(@class,'ant-table-content')]//tbody//tr
+    run keyword if    ${count} == 0    新增服务类型    ${type}    ${name}
+    离开框架
+
+新增服务类型
+    [Arguments]    ${type}    ${name}
+    点击    xpath=//span[text()='新 增']/..
+    Wait Until Element Is Visible    xpath=//div[contains(@class, 'ant-modal-content')]
+    点击    xpath=//div[contains(@class,'ant-modal-content')]//div[@id='businessType']
+    点击    xpath=//div[contains(@class, 'ant-modal-content')]//li[text()='${type}']
+    输入    xpath=//div[contains(@class, 'ant-modal-content')]//input[@id='serviceTypeName']    ${name}
+    点击    xpath=//span[text()='确 定']/..
+    Wait Until Page Contains    保存成功
+    点击    xpath=//button[@class='ant-modal-close']

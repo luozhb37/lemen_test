@@ -1,0 +1,212 @@
+*** Settings ***
+Library           Selenium2Library
+Resource          ../Resources/基础关键字.txt
+Resource          ../Resources/会员操作关键字.txt
+Library           OlymLibrary
+
+*** Keywords ***
+新增船公司信息
+    [Arguments]    ${code}    ${name}    ${carrierseacode2}=    ${remark}=
+    [Documentation]    入口: 内部帐号登录后
+    ...
+    ...    出口: 已登录状态 top frame
+    打开页面    运价通    基础资料    船公司信息
+    #打开新增页面
+    进入框架    //iframe[contains(@src,"baseCarrier")]    #进入列表页面
+    点击链接    新增
+    离开框架
+    #新增
+    进入框架    //iframe[contains(@src,"baseCarrierEdit")]    #进入新增页面
+    输入    id=code    ${code}
+    输入    id=name    ${name}
+    输入    id=carrierseacode2    ${carrierseacode2}
+    输入    id=remark    ${remark}
+    点击链接    保存
+    sleep    3
+    ${message}=    Confirm Action
+    点击链接    关闭
+    sleep    2
+    离开框架
+    关闭弹出框
+    [Return]    ${name}
+
+新增整箱航线
+    [Arguments]    ${cnname}    ${enname}    ${seqno}=0
+    [Documentation]    入口: 内部帐号登录后
+    ...
+    ...    出口: 已登录状态 top frame
+    打开页面    运价通    基础资料    xpath=//a[contains(@href,"海运出口整箱航线信息")]
+    #打开新增页面
+    进入框架    //iframe[contains(@src,"baseSearouteFclExport")]    #进入列表页面
+    点击链接    新增
+    离开框架
+    #新增
+    进入框架    //iframe[contains(@src,"baseSearouteFclExportEdit")]    #进入新增页面
+    输入    id=cnname    ${cnname}
+    输入    id=enname    ${enname}
+    输入    id=seqno    ${seqno}
+    点击链接    保存
+    sleep    3
+    ${message}=    Confirm Action
+    点击链接    关闭
+    sleep    2
+    离开框架
+    关闭弹出框
+    [Return]    ${enname}
+
+新增整箱港口
+    [Arguments]    ${enname}    ${searoute}    ${code}=    ${cnname}=    ${cncountryname}=    ${encountryname}=
+    ...    ${searchcode}=    ${remark}=    ${isloadport}=否    ${isbaseport}=否
+    [Documentation]    通用的新增功能,参数格式控制见实际业务数据
+    [Tags]    todo
+    打开页面    运价通    基础资料    xpath=//a[contains(@href,"海运出口整箱港口信息")]
+    #打开新增页面
+    进入框架    //iframe[contains(@src,"baseSeaportFclExport")]    #进入列表页面
+    点击链接    新增
+    离开框架
+    #新增
+    进入框架    //iframe[contains(@src,"baseSeaportFclExportEdit")]    #进入新增页面
+    输入    id=code    ${code}
+    输入    id=enname    ${enname}
+    输入    id=cnname    ${cnname}
+    输入    id=cncountryname    ${cncountryname}
+    输入    id=encountryname    ${encountryname}
+    输入    id=searchcode    ${searchcode}
+    Run Keyword And Return Status    下拉选择    id=searoute    ${searoute}
+    Run Keyword And Return Status    下拉选择byIndex    id=searoute    ${searoute}
+    输入    id=remark    ${remark}
+    Run Keyword If    "${isbaseport}"=="是"    Select Checkbox    id=isbaseport
+    Run Keyword If    "${isloadport}"=="是"    Select Checkbox    id=is_loadport
+    点击链接    保存
+    sleep    3
+    ${message}=    Confirm Action
+    点击链接    关闭
+    离开框架
+    关闭弹出框
+    sleep    1
+    #校验
+    #${yjcount}    查询整箱港口    ${enname}
+    #Run Keyword If    ${yjcount}==0    Fail    msg=新增港口失败
+    #sleep    2
+    [Return]    ${enname}
+
+新增整箱港口-引用本体库
+    [Arguments]    ${enname}    ${searoute}    ${searchcode}=    ${remark}=    ${isloadport}=否    ${isbaseport}=否
+    [Documentation]    通用的新增功能,参数格式控制见实际业务数据
+    [Tags]    todo
+    打开页面    运价通    基础资料    xpath=//a[contains(@href,"海运出口整箱港口信息")]
+    #打开新增页面
+    进入框架    //iframe[contains(@src,"baseSeaportFclExport")]    #进入列表页面
+    点击链接    新增
+    离开框架
+    #新增
+    进入框架    //iframe[contains(@src,"baseSeaportFclExportEdit")]    #进入新增页面
+    输入    id=enname    ${enname}
+    sleep    1
+    Execute Javascript    $(".cbg-table td:contains('${enname}')").click()    #点击下拉框
+    输入    id=searchcode    ${searchcode}
+    Run Keyword And Return Status    下拉选择    id=searoute    ${searoute}
+    Run Keyword And Return Status    下拉选择byIndex    id=searoute    ${searoute}
+    输入    id=remark    ${remark}
+    Run Keyword If    "${isbaseport}"=="是"    Select Checkbox    id=isbaseport
+    Run Keyword If    "${isloadport}"=="是"    Select Checkbox    id=is_loadport
+    点击链接    保存
+    sleep    3
+    ${message}=    Confirm Action
+    #获取code
+    ${code}=    Get Value    id=code
+    点击链接    关闭
+    sleep    1
+    关闭弹出框
+    #校验
+    #${yjcount}    查询整箱港口    ${enname}
+    #Run Keyword If    ${yjcount}==0    Fail    msg=新增港口失败
+    #sleep    2
+    [Return]    ${code}
+
+查询整箱港口
+    [Arguments]    ${enname}=    ${code}=    ${searoute}=    ${isloadport}=
+    [Documentation]    通过查询条件查询出运价条数(支持一页内的数据,超出一页按一页最大值统计)
+    [Tags]
+    打开页面    运价通    基础资料    xpath=//a[contains(@href,"海运出口整箱港口信息")]
+    #操作新增页面元素
+    进入框架    //iframe[contains(@src,"baseSeaportFclExport")]    #进入列表页面
+    下拉选择    id=searoute    ${searoute}
+    输入    id=enname    ${enname}
+    输入    id=code    ${code}
+    下拉选择    id=isloadport    ${isloadport}
+    点击链接    查询
+    sleep    2
+    ${count}    获取表格行数    id    baseSeaportFclExport
+    [Return]    ${count}    # 运价条数
+
+新增拼箱航线
+    [Arguments]    ${cnname}    ${enname}    ${seqno}=0
+    [Documentation]    入口: 内部帐号登录后
+    ...
+    ...    出口: 已登录状态 top frame
+    打开页面    运价通    基础资料    xpath=//a[contains(@href,"海运出口拼箱航线信息")]
+    #打开新增页面
+    进入框架    //iframe[contains(@src,"baseSearouteLclExport")]    #进入列表页面
+    点击链接    新增
+    离开框架
+    #新增
+    进入框架    //iframe[contains(@src,"baseSearouteLclExportEdit")]    #进入新增页面
+    输入    id=cnname    ${cnname}
+    输入    id=enname    ${enname}
+    输入    id=seqno    ${seqno}
+    点击链接    保存
+    sleep    3
+    ${message}=    Confirm Action
+    点击链接    关闭
+    sleep    2
+    离开框架
+    关闭弹出框
+    log    新增拼箱航线: ${enname} ${message}
+    [Return]    ${enname}
+
+新增拼箱港口
+    [Arguments]    ${enname}    ${searoute}    ${code}=    ${cnname}=    ${cncountryname}=    ${encountryname}=
+    ...    ${searchcode}=    ${remark}=    ${isloadport}=否    ${isbaseport}=否    ${useBasedata}=是
+    [Documentation]    ${searoute} 可以书index 也可以是list中的value
+    ...
+    ...    ${useBasedata}= 是,否 \ 如果"=是" 则会冲掉其他字段的值, *默认直接引用* 直接引用本体库的数据
+    [Tags]    todo
+    打开页面    运价通    基础资料    xpath=//a[contains(@href,"海运出口拼箱港口信息")]
+    #打开新增页面
+    进入框架    //iframe[contains(@src,"baseSeaportLclExport")]    #进入列表页面
+    点击链接    新增
+    离开框架
+    #新增
+    进入框架    //iframe[contains(@src,"baseSeaportLclExportEdit")]    #进入新增页面
+    输入    id=code    ${code}
+    输入    id=cnname    ${cnname}
+    输入    id=cncountryname    ${cncountryname}
+    输入    id=encountryname    ${encountryname}
+    输入    id=enname    ${enname}
+    sleep    1
+    Execute Javascript    $(".cbg-table td:contains('${enname}')").click()    #点击下拉框
+    输入    id=searchcode    ${searchcode}
+    Run Keyword And Return Status    下拉选择    id=searoute    ${searoute}
+    Run Keyword And Return Status    下拉选择byIndex    id=searoute    ${searoute}
+    输入    id=remark    ${remark}
+    Run Keyword If    "${isbaseport}"=="是"    Select Checkbox    id=isbaseport
+    Run Keyword If    "${isloadport}"=="是"    Select Checkbox    id=is_loadport
+    Run Keyword If    "${useBasedata}"=="否"    输入    id=code    ${code}
+    Run Keyword If    "${useBasedata}"=="否"    输入    id=cnname    ${cnname}
+    Run Keyword If    "${useBasedata}"=="否"    输入    id=cncountryname    ${cncountryname}
+    Run Keyword If    "${useBasedata}"=="否"    输入    id=encountryname    ${encountryname}
+    点击链接    保存
+    sleep    3
+    ${message}=    Confirm Action
+    #获取code
+    #${code}=    Get Value    id=code
+    点击链接    关闭
+    离开框架
+    关闭弹出框
+    sleep    1
+    log    新增拼箱港口:${enname} ${message}
+    #${yjcount}    查询整箱港口    ${enname}
+    #Run Keyword If    ${yjcount}==0    Fail    msg=新增港口失败
+    #sleep    2
+    [Return]    ${code}

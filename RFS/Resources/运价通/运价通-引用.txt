@@ -1,0 +1,12 @@
+*** Settings ***
+Library           Selenium2Library
+Resource          ../../Resources/基础关键字.txt
+Library           Screenshot
+Library           OlymLibrary
+Resource          ../../Resources/会员操作关键字.txt
+Resource          ../../Resources/整箱操作关键字.txt
+Resource          ../../Resources/拼箱操作关键字.txt
+Resource          ../../Resources/运价通/基础资料.txt
+Library           DateTime
+Resource          ../../Resources/运价通/运价通-业务.txt
+Resource          ../../Resources/运价通/客户管理.txt

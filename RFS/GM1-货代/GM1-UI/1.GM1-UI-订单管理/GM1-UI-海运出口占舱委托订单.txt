@@ -1,0 +1,32 @@
+*** Settings ***
+Suite Setup       run keywords    m4-登录
+...               AND    点击订单管理
+Suite Teardown    Close All Browsers
+Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+
+*** Test Cases ***
+新增占舱
+    [Setup]    重载当前页
+    点击占舱中心
+    ${WORKNO-ZC}    占舱新增
+    订单列表查询    ${WORKNO-ZC}
+    ${content}    获取订单列表记录数
+    应该包含    ${content}    共1条
+    Set Suite Variable    ${WORKNO-ZC}
+
+提交占舱
+    点击占舱中心
+    订单列表查询    ${WORKNO-ZC}
+    点击提交占舱    ${WORKNO-ZC}
+
+复制新增占舱
+    点击占舱中心
+    勾选列表第一条记录
+    复制新增
+
+删除占舱
+    点击占舱中心
+    ${workno-zc}    占舱新增
+    订单列表查询    ${workno-zc}    #2.28发现一BUG，暂时注释
+    勾选列表第一条记录
+    点击删除

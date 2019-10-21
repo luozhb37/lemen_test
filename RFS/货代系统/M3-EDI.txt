@@ -1,0 +1,185 @@
+*** Settings ***
+Suite Setup       登录
+Suite Teardown    close all browsers
+Test Setup        Reload Page
+Resource          ../Resources/M3基础操作/M3--引用.txt
+
+*** Test Cases ***
+EDI-舱单报文
+    ${id}    EDI-新增海运出口业务    大香蕉    CCNI    南美智利    cargoGM演示外贸公司
+    进入新增业务信息    ${id}
+    #进入业务详情
+    进入详情框架
+    输入    id=bn_assistants_carriercode    APL    #船公司code
+    输入    id=bn_mains_carrier    美国总统    #船公司
+    点击    id=bt_save    #点击保存
+    Mouse Over    id=bt_edi
+    点击    xpath=//span[text()='发送舱单']/..
+    离开框架
+    #进入EDI确认页面
+    进入框架    xpath=//h3[text()='EDI']/../..//iframe[starts-with(@id,'win_')]
+    点击    id=bt_ok
+    离开框架
+    #进入EDI导出页面
+    进入框架    xpath=//h3[text()="EDI"]/../..//iframe[starts-with(@id,"win_")]
+    点击    name=bt_file_export    #点击导出按钮
+    sleep    4
+    点击    name=bt_ftp_send    #点击ftp按钮
+    Wait Until Page Contains    成功    30
+    离开框架
+
+EDI-舱单报文-非无限
+    ${id}    EDI-新增海运出口业务    大香蕉    CCNI    南美智利    cargoGM演示外贸公司
+    进入新增业务信息    ${id}
+    #进入业务详情
+    进入详情框架
+    输入    id=bn_assistants_carriercode    APL    #船公司code
+    输入    id=bn_mains_carrier    美国总统    #船公司
+    点击    id=bt_save    #点击保存
+    Mouse Over    id=bt_edi
+    点击    xpath=//span[text()='发送舱单']/..
+    离开框架
+    #进入EDI确认页面
+    进入框架    xpath=//h3[text()='EDI']/../..//iframe[starts-with(@id,'win_')]
+    下拉选择byValue    id=edi_base_sendtype    2
+    点击    id=bt_ok
+    sleep    2
+    下拉选择byValue    id=edi_base_sendtype    1
+    点击    id=bt_ok
+    Wait Until Page Contains    成功    5
+    离开框架
+
+EDI-无纸化报文
+    ${id}    EDI-新增海运出口业务    大香蕉    南美智利    CCNI    cargoGM演示外贸公司
+    进入新增业务信息    ${id}
+    #进入业务详情
+    进入详情框架
+    输入    id=bn_assistants_carriercode    APL    #船公司code
+    输入    id=bn_mains_carrier    美国总统    #船公司
+    点击    id=bt_save    #点击保存
+    Mouse Over    id=bt_edi
+    点击    xpath=//span[text()='发送无纸化']/..
+    离开框架
+    #进入EDI确认页面
+    进入框架    xpath=//h3[text()='EDI']/../..//iframe[starts-with(@id,'win_')]
+    点击    id=bt_ok
+    离开框架
+    #进入EDI导出页面
+    进入框架    xpath=//h3[text()="EDI"]/../..//iframe[starts-with(@id,"win_")]
+    点击    name=bt_file_export    #点击导出按钮
+    sleep    6
+    点击    name=bt_ftp_send    #点击ftp按钮
+    Wait Until Page Contains    成功    30
+    离开框架
+
+EDI-无纸化报文-非无限
+    ${id}    EDI-新增海运出口业务    大香蕉    南美智利    CCNI    cargoGM演示外贸公司
+    进入新增业务信息    ${id}
+    #进入业务详情
+    进入详情框架
+    输入    id=bn_assistants_carriercode    APL    #船公司code
+    输入    id=bn_mains_carrier    美国总统    #船公司
+    点击    id=bt_save    #点击保存
+    Mouse Over    id=bt_edi
+    点击    xpath=//span[text()='发送无纸化']/..
+    离开框架
+    #进入EDI确认页面
+    进入框架    xpath=//h3[text()='EDI']/../..//iframe[starts-with(@id,'win_')]
+    下拉选择byValue    id=edi_base_sendtype    2
+    点击    id=bt_ok
+    sleep    2
+    下拉选择byValue    id=edi_base_sendtype    1
+    点击    id=bt_ok
+    Wait Until Page Contains    成功    5
+    离开框架
+
+EDI-VGM报文
+    ${id}    EDI-新增海运出口业务    大香蕉    南美智利    CCNI    cargoGM演示外贸公司
+    进入新增业务信息    ${id}
+    #进入业务详情
+    进入详情框架
+    输入    id=bn_assistants_carriercode    APL    #船公司code
+    输入    id=bn_mains_carrier    美国总统    #船公司
+    点击    id=bt_save    #点击保存
+    Mouse Over    id=bt_edi
+    点击    xpath=//span[text()='发送VGM']/..
+    离开框架
+    #进入EDI确认页面
+    进入框架    xpath=//h3[text()='EDI']/../..//iframe[starts-with(@id,'win_')]
+    点击    id=bt_ok
+    离开框架
+    #进入EDI导出页面
+    进入框架    xpath=//h3[text()="EDI"]/../..//iframe[starts-with(@id,"win_")]
+    点击    name=bt_file_export    #点击导出按钮
+    sleep    6
+    点击    name=bt_ftp_send    #点击ftp按钮
+    Wait Until Page Contains    成功    30
+    离开框架
+
+EDI-VGM报文-非无限
+    ${id}    EDI-新增海运出口业务    大香蕉    南美智利    CCNI    cargoGM演示外贸公司
+    进入新增业务信息    ${id}
+    #进入业务详情
+    进入详情框架
+    输入    id=bn_assistants_carriercode    APL    #船公司code
+    输入    id=bn_mains_carrier    美国总统    #船公司
+    点击    id=bt_save    #点击保存
+    Mouse Over    id=bt_edi
+    点击    xpath=//span[text()='发送VGM']/..
+    离开框架
+    #进入EDI确认页面
+    进入框架    xpath=//h3[text()='EDI']/../..//iframe[starts-with(@id,'win_')]
+    下拉选择byValue    id=edi_base_sendtype    2
+    点击    id=bt_ok
+    sleep    2
+    下拉选择byValue    id=edi_base_sendtype    1
+    点击    id=bt_ok
+    Wait Until Page Contains    成功    5
+    离开框架
+
+*** Keywords ***
+EDI报文参数设置
+    点击系统设置
+    点击EDI报文参数设置
+    进入框架    id=content
+    输入    id=carrier    cargoGM供应商公司
+    输入    id=loadport
+    点击    css=.ant-btn ant-btn-primary ant-btn-sm
+    ${EDI_exit}    Run Keyword And Return Status    Wait Until Page Does Not Contain    共    #Run Keyword If    '${EDI_exit}'=='False'    新增订舱报文配置
+    ...    # ELSE    log
+
+EDI-新增海运出口业务
+    [Arguments]    ${mains}    ${shipper_code}    ${shipper}    ${daili}
+    [Documentation]    mains = 结算和委托单位
+    ...    ，shipper_code = 船公司code
+    ...    ，shipper = 船公司
+    ...    ，daili = 订舱代理
+    点击业务管理
+    点击业务台帐
+    点击海运出口
+    进入列表页面框架
+    点击    id=bt_add    #新增
+    离开框架
+    进入详情框架
+    ${currenttime+7}    当前日期加减天数    +7
+    sleep    2
+    ${CASENUMBER-SUIT}    获取页面值    id=client_casenumber    #获取casenumber
+    输入    id=bn_assistants_loadportcode    CNNBO    #起运港code
+    输入    id=bn_mains_loadport    NINGBO    #起运港
+    输入    id=bn_assistants_loadport_un_code    CNNGB    #起运港uncode
+    输入    id=bn_assistants_carriercode    ${shipper_code}    #船公司code
+    输入    id=bn_mains_carrier    ${shipper}    #船公司
+    输入    id=bn_mains_customername    ${mains}    #委托单位
+    输入    id=bn_mains_receiptname    ${mains}    #结算单位
+    输入    id=bn_mains_sales    胡伟
+    输入    id=bn_mains_bookingagency    ${daili}    #订舱代理
+    等待    1
+    点击    id=bt_save    #点击保存
+    等待    1
+    ${status}    run keyword and return status    confirm弹出框选择确认
+    #等待直到定位到 业务编号
+    Wait Until Page Contains    EDI
+    离开框架
+    ${BUSINESSNO-SUIT-SEAEXPORT}    业务台帐保存后获取业务编号-海运出口
+    关闭所有弹出框
+    [Return]    ${BUSINESSNO-SUIT-SEAEXPORT}

@@ -1,0 +1,26 @@
+*** Settings ***
+Resource          ../Resources/main.txt
+Resource          ../Resources/基础关键字.txt
+Library           Selenium2Library
+
+*** Variables ***
+
+*** Test Cases ***
+内部用户登录
+    [Tags]
+    打开    ${url}
+    点击    id=member
+    输入    id=username    99992000001
+    输入    id=password    111111.
+    点击    xpath=//a[@class="login-btn"]    #点登录按钮
+    sleep    2
+    关闭浏览器
+
+外部用户登录
+    打开    ${url}
+    点击    id=contact
+    输入    id=username    99992000006
+    输入    id=password    111111.
+    点击链接    xpath=//a[@class="login-btn"]
+    sleep    2
+    关闭浏览器

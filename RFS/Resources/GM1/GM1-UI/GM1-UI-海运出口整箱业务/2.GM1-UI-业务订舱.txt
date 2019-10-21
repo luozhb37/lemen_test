@@ -1,0 +1,23 @@
+*** Settings ***
+Resource          ../GM1-UI-公共/GM1-UI-引用.txt
+
+*** Keywords ***
+获取已放舱的时间
+    ${text}    获取页面文本内容    xpath=//span[text()='已放舱']/span
+    [Return]    ${text}
+
+点击放舱
+    点击    xpath=//span[contains(text(),'已放舱')]/../../span[1]/input
+
+获取处理中的时间
+    ${text}    获取页面文本内容    xpath=//div[@class='ant-radio-group ant-radio-group-large']/span[1]/span
+    [Return]    ${text}
+
+撤回放舱
+    点击    xpath=//a[text()='放舱撤回']    #点击撤回放舱按钮
+    输入    id=remarks    撤回    #随便输入就好
+    点击确定按钮
+    Wait Until Page Contains    放舱撤回成功
+
+点击知道了
+    点击    xpath=//span[text()='知道了']/..

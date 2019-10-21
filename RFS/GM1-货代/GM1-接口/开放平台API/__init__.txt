@@ -1,0 +1,6 @@
+*** Settings ***
+Suite Setup       初始化配置
+Library           OlymLibrary
+Library           ExcelLibrary
+Library           requests
+Resource          ../../../Resources/GM1/GM1-接口/开发平台-API.txt

@@ -1,0 +1,108 @@
+*** Settings ***
+Suite Setup       登录
+Suite Teardown    close all browsers
+Test Setup        Reload Page
+Resource          ../../Resources/M3基础操作/M3--引用.txt
+
+*** Test Cases ***
+司机运费上传
+    点击基础资料
+    点击陆运基础资料
+    点击司机运费
+    进入列表页面框架
+    输入    id=base_diverfee_destination    11
+    点击    id=bt_query
+    ${pages}    获取页面文本内容    css=span.view-page
+    ${temp}    Run Keyword And Return Status    应该包含    ${pages}    共1条
+    Run Keyword If    ${temp} == True    删除上传
+    离开框架
+    进入列表页面框架
+    点击    id=bt_upload
+    离开框架
+    上传    ${CURDIR}\\driverfee.xls
+
+往来单位上传
+    点击基础资料
+    点击企业基础资料
+    点击    xpath=//a[text()='往来单位']
+    等待加载层消失
+    进入列表页面框架
+    输入    id=qy_base_customers_name    安菲尔德球场
+    点击    id=bt_query
+    ${pages}    获取页面文本内容    css=span.view-page
+    ${temp}    Run Keyword And Return Status    应该包含    ${pages}    共1条
+    Run Keyword If    ${temp} == True    删除上传
+    离开框架
+    进入列表页面框架
+    点击    bt_insert
+    离开框架
+    上传    ${CURDIR}\\customers.xls
+
+货物信息上传
+    点击基础资料
+    点击企业基础资料
+    点击    xpath=//a[text()='货物信息']
+    等待加载层消失
+    进入列表页面框架
+    输入    id=qy_base_goodses_code    QDD112
+    点击    id=bt_query
+    ${pages}    获取页面文本内容    css=span.view-page
+    ${temp}    Run Keyword And Return Status    应该包含    ${pages}    共1条
+    Run Keyword If    ${temp} == True    删除上传
+    离开框架
+    进入列表页面框架
+    点击    bt_insert
+    离开框架
+    上传    ${CURDIR}\\goods.xls
+
+币别信息-新增
+    点击基础资料
+    点击企业基础资料
+    点击    xpath=//a[text()='币别信息']
+    等待加载层消失
+    进入列表页面框架
+    点击    xpath=//span[text()='新增']/..
+    离开框架
+    #新增币别
+    进入框架    xpath=//iframe[starts-with(@name,'win_')]
+    输入    xpath=//tr[@elementname="base_currencytypes_code"]/td/span/input    YE
+    输入    xpath=//tr[@elementname="base_currencytypes_name"]/td/span/input    叶
+    输入    xpath=//tr[@elementname="base_currencytypes_defaultrate"]/td/span/input    10
+    点击    id=bt_save_close
+    sleep    3
+    #验证
+    进入列表页面框架
+    输入    id=qy_base_currencytypes_code    YE
+    点击    id=bt_query
+    离开框架
+    ${pages}    获取列表记录数（另一种）
+    应该包含    ${pages}    共1条
+
+币别信息-删除
+    点击基础资料
+    点击企业基础资料
+    点击    xpath=//a[text()='币别信息']
+    等待加载层消失
+    进入列表页面框架
+    输入    id=qy_base_currencytypes_code    YE
+    点击    id=bt_query
+    点击    name=SHEET_ROW_SELECT_ALL
+    点击    id=bt_delete
+    页面弹出框选择确定
+    离开框架
+
+*** Keywords ***
+上传
+    [Arguments]    ${route}
+    进入框架    xpath=//iframe[starts-with(@name,'win_')]
+    Choose File    id=e_upload_xml    ${route}
+    点击    id=bt_upload
+    sleep    3
+    Page Should Contain    成功导入
+    离开框架
+    关闭所有弹出框
+
+删除上传
+    点击    name=SHEET_ROW_SELECT_ALL
+    点击    id=bt_delete
+    页面弹出框选择确定

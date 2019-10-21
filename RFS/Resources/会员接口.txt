@@ -1,0 +1,59 @@
+*** Settings ***
+Documentation     会员基本操作
+Library           Collections
+Library           OlymLibrary
+Resource          ../Resources/运价通业务数据.txt
+Resource          基础关键字.txt
+
+*** Keywords ***
+GetBackurl
+    [Arguments]    ${alias}    ${username}    ${password}    ${domain}    ${userType}
+    [Documentation]    密码需要加密串
+    Create Session    ${alias}    http://${domain}
+    ${headers}    Create Dictionary    Content-Type=application/x-www-form-urlencoded    Accept-Language=zh-CN,zh;q=0.8
+    #backUrl=aHR0cDovL3Rlc3Q0LjEwMGppdC5jb20vY3BtZW1iZXJzaGlwL3ByaXZhdGVMb2cuY3RybD8kYWN0aW9uPXJvdXRlJl9sX3I9MTQ1MjIxNjI5MTUzMg    tokenId=ZJsaEMSesj/SMO9QrpHLyxp0hy7SVI3T8Qo/isG8+kGXnsimmR0eIcOBS6w=
+    ${data}    Create Dictionary    serverName=${domain}    serverPort=80    backUrl=http://${domain}/cpmembership/privateLog.ctrl?$action=route&_l_r=1466471624142    logoutUrl=http://${domain}/cpthemes/commonLog.ctrl    isMemLogin=true
+    ...    username=${username}    password=${password}    userType=${userType}
+    ${resp}    Post Request    ${alias}    /cpmembership/commonLog.ctrl?$action=directLoginAction    data=${data}    headers=${headers}
+    #log    ${resp.text}
+    ${backUrl}    re search    ${resp.text}    backUrl" value="    "
+    log    ${backUrl}
+    [Return]    ${backUrl}
+
+Dcas_Login
+    [Arguments]    ${alias}    ${username}    ${password}    ${domain}    ${userType}    ${dcasDomain}
+    ${backurl}    GetBackurl    ${alias}    ${username}    ${password}    ${domain}    ${userType}
+    ${headers}    Create Dictionary    Content-Type=application/x-www-form-urlencoded    Accept-Language=zh-CN,zh;q=0.8
+    #backUrl=aHR0cDovL3Rlc3Q0LjEwMGppdC5jb20vY3BtZW1iZXJzaGlwL3ByaXZhdGVMb2cuY3RybD8kYWN0aW9uPXJvdXRlJl9sX3I9MTQ1MjIxNjI5MTUzMg    tokenId=ZJsaEMSesj/SMO9QrpHLyxp0hy7SVI3T8Qo/isG8+kGXnsimmR0eIcOBS6w=
+    Set Session Url    ${alias}    http://${dcasDomain}
+    ${data}    Create Dictionary    accessId=freightClient    backUrl=${backurl}    username=${username}    password=${password}    domain=${domain}
+    ...    userType=${userType}
+    ${resp}    Post Request    ${alias}    /dcas2/rest/login    data=${data}    headers=${headers}
+    #log    ${resp.text}
+    Run Keyword If    '${userType}'=='1'    Should Contain    ${resp.text}    掌柜互联    msg=帐号登录失败 ,username=${username} ,userType=${userType}
+    Run Keyword If    '${userType}'=='2'    Should Contain    ${resp.text}    退出    msg=帐号登录失败,username=${username} ,userType=${userType}
+    Set Session Url    ${alias}    http://${domain}
+
+新建掌门人管理员会话
+    [Arguments]    ${alias}=${运价内部_session}
+    Dcas_Login    alias=${alias}    username=${掌门人_管理员用户名}    password=${掌门人_管理员密码_加密}    domain=${掌门人_domain}    userType=1    dcasDomain=${dcasDomain}
+
+新建掌门人员工会话
+    [Arguments]    ${alias}=${运价内部_session}
+    Dcas_Login    alias=${alias}    username=${掌门人_员工用户名}    password=${掌门人_员工密码_加密}    domain=${掌门人_domain}    userType=1    dcasDomain=${dcasDomain}
+
+新建掌门人客户会话
+    [Arguments]    ${alias}=${运价外部_session}
+    Dcas_Login    alias=${alias}    username=${掌门人_客户用户名}    password=${掌门人_客户密码_加密}    domain=${掌门人_domain}    userType=2    dcasDomain=${dcasDomain}
+
+新建掌柜管理员会话
+    [Arguments]    ${alias}=${运价内部_session}
+    Dcas_Login    alias=${alias}    username=${掌柜_管理员用户名}    password=${掌柜_管理员密码_加密}    domain=${掌柜_domain}    userType=1    dcasDomain=${dcasDomain}
+
+新建掌柜员工会话
+    [Arguments]    ${alias}=${运价内部_session}
+    Dcas_Login    alias=${alias}    username=${掌柜_员工用户名}    password=${掌柜_员工密码_加密}    domain=${掌柜_domain}    userType=1    dcasDomain=${dcasDomain}
+
+新建掌柜客户会话
+    [Arguments]    ${alias}=${运价外部_session}
+    Dcas_Login    alias=${alias}    username=${掌柜_客户用户名}    password=${掌柜_客户密码_加密}    domain=${掌柜_domain}    userType=2    dcasDomain=${dcasDomain}

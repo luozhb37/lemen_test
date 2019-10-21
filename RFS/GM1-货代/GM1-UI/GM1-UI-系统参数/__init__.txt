@@ -1,0 +1,5 @@
+*** Settings ***
+Suite Setup       m4-登录
+Suite Teardown    close all browsers
+Test Teardown     重载当前页
+Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt

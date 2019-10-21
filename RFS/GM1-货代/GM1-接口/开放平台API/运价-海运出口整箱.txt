@@ -1,0 +1,64 @@
+*** Settings ***
+Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+Resource          ../../../Resources/GM1/GM1-接口/开发平台-API.txt
+
+*** Variables ***
+
+*** Test Cases ***
+api
+    [Setup]    初始化配置
+    log    ${M4_INTER_DIR}
+    Open Excel    ${API_EXCEL}
+    ${row_count}    Get Row Count    运价--海运出口整箱
+    ${col_count}    Get Column Count    运价--海运出口整箱
+    @{excel_data}    读取Excel数据    运价--海运出口整箱    ${col_count}    ${row_count}
+    Write All Excel    ${RESULT_EXCEL}    运价--海运出口整箱    ${excel_data}    # 将原excel内容写入新excel
+    Comment    :FOR    ${item}    IN    @{excel_data}
+    : FOR    ${index}    IN RANGE    ${row_count}
+    \    ${item}    Set Variable    @{excel_data}[${index}]
+    \    run keyword if    '${item[0]}'=='NO.'    写入列名    ${RESULT_EXCEL}    运价--海运出口整箱
+    \    ...    ELSE    分步模拟接口并写入结果(无需登录)    ${RESULT_EXCEL}    运价--海运出口整箱    ${index}
+    \    ...    ${item}
+
+excel_demo
+    log    ${M4_INTER_DIR}
+    #Open Excel    C:\\Users\\叶俊彦\\Desktop\\interface\\test测试.xls
+    ${start}    Set Variable    3
+    ${end}    Set Variable    5
+    ${sheetname}    Set Variable    haha
+    ${result_json}    Create List
+    ${aa}    Create List
+    @{col_name}    Create List    呵呵    result
+    Append To List    ${aa}    ${col_name}
+    ${data}    Xls To Dic    ${M4_INTER_DIR}\\inter_file\\test测试.xls    haha    3    5
+    Write All Excel    ${M4_INTER_DIR}\\inter_file\\result2.xls    ${sheetname}    ${aa}
+    ${length}    Get Length    ${data}
+    : FOR    ${i}    IN RANGE    ${length}
+    \    ${api_data}    Create Dictionary    name=null    version=1.0    app_key=test    data=null
+    \    ...    timestamp=null    format=json
+    \    ${temp}    生成接口data    ${data[${i}]}
+    \    ${time}    获取当前时间    %Y-%m-%d %H:%M:%S
+    \    Set To Dictionary    ${api_data}    timestamp    ${time}
+    \    Set To Dictionary    ${api_data}    name    freight.efcl.query.page
+    \    Set To Dictionary    ${api_data}    data    ${temp}
+    \    ${json_post}    Set Variable    ${api_data}
+    \    ${type}    Evaluate    type(${json_post})
+    \    ${sign}    Build Sign    ${json_post}    123456
+    \    log    ${sign}
+    \    Set To Dictionary    ${json_post}    sign    ${sign}
+    \    进行post请求并存入结果    ${json_post}    ${start}    ${i}    ${M4_INTER_DIR}\\inter_file\\result测试2.xls    ${sheetname}
+
+*** Keywords ***
+进行post请求并存入结果
+    [Arguments]    ${item}    ${start}    ${i}    ${filename}    ${sheetname}
+    CreateSession    api    http://api.800jit.com
+    ${header}    create Dictionary    Content-Type=application/json;charset=utf-8
+    ${resp}    Post Request    api    /openplatform-rest/rest/api    data=${item}    headers=${header}
+    ${json}    to json    ${resp.content}
+    #${jieguo}    Create List    ${i}    ${resultjson}
+    #Append To List    ${result_json}    ${jieguo}
+    ${content_string}    Convert To String    ${json}    # 转换为字符串用于进行校验
+    ${t}    Evaluate    int(${i})+1
+    ${t1}    Evaluate    int(${start})+int(${t})-1
+    Write Cell    ${filename}    ${sheetname}    ${t}    0    ${t1}
+    Write Cell    ${filename}    ${sheetname}    ${t}    1    ${content_string}

@@ -1,0 +1,528 @@
+*** Settings ***
+Resource          M2--引用.txt
+
+*** Keywords ***
+登录并新增海运出口
+    登录
+    新增海运出口业务台帐
+
+新增海运出口业务台帐
+    点击业务管理
+    点击业务台帐
+    点击海运出口
+    进入列表页面框架
+    点击    id=bt_add    #新增
+    离开框架
+    进入详情框架
+    输入    id=bn_mains_customername    ${往来单位}
+    等待    1
+    ${currenttime+7}    当前日期加减天数    +7
+    输入    id=bn_mains_etd    ${currenttime+7}
+    点击    id=bt_save    #保存并关闭
+    等待    1
+    ${status}    run keyword and return status    页面弹出框选择确定    #有没有超期提醒都不报错
+    等待    1
+    离开框架
+    ${BUSINESSNO-SUIT}    业务台帐保存后获取业务编号
+    关闭业务信息页面
+    Set Suite Variable    ${BUSINESSNO-SUIT}
+    [Return]    ${BUSINESSNO-SUIT}
+
+新增海运进口业务台帐
+    点击业务管理
+    点击业务台帐
+    点击海运进口
+    进入框架    id=content    #进入列表页面框架
+    点击    id=bt_add    #新增
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]    #进入台账详情框架
+    输入    id=bn_mains_customername    ${往来单位}
+    ${currenttime}    当前日期加减天数    +0
+    ${currenttime+7}    当前日期加减天数    +7
+    输入    id=bn_mains_etd    ${currenttime+7}    #离港日期
+    输入    id=bn_mains_eta    ${currenttime}    #抵港日期
+    点击    id=bt_save    #点击保存
+    ${status}    run keyword and return status    页面弹出框选择确定    #有没有超期提醒都不报错
+    Wait Until Element Is Visible    xpath=//span[contains(text(),'保存成功')]
+    离开框架
+    ${IMPORT-BUSINESSNO-SUIT}    业务台帐保存后获取业务编号
+    Set Suite Variable    ${IMPORT-BUSINESSNO-SUIT}
+    关闭业务信息页面
+
+复制海运进口业务台帐
+    进入列表页面框架
+    点击    id=bt_copy
+    离开框架
+    进入详情框架
+    ${businessno_prefix}    复制台帐时获取业务编号前缀
+    ${no}    获取页面值    id=qycopy_businessno_content    #获取复制新增后的业务编号
+    ${businessNo}    连接字符    a=${businessno_prefix}    b=${no}
+    点击    id=bt_ok_close    #点击复制并关闭
+    离开框架    #离开复制详情框架
+    [Return]    ${businessNo}
+
+新增空运出口业务台账
+    点击业务管理
+    点击业务台帐
+    点击空运出口
+    进入列表页面框架
+    点击    id=bt_add    #新增
+    离开框架
+    进入详情框架
+    输入    id=bn_mains_customername    ${往来单位}
+    输入    id = bn_mains_receiptname    ${往来单位}
+    ${currenttime+7}    当前日期加减天数    +7
+    输入    id=bn_mains_etd    ${currenttime+7}
+    点击    id=bt_save    #保存
+    等待    1
+    ${status}    run keyword and return status    页面弹出框选择确定    #有没有超期提醒都不报错
+    Wait Until Element Is Visible    xpath=//span[contains(text(),'保存成功')]
+    离开框架
+    ${AIR-EXPORT-OLD-BUSINESSNO-SUIT}    业务台帐保存后获取业务编号
+    Set Suite Variable    ${AIR-EXPORT-OLD-BUSINESSNO-SUIT}
+    点击    css=.tclose
+
+新增空运出口(新)业务台帐
+    点击业务管理
+    点击业务台帐
+    点击空运出口(新)
+    进入列表页面框架
+    点击    id=bt_add    #新增
+    离开框架
+    进入详情框架
+    输入    id=bn_mains_customername    ${往来单位}
+    ${currenttime+7}    当前日期加减天数    +7
+    输入    id=bn_assistants_flight2date    ${currenttime+7}    #离港日期
+    点击    id=bt_save    #保存
+    ${status}    run keyword and return status    页面弹出框选择确定
+    Wait Until Element Is Visible    xpath=//span[contains(text(),'保存成功')]
+    离开框架
+    ${AIR-EXPORT-BUSINESSNO-SUIT}    业务台帐保存后获取业务编号
+    Set Suite Variable    ${AIR-EXPORT-BUSINESSNO-SUIT}
+    点击    css=.tclose
+
+新增空运进口业务台帐
+    点击业务管理
+    点击业务台帐
+    点击空运进口
+    进入列表页面框架
+    点击    id=bt_add    #点击新增
+    离开框架    #退出框架
+    进入详情框架
+    输入    id=bn_mains_customername    ${往来单位}    #输入委托单位
+    按键    id=bn_mains_customername    \ue015    #向下
+    按键    id=bn_mains_customername    \\13    #enter
+    ${currenttime}    当前日期加减天数    +0
+    ${currenttime+7}    当前日期加减天数    +7
+    输入    id=bn_mains_etd    ${currenttime+7}    #离港日期
+    输入    id=bn_mains_eta    ${currenttime}    #抵港日期
+    点击    id=bt_save    #点击保存
+    ${status}    run keyword and return status    页面弹出框选择确定    #有没有超期提醒都不报错
+    Wait Until Element Is Visible    xpath=//span[contains(text(),'保存成功')]
+    离开框架
+    ${AIR-IMPORT-BUSINESSNO-SUIT}    业务台帐保存后获取业务编号
+    Set Suite Variable    ${AIR-IMPORT-BUSINESSNO-SUIT}
+    关闭业务信息页面
+
+复制空运进口业务台帐
+    进入列表页面框架
+    点击    id=bt_copy    #点击复制业务台帐
+    离开框架
+    进入列表页面框架
+    ${businessno_prefix}    复制台帐时获取业务编号前缀
+    ${No}    获取页面值    id=qycopy_businessno_content    #获取编号
+    ${businessNo}    连接字符    a=${businessno_prefix}    b=${No}
+    点击    id=bt_ok_close    #点击复制并保存
+    离开框架    #离开复制详情框架
+    [Return]    ${businessNo}
+
+选中包含业务编号的台帐
+    [Arguments]    ${businessno}
+    进入列表页面框架
+    勾选记录    xpath=//input[@class='vrws-row-portlet-sel-checkbox'][contains(@name,'businessno=${businessno}')]
+    离开框架
+
+选中海运出口第一条记录
+    进入列表页面框架
+    勾选记录    xpath=.//*[@id='qp_seaexport0_tbl5']/tbody/tr[2]/td[2]/input
+    离开框架
+
+选中海运进口第一条记录
+    进入列表页面框架
+    勾选记录    xpath=.//*[@id='qp_seaimport0_tbl5']/tbody/tr[2]/td[2]/input    #勾选第一条业务
+    离开框架
+
+选中空运出口第一条记录
+    进入列表页面框架
+    勾选记录    xpath=.//*[@id='qp_airexport0_tbl5']/tbody/tr[2]/td[2]/input
+    离开框架
+
+选中空运出口(新)第一条记录
+    进入列表页面框架
+    勾选记录    xpath=.//*[@id='qp_airexport1_tbl5']/tbody/tr[2]/td[2]/input
+    离开框架
+
+选中空运进口第一条记录
+    进入框架    id=content    #进入框架
+    勾选记录    xpath=.//*[@id="qp_airimport_tbl5"]/tbody/tr[2]/td[2]/input    #选中第一条记录
+    离开框架
+
+业务台帐保存后获取业务编号
+    进入详情框架
+    ${businessNo}    获取页面文本内容    xpath=//span[@elementname='bn_mains_businessno']/span[2]
+    离开框架
+    [Return]    ${businessNo}
+
+复制台帐时获取业务编号前缀
+    ${businessno_prefix}    获取下拉框选中的一个内容    id=qycopy_businessno_prefix
+    [Return]    ${businessno_prefix}
+
+列表查询业务编号
+    [Arguments]    ${businessNo}
+    进入列表页面框架
+    输入    id=qybu_serialnumber    ${businessNo}
+    点击    id=bt_query
+    ${pages}    获取页面文本内容    css=span.view-page
+    离开框架
+    [Return]    ${pages}
+
+复制业务台帐
+    进入列表页面框架
+    点击    id=bt_copy
+    离开框架
+    进入详情框架    #进入复制台帐详情页面框架
+    ${businessno_prefix}    复制台帐时获取业务编号前缀
+    ${content}    获取页面值    id=qycopy_businessno_content    #获取复制新增后的业务编号
+    ${businessno}    连接字符    a=${businessno_prefix}    b=${content}
+    点击    id=bt_ok_close    #点击复制并关闭
+    离开框架
+    [Return]    ${businessno}
+
+删除业务台帐
+    进入列表页面框架
+    点击    id=bt_delete    #点击删除
+    Alert Should Be Present
+    #页面弹出框选择确定
+    离开框架
+
+关闭业务信息页面
+    点击    xpath=//td[contains(text(),'业务信息')]/following-sibling::td[3]
+
+鼠标移至批量完成
+    进入列表页面框架
+    鼠标悬停    jQuery("a:contains('批量完成')").mouseover();
+
+批量业务制单完成
+    鼠标移至批量完成
+    点击    id=bt_batch_stopfinish    #业务制单
+    Alert Should Be Present
+    #页面弹出框选择确定
+    离开框架
+
+批量取消业务制单完成
+    鼠标移至批量完成
+    点击    id=bt_cancel_stopfinish    #取消业务制单
+    Alert Should Be Present
+    #页面弹出框选择确定
+    离开框架
+
+批量提单确认
+    鼠标移至批量完成
+    点击    id=bt_batch_stblconfirmfinish
+    Alert Should Be Present
+    #页面弹出框选择确定
+    离开框架
+
+批量修改提单确认
+    [Arguments]    ${businessNo}
+    点击业务管理
+    点击业务台帐
+    点击海运出口
+    M1-新增海运出口业务
+    选中海运出口第一条记录
+    批量提单确认
+    ${content}    获取台帐详情提单确认状态    ${businessNo}
+    应该要相等    ${content}    true
+
+点击应收费用制单
+    点击    id=bt_batch_stfeefinish_rec
+    页面弹出框选择确定
+    等待    1
+    离开框架
+
+点击应付费用制单
+    点击    id=bt_batch_stfeefinish_pay
+    页面弹出框选择确定
+    等待    1
+    离开框架
+
+获取台帐详情提单确认状态
+    [Arguments]    ${businessNo}
+    进入台帐详情    ${businessNo}    #进入台帐详情
+    进入详情框架
+    ${content}    获取页面值    id=bn_mains_stblconfirmfinish
+    离开框架
+    点击    css=.tclose    #点击关闭
+    [Return]    ${content}
+
+获取台帐详情未锁定的业务制单状态
+    [Arguments]    ${businessNo}
+    进入台帐详情    ${businessNo}    #进入台帐详情
+    进入详情框架
+    截屏
+    点击    id=bt_refresh
+    ${content}    获取页面值    id=bn_mains_stopfinish
+    离开框架
+    点击    css=.tclose    #点击关闭
+    [Return]    ${content}
+
+获取海运台帐详情锁定后的业务制单状态
+    [Arguments]    ${businessNo}
+    进入台帐详情    ${businessNo}    #进入台帐详情
+    进入详情框架
+    ${content}    获取页面文本内容    xpath=.//*[@id='left2_11']/span[2]/span[1]/font
+    离开框架
+    关闭业务信息页面
+    [Return]    ${content}
+
+获取空运台帐详情锁定后的业务制单状态
+    [Arguments]    ${businessNo}
+    进入台帐详情    ${businessNo}    #进入台帐详情
+    进入详情框架
+    Wait Until Element Is Visible    xpath=//span[@elementname='bn_mains_stopfinish']/span/font
+    ${content}    获取页面文本内容    xpath=//span[@elementname='bn_mains_stopfinish']/span/font
+    离开框架
+    点击    css=.tclose    #关闭详情页面
+    [Return]    ${content}
+
+获取海运进口台帐业务制单完成状态
+    [Arguments]    ${businessNo}
+    进入列表页面框架
+    点击    xpath=//a[contains(text(),'${businessNo}')]    #进入台帐详情
+    离开框架
+    进入详情框架
+    ${content}    获取页面文本内容    xpath=//span[@elementname="bn_mains_stopfinish"]/span[2]/font
+    离开框架
+    点击    css=.tclose    #关闭详情页面
+    [Return]    ${content}
+
+获取海运进口台帐业务制单取消状态
+    [Arguments]    ${businessNo}
+    进入列表页面框架
+    点击    xpath=//a[contains(text(),'${businessNo}')]    #进入台帐详情
+    离开框架
+    进入详情框架
+    ${content}    获取页面值    id=bn_mains_stopfinish
+    离开框架
+    点击    css=.tclose    #关闭详情页面
+    [Return]    ${content}
+
+获取空运进口台帐业务制单完成状态
+    [Arguments]    ${businessNo}
+    进入列表页面框架
+    点击    xpath=//a[contains(text(),'${businessNo}')]    #进入台帐详情
+    离开框架
+    进入详情框架
+    ${content}    获取页面文本内容    xpath=//span[@elementname='bn_mains_stopfinish']/span[2]/font
+    离开框架
+    点击    css=.tclose    #关闭详情页面
+    [Return]    ${content}
+
+获取空运进口台帐业务制单取消状态
+    [Arguments]    ${businessNo}
+    进入列表页面框架
+    点击    xpath=//a[contains(text(),'${businessNo}')]    #进入台帐详情
+    离开框架
+    进入详情框架
+    ${content}    获取页面值    xpath=//span[@elementname="bn_mains_stopfinish"]/span[2]/input
+    离开框架
+    点击    css=.tclose    #关闭详情页面
+    [Return]    ${content}
+
+鼠标移至退关
+    鼠标悬停    jQuery("a:contains('退关')").mouseover();
+    等待    1
+
+点击标记退关
+    点击    id=bt_sign_back
+
+点击取消退关
+    进入列表页面框架
+    鼠标悬停    jQuery("a:contains('退关')").mouseover();
+    等待    1
+    点击    id=bt_cancel_back
+    Alert Should Be Present
+    #页面弹出框选择确定
+    离开框架
+
+标记退关
+    进入列表页面框架
+    鼠标移至退关
+    点击标记退关
+    Alert Should Be Present
+    #页面弹出框选择确定
+    离开框架
+
+已退关状态里查询是否存在
+    进入列表页面框架
+    点击    id=qybu_iscanceled    #定位到退关状态下拉框
+    下拉选择byValue    id=qybu_iscanceled    value=true
+    等待    1
+    点击    id=bt_query
+    离开框架
+
+未退关状态里查询是否存在
+    进入列表页面框架
+    点击    id=qybu_iscanceled    #定位到退关状态下拉框
+    下拉选择byIndex    id=qybu_iscanceled    1    #选未退关状态
+    等待    1
+    点击    id=bt_query    #点击查询按钮
+    离开框架
+
+恢复退关操作后页面数据
+    Clear Element Text    id=qybu_serialnumber    #清空业务编号文本框数据
+    Select From List By Index    id=qybu_iscanceled    0    #将退关状态改成全部
+    点击    id=bt_query    #点击查询按钮
+
+新增往来单位
+    [Arguments]    ${code}    ${name}    ${sale}
+    进入框架    id=content
+    点击    bt_add
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]
+    输入    id=base_customers_code    ${code}
+    输入    id=base_customers_name    ${name}
+    输入    id=base_customers_fms_sales    ${sale}
+    select checkbox    name=base_customers_fms_isagent_TempCheck
+    select checkbox    xpath=//table[@id='pg_base_customer_edit_tbl1']/tbody/tr/td[2]/div[12]/span[2]/input
+    点击    bt_save_close
+    run keyword and return status    confirm action    #弹出框确定确认
+    离开框架
+
+修改往来单位
+    [Arguments]    ${sale_name}
+    进入框架    id=content
+    点击    css=.Linkstyle
+    离开框架
+    进入列表页面框架
+    输入    id=base_customers_linkman    小胡伟    #联系人
+    输入    id=base_customers_mobilephone    99994999998    #联系人手机号
+    输入    id=base_customers_email    23@qq.com    #联系人邮箱
+    输入    id=base_customers_fms_sales    ${sale_name}    #维护销售员
+    输入    id=base_customers_bank    宁波银行    #人民币开户行
+    输入    id=base_customers_accountno    6228789878654    #人民币开户帐号
+    输入    id=base_customers_usdbank    建设银行    #美元开户行
+    输入    id=base_customers_usdaccountno    6228 8987 89887 23    #美元开户帐号
+    等待    2
+    点击    id=bt_save_close
+    离开框架
+
+往来单位查询客户名称
+    [Arguments]    ${customer}
+    进入框架    id=content
+    等待    2
+    下拉选择byValue    id=qy_base_customers_typename    -1    #类型选择全部
+    等待    2
+    输入    id=qy_base_customers_name    ${customer}
+    点击    id=bt_query
+    ${page}    获取页面文本内容    css=.view-page
+    ${return}    run keyword and return status    应该包含    ${page}    共1条    #目的是为了 如果找不到时，可以 新增基础资料
+    离开框架
+    [Return]    ${return}
+
+新增用户
+    [Arguments]    ${user_password}    ${confirm_password}    ${last_name}    ${first_name}    ${email}
+    进入列表页面框架
+    点击    id=bt_add_user
+    ${user_name}    获取页面值    id=user_name
+    输入    id=sur_name    ${last_name}
+    输入    id=first_name    ${first_name}
+    输入    id=password    ${user_password}
+    输入    id=repeat_password    ${confirm_password}
+    输入    id=email    ${email}
+    点击    id=bt_save_and_set_role    #保存并设置角色
+    勾选记录    id=gg
+    点击    id=bt_next
+    离开框架
+    [Return]    ${user_name}
+
+用户查询
+    进入框架    id=content
+    输入    id=user_name_search    ${m2_username}
+    点击    id=bt_search
+    离开框架
+
+打开用户详情
+    进入框架    id=content
+    点击    xpath=//img[@src="application/themes/default/images/user_edit.gif"]
+    离开框架
+
+保存职员类型
+    进入框架    id=content
+    勾选记录    xpath=//*[@name="person_type"][@value="1"]
+    勾选记录    xpath=//*[@name="person_type"][@value="2"]
+    勾选记录    xpath=//*[@name="person_type"][@value="4"]
+    勾选记录    xpath=//*[@name="person_type"][@value="5"]
+    勾选记录    xpath=//*[@name="person_type"][@value="8"]    #勾选销售员类型
+    点击    id=bt_save
+    离开框架
+
+系统参数单选框设置
+    [Arguments]    ${group_name}    ${value}
+    进入框架    id=content
+    单选框选择    group_name=${group_name}    value=${value}
+    离开框架
+
+系统参数设置点击保存
+    进入框架    id=content
+    点击    id=bt_save
+    离开框架
+
+进入列表页面框架
+    进入框架    id=content    #xpath=//*[contains(@src,'./application/themes/default/welcome.jsp')]
+
+进入费用页面框架
+    Select Frame    xpath=//iframe[starts-with(@src, 'about:blank?')]
+
+进入详情框架
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]
+
+进入台帐详情
+    [Arguments]    ${businessNo}
+    进入列表页面框架
+    点击    xpath=//a[contains(text(),'${businessNo}')]
+    离开框架
+
+点击选择
+    进入列表页面框架
+    capture page screenshot
+    点击    id=bt_select    #点击选择
+    离开框架
+    capture page screenshot
+
+退出
+    点击    xpath=//*[contains(text(),'退出')]
+
+下载附件
+
+备注页面下载附件
+    [Arguments]    ${filename}    ${下载文件所在的路径}
+    移除文件    ${下载文件所在的路径}    #先移除下载路径下的该文件
+    文件不存在    ${下载文件所在的路径}    #验证下载路径下确实不存在该文件
+    select frame by index    tag=iframe    -1
+    点击    id=bt_remark    #点击备注
+    离开框架
+    select frame by index    tag=iframe    -1
+    点击附件名下载    ${filename}    ${下载文件所在的路径}
+    离开框架
+
+获取列表记录数
+    进入列表页面框架
+    ${pages}    获取页面文本内容    css=span.view-page
+    离开框架
+    [Return]    ${pages}
+
+进入一个框架后-全选记录
+    进入列表页面框架
+    勾选记录    xpath=//input[@name="SHEET_ROW_SELECT_ALL"]
+    离开框架

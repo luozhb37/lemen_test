@@ -1,0 +1,417 @@
+*** Settings ***
+Suite Setup       m4-登录    # Run keywords | m4-登录 | AND | 空运出口初始化
+Suite Teardown    close all browsers
+Test Setup        切换窗口    main
+Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+
+*** Test Cases ***
+主台账-新增工作单
+    进入指定一级菜单    订单
+    进入指定二级菜单(新icon)    订
+    全业务列表进入对应视图    全部
+    进入指定的订单标签
+    等待加载层消失
+    新建空运工作单
+    切换窗口    new    # 切换至新打开的弹框
+    ${WORKNO}    编辑空运工作单
+    重载当前页
+    页面应该包含    ${WORKNO}
+    关闭当前窗口
+    Set Suite Variable    ${WORKNO}
+
+主台账-编辑工作单
+    进入指定一级菜单    订单
+    进入指定二级菜单(新icon)    订
+    订单列表高级查询(双列)    各类编号    ${WORKNO}    精确
+    进入工作单详情    ${WORKNO}    # ${WORKNO}
+    切换窗口    new    # 切换至新打开的弹框
+    修改空运工作单    预计起飞日期    23
+    重载当前页
+    ${date}    获取页面值    xpath=//label[contains(text(),'预计起飞日期')]/../following-sibling::div[1]//input
+    应该包含    ${date}    23
+    关闭当前窗口
+
+主台账-复制新增工作单
+    进入指定一级菜单    订单
+    进入指定二级菜单(新icon)    订
+    订单列表高级查询(单列)    业务类型    空运出口
+    进入指定的订单标签    审核通过
+    进入框架    id=content
+    ${count}    获取列表数量    xpath=//li[@class='ant-pagination-total-text']
+    离开框架
+    run keyword if    ${count}==0    run keywords    新建空运工作单
+    ...    AND    切换窗口    new
+    ...    AND    编辑空运工作单
+    ${exp_count}    Evaluate    int(${count})+1
+    复制新增第一条空运出口单子    复制业务
+    订单列表高级查询(单列)    业务类型    空运出口
+    进入指定的订单标签    审核通过
+    进入框架    id=content
+    ${new_count}    获取列表总条数    xpath=//li[@class='ant-pagination-total-text']    str_l=共    str_r=条
+    离开框架
+    应该要相等（数字）    ${exp_count}    ${new_count}
+
+主台账-新增提货计划
+    点击业务管理
+    进入指定二级菜单    业务台账    空运出口    # 进入空运出口
+    空运列表查询    ${WORKNO}    # ${WORKNO}
+    进入工作单详情    ${WORKNO}    # ${WORKNO}
+    切换窗口    new    # 切换至新打开的弹框
+    ${count}    获取匹配xpath的个数    xpath=//span[text()='提货']/..//span[contains(@class,'ant-checkbox-checked')]
+    run keyword if    ${count}==0    勾选服务项    提货
+    Wait Until Element Is Visible    xpath=//span[text()='提货计划列表']
+    ${list_count}    获取列表数量    xpath=//span[text()='提货计划列表']/../following-sibling::div[1]//li[@class='ant-pagination-total-text']
+    ${exp_count}    Evaluate    int(${list_count})+1
+    新增提货计划
+    点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+    Wait Until Page Contains    保存成功
+    ${new_count}    获取列表数量    xpath=//span[text()='提货计划列表']/../following-sibling::div[1]//li[@class='ant-pagination-total-text']
+    应该要相等（数字）    ${exp_count}    ${new_count}
+    关闭当前窗口
+
+主台账-完成提货
+    点击业务管理
+    进入指定二级菜单    业务台账    空运出口    # 进入空运出口
+    空运列表查询    ${WORKNO}    # ${WORKNO}
+    进入工作单详情    ${WORKNO}    # ${WORKNO}
+    切换窗口    new    # 切换至新打开的弹框
+    Wait Until Element Is Visible    xpath=//span[text()='提货计划列表']
+    点击    xpath=(//span[text()='提货计划列表']/../following-sibling::div[1]//table/tbody/tr[1]//a)[last()]    # 点击打开第一条详情
+    ${count}    获取匹配xpath的个数    xpath=//label[text()='完成提货']/../following-sibling::div[1]//label/span[contains(@class,'ant-checkbox-checked')]
+    Run Keyword If    ${count}==1    run keywords    点击    xpath=//label[text()='完成提货']/../following-sibling::div[1]//input
+    ...    AND    点击    xpath=(//span[text()='保 存']/..)[last()]
+    点击    xpath=//span[contains(@class,'ant-modal-close-x')]/..    # 点击关闭按钮
+    Wait Until Element Is Enabled    xpath=//span[text()='提货计划列表']/../following-sibling::div[1]//table/tbody/tr[1]/td//input
+    点击    xpath=//span[text()='提货计划列表']/../following-sibling::div[1]//table/tbody/tr[1]/td//input    # 勾选第一条提货计划
+    点击    xpath=//span[text()='完成提货']/..    # 点击完成提货按钮
+    Wait Until Page Contains    完成提货成功
+    点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+    Wait Until Page Contains    保存成功
+    点击    xpath=(//span[text()='提货计划列表']/../following-sibling::div[1]//table/tbody/tr[1]//a)[last()]    # 点击打开第一条详情
+    ${count}    获取匹配xpath的个数    xpath=//label[text()='完成提货']/../following-sibling::div[1]//label/span[contains(@class,'ant-checkbox-checked')]
+    应该要相等（数字）    ${count}    1
+    关闭当前窗口
+
+主台账-取消提货
+    点击业务管理
+    进入指定二级菜单    业务台账    空运出口    # 进入空运出口
+    空运列表查询    ${WORKNO}    # ${WORKNO}
+    进入工作单详情    ${WORKNO}    # ${WORKNO}
+    切换窗口    new    # 切换至新打开的弹框
+    Wait Until Element Is Visible    xpath=//span[text()='提货计划列表']
+    点击    xpath=(//span[text()='提货计划列表']/../following-sibling::div[1]//table/tbody/tr[1]//a)[last()]    # 点击打开第一条详情
+    ${count}    获取匹配xpath的个数    xpath=//label[text()='完成提货']/../following-sibling::div[1]//label/span[contains(@class,'ant-checkbox-checked')]
+    Run Keyword If    ${count}==0    run keywords    点击    xpath=//label[text()='完成提货']/../following-sibling::div[1]//input
+    ...    AND    点击    xpath=(//span[text()='保 存']/..)[last()]
+    点击    xpath=//span[contains(@class,'ant-modal-close-x')]/..    # 点击关闭按钮
+    Wait Until Element Is Enabled    xpath=//span[text()='提货计划列表']/../following-sibling::div[1]//table/tbody/tr[1]/td//input
+    点击    xpath=//span[text()='提货计划列表']/../following-sibling::div[1]//table/tbody/tr[1]/td//input    # 勾选第一条提货计划
+    点击    xpath=//span[text()='取消提货']/..    # 点击完成提货按钮
+    Wait Until Page Contains    取消提货成功
+    点击    xpath=(//span[text()='提货计划列表']/../following-sibling::div[1]//table/tbody/tr[1]//a)[last()]    # 点击打开第一条详情
+    ${count}    获取匹配xpath的个数    xpath=//label[text()='完成提货']/../following-sibling::div[1]//label/span[contains(@class,'ant-checkbox-checked')]
+    应该要相等（数字）    ${count}    0
+    关闭当前窗口
+
+主台账-删除提货计划
+    点击业务管理
+    进入指定二级菜单    业务台账    空运出口
+    空运列表查询    ${WORKNO}    # ${WORKNO}
+    进入工作单详情    ${WORKNO}    # ${WORKNO}
+    切换窗口    new    # 切换至新打开的弹框
+    ${count}    获取匹配xpath的个数    xpath=//span[text()='提货']/..//span[contains(@class,'ant-checkbox-checked')]
+    run keyword if    ${count}==0    勾选服务项    提货
+    Wait Until Element Is Visible    xpath=//span[text()='提货计划列表']
+    ${count}    获取列表数量    xpath=//span[text()='提货计划列表']/../following-sibling::div[1]//li[@class='ant-pagination-total-text']
+    run keyword if    ${count}==0    新增提货计划
+    ${exp_count}    run keyword if    ${count}==0    Evaluate    0
+    ...    ELSE    Evaluate    int(${count})-1
+    删除指定的提货计划    1
+    点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+    Wait Until Page Contains    保存成功
+    ${new_count}    获取列表数量    xpath=//span[text()='提货计划列表']/../following-sibling::div[1]//li[@class='ant-pagination-total-text']
+    应该要相等（数字）    ${exp_count}    ${new_count}
+    关闭当前窗口
+
+主台账-新增进仓计划
+    点击业务管理
+    进入指定二级菜单    业务台账    空运出口    # 进入空运出口
+    空运列表查询    ${WORKNO}    # ${WORKNO}
+    进入工作单详情    ${WORKNO}    # ${WORKNO}
+    切换窗口    new    # 切换至新打开的弹框
+    ${count}    获取匹配xpath的个数    xpath=//span[text()='仓储']/..//span[contains(@class,'ant-checkbox-checked')]
+    run keyword if    ${count}==0    勾选服务项    仓储
+    Wait Until Element Is Visible    xpath=//li[contains(text(),'进仓计划')]
+    ${list_count}    获取列表数量    xpath=//li[contains(text(),'进仓计划')]/../../following-sibling::div[1]//li[@class='ant-pagination-total-text']
+    ${exp_count}    Evaluate    int(${list_count})+1
+    新增空运出口进仓计划
+    点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+    Wait Until Page Contains    保存成功
+    ${new_count}    获取列表数量    xpath=//li[contains(text(),'进仓计划')]/../../following-sibling::div[1]//li[@class='ant-pagination-total-text']
+    应该要相等（数字）    ${exp_count}    ${new_count}
+    关闭当前窗口
+
+主台账-完成进仓
+    点击业务管理
+    进入指定二级菜单    业务台账    空运出口    # 进入空运出口
+    空运列表查询    ${WORKNO}    # ${WORKNO}
+    进入工作单详情    ${WORKNO}    # ${WORKNO}
+    切换窗口    new    # 切换至新打开的弹框
+    ${count}    获取匹配xpath的个数    xpath=//span[text()='仓储']/..//span[contains(@class,'ant-checkbox-checked')]
+    run keyword if    ${count}==0    勾选服务项    仓储
+    Wait Until Element Is Visible    xpath=//li[contains(text(),'进仓计划')]
+    ${list_count}    获取列表数量    xpath=//li[contains(text(),'进仓计划')]/../../following-sibling::div[1]//li[@class='ant-pagination-total-text']
+    run keyword if    ${list_count}==0    新增空运出口进仓计划
+    打开指定的仓储计划详情    进仓计划    1
+    空运出口进仓计划完成进仓
+    点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+    Wait Until Page Contains    保存成功
+    打开指定的仓储计划详情    进仓计划    1
+    页面应该包含    取消完成进仓
+    关闭当前窗口
+
+主台账-撤回进仓
+    点击业务管理
+    进入指定二级菜单    业务台账    空运出口    # 进入空运出口
+    空运列表查询    ${WORKNO}    # ${WORKNO}
+    进入工作单详情    ${WORKNO}    # ${WORKNO}
+    切换窗口    new    # 切换至新打开的弹框
+    ${count}    获取匹配xpath的个数    xpath=//span[text()='仓储']/..//span[contains(@class,'ant-checkbox-checked')]
+    run keyword if    ${count}==0    勾选服务项    仓储
+    Wait Until Element Is Visible    xpath=//li[contains(text(),'进仓计划')]
+    ${list_count}    获取列表数量    xpath=//li[contains(text(),'进仓计划')]/../../following-sibling::div[1]//li[@class='ant-pagination-total-text']
+    run keyword if    ${list_count}==0    新增空运出口进仓计划
+    打开指定的仓储计划详情    进仓计划    1
+    第一条进仓计划撤回进仓
+    点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+    Wait Until Page Contains    保存成功
+    打开指定的仓储计划详情    进仓计划    1
+    Page Should Not Contain Element    xpath=//div[@class='ant-modal']//button[@id='revertFinish']
+    关闭当前窗口
+
+主台账-完成到仓
+    点击业务管理
+    进入指定二级菜单    业务台账    空运出口    # 进入空运出口
+    空运列表查询    ${WORKNO}    # ${WORKNO}
+    进入工作单详情    ${WORKNO}    # ${WORKNO}
+    切换窗口    new    # 切换至新打开的弹框
+    ${count}    获取匹配xpath的个数    xpath=//span[text()='仓储']/..//span[contains(@class,'ant-checkbox-checked')]
+    run keyword if    ${count}==0    勾选服务项    仓储
+    Wait Until Element Is Visible    xpath=//li[contains(text(),'进仓计划')]
+    ${list_count}    获取列表数量    xpath=//li[contains(text(),'进仓计划')]/../../following-sibling::div[1]//li[@class='ant-pagination-total-text']
+    run keyword if    ${list_count}==0    新增空运出口进仓计划
+    第一条进仓计划完成到仓
+    点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+    Wait Until Page Contains    保存成功
+    ${text}    获取页面文本内容    xpath=//li[contains(text(),'进仓计划')]/../../following-sibling::div[1]//table//tbody/tr[1]/td[9]
+    应该要相等    ${text}    已到仓
+    关闭当前窗口
+
+主台账-取消完成到仓
+    点击业务管理
+    进入指定二级菜单    业务台账    空运出口    # 进入空运出口
+    空运列表查询    ${WORKNO}    # ${WORKNO}
+    进入工作单详情    ${WORKNO}    # ${WORKNO}
+    切换窗口    new    # 切换至新打开的弹框
+    ${count}    获取匹配xpath的个数    xpath=//span[text()='仓储']/..//span[contains(@class,'ant-checkbox-checked')]
+    run keyword if    ${count}==0    勾选服务项    仓储
+    Wait Until Element Is Visible    xpath=//li[contains(text(),'进仓计划')]
+    ${list_count}    获取列表数量    xpath=//li[contains(text(),'进仓计划')]/../../following-sibling::div[1]//li[@class='ant-pagination-total-text']
+    run keyword if    ${list_count}==0    新增空运出口进仓计划
+    第一条进仓计划取消完成到仓
+    点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+    Wait Until Page Contains    保存成功
+    ${text}    获取页面文本内容    xpath=//li[contains(text(),'进仓计划')]/../../following-sibling::div[1]//table//tbody/tr[1]/td[9]
+    应该要相等    ${text}    未到仓
+    关闭当前窗口
+
+主台账-删除进仓计划
+    点击业务管理
+    进入指定二级菜单    业务台账    空运出口    # 进入空运出口
+    空运列表查询    ${WORKNO}    # ${WORKNO}
+    进入工作单详情    ${WORKNO}    # ${WORKNO}
+    切换窗口    new    # 切换至新打开的弹框
+    ${count}    获取匹配xpath的个数    xpath=//span[text()='仓储']/..//span[contains(@class,'ant-checkbox-checked')]
+    run keyword if    ${count}==0    勾选服务项    仓储
+    Wait Until Element Is Visible    xpath=//li[contains(text(),'进仓计划')]
+    ${list_count}    获取列表数量    xpath=//li[contains(text(),'进仓计划')]/../../following-sibling::div[1]//li[@class='ant-pagination-total-text']
+    run keyword if    ${list_count}==0    新增空运出口进仓计划
+    ${exp_count}    run keyword if    ${list_count}>0    Evaluate    int(${list_count})-1
+    ...    ELSE    Evaluate    0
+    删除空运出口进仓计划
+    点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+    Wait Until Page Contains    保存成功
+    ${new_count}    获取列表数量    xpath=//li[contains(text(),'进仓计划')]/../../following-sibling::div[1]//li[@class='ant-pagination-total-text']
+    应该要相等（数字）    ${exp_count}    ${new_count}
+    关闭当前窗口
+
+主台账-新增报关计划
+    点击业务管理
+    进入指定二级菜单    业务台账    空运出口    # 进入空运出口
+    空运列表查询    ${WORKNO}    # ${WORKNO}
+    进入工作单详情    ${WORKNO}    # ${WORKNO}
+    切换窗口    new    # 切换至新打开的弹框
+    ${count}    获取匹配xpath的个数    xpath=//span[text()='报关']/..//span[contains(@class,'ant-checkbox-checked')]
+    run keyword if    ${count}==0    勾选服务项    报关
+    Wait Until Element Is Visible    xpath=//span[text()='报关计划列表']
+    ${count}    获取列表数量    xpath=//span[text()='报关计划列表']/../following-sibling::div[1]//li[@class='ant-pagination-total-text']
+    ${exp_count}    Evaluate    int(${count})+1
+    新增空运出口报关计划
+    点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+    Wait Until Page Contains    保存成功
+    ${new_count}    获取列表数量    xpath=//span[text()='报关计划列表']/../following-sibling::div[1]//li[@class='ant-pagination-total-text']
+    应该要相等（数字）    ${exp_count}    ${new_count}
+    关闭当前窗口
+
+主台账-新增报关单
+    点击业务管理
+    进入指定二级菜单    业务台账    空运出口    # 进入空运出口
+    空运列表查询    ${WORKNO}    # ${WORKNO}
+    进入工作单详情    ${WORKNO}    # ${WORKNO}
+    切换窗口    new    # 切换至新打开的弹框
+    勾选服务项    报关
+    Wait Until Element Is Visible    xpath=//span[text()='报关计划列表']
+    ${list_count}    获取列表数量    xpath=//span[text()='报关计划列表']/../following-sibling::div[1]//li[@class='ant-pagination-total-text']
+    run keyword if    ${list_count}==0    新增空运出口报关计划
+    ${count}    获取列表数量    xpath=//span[text()='报关单']/../following-sibling::div[1]//li[@class='ant-pagination-total-text']
+    ${exp_count}    Evaluate    int(${count})+1
+    打开指定行报关计划    1
+    新增空运出口报关单
+    点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+    Wait Until Page Contains    保存成功
+    ${new_count}    获取列表数量    xpath=//span[text()='报关单']/../following-sibling::div[1]//li[@class='ant-pagination-total-text']
+    应该要相等（数字）    ${new_count}    ${exp_count}
+    关闭当前窗口
+
+主台账-删除报关单
+    点击业务管理
+    进入指定二级菜单    业务台账    空运出口    # 进入空运出口
+    空运列表查询    ${WORKNO}    # ${WORKNO}
+    进入工作单详情    ${WORKNO}    # ${WORKNO}
+    切换窗口    new    # 切换至新打开的弹框
+    勾选服务项    报关
+    Wait Until Element Is Visible    xpath=//span[text()='报关计划列表']
+    ${list_count}    获取列表数量    xpath=//span[text()='报关计划列表']/../following-sibling::div[1]//li[@class='ant-pagination-total-text']
+    run keyword if    ${list_count}==0    run keywords    新增空运出口报关计划
+    ...    AND    打开指定行报关计划    1
+    ...    AND    新增空运出口报关单
+    ${count}    获取列表数量    xpath=//span[text()='报关单']/../following-sibling::div[1]//li[@class='ant-pagination-total-text']
+    ${exp_count}    Evaluate    int(${count})-1
+    删除空运出口指定行报关单    1
+    点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+    Wait Until Page Contains    保存成功
+    ${new_count}    获取列表数量    xpath=//span[text()='报关单']/../following-sibling::div[1]//li[@class='ant-pagination-total-text']
+    应该要相等（数字）    ${new_count}    ${exp_count}
+    关闭当前窗口
+
+主台账-删除报关计划
+    点击业务管理
+    进入指定二级菜单    业务台账    空运出口    # 进入空运出口
+    空运列表查询    ${WORKNO}    # ${WORKNO}
+    进入工作单详情    ${WORKNO}    # ${WORKNO}
+    切换窗口    new    # 切换至新打开的弹框
+    勾选服务项    报关
+    Wait Until Element Is Visible    xpath=//span[text()='报关计划列表']
+    ${count}    获取列表数量    xpath=//span[text()='报关计划列表']/../following-sibling::div[1]//li[@class='ant-pagination-total-text']
+    run keyword if    ${count}==0    新增空运出口报关计划
+    ${exp_count}    run keyword if    ${count}==0    Evaluate    0
+    ...    ELSE    Evaluate    int(${count})-1
+    删除空运出口报关计划
+    点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+    Wait Until Page Contains    保存成功
+    ${new_count}    获取列表数量    xpath=//span[text()='报关计划列表']/../following-sibling::div[1]//li[@class='ant-pagination-total-text']
+    应该要相等（数字）    ${exp_count}    ${new_count}
+    关闭当前窗口
+
+主台账-业务锁单
+    点击业务管理
+    进入指定二级菜单    业务台账    空运出口    # 进入空运出口
+    空运列表查询    ${WORKNO}    # ${WORKNO}
+    进入工作单详情    ${WORKNO}    # ${WORKNO}
+    切换窗口    new    # 切换至新打开的弹框
+    空运出口业务锁单
+    重载当前页
+    ${islocked}    空运出口是否业务锁单
+    应该要相等    ${islocked}    1
+    关闭当前窗口
+
+主台账-取消业务锁单
+    点击业务管理
+    进入指定二级菜单    业务台账    空运出口    # 进入空运出口
+    空运列表查询    ${WORKNO}    # ${WORKNO}
+    进入工作单详情    ${WORKNO}    # ${WORKNO}
+    切换窗口    new    # 切换至新打开的弹框
+    空运出口取消业务锁单
+    重载当前页
+    ${islocked}    空运出口是否业务锁单
+    应该要相等    ${islocked}    0
+    关闭当前窗口
+
+主运单-新建主运单
+    ${WORKNUMBER}    生成主运单号    # 生成主运单号
+    进入指定一级菜单    订单
+    进入指定二级菜单(新icon)    他    空运出口    # 进入空运出口
+    点击    xpath=//a[text()='主运单管理']    # 点击主运单管理
+    进入框架    id=content
+    ${list_count}    获取匹配xpath的个数    xpath=//table/tbody/tr
+    ${count}    run keyword if    ${list_count}>0    获取列表总条数    xpath=//ul[contains(@class,'ant-table-pagination')]/li[1]    str_l=共    str_r=条，
+    ...    ELSE    Set Variable    0
+    ${exp_count}    Evaluate    int(${count})+1    # 原列表数+1作为最后期望值
+    ${waybill}    新增主运单    2G    ${WORKNUMBER}    1
+    ${new_count}    获取列表总条数    xpath=//ul[contains(@class,'ant-table-pagination')]/li[1]    str_l=共    str_r=条，
+    应该要相等（数字）    ${new_count}    ${exp_count}
+    离开框架
+    ${WORKNUMBER}    Set Variable    ${waybill}
+    Set Suite Variable    ${WORKNUMBER}
+
+主运单-删除主运单
+    进入指定一级菜单    订单
+    进入指定二级菜单(新icon)    他    空运出口    # 进入空运出口
+    点击    xpath=//a[text()='主运单管理']    # 点击主运单管理
+    进入框架    id=content
+    输入    id=searchNo    ${WORKNUMBER}    # 输入主运单号
+    点击    xpath=//span[text()='查 询']/..    # 点击查询按钮
+    ${count}    获取匹配xpath的个数    xpath=//div[contains(@class,'ant-table-fixed-left')]//table//tr
+    ${exp_count}    Evaluate    int(${count})-1    # 原列表数-1作为最后期望值
+    删除主运单
+    ${new_count}    获取匹配xpath的个数    xpath=//div[contains(@class,'ant-table-fixed-left')]//table//tr
+    应该要相等（数字）    ${new_count}    ${exp_count}
+    离开框架
+
+操作计划-新建主单
+    点击业务管理
+    进入指定二级菜单    业务台账    空运出口    # 进入空运出口
+    点击    xpath=//a[text()='操作计划']    # 点击主运单管理
+    进入框架    id=content
+    ${list_count}    获取匹配xpath的个数    xpath=//table/tbody/tr
+    ${count}    run keyword if    ${list_count}>0    获取列表总条数    xpath=//ul[contains(@class,'ant-table-pagination')]/li[1]    str_l=共    str_r=条，
+    ...    ELSE    Set Variable    0
+    ${exp_count}    Evaluate    int(${count})+1    # 原列表数+1作为最后期望值
+    点击    xpath=//a[text()='新建主单']    # 点击新建主单
+    切换窗口    new    # 切换至新窗口
+    选择日期    业务日期    2018-12-12 周三    # 输入业务日期    # 输入业务日期
+    下拉框选中(多列)    起运港    YJC    # 输入起运港    WKI
+    下拉框选中(多列)    目的港    YJC    2    # 输入目的港    WKI
+    点击    xpath=//span[text()='保 存']/..
+    重载当前页
+    ${title}    Get Title
+    ${WORKNUMBER}    截取字符    ${title}    \    空运 订舱
+    关闭当前窗口
+    切换窗口    欢迎您使用本系统
+    进入框架    id=content
+    点击    xpath=//span[text()='查 询']/..
+    ${new_count}    获取列表总条数    xpath=//ul[contains(@class,'ant-table-pagination')]/li[1]    str_l=共    str_r=条，
+    应该要相等（数字）    ${new_count}    ${exp_count}
+    Set Suite Variable    ${WORKNUMBER}
+
+操作计划-拼入分单
+    [Documentation]    前置条件：存在未拼入的工作单
+    点击业务管理
+    进入指定二级菜单    业务台账    空运出口    # 进入空运出口
+    空运列表查询    ${WORKNUMBER}
+    进入工作单详情    ${WORKNUMBER}    # ${WORKNUMBER}
+    切换窗口    new    # 切换至新打开的弹框
+    ${text}    空运出口拼入工作单
+    重载当前页
+    页面应该包含    ${text}
+    关闭当前窗口

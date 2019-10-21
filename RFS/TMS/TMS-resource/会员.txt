@@ -1,0 +1,43 @@
+*** Settings ***
+Library           Selenium2Library
+
+*** Keywords ***
+用户登录
+    [Arguments]    ${scalar_domain}    ${username}    ${passwd}
+    open browser    http://${scalar_domain}    gc    #打开URL 通过变量方式获得 URL \ http://sh.ngrok.900jit.com
+    Maximize Browser Window    #最大化窗口
+    sleep    1
+    input text    name= username    ${username}    # 输入用户名
+    sleep    1
+    input text    //*[@id="loginForm"]/div[3]/div/span/div/div/input    ${passwd}    # 输入密码
+    点击按钮    登 录    #点击【登录】
+    sleep    2
+
+点击按钮
+    [Arguments]    ${button_name}    ${locater}=
+    [Documentation]    \#参数1：【按钮名称】 \ ---【必须】-若“按钮名称” 唯一时，仅设置本参数即可，无需设置‘参数2’；
+    ...
+    ...    参数2：【按钮-相对路径】 ---【非必须】若“按钮名称” 不唯一时，需要增加本参数 “相对路径” ；
+    click element    xpath=${locater}//button[contains(text(), "${button_name}")]    #{按钮相对路径}（非必须） 及 {按钮名称}（必须）
+
+点击复选框
+    [Arguments]    ${num}
+    [Documentation]    \# 选择 [ NC订单 对应的货物列表] \ ---用于 创建出运计划；
+    ...
+    ...    参数【NUM】按顺序选择 NUM 条货物 （调用关键字：循环FOR）
+    ...
+    ...    [NUM= 0 ] 则表示全选；
+    ...
+    ...    [ NUM >0 ] ，则表示依次选择NUM条记录
+    RUN KEYWORD IF    ${num}==0    select checkbox    xpath=//table[@class="panel-table-line"]//thead//input[@class="oly-checkbox-input"]
+    ...    ELSE IF    ${num} > 0    循环for    ${num}
+    ...    ELSE    请输入大于等于0的整数    # 【选择货物】 页面，全选    #根据{num}确定需要选择的记录条数，且顺序选择
+
+循环for
+    [Arguments]    ${num}
+    [Documentation]    \# NC订单 对应的货物列表 ---用于 创建出运计划；
+    ...    参数【NUM】按顺序选择 NUM 条货物
+    ...
+    ...    注： 本处被 [点击复选框] 调用
+    : FOR    ${i}    IN RANGE    ${num}
+    \    select checkbox    xpath=//table[@class="panel-table-line"]//tbody[${i}+2]//input[@class="oly-checkbox-input"]

@@ -1,0 +1,246 @@
+*** Settings ***
+Suite Setup       Run keywords    登录
+...               AND    新增海运出口业务    # Run keywords | 系统参数设置 | AND | 往来单位初始化 | AND | 自定义初始化
+Suite Teardown    close all browsers
+Test Setup        Reload Page    #回到首页
+Resource          ../../../Resources/M3基础操作/M3--引用.txt
+
+*** Test Cases ***
+新增收入费用
+    点击业务管理
+    点击业务台帐
+    点击海运出口
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    ${row}    获取费用列表中的收入费用行数
+    ${row-after}    新增收入费用-选定费用
+    ${result}    evaluate    ${row}+1
+    应该要相等    ${row-after}    ${result}
+    关闭所有弹出框
+
+新增支出费用
+    点击业务管理
+    点击业务台帐
+    点击海运出口
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    ${row}    获取费用列表中的支出费用行数
+    ${row-after}    新增支出费用-选定费用
+    ${result}    evaluate    ${row}+1
+    应该要相等    ${row-after}    ${result}
+    关闭所有弹出框
+
+删除费用
+    [Documentation]    ${row}: 费用列表中的 tr数，包含了列头栏
+    点击业务管理
+    点击业务台帐
+    点击海运出口
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    #新增收入、支出费用
+    ${row}    新增收入费用-选定费用
+    费用信息页面勾选收入费用    ${row}
+    #删除收入费用
+    删除收入费用
+    #验证仅删除收入费用后，收入费用总金额为0，支出费用金额不为0
+    ${row-after}    获取费用列表中的收入费用行数
+    ${result}    evaluate    ${row-after}+1
+    应该要相等    ${row}    ${result}
+    ${row}    新增支出费用-选定费用
+    #删除支出费用
+    费用信息页面勾选支出费用    ${row}
+    删除支出费用
+    #验证删除支出费用后，支出费用总金额为0
+    ${row-after}    获取费用列表中的支出费用行数
+    ${result}    evaluate    ${row-after}+1
+    应该要相等    ${row}    ${result}
+
+确认和取消确认费用
+    点击业务管理
+    点击业务台帐
+    点击海运出口
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    #从业务列表进入费用页面
+    #新增收入
+    ${row}    新增收入费用-选定费用
+    费用信息页面勾选收入费用    ${row}
+    费用确认
+    ${confirmor}    费用列表获取费用确认人    ${row}
+    应该要相等    ${confirmor}    ${M3_FULLNAME}
+    费用信息页面勾选收入费用    ${row}
+    费用取消确认
+    ${confirmor}    费用列表获取费用确认人    ${row}
+    Should Be Empty    ${confirmor}
+
+审核和取消审核收入费用
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    #从业务列表进入费用页面
+    #新增收入
+    ${row}    新增收入费用-选定费用
+    费用信息页面勾选收入费用    ${row}
+    审核收入费用
+    ${auditman}    费用列表获取收入费用审核人    ${row}
+    应该要相等    ${auditman}    ${M3_FULLNAME}
+    费用信息页面勾选收入费用    ${row}
+    取消审核收入费用
+    ${auditman}    费用列表获取收入费用审核人    ${row}
+    Should Be Empty    ${auditman}
+
+审核和取消审核支出费用
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    #从业务列表进入费用页面
+    #新增收入
+    ${row}    新增支出费用-选定费用
+    费用信息页面勾选支出费用    ${row}
+    审核支出费用
+    ${auditman}    费用列表获取支出费用审核人    ${row}
+    应该要相等    ${auditman}    ${M3_FULLNAME}
+    费用信息页面勾选支出费用    ${row}
+    取消审核支出费用
+    ${auditman}    费用列表获取支出费用审核人    ${row}
+    Should Be Empty    ${auditman}
+
+支出转收入费用
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    #从业务列表进入费用页面
+    ${row-before}    获取费用列表中的收入费用行数
+    ${row}    新增支出费用-选定费用
+    费用信息页面勾选支出费用    ${row}
+    点击支出转收入
+    #进入详情框架
+    ${row-after}    获取费用列表中的收入费用行数
+    ${result}    evaluate    ${row-before}+1
+    应该要相等    ${result}    ${row-after}
+
+标记收入制单完成和取消标记完成
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    #标记收入制单完成
+    标记收入制单完成
+    ${rec_finish_status}    获取收入制单完成状态
+    应该要相等    ${rec_finish_status}    已完成
+    #取消标记收入制单完成
+    取消标记收入制单完成
+    ${rec_finish_status}    获取收入制单完成状态
+    应该要相等    ${rec_finish_status}    未完成
+
+标记支出制单完成和取消标记完成
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    #标记支出制单完成
+    标记支出制单完成
+    #支出制单完成后，状态为已完成，且无新增按钮
+    ${rec_finish_status}    获取支出制单完成状态
+    应该要相等    ${rec_finish_status}    已完成
+    取消标记支出制单完成
+    ${rec_finish_status}    获取支出制单完成状态
+    应该要相等    ${rec_finish_status}    未完成
+
+费用拆分
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    ${row}    新增支出费用-选定费用
+    费用信息页面勾选支出费用    ${row}
+    审核支出费用
+    费用信息页面勾选支出费用    ${row}
+    费用拆分
+    sleep    3
+    ${row-after}    获取费用列表中的支出费用行数
+    ${result}    evaluate    ${row}+1
+    应该要相等    ${row-after}    ${result}
+
+呆坏账管理--强制结清并取消强制结清
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用
+    关闭所有弹出框
+    点击业务管理
+    点击结算管理
+    点击归档
+    点击呆坏账管理
+    强制结清后取消强制结清    ${BUSINESSNO-SUIT-SEAEXPORT}
+    点击结算管理
+
+凭证导出
+    凭证导出系统参数初始化-步骤1
+    新增海运出口业务台账
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    #新增费用
+    新增收入费用    1000    1    RMB    1
+    关闭所有弹出框
+    点击业务管理
+    #按业务明细开票
+    点击结算管理
+    点击发票
+    点击新增发票
+    点击按业务
+    新增发票-按业务未开票页面查询    qyinv_datetype=1    qybu_elementname=businessno    qybu_elementvalue=${BUSINESSNO-SUIT-SEAEXPORT}    #按接单日期，业务编号查询
+    列表页面-全选记录
+    按业务列表页面点击开票
+    Select Frame    xpath=//iframe[starts-with(@src,'about:blank?___')]
+    #select frame by index    tag=iframe    -1
+    点击    id=bt_invoice_detail    #明细开票
+    等待    1
+    离开框架
+    Select Frame    xpath=.//h3[contains(text(),'填写发票号')]/../following-sibling::div[1]/iframe
+    #select frame by index    tag=iframe    -1
+    点击    id=bt_next_sum    #点击确认
+    等待    1
+    离开框架
+    Select Frame    xpath=//iframe[starts-with(@src,'about:blank?___')]
+    #select frame by index    tag=iframe    -1
+    ${sign_invoiceno}    获取页面文本内容    xpath=.//*[contains(text(),"发票号")]/following-sibling::td[1]    #获取发票号
+    离开框架
+    关闭所有弹出框
+    #查询发票管理中存在该发票
+    发票管理-收入列表查询    qy_mains_datatype=1    write_invoiceno=${sign_invoiceno}
+    ${content}    获取列表记录数
+    应该包含    ${content}    共1条
+    点击结算管理
+    #费用列表查看发票号
+    ${fee_invoiceno}    费用列表获取收入费用发票号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    应该要相等    ${fee_invoiceno}    ${sign_invoiceno}
+    Reload Page
+    点击结算管理
+    点击归档
+    点击财务接口
+    进入列表页面框架
+    输入    id=qycer_invoiceno    ${fee_invoiceno}
+    点击    id=bt_query
+    点击    name=SHEET_ROW_SELECT_ALL
+    点击    id=bt_voucher_export
+    离开框架
+    sleep    3

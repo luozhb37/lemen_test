@@ -1,0 +1,122 @@
+*** Settings ***
+Suite Setup       m4-登录
+Suite Teardown    close all browsers
+Library           Collections
+Resource          ../../Resources/GM1/GM1-接口/m4-接口-新订单基础操作.txt
+Resource          ../../Resources/GM1/GM1-UI/m4-公用.txt
+Library           ExcelLibrary
+Library           requests
+
+*** Variables ***
+${hd}             hd    # 货代session别名
+
+*** Test Cases ***
+新增订单
+    ${list}    save
+    should be equal as strings    ${list['resultCode']}    100
+    ${content}    获取订单详情    ${list['data']}
+    #在草稿状态有该条记录
+    ${content_json}    list    dateType=createdate    multi_number=${content['data']['workNo']}    status=0
+    Should Be Equal As Integers    ${content_json["data"]["total"]}    1    #列表总条数
+    log    ${content['data']['workNo']}
+    Set Suite Variable    ${content}
+    log    ${content['data']['casenumber']}
+
+更新订单
+    ${content1}    updateBnBookings    worknumber=${content['data']['workNo']}    casenumber=${content['data']['casenumber']}    org_id=${content['data']['orgId']}    loadport=SHANGHAI    uuid=${content['data']['orderUuid']}
+    should be equal as strings    ${content1['resultCode']}    100
+    ${return}    获取订单详情    ${content['data']['casenumber']}
+    应该要相等    ${return['data']['loadport']}    SHANGHAI
+
+提交订单
+    #提交订单
+    ${content1}    commitBnBookings    worknumber=${content['data']['workNo']}    casenumber=${content['data']['casenumber']}    org_id=${content['data']['orgId']}    uuid=${content['data']['orderUuid']}
+    should be equal as strings    ${content1['resultCode']}    100
+    ${content_json}    list    dateType=createdate    multi_number=${content['data']['workNo']}    status=10
+    Should Be Equal As Integers    ${content_json["data"]["total"]}    1    #列表总条数
+
+审核通过订单
+    #审核订单
+    ${result}    audit    casenumber=${content['data']['casenumber']}    status=20    booking=1    refusereason=null
+    Should Be Equal As Strings    ${result['resultCode']}    100
+    #订单中心审核通过列表有该记录
+    ${content_json}    list    dateType=createdate    multi_number=${content['data']['workNo']}    status=20
+    Should Be Equal As Integers    ${content_json["data"]["total"]}    1    #列表总条数
+    #审核中心审核通过列表有该记录
+    ${content_json1}    auditList    datetype=createdate    status=20    multi_number=${content['data']['workNo']}
+    Should Be Equal As Integers    ${content_json1["data"]["total"]}    1    #列表总条数
+    #订舱台帐在待订舱列表查询
+    ${content_json2}    searchBookingDate    dateType=createdate    status=10    no=${content['data']['workNo']}
+    Should Be Equal As Integers    ${content_json2["data"]["total"]}    1    #列表总条数
+
+登记取消订单异常
+    ${result}    登记异常    ${content['data']['casenumber']}    ${content['data']['createby']}    ${content['data']['createbyId']}
+    Should Be Equal As Strings    ${result['resultCode']}    100
+
+取消订单
+    ${result}    cancelbnbooking    ${content['data']['casenumber']}
+    should be equal as strings    ${result['resultCode']}    100
+    ${content_json}    list    dateType=createdate    multi_number=${content['data']['workNo']}    status=-5
+    Should Be Equal As Integers    ${content_json["data"]["total"]}    1    #列表总条数
+
+复制订单
+    #复制订单
+    ${return}    copybooking    ${content['data']['casenumber']}
+    should be equal as strings    ${return['resultCode']}    100
+
+批量删除订单
+    #保存订单
+    ${casenumber}    save
+    #删除订单
+    ${result}    delete    ${casenumber['data']}
+    should be equal as strings    ${result['resultCode']}    100
+
+拒绝订单
+    [Documentation]    audit:这里为通过
+    ...    通过：${reason}=null
+    ...    拒绝：${bussinessno}='' \ ,${reason}需要内容
+    #保存订单
+    ${casenumber1}    save
+    ${content}    获取订单详情    ${casenumber1['data']}
+    #提交订单
+    commitBnBookings    worknumber=${content['data']['workNo']}    casenumber=${content['data']['casenumber']}    org_id=${content['data']['orgId']}    uuid=${content['data']['orderUuid']}
+    #审核订单
+    ${result}    audit    casenumber=${casenumber1['data']}    status=-10    booking=    refusereason="被自动化给拒绝了"
+    Should Be Equal As Strings    ${result['data']}    {u'success': True}
+    #订单中心审核通过列表有该记录
+    ${content_json}    list    dateType=createdate    multi_number=${content['data']['workNo']}    status=-10
+    Should Be Equal As Integers    ${content_json["data"]["total"]}    1    #列表总条数
+    #审核中心审核通过列表有该记录
+    ${content_json1}    auditList    datetype=createdate    status=-10    multi_number=${content['data']['workNo']}
+    Should Be Equal As Integers    ${content_json1["data"]["total"]}    1    #列表总条数
+
+新增占舱
+    [Documentation]    全字段维护，直接通过生成的worknumber 去查看页面上内容是否都已保存成功
+    #获取默认工作号
+    ${list}    save-占舱    type=21
+    should be equal as strings    ${list['resultCode']}    100
+    ${ZCCONTENT}    获取订单详情    ${list['data']}
+    #在草稿状态有该条记录
+    ${content_json}    occupationList    dateType=createdate    multi_number=${ZCCONTENT['data']['workNo']}
+    Should Be Equal As Integers    ${content_json["data"]["total"]}    1    #列表总条数
+    log    ${ZCCONTENT['data']['workNo']}
+    Set Suite Variable    ${ZCCONTENT}
+
+更新占舱
+    [Documentation]    新增的是全字段的内容
+    ...    更新，则把能空的字段清空，查看worknumber页面详情
+    #更新后的起运港为SHANGHAI
+    ${content1}    updateBnBookings-占舱    worknumber=${ZCCONTENT['data']['workNo']}    casenumber=${ZCCONTENT['data']['casenumber']}    orgid=${ZCCONTENT['data']['orgId']}    uuid=${ZCCONTENT['data']['orderUuid']}    type=21
+    should be equal as strings    ${content1['resultCode']}    100
+
+提交占舱
+    ${content1}    commitOccupyBnBookings    worknumber=${content['data']['workNo']}    casenumber=${content['data']['casenumber']}    orgid=${content['data']['orgId']}    uuid=${content['data']['orderUuid']}    type=21
+    should be equal as strings    ${content1['resultCode']}    100
+    #在全部能查询到该条记录
+    ${content_json}    searchBookingDate    dateType=createdate    no=${content['data']['workNo']}    status=0
+    Should Be Equal As Integers    ${content_json["data"]["total"]}    1    #列表总条数
+    #订舱台帐在待订舱列表查询
+    ${content_json2}    searchBookingDate    dateType=createdate    status=10    no=${content['data']['workNo']}
+    Should Be Equal As Integers    ${content_json2["data"]["total"]}    1    #列表总条数
+
+*** Keywords ***

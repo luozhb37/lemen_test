@@ -1,0 +1,13 @@
+*** Settings ***
+Resource          ../../Resources/运价通/运价通-引用.txt
+
+*** Keywords ***
+点击进入客户管理
+    点击    id=home_freight
+    sleep    3
+    Mouse Over    xpath=//a[text()="客户管理"]
+    #鼠标悬停    jQuery(\"li:contains('客户管理')\").mouseover();
+    sleep    3
+    点击    xpath=//a[text()='用户管理']
+    sleep    3
+    mouse out    id=home_freight

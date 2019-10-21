@@ -1,0 +1,233 @@
+*** Settings ***
+Library           OlymLibrary
+Library           Collections
+
+*** Keywords ***
+新增整箱航线
+    [Arguments]    ${route_cnname}    ${route_enname}    ${alias}=${运价内部_session}    # 航线中文名、航线英文名
+    [Documentation]    return route_id
+    ${headers}    create dictionary    Accept-Language=zh-CN,zh;q=0.8    Content-Type=application/x-www-form-urlencoded
+    ${data}    create dictionary    isSaveClose=false    id=    cnname=${route_cnname}    enname=${route_enname}    seqno=0
+    ${result}    post request    ${alias}    /priceservice/baseSearouteFclExport.ctrl?$action=baseSearouteFclExportSave    data=${data}    headers=${headers}
+    should contain    ${result.text}    ${route_cnname}    msg=该航线 新增失败
+    ${route_id}=    re search    ${result.text}    id" value="    "
+    log    ${route_id}
+    [Return]    ${route_id}
+
+新增整箱港口
+    [Arguments]    ${enname}    ${route_id}=    ${alias}=${运价内部_session}    # 港口的英文名称|航线的ID
+    [Documentation]    return demo :
+    ...
+    ...
+    ...    {\r
+    ...
+    ...    "resultCode": 999,\r
+    ...
+    ...    "resultMsg": "英文名称已存在",\r
+    ...
+    ...    "data": {\r
+    ...
+    ...    "mainId": -1,\r
+    ...
+    ...    "orgId": 139640,\r
+    ...
+    ...    "code": "ALDRZ",\r
+    ...
+    ...    "enname": "DURRES",\r
+    ...
+    ...    "cnname": "都拉斯",\r
+    ...
+    ...    "cncountryname": "阿尔巴尼亚",\r
+    ...
+    ...    "encountryname": "ALBANIA",\r
+    ...
+    ...    "remark": "1",\r
+    ...
+    ...    "searoute": "10143",\r
+    ...
+    ...    "isbaseport": "false",\r
+    ...
+    ...    "searchcode": "",\r
+    ...
+    ...    "isLoadport": false,\r
+    ...
+    ...    "errorMap": {\r
+    ...
+    ...    "enname": "ennameExist"\r
+    ...
+    ...    }\r
+    ...
+    ...    }\r
+    ...
+    ...    }
+    ${route_id}    Run Keyword If    '${route_id}'==''    查询整箱航线
+    log    route_id>>>${route_id}
+    ${headers}    create dictionary    Content-Type=application/json    Accept-Language=zh-CN,zh;q=0.8
+    ${data}    Json dumps    {"mainId":"","code":"","enname":"${enname}","cnname":"","cncountryname":"","encountryname":"","remark":"","searchcode":"","searoute":"${route_id}","isbaseport":"false","isLoadport":false}
+    ${result}    post request    ${alias}    /freight-baseinfo-rest/rest/seaportbaseinfo/fclexport/insert    data=${data}    headers=${headers}
+    should contain    ${result.text}    resultCode    msg=港口 新增失败
+    ${resultToJson}    to json    ${result.text}
+    [Return]    ${resultToJson}    #保存返回的结果(json格式)
+
+新增订舱代理
+    [Arguments]    ${code}    ${name}    ${fullname}    ${bookingagent_id}=    ${session}=${运价内部_session}
+    ${headers}=    create dictionary    Content-Type=application/x-www-form-urlencoded
+    ${data}=    create dictionary    isSaveClose=false    bookingagent_id=${bookingagent_id}    code=${code}    name=${name}    fullname=${fullname}
+    ${result}=    post request    ${session}    /priceservice/baseBookingagent.ctrl?$action=baseBookingagentSave    headers=${headers}    data=${data}
+
+修改整箱港口
+    [Arguments]    ${mainId}    ${enname}    ${cnname}=    ${route_id}=    ${remark}=    ${alias}=${运价内部_session}
+    [Documentation]    return ${resultToJson}
+    ${route_id}    Run Keyword If    '${route_id}'==''    查询整箱航线
+    #log    route_id>>>${route_id}
+    ${headers}    create dictionary    Content-Type=application/json    Accept-Language=zh-CN,zh;q=0.8
+    ${data}    Json dumps    {"mainId":"${mainId}","code":"","enname":"${enname}","cnname":"","cncountryname":"","encountryname":"","remark":"${remark}","searchcode":"","searoute":"${route_id}","isbaseport":"false","isLoadport":false}
+    log    ${data}
+    ${result}    post request    ${alias}    /freight-baseinfo-rest/rest/seaportbaseinfo/fclexport/update    data=${data}    headers=${headers}
+    should contain    ${result.text}    resultCode    msg=港口 修改失败
+    ${resultToJson}    to json    ${result.text}
+    [Return]    ${resultToJson}
+
+查询整箱港口
+    [Arguments]    ${enname}=    ${code}=    ${alias}=${运价内部_session}
+    [Documentation]    return main id
+    ...    目前只支持返回一个main id
+    ${headers}    create dictionary    Accept-Language=zh-CN,zh;q=0.8    Content-Type=application/x-www-form-urlencoded; charset=UTF-8
+    ${data}    FormData To Dict    $action=baseSeaportFclExortQuery&searoute=&enname=${enname}&code=${code}&isloadport=&isOccupied=&baseSeaportFclExportSortColumn=&baseSeaportFclExportSort=&baseSeaportFclExportPageNo=1
+    ${result}    post request    ${alias}    /priceservice/baseSeaportFclExport.ctrl    data=${data}    headers=${headers}
+    log    ${result.text}
+    ${main_id}    Re Search    ${result.text}    name="main_id" value="    "/>
+    #log    ${main_id}
+    [Return]    ${main_id}
+
+查询整箱航线
+    [Arguments]    ${enname}=    ${cnname}=    ${alias}=${运价内部_session}
+    [Documentation]    return main id
+    ${headers}    create dictionary    Accept-Language=zh-CN,zh;q=0.8    Content-Type=application/x-www-form-urlencoded; charset=UTF-8
+    ${data}    FormData To Dict    type=&$action=baseRouteFclExportQuery&cnname=${cnname}&enname=${enname}&baseSearouteFclExportSortColumn=&baseSearouteFclExportSort=&baseSearouteFclExportPageNo=1
+    ${result}    post request    ${alias}    /priceservice/baseSearouteFclExport.ctrl    data=${data}    headers=${headers}
+    #log    ${result.text}
+    ${main_id}    Re Search    ${result.text}    name="id" value="    "/>
+    log    ${main_id}
+    [Return]    ${main_id}
+
+删除整箱港口
+    [Arguments]    ${main_id}    ${alias}=${运价内部_session}    # 港口的ID
+    [Documentation]    暂时只支持一个id删除
+    ${headers}    create dictionary    Accept-Language=zh-CN,zh;q=0.8    Content-Type=application/x-www-form-urlencoded; charset=UTF-8
+    ${data}    create dictionary    main_ids[]=${main_id}
+    ${result}    post request    ${alias}    /priceservice/baseSeaportFclExport.ctrl?$action=baseSeaportFclExportDelete    data=${data}    headers=${headers}
+    should contain    ${result.text}    delete_yes    msg=该港口(${main_id})删除失败
+
+删除整箱航线
+    [Arguments]    ${route_id}    ${alias}=${运价内部_session}    # 航线ID
+    ${headers1}    create dictionary    Accept-Language=zh-CN,zh;q=0.8    Content-Type=application/x-www-form-urlencoded; charset=UTF-8
+    ${data1}    create dictionary    ids[]=${route_id}
+    ${result1}    post request    ${alias}    /priceservice/baseSearouteFclExport.ctrl?$action=baseSearouteFclExportDelete    data=${data1}    headers=${headers1}
+    #log    ${result1.text}
+    should contain    ${result1.text}    delete_yes    msg=该航线(id=${route_id})删除失败
+
+新增拼箱航线
+    [Arguments]    ${route_cnname}    ${route_enname}    ${alias}=${运价内部_session}    #航线中文名、航线英文名
+    ${headers}    create dictionary    Accept-Language=zh-CN,zh;q=0.8    Content-Type=application/x-www-form-urlencoded
+    ${data}    create dictionary    isSaveClose=false    id=    cnname=${route_cnname}    enname=${route_enname}    seqno=0
+    ${result}    post request    ${alias}    /priceservice/baseSearouteLclExport.ctrl?$action=baseSearouteLclExportSave    data=${data}    headers=${headers}
+    should contain    ${result.text}    ${route_cnname}    msg=该航线 新增失败
+    ${route_id}=    re search    ${result.text}    id" value="    "
+    log    ${route_id}
+    [Return]    ${route_id}    # 航线的ID
+
+新增拼箱港口
+    [Arguments]    ${enname}    ${route_id}=    ${alias}=${运价内部_session}    # 港口的英文名称|航线的ID
+    ${route_id}    Run Keyword If    '${route_id}'==''    查询拼箱航线
+    log    route_id>>>${route_id}
+    ${headers}    create dictionary    Content-Type=application/json    Accept-Language=zh-CN,zh;q=0.8
+    ${data}    Json dumps    {"mainId":"","code":"","enname":"${enname}","cnname":"","cncountryname":"","encountryname":"","remark":"","searchcode":"","searoute":"${route_id}","isbaseport":"false","isLoadport":false,"specialRequirements":""}
+    ${result}    post request    ${alias}    /freight-baseinfo-rest/rest/seaportbaseinfo/lclexport/insert    data=${data}    headers=${headers}
+    should contain    ${result.text}    resultCode    msg=港口 新增失败
+    ${resultToJson}    to json    ${result.text}
+    [Return]    ${resultToJson}
+
+查询拼箱航线
+    [Arguments]    ${enname}=    ${cnname}=    ${alias}=${运价内部_session}
+    ${headers}    create dictionary    Accept-Language=zh-CN,zh;q=0.8    Content-Type=application/x-www-form-urlencoded; charset=UTF-8
+    ${data}    FormData To Dict    type=&$action=baseRouteLclExportQuery&cnname=${cnname}&enname=${enname}&baseSearouteLclExportSortColumn=&baseSearouteLclExportSort=&baseSearouteLclExportPageNo=1
+    ${result}    post request    ${alias}    /priceservice/baseSearouteLclExport.ctrl    data=${data}    headers=${headers}
+    #log    ${result.text}
+    ${main_id}    Re Search    ${result.text}    name="id" value="    "/>
+    log    ${main_id}
+    [Return]    ${main_id}
+
+查询拼箱港口
+    [Arguments]    ${enname}=    ${code}=    ${alias}=${运价内部_session}
+    ${headers}    create dictionary    Accept-Language=zh-CN,zh;q=0.8    Content-Type=application/x-www-form-urlencoded; charset=UTF-8
+    ${data}    FormData To Dict    $action=baseSeaportLclExortQuery&searoute=&enname=${enname}&code=${code}&isloadport=&baseSeaportLclExportSortColumn=&baseSeaportLclExportSort=&baseSeaportLclExportPageNo=1
+    ${result}    post request    ${alias}    /priceservice/baseSeaportLclExport.ctrl    data=${data}    headers=${headers}
+    ${main_idDir}    Re Search All    ${result.text}    name="main_id" value="    "/>
+    log    ${main_idDir}
+    ${main_idJson}    Json_Dumps    ${main_idDir}
+    log    ${main_idJson}
+    ${main_id}    Re Search    ${main_idJson}    "    "
+    log    ${main_id}
+    [Return]    ${main_id}
+
+删除拼箱港口
+    [Arguments]    ${main_id}    ${alias}=${运价内部_session}
+    ${headers}    create dictionary    Accept-Language=zh-CN,zh;q=0.8    Content-Type=application/x-www-form-urlencoded; charset=UTF-8
+    ${data}    create dictionary    main_ids[]=${main_id}
+    ${result}    post request    ${alias}    /priceservice/baseSeaportLclExport.ctrl?$action=baseSeaportLclExportDelete    data=${data}    headers=${headers}
+    log    ${result.text}
+    should contain    ${result.text}    delete_yes    msg=该港口(${main_id})删除失败
+
+删除拼箱航线
+    [Arguments]    ${route_id}    ${alias}=${运价内部_session}
+    ${headers1}    create dictionary    Accept-Language=zh-CN,zh;q=0.8    Content-Type=application/x-www-form-urlencoded; charset=UTF-8
+    ${data1}    create dictionary    ids[]=${route_id}
+    ${result1}    post request    ${alias}    /priceservice/baseSearouteLclExport.ctrl?$action=baseSearouteLclExportDelete    data=${data1}    headers=${headers1}
+    #log    ${result1.text}
+    should contain    ${result1.text}    delete_yes    msg=该航线(id=${route_id})删除失败
+
+修改拼箱港口
+    [Arguments]    ${mainId}    ${enname}    ${cnname}=    ${route_id}=    ${remark}=    ${alias}=${运价内部_session}
+    ${route_id}    Run Keyword If    '${route_id}'==''    查询拼箱航线
+    #log    route_id>>>${route_id}
+    ${headers}    create dictionary    Content-Type=application/json    Accept-Language=zh-CN,zh;q=0.8
+    ${data}    Json dumps    {"mainId":"${mainId}","code":"","enname":"${enname}","cnname":"","cncountryname":"","encountryname":"","remark":"${remark}","searchcode":"","searoute":"${route_id}","isbaseport":"false","isLoadport":false,"specialRequirements":""}
+    log    ${data}
+    ${result}    post request    ${alias}    /freight-baseinfo-rest/rest/seaportbaseinfo/lclexport/update    data=${data}    headers=${headers}
+    should contain    ${result.text}    resultCode    msg=港口 修改失败
+    ${resultToJson}    to json    ${result.text}
+    [Return]    ${resultToJson}
+
+获取所有港口数据
+    [Arguments]    ${session}=${运价内部_session}
+    ${result}    get request    ${session}    /priceservice/baseSeaportFclExport.ctrl
+    @{mainIdList}    create list
+    @{mainIdList}    re search all    ${result.text}    main_id" value="    "
+    ${numbers}    get length    ${mainIdList}
+    log    ${numbers}
+    #获取每页港口的main_id列表
+    ${result1}    get request    ${session}    /freight-baseinfo-rest/rest/seaportbaseinfo/fclexport?switchCode=efcl_searoute_edit&fuzzyQuery=
+    ${resultJson}    to json    ${result1.text}
+    log    ${resultJson}
+    #将mainID组合成main_ids[]=11&22的格式
+    @{list}    create list
+    : FOR    ${i}    IN RANGE    ${numbers}
+    \    log    ${i}
+    \    ${mainId}    set variable    ${resultJson["data"][${i}]["mainId"]}
+    \    append to list    ${list}    main_ids[]=${mainId}
+    ${listC}    code str    ${list}    &
+    [Return]    ${listC}    # 每页的mainID
+
+获取港口总页数
+    [Arguments]    ${alias}=${运价内部_session}
+    ${result}    get request    ${alias}    /priceservice/baseSeaportFclExport.ctrl
+    ${pages}    re search    ${result.text}    pageCount" value="    "
+    log    ${pages}
+    [Return]    ${pages}
+
+删除多个港口
+    [Arguments]    ${list}    ${alias}=${运价内部_session}
+    ${headers}    create dictionary    Accept-Language=zh-CN,zh;q=0.8    Content-Type=application/x-www-form-urlencoded; charset=UTF-8
+    ${result}    post request    ${alias}    /priceservice/baseSeaportFclExport.ctrl?$action=baseSeaportFclExportDelete    data=${list}    headers=${headers}
+    should contain    ${result.text}    delete_yes    msg=该港口(${list})删除失败

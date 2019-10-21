@@ -1,0 +1,175 @@
+*** Settings ***
+Test Setup        初始化拼箱数据
+Test Teardown     delete all sessions
+Resource          ../Resources/会员接口.txt
+Resource          ../Resources/出口拼箱接口.txt
+Resource          ../Resources/基础资料接口.txt
+
+*** Variables ***
+&{拼箱基础运价}         loadport=NINGBO    dischargeport=SHENZHEN    country=中国    transferport=YANTIAN    cycle=1/2    sailtime=23    carrier=APL
+...               cbmprice=2000    mtprice=3000    signflag=yunjiaweihu    createby=${掌门人_员工用户名}    modifyby=${掌门人_员工用户名}    owner_employee_id=${掌门人_员工EmployeeId}    casenumber=
+...               addfee=附加费说明信息    remark=外部备注信息    employee_remark=内部备注信息
+
+*** Test Cases ***
+新增拼箱运价
+    [Tags]    complete
+    ${newcasenumber}=    新增拼箱运价    loadport=NINGBO    dischargeport=DUBAI    carrier=ANL
+    log    ${newcasenumber}
+    #删除必须要list.所以先把结果转成list
+    @{caseList}    Create List    ${newcasenumber}
+    #清理数据
+    删除拼箱运价    ${caseList}
+    [Teardown]
+
+查询拼箱运价
+    [Tags]    complete
+    #查询运价
+    @{case}    查询拼箱运价    signflag=&{拼箱基础运价}[signflag]
+    log    ${case}
+    Should Be True    ${case}    #Passes if ${list} is not empty
+    [Teardown]
+
+导入运价
+    [Tags]    complete
+    log    ${EXECDIR}
+    ${resultTojson}    导入拼箱运价    file_name=lcl_price.xls    file_path=${EXECDIR}${/}Resources${/}lcl_price.xls
+    run keyword if    ${resultToJson['resultCode']}==${100}    should be equal    ${100}    ${resultToJson['resultCode']}    msg=导入运价失败
+    ...    ELSE IF    ${resultToJson['resultCode']}==${1015}    log    港口未做过认证
+    ...    ELSE    fail
+    [Teardown]
+
+发布运价
+    [Tags]    complete
+    发布拼箱运价    casenumber=&{拼箱基础运价}[casenumber]
+    ${result}    查询拼箱运价明细    &{拼箱基础运价}[casenumber]
+    ${ispublish_status}=    re search    ${result}    ispublish" disabled="true" value="true"    /
+    log    ${ispublish_status}
+    should contain    ${ispublish_status}    checked
+    [Teardown]
+
+批量修改底价
+    [Tags]    complete
+    批量修改拼箱运价_底价    casenumberString=&{拼箱基础运价}[casenumber]    cbmbaseprice=88    mtbaseprice=99
+    ${result}    查询拼箱运价明细    &{拼箱基础运价}[casenumber]
+    Should Contain    ${result}    88
+    Should Contain    ${result}    99
+    [Teardown]
+
+批量修改成本价
+    [Tags]    complete
+    批量修改拼箱运价_成本价    casenumberString=&{拼箱基础运价}[casenumber]    cbmsellprice=100    mtsellprice=200
+    ${result}    查询拼箱运价明细    &{拼箱基础运价}[casenumber]
+    Should Contain    ${result}    100
+    Should Contain    ${result}    200
+    [Teardown]
+
+批量修改有效期
+    [Tags]    complete
+    ${begindata}=    get time modified    addnumber=1
+    ${validdate}=    get time modified    addnumber=2
+    批量修改拼箱运价有效期    casenumberString=&{拼箱基础运价}[casenumber]    begindate=${begindata}    validdate=${validdate}
+    ${result}    查询拼箱运价明细    &{拼箱基础运价}[casenumber]
+    Should Contain    ${result}    "${begindata}"
+    Should Contain    ${result}    "${validdate}"
+    [Teardown]
+
+批量修改船公司
+    [Tags]    complete
+    批量修改拼箱运价船公司    casenumberString= &{拼箱基础运价}[casenumber]    carrier= COSCO
+    ${result}    查询拼箱运价明细    &{拼箱基础运价}[casenumber]
+    Should Contain    ${result}    COSCO
+    [Teardown]
+
+批量修改目的港相关_目的港收货人
+    [Tags]    complete
+    批量修改拼箱运价目的港相关    casenumberString=&{拼箱基础运价}[casenumber]
+    ${result}    查询拼箱运价明细    &{拼箱基础运价}[casenumber]
+    ${consigneetype}=    re search    ${result}    目的港收货人"    >直客
+    log    ${consigneetype}
+    should contain    ${consigneetype}    selected
+    [Teardown]
+
+批量修改推荐/符号_推荐
+    [Tags]    complete
+    批量修改拼箱运价的推荐/符号    casenumberString=&{拼箱基础运价}[casenumber]
+    ${result}    查询拼箱运价明细    &{拼箱基础运价}[casenumber]
+    ${iscommend_status}=    re search    ${result}    iscommend" value="true"    /
+    log    ${iscommend_status}
+    should contain    ${iscommend_status}    checked
+    [Teardown]
+
+批量修改订舱代理
+    [Tags]    complete
+    ${bookingagent_id}=    新增订舱代理    code=rfs    name=rfs_dcdl    fullname=rfsh_订舱代理
+    批量修改拼箱运价的订舱代理    casenumberString=&{拼箱基础运价}[casenumber]    name=rfs_dcdl
+    ${result}    查询拼箱运价明细    &{拼箱基础运价}[casenumber]
+    should contain    ${result}    rfs_dcdl    msg=批量修改订舱代理失败
+    [Teardown]
+
+批量修改附加费说明_覆盖_删除
+    [Tags]    complete
+    批量修改拼箱附加费说明_覆盖    casenumberString=&{拼箱基础运价}[casenumber]    addfee=我要覆盖附加费信息
+    ${result}    查询拼箱运价明细    &{拼箱基础运价}[casenumber]
+    should contain    ${result}    我要覆盖附加费信息
+    should not contain    ${result}    &{拼箱基础运价}[addfee]
+    批量修改拼箱附加费说明_删除    casenumberString=&{拼箱基础运价}[casenumber]
+    ${result}    查询拼箱运价明细    &{拼箱基础运价}[casenumber]
+    should not contain    ${result}    我要覆盖附加费信息
+    [Teardown]
+
+批量修改联系方式
+    [Tags]    complete
+    批量修改拼箱运价联系方式    casenumberString= &{拼箱基础运价}[casenumber]    linkinfo=请用QQ联系我
+    ${result}    查询拼箱运价明细    &{拼箱基础运价}[casenumber]
+    Should Contain    ${result}    请用QQ联系我
+    [Teardown]
+
+批量修改备注_追加_覆盖
+    [Tags]    complete
+    #追加备注
+    批量修改拼箱备注_追加    casenumberString= &{拼箱基础运价}[casenumber]    remark= remark    employee_remark=employee_remark
+    #验证运价明细页面是否存在追加的备注
+    ${result}    查询拼箱运价明细    &{拼箱基础运价}[casenumber]
+    Should Contain    ${result}    外部备注信息remark    msg=批量修改拼箱运价备注_追加失败
+    Should Contain    ${result}    内部备注信息employee_remark    msg=批量修改拼箱运价备注_追加失败
+    #覆盖备注
+    批量修改拼箱备注_覆盖    casenumberString= &{拼箱基础运价}[casenumber]    remark= 覆盖外部备注信息    employee_remark=覆盖内部备注信息
+    #验证运价明细页面显示覆盖后的备注
+    ${result}    查询拼箱运价明细    &{拼箱基础运价}[casenumber]
+    Should Contain    ${result}    覆盖外部备注信息    msg=批量修改拼箱运价外部备注_覆盖失败
+    Should Contain    ${result}    覆盖内部备注信息    msg=批量修改拼箱运价内部备注_覆盖失败
+    should not contain    ${result}    外部备注信息remark    msg=批量修改拼箱运价外部备注_覆盖失败
+    should not contain    ${result}    内部备注信息employee_remark    msg=批量修改拼箱运价内部备注_覆盖失败
+    [Teardown]
+
+批量修改起运港
+    [Tags]    complete
+    新增拼箱港口    enname=SHANGHAI
+    批量修改拼箱运价的起运港    casenumberString=&{拼箱基础运价}[casenumber]    loadport=SHANGHAI
+    ${result}    查询拼箱运价明细    &{拼箱基础运价}[casenumber]
+    should contain    ${result}    SHANGHAI    msg=批量修改起运港失败
+    [Teardown]
+
+批量修改更多项目_承运人航线
+    [Tags]    complete
+    批量修改拼箱更多项目_承运人航线    casenumberString=&{拼箱基础运价}[casenumber]    carrier_route=consinger
+    ${result}    查询拼箱运价明细    &{拼箱基础运价}[casenumber]
+    should contain    ${result}    consinger
+
+批量修改维护人
+    [Tags]    complete
+    批量修改拼箱运价的维护人    casenumberString=&{拼箱基础运价}[casenumber]    name=公司管理员    employee_id=${掌门人_管理员EmployeeId}
+    ${result}    查询拼箱运价明细    &{拼箱基础运价}[casenumber]
+    should contain    ${result}    公司管理员
+
+*** Keywords ***
+初始化拼箱数据
+    新建掌门人员工会话
+    #删除历史数据
+    @{casenumber}    查询拼箱运价    signflag=&{拼箱基础运价}[signflag]
+    删除拼箱运价    ${casenumber}
+    #创建运价&设置
+    ${newcasenumber}    新增拼箱运价    &{拼箱基础运价}
+    log    ${拼箱基础运价}
+    Set To Dictionary    ${拼箱基础运价}    casenumber=${newcasenumber}
+    log    ${拼箱基础运价}

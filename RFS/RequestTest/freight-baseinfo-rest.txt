@@ -1,0 +1,109 @@
+*** Settings ***
+Resource          ../Resources/会员接口.txt
+Resource          ../Resources/基础资料接口.txt
+
+*** Variables ***
+
+*** Test Cases ***
+整箱港口新增_港口已存在
+    #登录
+    新建掌门人管理员会话
+    #第一次新增不处理, 第二次新增则判断结果
+    新增整箱港口    enname=DUBAI
+    ${resultJson}    新增整箱港口    enname=DUBAI
+    Should Be Equal    ${resultJson['resultCode']}    ${999}
+    [Teardown]    delete all sessions
+
+整箱港口下拉框
+    #登录
+    新建掌门人管理员会话
+    #下拉框验证调用本体库
+    ${result}    get request    ${运价内部_session}    /freight-baseinfo-rest/rest/public/seaport/querySeaport?filter=NINGBO&limit=8&searchTerm=NINGBO&page=1&rows=10
+    log    ${result.text}
+    should contain    ${result.text}    NINGBO    msg=调用本体库失败
+    [Teardown]    delete all sessions
+
+整箱港口新增_修改_删除_查询
+    ${route_cnname}    Set Variable    rf航线中文
+    ${route_enname}    Set Variable    routeen
+    ${seaport_enname}    Set Variable    RFENNAME
+    #登录
+    新建掌门人管理员会话
+    #数据清理    #
+    ${main_id}    查询整箱港口    enname=${seaport_enname}
+    Run Keyword If    ${main_id} is not None    删除整箱港口    main_id=${main_id}
+    ${route_id}    查询整箱航线    enname=${route_enname}
+    Run Keyword If    ${route_id} is not None    删除整箱航线    route_id=${route_id}
+    #新增功能测试
+    ${new_route_id}    新增整箱航线    route_cnname=${route_cnname}    route_enname=${route_enname}
+    ${resultJson}    新增整箱港口    enname=${seaport_enname}    route_id=${new_route_id}
+    Should Be Equal    ${resultJson['data']['enname']}    ${seaport_enname}    msg=新增港口失败
+    Should Be Equal    ${resultJson['resultCode']}    ${100}    msg=新增港口失败
+    #修改测试
+    ${updateJson}    修改整箱港口    mainId=${resultJson['data']['mainId']}    enname=${seaport_enname}    remark=abc
+    Should Be Equal    ${updateJson['data']['remark']}    abc    msg=修改港口失败
+    #查询测试
+    ${seaport_id}    查询整箱港口    enname=${seaport_enname}
+    Run Keyword If    ${seaport_id} is None    Fail    msg=港口查询失败
+    #删除测试
+    删除整箱港口    main_id=${seaport_id}
+    删除整箱航线    route_id=${new_route_id}
+    ${del_main_id}    查询整箱港口    enname=${seaport_enname}
+    Run Keyword If    ${del_main_id} is not None    Fail    msg=删除港口失败
+    ${del_route_id}    查询整箱航线    enname=${route_enname}
+    Run Keyword If    ${del_route_id} is not None    Fail    msg=删除港口失败
+    [Teardown]    Delete All Sessions
+
+拼箱港口新增_港口已存在
+    #登录
+    新建掌门人管理员会话
+    #第一次新增不处理, 第二次新增则判断结果
+    新增拼箱港口    enname=DUBAI
+    ${resultJson}    新增拼箱港口    enname=DUBAI
+    Should Be Equal    ${resultJson['resultCode']}    ${999}
+    [Teardown]    delete all sessions
+
+拼箱港口新增_修改_删除_查询
+    ${route_cnname}    Set Variable    rf航线中文
+    ${route_enname}    Set Variable    routeen
+    ${seaport_enname}    Set Variable    RFENNAME
+    #登录
+    新建掌门人管理员会话
+    #数据清理    #
+    ${main_id}    查询拼箱港口    enname=${seaport_enname}
+    Run Keyword If    ${main_id} is not None    删除拼箱港口    main_id=${main_id}
+    ${route_id}    查询拼箱航线    enname=${route_enname}
+    Run Keyword If    ${route_id} is not None    删除拼箱航线    route_id=${route_id}
+    #新增功能测试
+    ${new_route_id}    新增拼箱航线    route_cnname=${route_cnname}    route_enname=${route_enname}
+    ${resultJson}    新增拼箱港口    enname=${seaport_enname}    route_id=${new_route_id}
+    Should Be Equal    ${resultJson['data']['enname']}    ${seaport_enname}    msg=新增港口失败
+    Should Be Equal    ${resultJson['resultCode']}    ${100}    msg=新增港口失败
+    #修改测试
+    ${updateJson}    修改拼箱港口    mainId=${resultJson['data']['mainId']}    enname=${seaport_enname}    remark=abc
+    Should Be Equal    ${updateJson['data']['remark']}    abc    msg=修改港口失败
+    #查询测试
+    ${seaport_id}    查询拼箱港口    enname=${seaport_enname}
+    Run Keyword If    ${seaport_id} is None    Fail    msg=港口查询失败
+    #删除测试
+    删除拼箱港口    main_id=${seaport_id}
+    删除拼箱航线    route_id=${new_route_id}
+    ${del_main_id}    查询拼箱港口    enname=${seaport_enname}
+    Run Keyword If    ${del_main_id} is not None    Fail    msg=删除港口失败
+    ${del_route_id}    查询拼箱航线    enname=${route_enname}
+    Run Keyword If    ${del_route_id} is not None    Fail    msg=删除港口失败
+    [Teardown]    Delete All Sessions
+
+删除整箱全部港口
+    [Documentation]    删除所有整箱港口数据
+    [Tags]
+    [Setup]
+    [Template]
+    新建掌柜管理员会话
+    ${pagesAll}    获取港口总页数
+    : FOR    ${i}    IN RANGE    ${pagesAll}
+    \    ${list}    获取所有港口数据
+    \    删除多个港口    list=${list}
+    [Teardown]    delete all sessions
+
+*** Keywords ***

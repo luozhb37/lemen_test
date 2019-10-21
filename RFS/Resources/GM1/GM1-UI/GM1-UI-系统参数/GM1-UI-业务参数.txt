@@ -1,0 +1,88 @@
+*** Settings ***
+Resource          ../GM1-UI-公共/GM1-UI-引用.txt
+
+*** Keywords ***
+设置业务参数(单选)
+    [Arguments]    ${item}    ${choose}    # item：是否为代操作公司|choose：是/否
+    [Documentation]    输入参数修改业务参数，方式为单选框
+    ...    参数：
+    ...    item:参数名称(如：是否为代操作公司)
+    ...    choose:是/否
+    点击    xpath=//div[text()='${item}']/following-sibling::div[1]//span[text()='${choose}']/preceding-sibling::span[1]/input    # 点击对应位子旁的input按钮
+
+设置业务参数(输入框)
+    [Arguments]    ${item}    ${str}    # item：是否为代操作公司|str：输入的文本框内容
+    [Documentation]    输入参数修改业务参数，方式为输入框
+    ...    参数：
+    ...    item:参数名称(如：货代发票复核人)
+    ...    str:输入的文本内容
+    清空输入框内容    xpath=//div[text()='${item}']/following-sibling::div[1]//input
+    输入    xpath=//div[text()='${item}']/following-sibling::div[1]//input    ${str}    # 点击对应位子旁的input按钮
+
+设置业务参数(下拉框)
+    [Arguments]    ${item}    ${choose}    # item：是否为代操作公司|choose：下拉框选项的文本内容
+    [Documentation]    输入参数修改业务参数，方式为下拉框
+    ...    参数：
+    ...    item:参数名称(如：货代发票复核人)
+    ...    choose:下拉框选项的文本内容
+    点击    xpath=//div[text()='${item}']/following-sibling::div[1]//div[@class='ant-select-selection-selected-value']    # 点击对应位子旁的input按钮
+    点击    xpath=//li[text()='${choose}']
+
+设置企业编码(自增)
+    [Arguments]    ${cnname}    ${prefix_code}    ${has_change}=True    ${has_month}=True    ${year}=2    ${order}=3
+    ...    # 企业编码名|前缀|是否支持修改|是否选择月|年位数|顺序号位数
+    [Documentation]    设置代码为自增的企业编码
+    ...
+    ...    参数如下：
+    ...    cnname：需要设置的企业编码名称
+    ...    prefix：该企业编码的新增前缀名
+    ...    has_change：True/False；是否支持修改，默认为True
+    ...    has_month：True/False；是否支持修改，默认为True
+    ...    year：2/4，年位数，默认为2
+    ...    order：3/4/5，顺序号位数，默认为3
+    点击    xpath=//a[text()='${cnname}']    # 点击企业编码
+    等待    0.5
+    Run Keyword If    '${has_change}'=='True'    点击    xpath=//span[text()='支持修改']/preceding-sibling::span[1]//input
+    点击    xpath=//span[text()='自增']    # 选择自增模式
+    输入    id=prefix    ${prefix_code}
+    下拉框选中(下拉框在文字内)    年(长度    ${year}
+    Run Keyword If    '${has_month}'=='True'    点击    xpath=//span[text()='月']/preceding-sibling::span[1]//input
+    下拉框选中(下拉框在文字内)    顺序号(默认长度    ${order}
+    点击    xpath=//span[text()='保存并关闭']/..
+
+设置企业编码(赋值)
+    [Arguments]    ${cnname}    ${has_change}=True    ${index}=1    ${first}=工作号    ${second}=A    # 企业编码名|选择方式|选择的第一个下拉框值|选择的第二个下拉框值
+    [Documentation]    设置代码为赋值的企业编码
+    ...
+    ...    参数如下：
+    ...    cnname：需要设置的企业编码名称
+    ...    has_change：True/False，是否支持修改，默认为True
+    ...    index：1(编号)/2(编号+后缀)，选择哪种赋值的方式，默认为1
+    ...    first：选择的第一个下拉框值(编号值)，默认为工作号
+    ...    second：选择的第二个下拉框值(后缀值)，默认为A
+    ...    后缀值定义：
+    ...    \ \ \ \ A:A,B,C,....
+    ...    \ \ \ 1:1,2,3,....
+    ...    \ \ -A:-A,-B,-C,....
+    ...    \ -1:-1,-2,-3,....
+    ...    001:001,002,003,....
+    点击    xpath=//a[text()='${cnname}']    # 点击企业编码
+    等待    0.5
+    Run Keyword If    '${has_change}'=='True'    点击    xpath=//span[text()='支持修改']/preceding-sibling::span[1]//input
+    点击    xpath=//span[text()='赋值']    # 选择赋值模式
+    点击    xpath=(//label[text()='当前编号等于']/../following-sibling::div[1]//div[contains(@class,'ant-radio-group')]//input)[${index}]    # 点击选择第几种方式
+    Run Keyword If    ${index}==1    下拉框选中(根据代码定位)    xpath=(//div[contains(@class,'ant-select-selection-selected-value')])[${index}]    ${first}
+    ...    ELSE    下拉框选中(根据代码定位)    xpath=(//div[contains(@class,'ant-select-selection-selected-value')])[2]    ${first}
+    ...    AND    下拉框选中(根据代码定位)    xpath=(//div[contains(@class,'ant-select-selection-selected-value')])[3]    ${second}
+    点击    xpath=//span[text()='保存并关闭']/..
+
+设置企业编码(无)
+    [Arguments]    ${cnname}
+    [Documentation]    设置代码为无的企业编码
+    ...
+    ...    参数如下：
+    ...    cnname：需要设置的企业编码名称
+    点击    xpath=//a[text()='${cnname}']    # 点击企业编码
+    等待    0.5
+    点击    xpath=//span[text()='无']    # 选择无模式
+    点击    xpath=//span[text()='保存并关闭']/..

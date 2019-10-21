@@ -1,0 +1,10 @@
+*** Settings ***
+Resource          ../GM1-UI-公共/GM1-UI-引用.txt
+
+*** Keywords ***
+堆场提单新增
+    [Arguments]    ${NO}    ${count1}
+    [Documentation]    ${NO} | ${count1} \ 提单号 行数
+    点击    xpath=//button[@class='ant-btn mr8 ant-btn-primary ant-btn-sm']    #点击新增按钮
+    输入    xpath=//input[@id='dataList[${count1}].billNo']    ${NO}
+    点击保存按钮

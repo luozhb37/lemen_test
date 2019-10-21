@@ -1,0 +1,16 @@
+*** Settings ***
+Resource          ../Resources/会员接口.txt
+
+*** Test Cases ***
+login_内部
+    新建掌门人员工会话    alias=test
+    ${headers}    Create Dictionary    Content-Type=application/json
+    ${data}    Json Dumps    {"mainId":"","code":"RUNNM","enname":"NARYAN MAR2","cnname":"纳里扬马尔","cncountryname":"俄罗斯","encountryname":"RUSSIA","remark":"bz","searchcode":"","searoute":"188316","isbaseport":"true","isLoadport":false}
+    ${result}    Post Request    test    /freight-baseinfo-rest/rest/seaportbaseinfo/fclexport/insert    data=${data}    headers=${headers}
+    ${resultJson}    to json    ${result.text}
+    log    ${result.text}
+    [Teardown]    Delete All Sessions
+
+login_外部
+    新建掌门人客户会话    alias=test
+    [Teardown]    Delete All Sessions

@@ -1,0 +1,163 @@
+*** Settings ***
+Library           Selenium2Library
+Resource          main.txt
+Library           OlymLibrary
+
+*** Keywords ***
+打开
+    [Arguments]    ${url}    # 客户地址
+    [Documentation]    打开一个浏览器(chrome),并打开客户地址
+    Open Browser    ${url}    browser=${browserType}    remote_url=${remote_url}
+    Maximize Browser Window
+
+点击
+    [Arguments]    ${locator}
+    [Documentation]    可以点击任何元素。
+    click element    ${locator}
+    sleep    1
+
+输入
+    [Arguments]    ${locator}    ${text}
+    [Documentation]    文本框输入
+    input text    ${locator}    ${text}
+
+输入_处理弹框
+    [Arguments]    ${locator}    ${text}
+    [Documentation]    当输入后,失去焦点含有弹框,则自动点击
+    input text    ${locator}    ${text}
+    ${Status}=    Run Keyword And Return Status    confirm action
+    Run Keyword If    ${Status}    log    处理了一个弹出框
+
+关闭浏览器
+    close Browser
+
+页面检查多个内容
+    [Arguments]    @{Contents}
+    [Documentation]    可以校验多个内容
+    : FOR    ${i}    IN    @{Contents}
+    \    Page Should Contain    ${i}
+
+页面包含-遗弃
+    [Arguments]    ${Key}    ${locator}    ${msg}=
+    [Documentation]    {Key} \ 支持:
+    ...    \ \ \ \ 链接
+    ...    \ \ \ 元素 (Element)
+    ...    \ \ 内容
+    ...
+    ...    {loactor} \ 元素的描述 可以 id name xpath \ 或者直接 维护内容
+    run keyword if    "${Key}"=="链接"    Page Should Contain Link    ${locator}    ${msg}
+    ...    ELSE IF    "${Key}"=="元素"    Page Should Contain Element    ${locator}    ${msg}
+    ...    ELSE    Page Should Contain    ${locator}
+    #Steplog    界面检查是否存在${Key}含${locator}
+
+页面检查不存在
+    [Arguments]    ${Key}    ${locator}    ${msg}=
+    [Documentation]    {Key} \ 支持:
+    ...
+    ...    *链接* \ \ \ |
+    ...    *元素 (Element)* \ \ \ \ |
+    ...    *内容*
+    ...
+    ...    {loactor} \ 元素的描述 可以 id name xpath \ 或者直接 维护内容
+    run keyword if    "${Key}"=="链接"    Page Should Not Contain Link    ${locator}    ${msg}
+    ...    ELSE IF    "${Key}"=="元素"    Page Should Not Contain Element    ${locator}    ${msg}
+    ...    ELSE    Page Should Not Contain    ${locator}
+
+检查元素存在内容
+    [Arguments]    ${locator}    ${expected}    ${message}=
+    Element Should Contain    ${locator}    ${expected}    ${message}=
+
+点击链接
+    [Arguments]    ${locator}
+    [Documentation]    带 <a> 标签的都可以
+    ...    描述信息 可以是 id，name，href和link text
+    Click Link    ${locator}
+
+鼠标悬停
+    [Arguments]    ${jQuerySelector}    # 选择器
+    [Documentation]    鼠标悬停事件, (不点击鼠标)
+    ...
+    ...    _${jQuerySelector}_ 例如是
+    ...
+    ...    a:contains('基础资料')
+    ...
+    ...    li:contains('帮助中心 ')
+    ...
+    ...    详细参考jQuery文档
+    #Mouse Over    ${locator}
+    Execute Javascript    $("${jQuerySelector}").trigger('mouseenter');
+    #Execute Javascript    jQuery(\"${jQuerySelector}\").trigger('mouseenter');
+    #Execute Javascript    jQuery(\"li:contains('运价维护')\").mouseover();
+    sleep    1
+
+鼠标离开
+    [Arguments]    ${jQuerySelector}
+    [Documentation]    鼠标悬停事件, (不点击鼠标)
+    ...
+    ...    _${jQuerySelector}_ 例如是
+    ...
+    ...    a:contains('基础资料')
+    ...
+    ...    li:contains('帮助中心 ')
+    ...
+    ...    详细参考jQuery文档
+    #mouseleave
+    Execute Javascript    jQuery(\"${jQuerySelector}\").trigger('mouseleave');
+
+进入框架
+    [Arguments]    ${locator}
+    [Documentation]    进入一个iframe
+    select Frame    ${locator}
+
+离开框架
+    [Documentation]    进入最前端frame
+    Unselect Frame
+
+下拉选择
+    [Arguments]    ${locator}    ${value}
+    Select From List    ${locator}    ${value}
+
+下拉选择byIndex
+    [Arguments]    ${locator}    ${value}
+    Select From List By Index    ${locator}    ${value}
+
+获取表格行数
+    [Arguments]    ${type}    ${value}
+    [Documentation]    通过表格id , class获取行数
+    ...    *仅适用有复选框的列*
+    ...    ${type} 可以维护 id 或者 class | ${value} 维护对应具体的值
+    ...    <table class="result-table">
+    ...    则维护class result-table
+    ${locator}    Set Variable If    "${type}"=="id"    \#    \.
+    #${tr}    Get Webelements    jquery=$("table#baseSeaportFclExport tbody tr")
+    ${tr}    Execute Javascript    return $("table${locator}${value} tbody").find('input[type=checkbox]')
+    ${rowCount}=    Get Length    ${tr}
+    [Return]    ${rowCount}    # 行数
+
+获取当前日期
+    [Arguments]    ${day}=0
+    [Documentation]    默认获取当前年月日, 可以使用参数 ${day}增加天数
+    @{time}    Get Time    year month day    NOW+${day}d
+    ${getdate}=    Set Variable    @{time}[0]-@{time}[1]-@{time}[2]
+    [Return]    ${getdate}
+
+关闭弹出框
+    离开框架
+    Execute Javascript    $("a[title='关闭']").click();
+
+切分数据
+    [Arguments]    ${string}    ${str}=
+    [Documentation]    默认按空格切分
+    @{list}=    Split Data    ${string}    ${str}
+    [Return]    @{list}
+
+用例开始
+    log    =============${TEST_NAME}
+
+用例结束
+    log    =============END
+    关闭浏览器
+
+等待
+    [Arguments]    ${time}
+    sleep    ${time}

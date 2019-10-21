@@ -1,0 +1,182 @@
+*** Settings ***
+Library           Collections
+Library           XML
+Library           OlymLibrary
+
+*** Variables ***
+${session}        session
+
+*** Test Cases ***
+case1
+    [Tags]    demo
+    Create Session    api    http://localhost:8000
+    ${addr}    Get Request    api    users/1
+    Should Be Equal As Strings    ${addr.status_code}    200
+    Log    ${addr.content}
+    ${responsedata}    To Json    ${addr.content}
+    ${keys}    Get Dictionary Keys    ${responsedata}
+    ${items}    Get Dictionary Items    ${responsedata}
+    ${values}    Get Dictionary Values    ${responsedata}
+    ${str}    Get From Dictionary    ${responsedata}    1
+    ${addr}    Get Request    api    users/5
+    Should Be Equal As Strings    ${addr.status_code}    404
+    Log    ${addr.content}
+    ${responsedata}    To Json    ${addr.content}
+    ${keys}    Get Dictionary Keys    ${responsedata}
+    ${items}    Get Dictionary Items    ${responsedata}
+    ${values}    Get Dictionary Values    ${responsedata}
+    ${str}    Get From Dictionary    ${responsedata}    message
+    Delete All Sessions
+
+case2
+    [Tags]    demo
+    Create Session    api    http://localhost:8000
+    ${addr}    Get Request    api    hello/qitao
+    Comment    Should Be Equal As Strings    ${addr.status_code}    200
+    Log    ${addr.content}
+    ${responsedata}    To Json    ${addr.content}
+    ${keys}    Get Dictionary Keys    ${responsedata}
+    ${items}    Get Dictionary Items    ${responsedata}
+    ${values}    Get Dictionary Values    ${responsedata}
+    ${str}    Get From Dictionary    ${responsedata}    hello
+    #xml方式
+    ${dict}    Create Dictionary    accept=application/xml
+    ${addr}    Get Request    api    hello/qitao    ${dict}
+    Comment    Should Be Equal As Strings    ${addr.status_code}    200
+    Log    ${addr.content}
+    ${responsedata}    Set Variable    ${addr.content}
+    ${body}    Get Element Text    ${responsedata}    hello
+    ${hello}    Get Element    ${responsedata}    hello
+    Log    ${hello.text}
+    ${responsedata}    Add Element    ${responsedata}    <new id="3">test</new>
+    ${new}    Get Element Attribute    ${responsedata}    id    new
+    Log    ${new}
+    ${a}    Element To String    ${responsedata}
+    Delete All Sessions
+
+case3
+    [Tags]    demo
+    #用户密码
+    ${auth}    Create List    ok    python
+    Create Session    api    http://localhost:8000    \    \    ${auth}
+    ${addr}    Get Request    api    401
+    Comment    Should Be Equal As Strings    ${addr.status_code}    200
+    Log    ${addr.content}
+    ${responsedata}    To Json    ${addr.content}
+    ${keys}    Get Dictionary Keys    ${responsedata}
+    ${items}    Get Dictionary Items    ${responsedata}
+    ${values}    Get Dictionary Values    ${responsedata}
+    ${str}    Get From Dictionary    ${responsedata}    pass
+    Delete All Sessions
+
+case4
+    [Tags]    demo
+    ${dict}    Create Dictionary    Content-Type=application/x-www-form-urlencoded
+    Create Session    api    http://localhost:8000    ${dict}
+    ${data}    Create Dictionary    username=qitao    password=qt
+    ${addr}    Post Request    api    post    data=${data}
+    Comment    Should Be Equal As Strings    ${addr.status_code}    200
+    Log    ${addr.content}
+    Log    ${addr.json()}
+    ${responsedata}    To Json    ${addr.content}
+    ${keys}    Get Dictionary Keys    ${responsedata}
+    ${items}    Get Dictionary Items    ${responsedata}
+    ${values}    Get Dictionary Values    ${responsedata}
+    ${str}    Get From Dictionary    ${responsedata}    username
+    Delete All Sessions
+
+case5
+    [Tags]    demo
+    ${dict}    Create Dictionary    Content-Type=application/x-www-form-urlencoded
+    Create Session    api    http://localhost:8000    ${dict}
+
+Post
+    ${session}=    login    test4    dcas.400jit.com    test4.100jit.com
+    ${data2}    Create Dictionary    advancedConditionsTextarea=[{"fieldnum":1,"fieldCn":"目的港","fieldEn":"dischargeport","fieldValue":"dubai"}]
+    ${resp2}    Post Request    ${session}    /priceservice/priceMaintain.ctrl?$action=fcl_query&pageno=1&connonQueryValue=-1    data=${data2}
+    log    ${resp2.text}
+
+Login
+    Create Session    dcas2    http://dcas.400jit.com
+    ${headers}    Create Dictionary    Content-Type=application/x-www-form-urlencoded    Accept-Language=zh-CN,zh;q=0.8
+    ${data}    Create Dictionary    accessId=freightClient    backUrl=aHR0cDovL3Rlc3Q0LjEwMGppdC5jb20vY3BtZW1iZXJzaGlwL3ByaXZhdGVMb2cuY3RybD8kYWN0aW9uPXJvdXRlJl9sX3I9MTQ1MjIxNjI5MTUzMg    username=13967880231    password=d0dd9bbf3cd458ac1f4031ed775da83b06437b0302d72a56f210fa020fce65bce1fe1a72fd69e26187fa2689fe72a0982885755f8fdf468910e7bbd214d616f0d92687a45e7009889c936f05fb012545364166c48f6112d46c0bb5b71c9e7c6482b81abbc2ad4ed300aeaf683a99579267b572775d50c6db99cf1211950a5230    domain=test4.100jit.com
+    ...    tokenId=ZJsaEMSesj/SMO9QrpHLyxp0hy7SVI3T8Qo/isG8+kGXnsimmR0eIcOBS6w=    userType=1
+    ${resp}    Post Request    dcas2    /dcas2/rest/login    data=${data}    headers=${headers}
+    #Log    ${resp.content}
+    ${data2}    Create Dictionary    advancedConditionsTextarea=[{"fieldnum":1,"fieldCn":"目的港","fieldEn":"dischargeport","fieldValue":"dubai"}]
+    Set Session Url    dcas2    http://test4.100jit.com
+    ${resp2}    Post Request    dcas2    /priceservice/priceMaintain.ctrl?$action=fcl_query&pageno=1&connonQueryValue=-1    data=${data2}
+    log    ${resp2.text}
+
+cpmembership
+    ${ddd}    Evaluate    requests.Session()    requests
+    ${headers}    Create Dictionary    Content-Type=application/x-www-form-urlencoded    Accept-Language=zh-CN,zh;q=0.8
+    ${data}    Create Dictionary    accessId=freightClient    backUrl=aHR0cDovL3Rlc3Q0LjEwMGppdC5jb20vY3BtZW1iZXJzaGlwL3ByaXZhdGVMb2cuY3RybD8kYWN0aW9uPXJvdXRlJl9sX3I9MTQ1MjIxNjI5MTUzMg    username=13967880231    password=d0dd9bbf3cd458ac1f4031ed775da83b06437b0302d72a56f210fa020fce65bce1fe1a72fd69e26187fa2689fe72a0982885755f8fdf468910e7bbd214d616f0d92687a45e7009889c936f05fb012545364166c48f6112d46c0bb5b71c9e7c6482b81abbc2ad4ed300aeaf683a99579267b572775d50c6db99cf1211950a5230    domain=test4.100jit.com
+    ...    tokenId=ZJsaEMSesj/SMO9QrpHLyxp0hy7SVI3T8Qo/isG8+kGXnsimmR0eIcOBS6w=    userType=1
+    ${resp}    Post Request    ${ddd}    /dcas2/rest/login    data=${data}    headers=${headers}
+    Log    ${resp.content}
+
+getRSAPublicKey
+    Create Session    login    http://test4.100jit.com
+    ${headers}    Create Dictionary    Content-Type=application/x-www-form-urlencoded    Accept-Language=zh-CN,zh;q=0.8
+    ${data}    Create Dictionary    accessId=freightClient    backUrl=aHR0cDovL3Rlc3Q0LjEwMGppdC5jb20vY3BtZW1iZXJzaGlwL3ByaXZhdGVMb2cuY3RybD8kYWN0aW9uPXJvdXRlJl9sX3I9MTQ1MjIxNjI5MTUzMg    username=13967880231    password=d0dd9bbf3cd458ac1f4031ed775da83b06437b0302d72a56f210fa020fce65bce1fe1a72fd69e26187fa2689fe72a0982885755f8fdf468910e7bbd214d616f0d92687a45e7009889c936f05fb012545364166c48f6112d46c0bb5b71c9e7c6482b81abbc2ad4ed300aeaf683a99579267b572775d50c6db99cf1211950a5230    domain=test4.100jit.com
+    ...    tokenId=ZJsaEMSesj/SMO9QrpHLyxp0hy7SVI3T8Qo/isG8+kGXnsimmR0eIcOBS6w=    userType=1
+    ${resp}    Post Request    login    /cpmembership/publicDcasLogin.ctrl?$action=getRSAPublicKey    headers=${headers}
+    ${jsondata}    To json    ${resp.content}
+    Log    ${jsondata['data']['modulus']}
+    #Dictionary Should Contain Value
+
+getDcasLoginInfo
+    Create Session    login    http://test4.100jit.com
+    ${headers}    Create Dictionary    Content-Type=application/x-www-form-urlencoded    Accept-Language=zh-CN,zh;q=0.8
+    ${data}    Create Dictionary    userName=13967880231    password=d0dd9bbf3cd458ac1f4031ed775da83b06437b0302d72a56f210fa020fce65bce1fe1a72fd69e26187fa2689fe72a0982885755f8fdf468910e7bbd214d616f0d92687a45e7009889c936f05fb012545364166c48f6112d46c0bb5b71c9e7c6482b81abbc2ad4ed300aeaf683a99579267b572775d50c6db99cf1211950a5230    dcasDomain=test4.100jit.com    backUrl=aHR0cDovL3Rlc3Q0LjEwMGppdC5jb20vY3BtZW1iZXJzaGlwL3ByaXZhdGVMb2cuY3RybD8k YWN0aW9uPWNsaWVudExvZ2luQ2FsbEJhY2s*
+    ${resp}    Post Request    login    /cpmembership/publicDcasLogin.ctrl?$action=getDcasLoginInfo    headers=${headers}    data=${data}
+    ${jsondata}    To json    ${resp.content}
+    Log    ${resp.content}
+    ${jsondata3}    to json    { \ \ \ "resultMsg" :"", \ \ \ "data" :{ \ \ \ \ \ \ "action" :"http://dcas.400jit.com/dcas2/rest/directLogin?accessId=freightPcClient&securityKey=1454047060947.42f8bd3070e8b24f497a3c9eb016fd1c&userType=1" \ \ \ }, \ \ \ "resultCode" :100 }
+    Dictionaries Should Be Equal    ${jsondata}    ${jsondata3}    msg=结果比较错误
+    #Dictionary Should Contain Value
+
+dell
+    [Setup]    session
+    [Template]    do
+
+*** Keywords ***
+login
+    [Arguments]    ${alias}    ${dcasDomain}    ${domain}
+    [Documentation]    ${dcasDomain} =dcas域名 比如 \ dcas.400jit.com
+    ...
+    ...    ${domain}= 客户域名 比如 \ test4.100jit.com
+    ...    都不带http://
+    Create Session    ${alias}    http://${dcasDomain}
+    ${headers}    Create Dictionary    Content-Type=application/x-www-form-urlencoded    Accept-Language=zh-CN,zh;q=0.8
+    ${data}    Create Dictionary    accessId=freightClient    backUrl=aHR0cDovL3Rlc3Q0LjEwMGppdC5jb20vY3BtZW1iZXJzaGlwL3ByaXZhdGVMb2cuY3RybD8kYWN0aW9uPXJvdXRlJl9sX3I9MTQ1MjIxNjI5MTUzMg    username=13967880231    password=d0dd9bbf3cd458ac1f4031ed775da83b06437b0302d72a56f210fa020fce65bce1fe1a72fd69e26187fa2689fe72a0982885755f8fdf468910e7bbd214d616f0d92687a45e7009889c936f05fb012545364166c48f6112d46c0bb5b71c9e7c6482b81abbc2ad4ed300aeaf683a99579267b572775d50c6db99cf1211950a5230    domain=${domain}
+    ...    tokenId=ZJsaEMSesj/SMO9QrpHLyxp0hy7SVI3T8Qo/isG8+kGXnsimmR0eIcOBS6w=    userType=1
+    ${resp}    Post Request    ${alias}    /dcas2/rest/login    data=${data}    headers=${headers}
+    Set Session Url    ${alias}    http://${domain}
+    [Return]    ${alias}
+
+session
+    Create Session    ${session}    http://dcas.400jit.com
+    ${headers}    Create Dictionary    Content-Type=application/x-www-form-urlencoded    Accept-Language=zh-CN,zh;q=0.8
+    ${data}    Create Dictionary    accessId=freightClient    backUrl=aHR0cDovL2xmbG9naXN0aWNzLjEwMGppdC5jb20vY3BtZW1iZXJzaGlwL3ByaXZhdGVMb2cuY3RybD8kYWN0aW9uPXJvdXRlJl9sX3I9MTQ1NzA5MDI3NjM0MQ**    username=15267065564.bak    password=d59987122d112d0e5b635570787cdcbceb5437afbeede8a6276ecc521195e9281e144de46823cd5cea8164b39ee3157af1960a7667abb4957f8e7bac1ff1999b10051a7b5d8c7461220f327ecbc462a96bc5acc5f54487ba754416999a3936c17ef7715458b20405657d7cc1cf9ce828e19d595c49048a3bc1babf22fffb9d4e    domain=lflogistics.100jit.com
+    ...    tokenId=N3TBDctXBQp2S8XvMeUq/EsuH0f+XxT91JdlKWzL0wKp7k/Ss8tZMT0QmWI=    userType=1
+    ${resp}    Post Request    ${session}    /dcas2/rest/login    data=${data}    headers=${headers}
+    log    ${resp.text}
+    Should Contain    ${resp.text}    class="logo">运价通</a>    msg=登录失败
+    Set Session Url    ${session}    http://lflogistics.100jit.com
+
+do
+    [Arguments]    ${num}
+    ${data1}    Create Dictionary    publishState=all    invalidState=invalid    pageSize=500    pageNum=1    sortColumn=
+    ...    sortBy=desc    queryConditions={}
+    ${headers1}    Create Dictionary    Content-Type=application/x-www-form-urlencoded
+    ${result}    post request    ${session}    /freight-efcl-rest/rest/efcl/prices/all    data=${data1}    headers=${headers1}
+    ${resultJson}    to json    ${result.text}
+    ${sss}    Get value    ${resultJson}
+    log    ${resultJson}
+    ${headers2}    Create Dictionary    Content-Type=application/json
+    ${data2}    json Dumps    ${sss}
+    ${result2}    post request    ${session}    /freight-efcl-rest/rest/efcl/prices/deletes    data=${data2}    headers=${headers2}
+    ${result2Json}    to json    ${result2.text}
+    log    -----> ${num}

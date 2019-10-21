@@ -1,0 +1,304 @@
+*** Settings ***
+Resource          ../Resources/基础关键字.txt
+Resource          ../Resources/会员操作关键字.txt
+Resource          ../Resources/整箱操作关键字.txt
+Resource          ../Resources/基础资料操作关键字.txt
+
+*** Test Cases ***
+外部整箱查询初始化
+    [Tags]    init
+    登录内部账号
+    #清理测试数据
+    删除整箱运价    dischargeport=waibu1
+    删除整箱发布运价    dischargeport=waibu1
+    删除整箱运价    dischargeport=waibu2
+    删除整箱发布运价    dischargeport=waibu2
+    #查询功能测试运价数据
+    新增整箱航线    澳新    aoxin
+    新增整箱港口-引用本体库    enname=NINGBO    searoute=1
+    新增船公司信息    HANJIN    HANJIN    carrierseacode2=HANJIN
+    新增整箱港口    enname=waibu1    searoute=澳新    code=RFS    cnname=测试专用港口1    cncountryname=中国    encountryname=CHINA
+    ...    isbaseport=是    searchcode=NINGBO
+    新增整箱运价    loadport=NINGBO    dischargeport=waibu1    carrier=HANJIN    begindate=2015-05-01    validdate=2020-05-01    transferport=NINGBO
+    ...    cycle=1/3    sailtime=99    sailing_date=20号    massaddress=二期    internetsellprice1=1111    internetsellprice2=2222
+    ...    internetsellprice3=3333    internetsellprice4=4444    isnor1=是    quoteorg=开源    rakeoff=800    signflag=FH
+    ...    sendtype=正本    volumerange=234    addfee=附加费说明内容    linkinfo=阿狗13967880231    remark=外部备注内容    iscommend=是
+    ...    searoute_code=HX00001
+    发布整箱运价    dischargeport=waibu1
+    #权限控制测试专用数据    #新增一个中东的运价
+    新增整箱航线    中东    zdong
+    新增整箱港口    enname=waibu2    searoute=中东
+    新增整箱运价    loadport=SHEKOU    dischargeport=waibu2    carrier=HANJIN    begindate=2015-05-01    validdate=2020-05-01    internetsellprice1=1000
+    ...    internetsellprice2=2000    internetsellprice3=3000    internetsellprice4=4000
+    发布整箱运价    dischargeport=waibu2
+    #子母港测试专用数据
+    新增整箱港口-引用本体库    SHENZHEN    1    isloadport=是
+    [Teardown]    关闭浏览器
+
+MP_FCL_1目的港查询
+    [Documentation]    输入目的港(RFS)
+    ...    检查查询结果是否正确
+    [Tags]    FCL    zs
+    [Setup]    登录外部账号
+    [Template]
+    [Timeout]
+    #用例步骤&检查点
+    进入整箱查询页面    waibu1
+    页面包含-遗弃    内容    测试专用港口1
+    [Teardown]    关闭浏览器
+
+MP_FCL_2是否中转查询
+    [Documentation]    按直达查询 和按中转查询
+    [Tags]    zs
+    [Setup]    登录外部账号
+    [Template]
+    [Timeout]
+    #用例步骤&检查点
+    进入整箱查询页面    waibu1
+    #查询条件为直达的情况
+    点击链接    直达
+    sleep    3
+    页面包含-遗弃    内容    暂时没有搜到符合您查询条件的运价
+    #查询条件为中转的情况
+    点击链接    搜索    #重置查询条件
+    sleep    3
+    点击链接    中转
+    sleep    3
+    页面包含-遗弃    内容    测试专用港口1
+    [Teardown]    关闭浏览器
+
+MP_FCL_3船公司查询
+    [Documentation]    登录后点 一个船公司查询
+    [Tags]    zs
+    [Setup]    登录外部账号
+    #用例步骤&检查点
+    进入整箱查询页面    waibu1
+    点击链接    HANJIN
+    sleep    3
+    页面包含-遗弃    内容    测试专用港口
+    [Teardown]    关闭浏览器
+
+MP_FCL_4_5截开查询
+    [Documentation]    查询 截关日期和开航日期 查询有值的情况
+    ...
+    ...    查询 截关日期和开航日期 查询没有结果的情况
+    [Tags]    zs
+    [Setup]    登录外部账号
+    ${JGRQ}    Set variable    周一    #截关日期
+    ${KHRQ}    Set variable    周三    #开航日期
+    #用例步骤&检查点
+    进入整箱查询页面    waibu1
+    点击    xpath=//div[@data-type="cutoff"]//a[contains(.,'${JGRQ}')]    #点击截关${JGRQ}
+    sleep    3
+    点击    xpath=//div[@data-type="departure"]//a[contains(.,'${KHRQ}')]    #点击开航${KHRQ}
+    sleep    3
+    页面包含-遗弃    内容    测试专用港口
+    #查询结果无记录的情况
+    点击链接    搜索    #重置查询条件
+    sleep    3
+    点击    xpath=//div[@data-type="cutoff"]//a[contains(.,'周日')]    #点击截关周日
+    sleep    3
+    点击    xpath=//div[@data-type="departure"]//a[contains(.,'周日')]    #点击开航周日
+    sleep    3
+    页面包含-遗弃    内容    暂时没有搜到符合您查询条件的运价
+    [Teardown]    关闭浏览器
+
+MP_FCL_6列表内容显示
+    [Documentation]    运价明细页检查点含    #list说明    --    起运港    目的港    中转港    符号    20GP    # 40GP    40HQ    45GP    船公司    航程    船期    # 船期    港区    有效日期    备注    预计上涨    国家    # 航线    航线代码    限重    联系方式    附加费说明    开航日    # 附件
+    ...
+    ...    起运港=宁波 | 目的港=测试专用港口 | 中转港=NINGBO| 符号=FH | 轻货=1050 | 重货=1800 | 体积范围=体积范围内容 | 航程=987654321 | 船公司=HANJIN | 有效期开始=2015-05-01 | 截关=周一截关 | 离港=周三离港 | 仓库=大榭 | 有效期=2016-05-01 | 备注=外部备注内容 | 涨跌=涨跌: | 国家=中国 | 航线=澳新 | 目的港收货人=直客 | 目的港收费标准=高 | 联系方式=阿狗 13967880231 | 附加费说明=附加费说明内容 | 附件=附件文档.txt
+    ...
+    ...    以上这些字段
+    [Tags]    zs
+    [Setup]    登录外部账号
+    @{cheackList}    create list    宁波    FH    1111    2222    3333
+    ...    4444    HANJIN    99    周一截关    周三离港    二期
+    ...    外部备注内容    中国    澳新    HX00001    234    阿狗13967880231
+    ...    附加费说明内容    20号
+    #用例步骤&检查点
+    进入整箱查询页面    waibu1
+    点击链接    展开详情
+    sleep    1
+    页面检查多个内容    @{cheackList}
+    [Teardown]    关闭浏览器
+
+MP_FCL_7查询权限控制
+    [Documentation]    \ 登录一个有权限控制的帐号(船公司,航线控制)
+    ...
+    ...    查询一个有权限的船公司, 能查到数据
+    ...
+    ...    查询一个无权限的船公司, 不能查询到数据
+    ...
+    ...    查询一个无权限的航线, 不能查询到数据
+    [Tags]    zs
+    [Setup]
+    #前置设置
+    登录内部账号
+    修改会员航线控制    isopen=TRUE    SelectfclRoute=澳新    UnSelectfclRoute=中东
+    关闭浏览器
+    #用例步骤&检查点
+    登录外部账号
+    进入整箱查询页面    waibu1
+    页面包含-遗弃    内容    HANJIN    #航线控制,只能看到澳新的运价
+    返回首页
+    进入整箱查询页面    waibu2
+    页面包含-遗弃    内容    暂时没有搜到符合您查询条件的运价    #航线控制,只能看到澳新的运价
+    关闭浏览器
+    #数据清理
+    登录内部账号
+    修改会员航线控制    isopen=FALSE
+    [Teardown]    关闭浏览器
+
+MP_FCL_8多级运价
+    [Tags]    zs
+    [Setup]
+    #list说明    --    20GP    40GP    40HQ    45GP
+    @{cheackList}    create list    1010    2020    3030    4040
+    #前置
+    登录内部账号
+    新增多级运价-海运    目的港waibu2    整箱    dischargeport=waibu2    replaced=True    fcl_ctn_type1=10    fcl_ctn_type2=20
+    ...    fcl_ctn_type3=30    fcl_ctn_type4=40
+    引用多级运价-海运    目的港waibu2
+    关闭浏览器
+    #用例步骤&检查点
+    登录外部账号
+    进入整箱查询页面    waibu2
+    点击链接    展开详情
+    sleep    1
+    页面检查多个内容    @{cheackList}
+    [Teardown]    关闭浏览器
+
+MP_FCL_9外部查询代码查询
+    [Documentation]    查询港口DAIMA的时候可以查出港口是RFS2的运价
+    [Tags]    zs
+    [Setup]    登录外部账号
+    #用例步骤&检查点
+    进入整箱查询页面    dischargeport=NINGBO
+    页面包含-遗弃    内容    测试专用港口1
+    [Teardown]    关闭浏览器
+
+MP_FCL_10子母港查询
+    [Documentation]    查询深圳(shenzhen)的时候能查询到蛇口(shekou)的运价
+    [Tags]    zs
+    [Setup]    登录外部账号
+    #用例步骤&检查点
+    进入整箱查询页面    waibu2    shenzhen
+    sleep    1
+    页面包含-遗弃    内容    蛇口
+    [Teardown]    关闭浏览器
+
+MP_FCL_11算一算功能
+    [Documentation]    近期项目有算一算相关的改造. 脚本暂时不写
+    [Tags]    todo
+    [Setup]
+    log    功能要调整,暂时不写
+
+MP_FCL_12驳船费查询
+    [Tags]    zs
+    [Setup]
+    登录内部账号
+    新增并发布驳船费    recaddressEnname=shanghai    searouteCnname=澳新    unloadport=ningbo    carrier=hanjin    dischargeport=waibu1    receiveArea=收获区域
+    ...    transportDays=4    bargePrice1=100    bargePrice2=200    bargePrice3=300    bargePrice4=400
+    关闭浏览器
+    #校验
+    登录外部账号
+    进入整箱查询页面    WAIBU1    shanghai
+    sleep    5
+    页面包含-遗弃    内容    1211    #驳船费100运费1000
+    [Teardown]    关闭浏览器
+
+BDD_MP_FCL_1 客户按目的港查询运价
+    [Tags]    bdd
+    #前置条件
+    登录内部账号
+    新增一个NINGBO到DUBAI的整箱运价
+    发布一条NINGBO到DUBAI的整箱运价
+    关闭浏览器
+    #测试步骤
+    登录外部账号
+    查询NINGBO到DUBAI的整箱运价
+    #预期结果
+    能查询到目的港是DUBAI的运价
+    [Teardown]    关闭浏览器
+
+BDD_MP_FCL_2 客户查询权限控制
+    [Tags]    bdd
+    [Setup]    登录内部账号
+    #测试步骤
+    设置客户账号查询权限航线控制:不允许查看中东运价
+    发布一条NINGBO到DUBAI的整箱运价    #DUBAI属于中东线
+    关闭浏览器
+    登录外部账号
+    查询NINGBO到DUBAI的整箱运价
+    #预期结果
+    不能查询到目的港是DUBAI的运价
+    关闭浏览器
+    #数据还原
+    登录内部账号
+    设置客户账号不启用查询权限航线控制
+    关闭浏览器
+    登录外部账号
+    查询NINGBO到DUBAI的整箱运价
+    #预期结果
+    能查询到目的港是DUBAI的运价
+    [Teardown]    关闭浏览器
+
+*** Keywords ***
+进入整箱查询页面
+    [Arguments]    ${dischargeport}    ${loadport}=
+    [Documentation]    进入整箱查询页面,
+    ...    当前功能限制必须含有目的港 ${dischargeport} \ 才能跳转
+    ...
+    ...    *前置条件*
+    ...    必须是登录后才能使用,(默认业务类型不影响)
+    ...
+    ...    参数:
+    ...    _${dischargeport} _ \ 为港口英文名称
+    ...
+    ...    _${loadport}_ 为起运港英文名称 默认是 空值
+    点击    xpath=//li[@search_type="fcl"]    #整箱查询tab
+    sleep    1
+    输入    id=loadport    ${loadport}    #起运港输入
+    sleep    1
+    输入    id=dischargeport    ${dischargeport}    #目的港输入
+    点击    id=search_home    #点搜索
+    sleep    3    #查询结果异步加载,需要等待较长时间
+    页面包含-遗弃    内容    20GP    #验证是否正常跳转到整箱页面
+    #Steplog    输入目的港= ${dischargeport} | 起运港=${loadport} 后进入整箱查询页面
+
+返回首页
+    [Documentation]    *前置条件*
+    ...
+    ...    必须是在查询页面才能使用 (因为首页中没有返回首页的链接)
+    点击链接    运价查询首页
+    sleep    2
+
+帐号权限还原
+    登录内部账号
+    修改会员航线控制    isopen=FALSE
+    关闭浏览器
+
+新增一个${loadport}到${dischargeport}的整箱运价
+    ${count}=    查询整箱运价    loadport=${loadport}    dischargeport=${dischargeport}
+    Run Keyword If    "${count}"=="0"    新增整箱航线    中东    zd
+    Run Keyword If    "${count}"=="0"    新增整箱港口-引用本体库    enname=DUBAI    searoute=中东
+    Run Keyword If    "${count}"=="0"    新增船公司信息    APL    APL
+    Run Keyword If    "${count}"!="0"    log    运价记录已存在不需要新增
+    ...    ELSE    新增整箱运价    loadport=${loadport}    dischargeport=${dischargeport}    carrier=APL    begindate=2016-01-01
+    ...    validdate=2017-01-01    internetsellprice1=1010
+
+发布一条${loadport}到${dischargeport}的整箱运价
+    发布整箱运价    loadport=${loadport}    dischargeport=${dischargeport}
+
+查询${loadport}到${dischargeport}的整箱运价
+    进入整箱查询页面    dischargeport=DUBAI    loadport=NINGBO
+
+能查询到目的港是${dischargeport}的运价
+    Element Should Contain    xpath=//div[@class='gui-table-area']    ${dischargeport}
+
+不能查询到目的港是${dischargeport}的运价
+    Element Should Contain    xpath=//div[@class='gui-table-area']    ${dischargeport}
+
+设置客户账号查询权限航线控制:不允许查看${selectPost}运价
+
+设置客户账号不启用查询权限航线控制

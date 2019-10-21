@@ -1,0 +1,246 @@
+*** Settings ***
+Library           Selenium2Library
+Library           Tool.py
+Resource          基础关键字.txt
+
+*** Keywords ***
+登录
+    [Arguments]    ${url}    ${type}    ${username}    ${password}
+    [Documentation]    抽象的登陆过程。用于实际登陆操作模拟
+    ...
+    ...    ${type} = \ contact , member
+    打开    ${url}    #main变量
+    点击    id=${type}    #客户登录窗口
+    输入    id=${username}    ${username}    #main.username
+    输入    id=${password}    ${password}    #main.password
+    点击    xpath=//a[@class="login-btn"]    #点登录按钮
+    sleep    1
+
+登录内部账号
+    [Documentation]    登录常用的外部帐号
+    打开    ${url}    #全局变量
+    点击    id=member    #客户登录窗口
+    输入    id=username    ${member_username}    #username
+    输入    id=password    ${member_password}    #password
+    点击    xpath=//a[@class="login-btn"]    #点登录按钮
+    sleep    1
+    #steplog    打开: ${url}登录外部帐号: ${member_username}
+
+登录外部账号
+    [Documentation]    登录常用的外部帐号
+    打开    ${url}    #全局变量
+    点击    id=contact    #客户登录窗口
+    输入    id=username    ${contact_username}    #username
+    输入    id=password    ${contact_password}    #password
+    点击    xpath=//a[@class="login-btn"]    #点登录按钮
+    sleep    1
+    #steplog    打开: ${url}登录内部帐号: ${contact_username}
+
+登录外部账号-低权限
+    [Documentation]    登录常用的外部帐号
+    打开    http://test.600jit.com    #全局变量
+    点击    id=contact    #客户登录窗口
+    输入    id=username    17098701986    #username
+    输入    id=password    111111.    #password
+    点击    xpath=//a[@class="login-btn"]    #点登录按钮
+    sleep    1
+
+打开页面
+    [Arguments]    ${one}    ${two}    ${three}=
+    [Documentation]    支持头部的一级,二级,三级菜单打开指定页面
+    ...    ${one} = 运价通 行为分析 等菜单名字
+    ...    ${two} = 运价维护 运价查询 等
+    ...    ${three} = 海运出口整箱维护 海运出口拼箱维护 等
+    ...
+    ...    例如: \ \ \ 打开页面 \ \ \ 运价通 \ \ \ 运价维护 \ \ 海运出口整箱维护
+    ...
+    ...    *提醒* 如果没有3级菜单,则为空
+    ...    *提醒* 如果存在相同的链接,则需要用xpath去识别. 比如港口的页面只能维护成 xpath=//a[contains(@href,"海运出口整箱港口信息")]
+    ...    *提醒* \ 打开页面后,请自行进入框架.不然无法识别到相应的元素
+    离开框架    #防止在其他iframe导致异常
+    sleep    2    #防止之前的页面还没有关闭
+    #点击一级菜单
+    点击链接    ${one}
+    #鼠标移动到二级菜单
+    鼠标悬停    a.main-nav-link:contains('${two}')
+    #点击三级菜单
+    点击链接    ${three}
+    sleep    3
+    #清理弹出的菜单
+    鼠标悬停    a.main-nav-link:contains('${two}')
+    鼠标离开    a.main-nav-link:contains('${two}')
+    #Steplog    打开 ${one} >> ${two} >> ${three}
+
+修改会员航线控制
+    [Arguments]    ${isopen}    ${SelectfclRoute}=    ${UnSelectfclRoute}=    ${SelectlclExportRoute}=    ${UnSelectlclExportRoute}=
+    [Documentation]    ${isopen} = \ TRUE, FALSE (是否开启或关闭)
+    ...
+    ...    ${SelectfclRoute}= 选择的航线 | ${UnSelectfclRoute}= \ 取消选择的航线
+    ...
+    ...    ${SelectlclExportRoute}= 选择的航线 | ${UnSelectlclExportRoute}= \ 取消选择的航线
+    ...
+    ...    ${isopen} = FALSE 时下面的参数不要维护
+    打开页面    运价通    客户管理    用户管理
+    sleep    3
+    #进入航线控制页面
+    点击    id=j-advSearchBtn    #高级搜索
+    Execute Javascript    $("div.nui-input:contains('用户电话')").click()    #下拉框执行动作
+    点击    //li[contains(text(),"用户名")]
+    输入    id=keyword_value    ${contact_username}
+    点击    id=j-searchBtn    #搜索
+    sleep    1
+    点击链接    详情
+    #进入详情页面
+    进入框架    //iframe[contains(@src,"getMemContactDetail")]    #详情页面
+    点击链接    权限设置
+    离开框架
+    进入框架    //iframe[contains(@src,"contactPurSetView")]    #权限设置页面
+    点击    id=a_route    #进入航线控制页面
+    离开框架
+    进入框架    //iframe[contains(@src,"contactRouteSet")]
+    sleep    1
+    #开关设置
+    Run Keyword And Return Status    Run Keyword If    "${isopen}"=="TRUE"    Execute Javascript    $("a.fui-btn-switch.fui-btn-switch-disable").click()
+    Run Keyword And Return Status    Run Keyword If    "${isopen}"=="FALSE"    Execute Javascript    $("a.fui-btn-switch").click()
+    #${Disabled} =    Run Keyword And Return Status    Click Element    xpath=//a[@class='fui-btn-switch fui-btn-switch-disable ']
+    sleep    1
+    #整箱设置
+    点击链接    海运出口整箱航线
+    Run Keyword If    "${SelectfclRoute}"!=""    Select checkbox    xpath=//label[contains(text(),"${SelectfclRoute}")]//input[@id="fclExportRoute"]    #勾选港口
+    Run Keyword If    "${UnSelectfclRoute}"!=""    Unselect checkbox    xpath=//label[contains(text(),"${UnSelectfclRoute}")]//input[@id="fclExportRoute"]    #取消勾选港口
+    #拼箱设置
+    点击链接    海运出口拼箱航线
+    Run Keyword If    "${SelectlclExportRoute}"!=""    Select checkbox    xpath=//label[contains(text(),"${SelectlclExportRoute}")]//input[@id="lclExportRoute"]    #勾选港口
+    Run Keyword If    "${UnSelectlclExportRoute}"!=""    Unselect checkbox    xpath=//label[contains(text(),"${UnSelectlclExportRoute}")]//input[@id="lclExportRoute"]    #取消勾选港口
+    点击链接    确认
+    sleep    2
+    离开框架
+    进入框架    //iframe[contains(@src,"contactPurSetView")]
+    点击链接    保存设置
+    关闭弹出框
+    sleep    3
+    #Steplog    修改航线控制 是否启用 ${isopen} | 整箱勾选 =${SelectfclRoute} | 整箱不勾选 ${UnSelectfclRoute}= | 拼箱勾选= ${SelectlclExportRoute} | 拼箱不勾选 =${UnSelectlclExportRoute}
+
+引用多级运价-海运
+    [Arguments]    ${name}
+    [Documentation]    ${name} = 规则名称 .支持模糊匹配
+    ...
+    ...    eg. 有规则名 \ A1 \ A2 \ B1 B2
+    ...
+    ...    如果@{name} = A 则会引用 A1 A2 ; 如果@{name} = A1 则只会引用 A1
+    打开页面    运价通    客户管理    用户管理
+    sleep    3
+    #进入航线控制页面
+    点击    id=j-advSearchBtn    #高级搜索
+    Execute Javascript    $("div.nui-input:contains('用户电话')").click()    #下拉框执行动作
+    点击    //li[contains(text(),"用户名")]
+    输入    id=keyword_value    ${contact_username}
+    点击    id=j-searchBtn    #搜索
+    sleep    1
+    鼠标悬停    .result-table.j-result-table a:contains('详情')    #操作下拉框
+    点击链接    海运运价设置
+    sleep    2
+    #规则分配页面
+    进入框架    //iframe[contains(@src,"setRulePriceView")]    #规则分配页面
+    #删除之前绑定的规则
+    @{Delelements}=    Execute Javascript    return $("#contactRuleDiv a:contains('删除')")
+    : FOR    ${element}    IN    @{Delelements}
+    \    Execute Javascript    $("#contactRuleDiv a:contains('删除')")[0].click()
+    \    Confirm Action
+    \    sleep    1
+    输入    id=search_rule_name    ${name}
+    点击    id=search_rule_list
+    sleep    1
+    #循环引用多级运价
+    @{RuleElements}=    Execute Javascript    return $(".ruleSelectList")
+    : FOR    ${RuleElement}    IN    @{RuleElements}
+    \    Execute Javascript    $(".ruleSelectList")[0].click()    #引用第一个多级运价
+    \    sleep    1
+    点击    id=j-save    #保存设置
+    sleep    2
+    离开框架
+    关闭弹出框
+    sleep    2
+    #Steplog    给客户 ${contact_username} 引用多级运价 ${name}
+
+新增多级运价-海运
+    [Arguments]    ${rulename}    ${pricetype}    ${quoteorg}=    ${carrier}=    ${searoute}=    ${loadport}=
+    ...    ${dischargeport}=    ${replaced}=False    ${fcl_ctn_type1}=    ${fcl_ctn_type2}=    ${fcl_ctn_type3}=    ${fcl_ctn_type4}=
+    ...    ${lcl_ctn_cbm}=    ${lcl_ctn_mt}=
+    [Documentation]    *replaced=true* 的时候,会先删除原来的规则(如果存在).
+    ...    *replaced=false* 的时候,如果遇到相同的规则名. 则不再新增
+    ...
+    ...    *${pricetype}* = *整箱* 或者 *拼箱*
+    ...
+    ...    *${quoteorg}* = 维护想要控制的订舱代理 *多个请按空格分隔*
+    ...    *${carrier}* = 船公司
+    ...    *${searoute}* = 航线
+    ...    *${loadport}* = 起运港
+    ...    *${dischargeport}* = 目的港
+    打开页面    运价通    客户管理    海运多级运价管理
+    输入    id=rule_name    ${rulename}
+    点击链接    搜 索
+    sleep    1
+    #删除多余的数据
+    ${count}=    获取表格行数    class    result-table
+    Run Keyword If    "${count}"!="0" and "${replaced}"=="True"    点击    id=jselAll
+    Run Keyword If    "${count}"!="0" and "${replaced}"=="True"    点击    id=j-rule-del
+    Run Keyword If    "${count}"!="0" and "${replaced}"=="True"    点击    xpath=//a[@id="btn-yes"]    #点击确定
+    sleep    1
+    #打开新增页面
+    点击    id=j-rule-add    #新增
+    sleep    1
+    输入    xpath=//div[@aria-disabled="true"]//input[@id="rule_name"]    ${rulename}
+    Run Keyword If    "${pricetype}"=="整箱"    点击    xpath=//a[@pricetype="efcl"]    #勾选整箱
+    Run Keyword If    "${pricetype}"=="拼箱"    点击    xpath=//a[@pricetype="elcl"]    #勾选拼箱
+    sleep    1
+    #维护订舱代理
+    Run Keyword If    "${quoteorg}"!=""    点击    xpath=//div[@aria-disabled="true"]//a[@id="addCategoryBtn"]    #点"增加"
+    Run Keyword If    "${quoteorg}"!=""    点击    xpath=//div[@aria-disabled='true']//li[contains(text(),"订舱代理")]    #点"订舱代理"
+    @{quoteorgs}=    切分数据    ${quoteorg}
+    : FOR    ${daili}    IN    @{quoteorgs}
+    \    Exit For Loop If    "${daili}"==""
+    \    输入    xpath=//div[@aria-disabled="true"]//input[@id='search']    ${daili}
+    \    sleep    1
+    \    Execute Javascript    $("span:contains('${daili}')").click()    #勾选代理
+    \    sleep    1
+    Run Keyword If    "${quoteorg}"!=""    点击    xpath=//div[@aria-disabled="true"]//a[@id='j-BtnActive']
+    Run Keyword If    "${quoteorg}"!=""    Execute Javascript    $("div[aria-disabled='true'] #j-windowClose").click()    #处理没勾选的情况下,页面不关闭的情况
+    #维护航线
+    Run Keyword If    "${carrier}"!=""    点击    xpath=//div[@aria-disabled="true"]//a[@id="addCategoryBtn"]    #增加
+    Run Keyword If    "${carrier}"!=""    点击    xpath=//div[@aria-disabled='true']//li[contains(text(),"航线")]
+    @{carriers}=    切分数据    ${carrier}
+    : FOR    ${hangxian}    IN    @{carriers}
+    \    Exit For Loop If    "${hangxian}"==""
+    \    输入    xpath=//div[@aria-disabled="true"]//input[@id='search']    ${hangxian}
+    \    sleep    1
+    \    Execute Javascript    $("span:contains('${hangxian}')").click()    #勾选航线
+    \    sleep    1
+    Run Keyword If    "${carrier}"!=""    点击    xpath=//div[@aria-disabled="true"]//a[@id='j-BtnActive']
+    Run Keyword If    "${carrier}"!=""    Execute Javascript    $("div[aria-disabled='true'] #j-windowClose").click()    #处理没勾选的情况下,页面不关闭的情况
+    sleep    3
+    #维护目的港
+    ${dischargeport}=    Evaluate    '${dischargeport}'.upper()    #转大写
+    Run Keyword If    "${dischargeport}"!=""    点击    xpath=//div[@aria-disabled="true"]//a[@id="addCategoryBtn"]    #增加
+    Run Keyword If    "${dischargeport}"!=""    点击    xpath=//div[@aria-disabled='true']//li[contains(text(),"目的港")]
+    @{dischargeports}=    切分数据    ${dischargeport}
+    : FOR    ${mudigang}    IN    @{dischargeports}
+    \    Exit For Loop If    "${mudigang}"==""
+    \    输入    xpath=//div[@aria-disabled="true"]//input[@id='search']    ${mudigang}
+    \    sleep    1
+    \    Execute Javascript    $("span:contains('${mudigang}')").click()    #勾选航线
+    \    sleep    1
+    Run Keyword If    "${dischargeport}"!=""    点击    xpath=//div[@aria-disabled="true"]//a[@id='j-BtnActive']
+    Run Keyword If    "${dischargeport}"!=""    Execute Javascript    $("div[aria-disabled='true'] #j-windowClose").click()    #处理没勾选的情况下,页面不关闭的情况
+    sleep    3
+    #填充价格
+    Execute Javascript    $("tr[ctntype='fcl_ctn_type1'] .nui-input.no-chinese.j-value").val("${fcl_ctn_type1}")    #整箱价格1
+    Execute Javascript    $("tr[ctntype='fcl_ctn_type2'] .nui-input.no-chinese.j-value").val("${fcl_ctn_type2}")    #整箱价格2
+    Execute Javascript    $("tr[ctntype='fcl_ctn_type3'] .nui-input.no-chinese.j-value").val("${fcl_ctn_type3}")    #整箱价格3
+    Execute Javascript    $("tr[ctntype='fcl_ctn_type4'] .nui-input.no-chinese.j-value").val("${fcl_ctn_type4}")    #整箱价格4
+    Execute Javascript    $("tr[ctntype='lcl_ctn_cbm'] .nui-input.no-chinese.j-value").val("${lcl_ctn_cbm}")    #拼箱价格CBM
+    Execute Javascript    $("tr[ctntype='lcl_ctn_mt'] .nui-input.no-chinese.j-value").val("${lcl_ctn_mt}")    #拼箱价格mt
+    点击    xpath=//div[@aria-disabled="true"]//a[@id="j-ruleDetailSave"]    #保存
+    sleep    1
+    ${result}=    Execute Javascript    return $('div.nui-return-message').contents()
+    #Steplog    新增多级运价 ${rulename} | 类型: ${pricetype} | 设置订舱代理:${quoteorg}| 设置船公司:${carrier} | 设置航线:${searoute} | 设置起运港:${loadport} | $设置中转港:{dischargeport} | 是否删除重复运价:${replaced}| 价格1:${fcl_ctn_type1} | 价格2=${fcl_ctn_type2} |价格3= ${fcl_ctn_type3} |价格4: ${fcl_ctn_type4} | 轻货: ${lcl_ctn_cbm} | 重货:${lcl_ctn_mt}

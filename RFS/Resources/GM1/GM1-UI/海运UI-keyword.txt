@@ -1,0 +1,186 @@
+*** Settings ***
+Resource          ../../基础关键字.txt
+Library           Screenshot
+
+*** Keywords ***
+切换iframe
+    [Arguments]    ${xpath}
+    select frame    ${xpath}
+    等待    2
+
+进入业务管理
+    click element    xpath=//a[contains(text(),'业务管理')]
+    等待    2
+    log    已进入业务管理页面
+
+进入海运出口台账
+    mouse over    xpath=//i[@class='iconfont icon-yewutaizhang']
+    等待    1
+    click element    xpath=//span[contains(text(),'海运出口')]/..
+    等待    1
+    #click element    xpath=//span[text()='主列表']/..
+    #等待    1
+    log    已进入海运出口台账页面
+
+截取当前屏幕
+    take screenshot
+
+切换至新窗口
+    select window    new
+    等待    2
+
+执行js语句
+    [Arguments]    ${js}
+    execute javascript    ${js}
+    等待    1
+    [Return]    ${val}
+
+生成随机变量
+    ${str_list}    Evaluate    random.sample('zyxwvutsrqponmlkjihgfedcba1234567890',10)    random
+    [Return]    ${str}
+
+页面包含
+    [Arguments]    ${content}
+    Page Should Contain    ${content}
+
+进入报关页面
+    进入业务管理
+    进入海运出口台账
+    切换iframe    id=content
+    # 点击第2条业务进入对应详情页
+    点击    xpath=//table/tbody/tr[2]/td[3]/a
+    等待    2
+    切换窗口    new
+    log    已进入第2条业务对应详情
+    #点击报关tab
+    点击    xpath=//*[@id="app"]/div/div/div[1]/div/div/div/div/ul/li[6]
+
+获取元素属性
+    [Arguments]    ${locator}    # 格式：位置@属性
+    [Documentation]    获取元素属性：（name 或者 value)
+    ${val}=    Get Element Attribute    ${locator}
+    [Return]    ${val}
+
+进入海运出口订舱台账
+    mouse over    xpath=//*[@id="scroll_cnt2"]/li[1]/a
+    等待    1.5
+    mouse over    xpath=//*[@id="scroll_cnt2"]/li[1]/ul/li[1]/a
+    等待    1.5
+    click element    xpath=//*[@id="scroll_cnt2"]/li[1]/ul/li[1]/ul/li[2]/a
+    log    已进入海运出口订舱台账页面
+
+进入海运出口SO台账
+    mouse over    xpath=//*[@id="scroll_cnt2"]/li[1]/a
+    等待    1.5
+    mouse over    xpath=//*[@id="scroll_cnt2"]/li[1]/ul/li[1]/a
+    等待    1.5
+    click element    xpath=//*[@id="scroll_cnt2"]/li[1]/ul/li[1]/ul/li[3]/a
+    log    已进入海运出口SO台账页面
+
+根据编号查询
+    [Arguments]    ${expNO}
+    进入框架    id=content
+    输入    id=no    ${expNO}
+    等待    2
+    点击    xpath=//span[contains(text(),'查 询')]/..
+    离开框架
+
+进入详情页
+    [Arguments]    ${expNO}
+    进入框架    id=content
+    点击    xpath=//div[@class='ant-table-body-inner']//a[text()='${expNO}']    #点击查询结果的a标签
+    等待    1
+    切换窗口    new    #切换窗口进入详情页
+    离开框架
+
+进入报关tab栏
+    点击    xpath=//li[contains(text(),'报关')]
+    等待    1
+
+进入报关委托详情
+    点击    xpath=//div[text()='报关委托列表']/../following-sibling::div[1]//tbody/tr[1]/td[3]/a
+    等待    1
+
+关闭报关委托详情
+    点击    xpath=//button[@class='ant-modal-close']
+    等待    1
+
+相等
+    [Arguments]    ${str1}    ${str2}
+    should be equal    ${str1}    ${str2}
+
+进入单证tab栏
+    点击    xpath=//li[contains(text(),'单证')]
+    等待    1
+
+应该不相等
+    [Arguments]    ${str1}    ${str2}
+    should not be equal    ${str1}    ${str2}
+
+刷新当前页面
+    Reload Page
+    等待    1
+
+报关单-新增
+    ${newNO}    生成一个带有字符的随机数    bgwt
+    ${bgdNO}    生成一个带有字符的随机数    bgd
+    进入报关tab栏
+    点击    id=addEntBtn    #点击新增按钮
+    输入    id=entrusted.customEntrustNo    ${newNO}
+    点击    id=addCust    #点击报关单新增按钮
+    等待    1
+    输入    id=custom.1_tradewindow    ${bgdNO}
+    点击    id=savePlanIn    #点击保存按钮
+    关闭报关委托详情
+    [Return]    ${newNO}    ${bgdNO}
+
+报关单新增
+    ${newNO}    生成一个带有字符的随机数    bgwt
+    ${bgdNO}    生成一个带有字符的随机数    bgd
+    进入报关tab栏
+    点击    id=addEntBtn    #点击新增按钮
+    输入    id=entrusted.customEntrustNo    ${newNO}
+    点击    id=addCust    #点击报关单新增按钮
+    等待    1
+    输入    id=custom.1_tradewindow    ${bgdNO}
+    点击    id=savePlanIn    #点击保存按钮
+    关闭报关委托详情
+    [Return]    ${newNO}    ${bgdNO}
+
+报关委托修改
+    ${editNO}    生成一个带有字符的随机数    edit
+    进入报关tab栏
+    进入报关委托详情
+    输入    id=entrusted.customEntrustNo    ${editNO}    #修改报关委托编号
+    点击    id=savePlanIn
+    等待    1
+    关闭报关委托详情
+    [Return]    ${editNO}
+
+报关单修改
+    ${editNO}    生成一个带有字符的随机数    edit
+    进入报关tab栏
+    进入报关委托详情
+    输入    id=custom.1_tradewindow    ${editNO}    #修改报关单
+    点击    id=savePlanIn
+    等待    1
+    关闭报关委托详情
+    [Return]    ${editNO}
+
+单证新增
+    ${newNO}    生成一个带有字符的随机数    tdbh
+    点击    xpath=//span[text()='新建提单']/..    #点击新增提单按钮
+    等待    1
+    输入    id=bnHousebills.hblHblno    ${newNO}
+    点击    xpath=//span[contains(text(),'保 存')]/..    #点击保存按钮
+    [Return]    ${newNO}
+
+单证修改
+    ${editNO}    生成一个带有字符的随机数    editno
+    进入单证tab栏
+    点击    xpath=//span[text()='提单号']/../../../../tbody//tr[1]//td[2]    #点击第一条提单
+    等待    0.5
+    输入    id=bnHousebills.hblHblno    ${editNO}
+    点击    xpath=//span[contains(text(),'保 存')]/..    #点击保存按钮
+    等待    1
+    [Return]    ${editNO}

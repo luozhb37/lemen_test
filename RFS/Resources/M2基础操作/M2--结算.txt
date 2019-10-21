@@ -1,0 +1,579 @@
+*** Settings ***
+Resource          M2--引用.txt
+
+*** Keywords ***
+进入费用信息页面
+    进入列表页面框架
+    点击    id=bt_fee
+    等待    2
+    离开框架
+    点击    xpath=//td[contains(text(),'费用信息')]/following-sibling::td[1]    #最大化
+
+关闭费用信息页面
+    点击    xpath=//td[contains(text(),'费用信息')]/following-sibling::td[3]
+
+新增收入费用
+    进入详情框架
+    点击    xpath=//a[contains(@href,'process_action_sp_receipt_apply_add')]
+    等待    2
+    输入    xpath=//input[contains(@id,'bn_receipts_feeitem')]    操作费    #费用项目
+    输入    xpath=//input[contains(@id,'bn_receipts_rate')]    1    #汇率
+    输入    xpath=//input[contains(@id,'bn_receipts_price')]    1000    #单价
+    #输入    xpath=//input[contains(@id,'bn_receipts_currency')]    RMB    #币别
+    #输入    xpath=//input[contains(@id,'bn_receipts_customername')]    ${往来单位}    #结算单位
+    点击    id=bt_save
+    离开框架
+
+新增支出费用
+    进入详情框架
+    点击    xpath=//a[contains(@href,'process_action_sp_pay_apply_add')]
+    等待    1
+    输入    xpath=//input[contains(@id,'bn_pays_feeitem')]    操作费    #费用项目
+    输入    xpath=//input[contains(@id,'bn_pays_rate')]    1    #汇率
+    输入    xpath=//input[contains(@id,'bn_pays_saleprice')]    300    #单价
+    sleep    1    \    #保证费用项目数据不被带过来
+    输入    xpath=//input[contains(@id,'bn_pays_customername')]    ${往来单位}    #结算单位
+    点击    id=bt_save
+    等待    1
+    离开框架
+
+删除收入费用
+    进入详情框架
+    点击    xpath=//a[contains(@href,'process_action_sp_receipt_apply_delete')]
+    等待    1
+    页面弹出框选择确定
+    等待    1
+    ${fee_amount_rec}    获取页面文本内容    xpath=//*[@id="pg_fee_apply_tbl12"]/tbody/tr[1]/td[2]/font
+    应该要相等    ${fee_amount_rec}    总计:0.00
+    离开框架
+
+删除支出费用
+    进入详情框架
+    点击    xpath=//a[contains(@href,'process_action_sp_pay_apply_delete')]
+    等待    1
+    页面弹出框选择确定
+    等待    1
+    ${fee_amount_rec}    获取页面文本内容    xpath=//*[@id="pg_fee_apply_tbl12"]/tbody/tr[1]/td[2]/font
+    应该要相等    ${fee_amount_rec}    总计:0.00
+    离开框架
+
+点击支出转收入
+    进入详情框架
+    点击    id=bt_paytorec
+    等待    1
+    页面弹出框选择确定
+    离开框架
+
+费用信息页面勾选收入费用
+    进入详情框架
+    勾选记录    xpath=//table[@id='sp_receipt_apply_tbl5']/tbody/tr[1]/td[2]/input
+    离开框架
+
+费用信息页面勾选支出费用
+    进入详情框架
+    勾选记录    xpath=//table[@id='sp_pay_apply_tbl5']/tbody/tr[2]/td[2]/input
+    离开框架
+
+费用确认
+    进入详情框架
+    点击    id=bt_feeconfirm
+    等待    2
+    离开框架
+
+费用取消确认
+    进入详情框架
+    点击    id=bt_feeconfirm_cancel
+    等待    2
+    离开框架
+
+审核收入费用
+    进入详情框架
+    点击    id=bt_recaudit    #点击审核
+    等待    1
+    页面弹出框选择确定
+    离开框架
+
+审核支出费用
+    进入详情框架
+    点击    id=bt_payaudit    #点击审核
+    等待    1
+    页面弹出框选择确定
+    离开框架
+
+取消审核收入费用
+    进入详情框架
+    点击    id=bt_recaudit_cancel    #点击取消审核
+    等待    1
+    页面弹出框选择确定
+    离开框架
+
+取消审核支出费用
+    进入详情框架
+    点击    id=bt_payaudit_cancel    #点击取消审核
+    等待    1
+    页面弹出框选择确定
+    离开框架
+
+获取费用确认完成状态
+    进入详情框架
+    ${confirmStatus}    获取页面文本内容    xpath=//td[@elementname='bn_mains_stfeeconfirm']/span[2]/font
+    离开框架
+    [Return]    ${confirmStatus}
+
+应收/付款审核列表查询
+    [Arguments]    ${businessNo}
+    进入列表页面框架
+    下拉选择byValue    id=qych_datetype    value=1    #选择接单日期查询
+    输入    id=qych_businessno    ${businessNo}    #输入业务编号查询
+    点击    id=bt_query    #点击查询
+    离开框架
+
+应收款审核-已审核应收费用列表记录数
+    进入列表页面框架
+    ${pages}    获取页面文本内容    xpath=.//*[@id='qp_reccheck2_tbl3']/tbody/tr/td/span[2]
+    离开框架
+    [Return]    ${pages}
+
+应收款审核-待审核应收费用列表记录数
+    进入列表页面框架
+    ${pages}    获取页面文本内容    xpath=.//*[@id='qp_reccheck1_tbl3']/tbody/tr/td/span[2]
+    离开框架
+    [Return]    ${pages}
+
+应付款审核-已审核支出费用列表记录数
+    进入列表页面框架
+    ${pages}    获取页面文本内容    xpath=.//*[@id='qp_payaudit2_tbl3']/tbody/tr/td/span[2]
+    离开框架
+    [Return]    ${pages}
+
+应付款审核-待审核支出费用列表记录数
+    进入列表页面框架
+    ${pages}    获取页面文本内容    xpath=.//*[@id='qp_payaudit1_tbl3']/tbody/tr/td/span[2]
+    离开框架
+    [Return]    ${pages}
+
+标记收入制单完成
+    进入详情框架
+    点击    xpath=//input[@name='bt_feefinishrec']
+    等待    1
+    页面弹出框选择确定
+    等待    1
+    离开框架
+
+标记支出制单完成
+    进入详情框架
+    点击    xpath=//input[@name='bt_feefinishpay']
+    等待    1
+    页面弹出框选择确定
+    等待    1
+    离开框架
+
+取消标记收入制单完成
+    进入详情框架
+    点击    xpath=//input[@name='bt_unfeefinishrec']
+    等待    1
+    页面弹出框选择确定
+    等待    1
+    离开框架
+
+取消标记支出制单完成
+    进入详情框架
+    点击    xpath=//input[@name='bt_unfeefinishpay']
+    等待    1
+    页面弹出框选择确定
+    等待    1
+    离开框架
+
+获取收入制单完成状态
+    进入详情框架
+    ${rec_finish_status}    获取页面文本内容    xpath=//td[@elementname='bn_assistants_stfeefinish_rec']/span[2]/font
+    离开框架
+    [Return]    ${rec_finish_status}
+
+获取支出制单完成状态
+    进入详情框架
+    ${rec_finish_status}    获取页面文本内容    xpath=//td[@elementname='bn_assistants_stfeefinish_pay']/span[2]/font
+    离开框架
+    [Return]    ${rec_finish_status}
+
+获取台帐详情应收费用制单确认状态
+    进入列表页面框架
+    点击    id=bt_fee    #点击费用
+    等待    1
+    离开框架
+    进入详情框架    #进入费用页面
+    ${content}    获取页面文本内容    xpath=//*[contains(text(),'收入制单完成')]/following-sibling::span[1]/font    #xpath=//*[@id="pg_fee_apply_tbl16"]/tbody/tr/td[2]/span[2]/font
+    离开框架
+    点击    xpath=//*[contains(text(),'费用信息')]/following-sibling::td[3]    #点击关闭费用页面
+    等待    1
+    [Return]    ${content}
+
+获取台帐详情应付费用制单确认状态
+    进入列表页面框架
+    点击    id=bt_fee    #点击费用
+    等待    1
+    离开框架
+    进入详情框架    #进入费用页面
+    ${content}    获取页面文本内容    xpath=//*[contains(text(),'支出制单完成')]/following-sibling::span[1]/font
+    离开框架
+    点击    xpath=//*[contains(text(),'费用信息')]/following-sibling::td[3]    #点击关闭费用页面
+    等待    1
+    [Return]    ${content}
+
+生成对账单
+    进入列表页面框架
+    点击    id=bt_checkaccount    #生成对账单
+    离开框架
+    进入详情框架
+    点击    id=bt_checkaccount
+    等待    1
+    ${model_fi_debitcredits_debitcreditno}    获取页面文本内容    xpath=.//*[contains(text(),"对账单号")]/following-sibling::td[1]    #获取对账单号
+    Element Should Contain    xpath=//div[@class='list-middle-show']/span    对帐成功
+    离开框架
+    点击    xpath=//td[contains(text(),'对账单')]/following-sibling::td[3]    #关闭该页面
+    [Return]    ${model_fi_debitcredits_debitcreditno}
+
+查询对账单
+    [Arguments]    ${fi_checkaccounts_checkaccountno}
+    点击账单管理
+    进入列表页面框架
+    下拉选择by value    id=qy_checkdate_type    1
+    输入    id=qy_checkaccountno    ${fi_checkaccounts_checkaccountno}    #输入对账单号查询
+    点击    id=bt_query    #点击查询
+    离开框架
+
+新增对账单列表查询
+    [Arguments]    ${qy_fee_checkdate_type}    ${qy_businessno}
+    进入列表页面框架
+    点击    xpath=//table[@id='pg_checkbill_fee_search_tbl3']/tbody/tr/td/span[1]
+    点击    id=bt_clear
+    sleep    1
+    下拉选择by value    id=qy_fee_checkdate_type    ${qy_fee_checkdate_type}    #日期按查询条件
+    输入    id=qy_businessno    ${qy_businessno}    #业务编号
+    点击    id=bt_query    #点击查询
+    离开框架
+
+费用列表获取收入费用对账单号
+    [Arguments]    ${businessNO}
+    点击业务管理
+    点击业务台帐
+    点击海运出口
+    选中包含业务编号的台帐    ${businessNO}
+    进入费用信息页面
+    进入详情框架
+    ${checkaccountno}    获取页面文本内容    xpath=//*[@class='vrws-row-value'and @elementname='sp_receipt_apply:bn_receipts_checkaccountno']
+    离开框架
+    关闭费用信息页面
+    关闭业务信息页面
+    [Return]    ${checkaccountno}
+
+费用列表获取支出费用对账单号
+    [Arguments]    ${businessNO}
+    点击业务管理
+    点击业务台帐
+    点击海运出口
+    选中包含业务编号的台帐    ${businessNO}
+    进入费用信息页面
+    进入详情框架
+    ${checkaccountno}    获取页面文本内容    xpath=//*[@class='vrws-row-value' and @elementname='sp_pay_apply:bn_pays_checkaccountno']
+    离开框架
+    关闭费用信息页面
+    关闭业务信息页面
+    [Return]    ${checkaccountno}
+
+账单汇总开票
+    [Arguments]    ${model_fi_debitcredits_debitcreditno}
+    进入列表页面框架
+    输入    id=qy_checkaccountno    ${model_fi_debitcredits_debitcreditno}
+    点击    id=bt_query
+    勾选记录    xpath=//table[@id='qp_reccheckaccount_search_tbl5']/tbody/tr[1]/td[2]/input
+    sleep    1
+    点击    id=bt_inv
+    离开框架
+    进入详情框架
+    点击    id=bt_ok
+    等待    1
+    ${invoiceno}    获取页面文本内容    xpath=//tr[@elementname='iv_mains_invoiceno']/td[2]
+    点击    id=bt_save
+    离开框架
+    点击    css=.tclose
+    sleep    1
+    [Return]    ${invoiceno}
+
+账单明细开票
+    [Arguments]    ${model_fi_debitcredits_debitcreditno}
+    进入列表页面框架
+    输入    id=qy_checkaccountno    ${model_fi_debitcredits_debitcreditno}
+    点击    id=bt_query
+    勾选记录    xpath=//table[@id='qp_reccheckaccount_search_tbl5']/tbody/tr[1]/td[2]/input
+    sleep    1
+    点击    id=bt_inv_detail
+    离开框架
+    进入详情框架
+    点击    id=bt_ok
+    等待    1
+    ${invoiceno}    获取页面文本内容    xpath=//tr[@elementname='iv_mains_invoiceno']/td[2]
+    点击    id=bt_save
+    离开框架
+    点击    css=.tclose
+    sleep    1
+    [Return]    ${invoiceno}
+
+按费用汇总开票
+    [Arguments]    ${businessNo}
+    进入列表页面框架
+    点击    xpath=//*[@id="pagetabs"]/a[3]/span
+    sleep    1
+    输入    id=qyinv_businessno    ${businessNo}
+    点击    id=bt_query
+    勾选记录    xpath=//table[@id='qp_recfeeitems_search_tbl5']/tbody/tr[1]/td[2]/input
+    点击    id=bt_invoice_sum
+    离开框架
+    sleep    2
+    进入详情框架
+    点击    id=bt_save
+    等待    1
+    ${invoiceno}    获取页面文本内容    xpath=//tr[@elementname='iv_mains_invoiceno']/td[2]
+    点击    id=bt_save
+    离开框架
+    点击    css=.tclose    #关闭费用信息页面
+    sleep    1
+    [Return]    ${invoiceno}
+
+按费用明细开票
+    [Arguments]    ${businessNo}
+    进入列表页面框架
+    点击    xpath=//*[@id="pagetabs"]/a[3]/span
+    sleep    1
+    输入    id=qyinv_businessno    ${businessNo}
+    点击    id=bt_query
+    勾选记录    xpath=//table[@id='qp_recfeeitems_search_tbl5']/tbody/tr[1]/td[2]/input
+    点击    id=bt_invoice
+    离开框架
+    sleep    2
+    进入详情框架
+    点击    id=bt_save
+    等待    1
+    ${invoiceno}    获取页面文本内容    xpath=//tr[@elementname='iv_mains_invoiceno']/td[2]
+    sleep    1
+    点击    id=bt_save
+    离开框架
+    点击    css=.tclose    #关闭费用信息页面
+    sleep    1
+    [Return]    ${invoiceno}
+
+按费用标记为已开票
+    [Arguments]    ${businessNo}
+    进入列表页面框架
+    点击    xpath=//*[@id="pagetabs"]/a[3]/span
+    sleep    1
+    输入    id=qyinv_businessno    ${businessNo}
+    点击    id=bt_query
+    勾选记录    xpath=//table[@id='qp_recfeeitems_search_tbl5']/tbody/tr[1]/td[2]/input
+    点击    id=bt_sign
+    离开框架
+    sleep    2
+    进入详情框架
+    输入    id=sign_invoiceno    ${businessNo}
+    点击    id=bt_ok
+    run keyword and return status    页面弹出框选择确定
+    等待    1
+    离开框架
+    点击    css=.tclose    #关闭费用信息页面
+    sleep    1
+
+按账单--发票登记
+    [Arguments]    ${businessNo}
+    进入列表页面框架
+    输入    id=qy_businessno    ${businessNo}
+    点击    id=bt_query
+    勾选记录    xpath=//table[@id='qp_paycheckaccount_search_tbl5']/tbody/tr[1]/td[2]/input
+    点击    id=bt_next
+    离开框架
+    sleep    2
+    进入详情框架
+    输入    id=iv_paymains_invoiceno    ${businessNo}
+    点击    id=bt_ok
+    等待    1
+    离开框架
+    点击    xpath=//td[contains(text(),'新增发票(账单)')]/following-sibling::td[3]
+    sleep    1
+
+按费用--发票登记
+    [Arguments]    ${businessNo}
+    进入列表页面框架
+    点击    xpath=//*[@id="pagetabs"]/a[2]/span
+    sleep    1
+    输入    id=qy_businessno    ${businessNo}
+    点击    id=bt_query
+    sleep    5
+    勾选记录    xpath=//input[@name="SHEET_ROW_SELECT_ALL"]
+    点击    id=bt_select
+    sleep    1
+    点击    id=bt_invoice
+    离开框架
+    sleep    2
+    进入详情框架
+    输入    id=iv_paymains_invoiceno    ${businessNo}
+    点击    id=bt_ok
+    离开框架
+    点击    xpath=//td[contains(text(),'填写发票信息')]/following-sibling::td[3]
+    sleep    1
+
+作废收入发票
+    [Arguments]    ${invoiceno}
+    [Documentation]    \#测试环境--作废失败
+    进入列表页面框架
+    点击    id=bt_canclefilter
+    输入    id=qy_mains_invoiceno    ${invoiceno}
+    点击    id=bt_query
+    勾选记录    xpath=//table[@id='qp_iv_mains_tbl5']/tbody/tr/td[2]/input
+    点击    id=bt_cancel
+    页面弹出框选择确定
+    离开框架
+
+删除支出发票
+    [Arguments]    ${invoiceno}
+    进入列表页面框架
+    点击    xpath=//div[@id='pagetabs']/a[2]/span
+    点击    id=bt_clear
+    输入    id=qy_paymains_invoiceno    ${invoiceno}
+    点击    id=bt_query
+    勾选记录    xpath=//table[@id='qp_iv_paymains_tbl5']/tbody/tr/td[2]/input
+    点击    id=bt_delete
+    页面弹出框选择确定
+    离开框架
+
+发票管理(收入)页面查询发票号
+    [Arguments]    ${invoiceno}
+    进入列表页面框架
+    点击    id=bt_canclefilter
+    输入    id=qy_mains_invoiceno    ${invoiceno}
+    点击    id=bt_query
+    离开框架
+
+发票管理(支出)页面查询发票号
+    [Arguments]    ${invoiceno}
+    进入列表页面框架
+    点击    xpath=//*[@id="pagetabs"]/a[2]/span
+    sleep    1
+    点击    id=bt_clear
+    输入    id=qy_paymains_invoiceno    ${invoiceno}
+    点击    id=bt_query
+    离开框架
+
+收款核销(费用明细)
+    [Arguments]    ${invoiceno}
+    进入列表页面框架
+    输入    id=qyin_invoiceno    ${invoiceno}
+    点击    id=bt_query
+    勾选记录    xpath=//table[@id='qp_rec_invoice8_tbl5']/tbody/tr[1]/td[2]/input
+    点击    id=bt_select
+    点击    id=bt_make
+    离开框架
+    进入详情框架
+    ${recbillno}    获取页面值    id=bill_recbillno
+    点击    id=bt_apply
+    点击    id=bt_audit_real
+    离开框架
+    点击    css=.tclose
+    [Return]    ${recbillno}
+
+收款核销(发票)
+    [Arguments]    ${invoiceno}
+    收款核销(发票)--查询    ${invoiceno}
+    进入列表页面框架
+    勾选记录    xpath=//table[@id='qp_invoicen_mains_tbl5']/tbody/tr[1]/td[2]/input
+    点击    id=bt_select
+    离开框架
+    进入详情框架
+    ${recbillno}    获取页面值    id=bill_recbillno
+    点击    id=bt_apply
+    点击    id=bt_audit_real
+    离开框架
+    点击    css=.tclose
+    [Return]    ${recbillno}
+
+收款核销(发票)--查询
+    [Arguments]    ${invoiceno}
+    进入列表页面框架
+    输入    id=qyin_invoiceno    ${invoiceno}
+    点击    id=bt_query
+    离开框架
+
+收款单查询->全部
+    [Arguments]    ${recbillno}
+    进入列表页面框架
+    点击    xpath=//table[@id='pg_recbill_search8_tbl3']/tbody/tr/td/span[3]
+    sleep    1
+    输入    id=qyrec_recbillno    ${recbillno}
+    点击    id=bt_query
+    离开框架
+
+收款--反核销费用明细
+    [Arguments]    ${recbillno}
+    进入列表页面框架
+    点击    id=bt_clear
+    输入    id=qy_billno    ${recbillno}
+    点击    id=bt_query
+    勾选记录    xpath=//table[@id='qp_fee_return_tbl5']/tbody/tr/td[2]/input
+    点击    id=bt_return
+    离开框架
+
+付款申请(费用明细)
+    [Arguments]    ${invoiceno}
+    进入列表页面框架
+    输入    id=qyin_invoiceno    ${invoiceno}
+    点击    id=bt_query
+    勾选记录    xpath=//table[@id='qp_pay_invoice8_tbl5']/tbody/tr[1]/td[2]/input
+    点击    id=bt_apply
+    点击    id=bt_paybill
+    离开框架
+    进入详情框架
+    ${paybillno}    获取页面值    id=bill_paybillno
+    点击    id=bt_ok
+    点击    id=bt_audit_real
+    离开框架
+    点击    css=.tclose
+    [Return]    ${paybillno}
+
+付款申请(发票)
+    [Arguments]    ${invoiceno}
+    付款申请(发票)--查询    ${invoiceno}
+    进入列表页面框架
+    勾选记录    xpath=//table[@id='qp_invoicen_mains_tbl5']/tbody/tr[1]/td[2]/input
+    点击    id=bt_select
+    离开框架
+    进入详情框架
+    ${paybillno}    获取页面值    id=bill_paybillno
+    点击    id=bt_ok
+    点击    id=bt_audit_real
+    离开框架
+    点击    css=.tclose
+    [Return]    ${paybillno}
+
+付款申请(发票)--查询
+    [Arguments]    ${invoiceno}
+    进入列表页面框架
+    输入    id=qyin_invoiceno    ${invoiceno}
+    点击    id=bt_query
+    离开框架
+
+付款单查询->已核销
+    [Arguments]    ${paybillno}
+    进入列表页面框架
+    点击    xpath=//table[@id='pg_paybill_search8_tbl3']/tbody/tr/td/span[3]
+    sleep    1
+    输入    id=qypay_paybillno    ${paybillno}
+    点击    id=bt_query
+    离开框架
+
+付款--反核销费用明细
+    [Arguments]    ${recbillno}
+    进入列表页面框架
+    点击    id=bt_clear
+    输入    id=qy_billno    ${recbillno}
+    点击    id=bt_query
+    勾选记录    xpath=//table[@id='qp_fee_return_tbl5']/tbody/tr/td[2]/input
+    点击    id=bt_return
+    离开框架

@@ -1,0 +1,148 @@
+*** Settings ***
+Resource          ../GM1-UI-公共/GM1-UI-引用.txt
+
+*** Keywords ***
+点击进仓计划TAB
+    点击    xpath=//li[contains(text(),'进仓计划(')]
+
+点击进/出仓计划新增按钮
+    点击    xpath=//div[@class='ant-col-18']/div/button[2]
+
+新增计划进仓记录（海运出口整箱）
+    [Arguments]    ${goodsName}
+    点击    id=addPlanInRecord    #点击新增按钮
+    点击    xpath=//input[@id='record.1_record_goodsId']/../../..
+    #点击    xpath=//li[contains(text(),'${goodsName}')]    #选择操作页维护的货物
+    等待    1
+    按键    xpath=//input[@id='record.1_record_goodsId']    \\13    #enter输入
+    点击    xpath=//input[@id='record.1_record_pakeage']/../../..
+    输入    xpath=//input[@id='record.1_record_pakeage']    BASKETS
+    点击    xpath=//li[contains(text(),'BASKETS')]    #选择包装
+    输入    id=record.1_record_count    1    #件数，刷新后每次id对应是1
+    点击    id=savePlanIn    #点击保存
+    Wait Until Page Contains    操作成功
+
+新增实际进仓记录（海运出口整箱）
+    [Arguments]    ${goodsName}
+    点击    id=addRealInRecord    #点击实际进仓记录新增按钮
+    设定ID    xpath=//div[text()='实际进仓记录']/../../div[2]//tbody/tr    AutoJcjhAdd    #进仓计划新增（给新增的那一行数据设定ID）
+    选择日期（locator）    xpath=//tr[@id='AutoJcjhAdd']/td[3]//input    八月    2019年8月9日
+    点击    xpath=//input[@id='realRecord.1_record_id']/../div/div    #点击选择货物框
+    等待    1
+    按键    xpath=//input[@id='realRecord.1_record_id']/../div/div    \\13    #用直接输入的方式总是失败，用enter输入
+    输入    id=realRecord.1_record_count    10    #件
+    输入    id=realRecord.1_record_weight    10    #毛
+    输入    id=realRecord.1_record_volume    10    #体
+    点击    id=savePlanIn    #点击保存按钮
+    Wait Until Page Contains    操作成功
+
+点击出仓计划TAB
+    点击    xpath=//li[contains(text(),'出仓计划(')]
+
+点击进仓记录TAB
+    点击    xpath=//li[contains(text(),'进仓记录(')]
+
+点击出仓记录TAB
+    点击    xpath=//li[contains(text(),'出仓记录(')]
+
+获取进仓计划数量
+    ${进仓计划数}    获取页面文本内容    xpath=//li[contains(text(),'进仓计划(')]
+    ${进仓计划数量}    截取字符    ${进仓计划数}    进仓计划\\(    \\)
+    [Return]    ${进仓计划数量}
+
+删除进仓计划（海运出口整箱）
+    #..注释掉的是，删除前面维护的进仓记录等（前面新增有调整，不再增加进出仓记录）
+    Comment    点击计划编号进入详情页    ${进仓计划编号}
+    Comment    勾选记录    xpath=//span[text()='实际进仓时间']/../../../../thead//input
+    Comment    点击    id=delRealInRecord    #点击删除
+    Comment    点击确定按钮
+    Comment    Wait Until Page Contains    删除成功
+    Comment    点击    id=savePlanIn
+    Comment    Wait Until Page Contains    操作成功
+    Comment    点击关闭按钮
+    勾选计划编号复选框    ${进仓计划编号}
+    点击    xpath=//div[@class='ant-col-18']/div/button[1]    #点击删除
+    点击确定按钮
+    Wait Until Page Contains    删除成功
+
+点击计划编号进入详情页
+    [Arguments]    ${no}
+    点击    xpath=//a[text()='${no}']
+
+勾选计划编号复选框
+    [Arguments]    ${no}
+    勾选记录    xpath=//a[text()='${no}']/../../td[1]//input
+
+获取出仓计划数量
+    ${出仓计划数}    获取页面文本内容    xpath=//li[contains(text(),'出仓计划(')]
+    ${出仓计划数量}    截取字符    ${出仓计划数}    出仓计划\\(    \\)
+    [Return]    ${出仓计划数量}
+
+新增出仓计划（海运出口整箱）
+    点击出仓计划TAB
+    点击进/出仓计划新增按钮
+    选择日期（字段名称）    计划出仓时间    三月    2019年3月9日
+    输入    id=plan.planNo    ${出仓计划编号}    #xpath=//div[text()='新增出仓计划']/../../input[@id='plan.planNo']
+    点击    xpath=//label[text()='仓库名称']/../../div[2]/div//div[@class='ant-select-selection__rendered']    #点击仓库名称下拉框
+    #输入    xpath=//input[@id='plan.storeName']    ${仓库名称}    #需输入下拉框存在的数据
+    Wait Until Element Is Visible    xpath=//input[@id='plan.storeName']
+    按键    xpath=//input[@id='plan.storeName']    \\13
+    点击    id=savePlanOut    #点击保存
+
+新增计划出仓记录（海运出口整箱）
+    [Arguments]    ${goodsName}
+    点击    id=addPlanOutRecord    #点击选择库存按钮
+    输入    id=goodsName    ${goodsName}
+    点击    xpath=//button[@id='search']    #点击查询
+    勾选记录    xpath=//div[text()='选择库存信息']/../../div[2]//tbody/tr[1]/td[1]//input    #勾选第一条
+    点击确定按钮
+    点击    id=savePlanOut    #点击保存
+    Wait Until Page Contains    操作成功
+
+新增实际出仓记录（海运出口整箱）
+    点击    id=addRealOutRecord    #点击实际出库记录新增按钮
+    设定ID    xpath=//div[text()='实际出仓记录']/../following-sibling::div[1]//tbody    AutoCcjhAdd    #出仓计划新增（给新增那一行设定ID）
+    选择日期（locator）    xpath=//tbody[@id='AutoCcjhAdd']/tr/td[3]//input[@class='ant-calendar-picker-input ant-input ant-input-sm']    八月    2019年8月5日
+    点击    xpath=//tbody[@id='AutoCcjhAdd']/tr/td[5]//div[@class='ant-select-selection__rendered']    #点击品名框
+    等待    1
+    点击    xpath=//li[contains(text(),'${goodsName}')]    #输入下拉框存在的货物
+    Comment    按键    xpath=//tbody[@id='AutoCcjhAdd']/tr/td[5]//div[@class='ant-select-selection__rendered']    \uE015    #点击文本框向下箭头
+    Comment    按键    xpath=//tbody[@id='AutoCcjhAdd']/tr/td[5]//div[@class='ant-select-selection__rendered']    \\13    #enter输入
+    输入    xpath=//tbody[@id='AutoCcjhAdd']/tr/td[6]//input    1    #件数，只要少于进仓数量就行
+    输入    xpath=//tbody[@id='AutoCcjhAdd']/tr/td[8]//input    0    #毛重，只要少于进仓数量就行
+    输入    xpath=//tbody[@id='AutoCcjhAdd']/tr/td[9]//input    0    #体重，只要少于进仓数量就行
+    点击    id=savePlanOut    #保存
+    Wait Until Page Contains    操作成功
+
+删除出仓计划
+    #前面调整，为验证删除功能，不用新增进出仓记录，因此也无需删除
+    Comment    点击计划编号进入详情页    ${出仓计划编号}
+    Comment    Assign Id To Element    xpath=//div[text()='实际出仓记录']/../following-sibling::div[1]//tbody    idRealOut
+    Comment    勾选记录    xpath=//tbody[@id='idRealOut']/tr/td[1]//input
+    Comment    点击    id=delRealOutRecord    #点击删除
+    Comment    点击    xpath=//button[@class='ant-btn ant-btn-primary ant-btn-lg']    #点击确定
+    Comment    Wait Until Page Contains    删除成功
+    Comment    点击    id=savePlanOut
+    Comment    Wait Until Page Contains    操作成功
+    Comment    点击关闭按钮
+    勾选计划编号复选框    ${出仓计划编号}
+    点击    xpath=//div[@class='ant-col-18']/div/button[1]    #点击删除
+    点击    xpath=//button[@class='ant-btn ant-btn-primary ant-btn-lg']    #点击确定
+    Wait Until Page Contains    删除成功
+
+新增进仓计划（海运出口整箱）
+    [Documentation]    ${仓库名称}，必须维护下拉框中存在的数据
+    ...
+    ...    测试环境：测试一号
+    ...
+    ...    生产环境：我的拖车行
+    点击进仓计划TAB
+    点击进/出仓计划新增按钮
+    输入    id=plan.planNo    ${进仓计划编号}
+    选择日期（字段名称）    计划进仓时间    二月    2019年2月5日
+    输入    id=plan.storeInNo    ${进仓编号}
+    点击    xpath=//label[text()='仓库名称']/../../div[2]/div//div[@class='ant-select-selection__rendered']    #点击仓库名称下拉框
+    #输入    xpath=//input[@id='plan.storeName']    ${仓库名称}    #需输入下拉框存在的数据
+    Wait Until Element Is Visible    xpath=//input[@id='plan.storeName']
+    按键    xpath=//input[@id='plan.storeName']    \\13    #enter输入
+    点击    id=savePlanIn    #点击保存

@@ -1,0 +1,706 @@
+*** Settings ***
+Suite Setup       Run keywords    m4-登录    变量
+Suite Teardown    Close All Browsers
+Resource          ../../Resources/基础关键字.txt
+Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+Resource          ../../Resources/GM1/GM1-UI/M4-UI-订单.txt
+Library           ExcelLibrary
+Library           String
+
+*** Test Cases ***
+全选删除订单
+    [Setup]
+    点击订单管理
+    点击订单中心
+    点击状态tab    draftBtn    #草稿状态
+    进入列表框架
+    ${page}    获取元素属性值    xpath=//li[contains(@class,'ant-pagination-item')][last()]    title
+    离开框架
+    : FOR    ${i}    IN RANGE    ${page}
+    \    进入列表框架
+    \    勾选记录    xpath=//input[@class='ant-checkbox-input']
+    \    离开框架
+    \    点击删除
+
+修改客商-hovi
+    Open Excel    E:\\customerInvoice.xls
+    : FOR    ${i}    IN RANGE    459    779
+    \    切换窗口
+    \    ${name1}    Read Cell Data By Name    Sheet1    B${i}
+    \    ${name1}    Clear Space All    ${name1}
+    \    ${nunmber}    客商列表查询    ${name1}
+    \    Continue For Loop If    ${nunmber}==0
+    \    进入客商详情    ${name1}
+    \    点击客商详情内的tab    结算信息
+    \    点击结算信息列表内的tab    开票信息
+    \    ${status}    Run Keyword And Return Status    Page Should Contain Element    xpath=//a[text()='导入开票信息']
+    \    Continue For Loop If    ${status}==False
+    \    点击    xpath=//a[text()='导入开票信息']
+    \    等待    1
+    \    点击    xpath=//span[text()='确 定']/..
+    \    等待    1
+    \    点击    xpath=//div[@class='ant-table-fixed-right']//table/tbody/tr[2]/td/div/div/a[text()='编辑详情']
+    \    等待    2
+    \    ${content}    获取元素属性值    id=address    value
+    \    ${status}    Run Keyword And Return Status    Should Be Empty    ${content}
+    \    run keyword if    ${status}==True    run keywords    关闭开票信息详情
+    \    ...    AND    点击    xpath=//div[@class='ant-table-fixed-right']//table/tbody/tr/td/div/div/a[text()='编辑详情']
+    \    点击全选所有业务类型
+    \    结算信息详情点击保存按钮    新增开票信息
+    \    关闭当前窗口
+    \    切换窗口
+
+修改客商-yjy
+    Open Excel    C:\\Users\\叶俊彦\\Desktop\\22\\customerInvoice2.xls
+    @{list}    get_column_values    Sheet1    0
+    ${count}    get_row_count    Sheet1
+    : FOR    ${i}    IN    @{list}
+    \    log    ${i[1]}
+    \    ${number1}    客商列表查询    ${i[1]}
+    \    Continue For Loop If    ${number1}==0
+    \    进入列表框架
+    \    #    点击    xpath=//span[text()='查 询']/..
+    \    离开框架
+    \    进入客商详情    ${i[1]}    #变量
+    \    点击客商详情内的tab    结算信息
+    \    点击结算信息列表内的tab    开票信息
+    \    sleep    2
+    \    ${a}    Run Keyword And Return Status    Page Should Contain    导入开票信息
+    \    Run Keyword If    ${a} == True    临时用    ${i[1]}
+    \    关闭当前窗口
+    \    切换窗口
+
+修改客商-wyc
+    ${excel_local}    set variable    ${EXECDIR}\\customerSupplier (1).xls
+    ${start_num}    set variable    2
+    ${excel_sheet}    set variable    Sheet1
+    ${excel_column}    set variable    A
+    @{table_ctn}    从EXCEL获取数据    ${excel_local}    ${start_num}    ${excel_sheet}    ${excel_column}
+    @{error1}    Create List    #执行失败的
+    #循环验证
+    : FOR    ${i}    IN    @{table_ctn}
+    \    log    ${i[1]}
+    \    #执行任务
+    \    ${result}    Run Keyword And Return Status    查询客商并维护开票信息    ${i[1]}
+    \    #---记录失败---
+    \    @{error1}    Run Keyword If    '${result}'=='Fail'    create list    @{error1}    ${i[1]}
+    \    等待    2
+    Comment    log    @{error1}
+
+修改客商-zdd
+    set suite variable    @{exc_info}    \    #定义 需要逐个存储的 {LIST}，默认空
+    Set Suite Variable    ${exc_start}    2    #读取excel的起始行数
+    set suite variable    ${exc_local}    ${EXECDIR}\\RFS\\GM1-货代\\GM1-UI\\customerInvoice.xls    # EXCLE 文件路径
+    set suite variable    ${exc_sheet}    Sheet1    # EXCLE 工作表 名称，默认 sheet1
+    set suite variable    @{exc_list2}    B    D    #    #读取excel的对应列
+    @{table_ctn2}    按单元格读取EXCEL    ${exc_local}    ${exc_start}    ${exc_sheet}    @{exc_list2}
+    Set Suite Variable    @{table_ctn2}
+    @{error_name2}    Create List    #用于存放客商列表没搜索到的客商
+    Set Suite Variable    @{error_name2}
+    @{search_result}    create_list    #创建一个结果集合
+    Set Suite Variable    @{search_result}
+    @{a_list}    create_list    #存放客商是否查询到的值【TRUE/FALSE】，为了写入txt
+    Set Suite Variable    @{a_list}
+    进入客商列表
+    等待加载层消失
+    : FOR    ${i}    IN    @{table_ctn2[1:]}
+    \    ${a}    Strip String    ${i[1]}    #去除首尾空格
+    \    ${b}    Strip String    ${i[2]}    #去除首尾空格
+    \    Append_to_list    ${a_list}    ${a}
+    \    Set Suite Variable    ${a_list}
+    \    ${number}    客商列表查询    ${a}
+    \    ${yes}    Run Keyword And Return Status    应该要相等（数字）    ${number}    1
+    \    Append_to_list    ${search_result}    ${yes}
+    \    Set Suite Variable    ${search_result}
+    \    @{error_name2}    Run Keyword If    '${yes}'=='False'    create list    @{error_name2}    ${a}
+    \    ...    ${yes}
+    \    Run Keyword If    '${yes}'=='True'    Run Keyword And Ignore Error    点击进入客商详情    ${a}    ${b}
+    #循环写入TXT
+    log    ${error_name2}
+
+修改客商-ys
+    @{row_info}    读取单列Excel内容    C:\\Users\\yusen\\Desktop\\customerSupplier.xls    Sheet1    1    0
+    @{row_info}    去除前后空格    @{row_info}
+    点击    xpath=//a[text()=' 客商管理']    # 点击客商管理
+    等待加载层消失
+    点击    xpath=//span[text()='客商资料']/..
+    等待    3
+    : FOR    ${index}    IN    @{row_info[1:]}    # 循环读取内容
+    \    进入框架    id=content
+    \    清空输入框内容    id=name
+    \    输入    id=name    ${index}
+    \    点击    xpath=//span[text()='查 询']/..
+    \    ${count}    Get Element Count    xpath=//table/tbody/tr
+    \    run keyword if    ${count}<1    Continue For Loop
+    \    ...    ELSE    导入客商开票信息    ${index}
+    \    切换窗口    欢迎您使用本系统
+
+组织结构-增删-造数据
+    [Setup]
+    # --进入系统设置---
+    点击系统设置（主菜单）
+    点击公司管理
+    #${index}    set variable    -1    #用于数组【index】取值，从=0开始，即从数组的第1个值取值
+    : FOR    ${i}    IN RANGE    1    2
+    \    ${u_depart}    Catenate    SEPARATOR=    ${_depart}    ${i}
+    \    #--新增顶级部门---
+    \    点击    xpath=//a[@target='content'][contains(text(),"组织结构")]    #点【组织结构】
+    \    进入框架    id=content
+    \    新增部门（顶级）    ${u_depart}
+    \    #---删除新增的部门---
+    \    点击    xpath=//span[text()='${u_depart}']    #点 新增的部门名称
+    \    点击    id=dela    #点【删除】
+    \    点击    xpath=//span[text()='确定']    #点【确定】确认删除
+    \    离开框架
+    [Teardown]
+
+员工管理-新增-造数据
+    [Documentation]    员工信息维护 支持：
+    ...    a. 自定义 list ： 根据 list 值顺序取值；
+    ...    （替换脚本： \ \ @{emplyee_last_name}[${index}] ）
+    ...    b. 按某规则自增：默认取 list 第一个值 ，并拼接 循环变量 ${i}
+    ...    （替换脚本： @{emplyee_last_name}[0] ）
+    [Setup]
+    部门初始化    @{emplyee_depart}
+    # --进入系统设置---
+    点击系统设置（主菜单）
+    点击公司管理
+    ${index}    set variable    -1    #用于数组【index】取值，从=0开始，即从数组的第1个值取值
+    ${depart_num}    Get Length    ${emplyee_depart}    #获得部门LIST长度
+    : FOR    ${i}    IN    @{emplyee_last_name}
+    \    ${index}    Evaluate    int(${index})+1    #类似于【index】自增，从0开始
+    \    ${u_gonghao}    Evaluate    ${emplyee_gonghao} + ${index}    #=初始工号+循环值
+    \    ${u_last_name}    Catenate    SEPARATOR=    @{emplyee_last_name}[${index}]    #输入【姓】
+    \    ${u_first_name}    Catenate    SEPARATOR=    @{emplyee_first_name}[${index}]    #输入【名】
+    \    ${u_email}    Catenate    SEPARATOR=    @{emplyee_email}[${index}]    #输入【邮箱】
+    \    #${u_moblie}    Random Num    1000    10000
+    \    ${u_moblie}    Catenate    SEPARATOR=    @{user_mobile}[${index}]    #输入【手机】
+    \    ${u_depart}=    set variable IF    ${depart_num} == 1    @{emplyee_depart}[0]    @{emplyee_depart}[${index}]
+    \    点击    xpath=//a[@target='content'][contains(text(),"员工管理")]    #点【员工管理】
+    \    #---新增员工
+    \    进入框架    id=content
+    \    点击    xpath=//span[text()='新建']    #点【新建】
+    \    点击    //input[@toname='dept.deptName'][@placeholder='请选择部门']    #点【编制部门】
+    \    点击    xpath=//span[contains(@id,"dept_lookup_tree_")][text()='${u_depart}']    #选择部门
+    \    输入    name=staffno    ${u_gonghao}    #员工工号
+    \    输入    name=lastname    ${u_last_name}    #姓
+    \    输入    name=firstname    ${u_first_name}    #名
+    \    输入    name=email    ${u_email}    #邮件
+    \    输入    name=mobilephone    ${u_moblie}    #手机号
+    \    职员类型    @{person_type}    #设置【职员类型】
+    \    点击    //button[@type='submit'][contains(text(),"保存")]    #点【保存】
+    \    wait until page contains    操作成功    timeout=6    error=保存失败
+    \    离开框架
+
+员工管理-激活-造数据
+    # --进入系统设置---
+    点击系统设置（主菜单）
+    点击公司管理
+    ${index}    set variable    -1    #用于数组【index】取值，从=0开始，即从数组的第1个值取值
+    : FOR    ${i}    IN    @{emplyee_last_name}
+    \    ${index}    Evaluate    int(${index})+1    #类似于【index】自增，从0开始
+    \    ${u_gonghao}    Evaluate    ${emplyee_gonghao} + ${index}    #=初始工号+循环值
+    \    ${u_last_name}    Catenate    SEPARATOR=    @{emplyee_last_name}[${index}]    #输入【姓】    #若按list循环，替换为： \ \ \ \ \ @{emplyee_last_name}[${index}]
+    \    ${u_first_name}    Catenate    SEPARATOR=    @{emplyee_first_name}[${index}]    #输入【名】    #若按list循环，替换为： \ \ @{emplyee_first_name}[${index}]
+    \    点击    xpath=//a[@target='content'][contains(text(),"员工管理")]    #点【员工管理】
+    \    #-----查询员工
+    \    ${u_all_name}    Catenate    SEPARATOR=    ${u_last_name}    ${u_first_name}
+    \    员工查询    ${u_all_name}
+    \    #---激活员工
+    \    员工激活    工号    ${u_gonghao}    #按‘工号’OR ‘姓名’判断，根据哪个参数定位
+
+员工管理-删除-造数据
+    [Documentation]    员工信息维护 支持：
+    ...    a. 自定义 list ： 根据 list 值顺序取值；
+    ...    （替换脚本： \ \ @{emplyee_last_name}[${index}] ）
+    ...    b. 按某规则自增：默认取 list 第一个值 ，并拼接 循环变量 ${i}
+    ...    （替换脚本： @{emplyee_last_name}[0] ）
+    # --进入系统设置---
+    点击系统设置（主菜单）
+    点击公司管理
+    ${index}    set variable    -1    #用于数组【index】取值，从=0开始，即从数组的第1个值取值
+    : FOR    ${i}    IN    @{emplyee_last_name}
+    \    ${index}    Evaluate    int(${index})+1    #类似于【index】自增，从0开始
+    \    ${u_gonghao}    Evaluate    ${emplyee_gonghao} + ${index}    #=初始工号+循环值
+    \    ${u_last_name}    Catenate    SEPARATOR=    @{emplyee_last_name}[${index}]    #输入【姓】
+    \    ${u_first_name}    Catenate    SEPARATOR=    @{emplyee_first_name}[${index}]    #输入【名】
+    \    点击    xpath=//a[@target='content'][contains(text(),"员工管理")]    #点【员工管理】
+    \    #-----查询员工
+    \    ${u_all_name}    Catenate    SEPARATOR=    ${u_last_name}    ${u_first_name}
+    \    员工查询    ${u_all_name}
+    \    #---删除员工
+    \    员工删除    工号    ${u_gonghao}    #按‘工号’OR ‘姓名’判断，根据哪个参数定位
+
+员工管理-导入+激活+删除-造数据
+    [Documentation]    说明：FOR 循环中， 由于【读取EXCLE】返回的LIST第0个 值是空，SO，需要从第1个开始读取；
+    # --进入系统设置---
+    点击系统设置（主菜单）
+    点击公司管理
+    点击员工管理
+    #---导入员工
+    进入框架    id=content
+    点击    xpath=//span[text()='导入用户']    #点【导入用户】
+    choose file    name=file    ${load_file}
+    点击    xpath=//button[text()='导入']
+    wait until page contains    导入成功    timeout=5    error=保存失败
+    离开框架
+    sleep    0.5
+    #--读EXCLE数据，拼接成list
+    @{emplyee_full_name}    读取EXCLE（按单元格）    ${load_file}    2    ${file_sheet}    @{file_lie}    #默认从第1行读取，犹豫第1行是标题，SO从第2行读取
+    ${todo_num}    get length    ${emplyee_full_name}    #返回list中第一个是空，因此=实际值+1个
+    ${index}    set variable    0    #用于数组【index】取值，从=0开始，即从数组的第1个值取值
+    : FOR    ${i}    IN RANGE    1    ${todo_num}
+    \    ${index}    Evaluate    int(${index})+1    #类似于【index】自增，从0开始
+    \    ${full_name}    Catenate    SEPARATOR=    ${emplyee_full_name[${i}][1]}    ${emplyee_full_name[${i}][2]}
+    \    员工查询    ${full_name}    #@{emplyee_full_name}[${i}]
+    \    员工激活    姓名    ${full_name}    #按‘工号’OR ‘姓名’判断，根据哪个参数定位
+    \    员工删除    姓名    ${full_name}
+
+用户管理-新增-造数据
+    部门初始化    @{user_depart}
+    #----进入用户管理----
+    点击系统设置（主菜单）
+    点击公司管理
+    点击用户管理
+    #--添加用户----
+    ${index}    set variable    -1    #用于数组【index】取值，从=0开始，即从数组的第1个值取值
+    ${depart_num}    Get Length    ${user_depart}    #获得部门LIST长度
+    : FOR    ${i}    IN    @{user_name}
+    \    ${index}    Evaluate    int(${index})+1    #类似于【index】自增，从0开始
+    \    ${u_depart}=    set variable IF    ${depart_num} == 1    @{user_depart}[0]    @{user_depart}[${index}]
+    \    #--新增员工---
+    \    进入框架    id=content
+    \    点击    xpath=//span[text()='添加']    #点【添加】
+    \    输入    //form[@boxid='hygl_add']//input[@name='username']    @{user_name}[${index}]
+    \    输入    name=pwd    @{user_pwd}[${index}]
+    \    输入    name=surName    @{user_last_name}[${index}]
+    \    输入    name=firstName    @{user_first_name}[${index}]
+    \    输入    name=mobile    @{user_mobile}[${index}]
+    \    输入    name=emailAddress    @{user_email}[${index}]
+    \    点击    xpath=(//input[@toname='dept.deptName'])[last()]    # 点击部门
+    \    点击    xpath=//span[contains(@id,"dept_lookup_tree_")][text()='${u_depart}']
+    \    职员类型    @{person_type}    #设置【职员类型】
+    \    点击    xpath=//button[contains(text(),"保存")]
+    \    sleep    2
+    \    点击    xpath=//a[@class='panel-tool-close']    #点【关闭】
+    \    sleep    1
+    \    离开框架
+
+用户管理-修改-造数据
+    部门初始化    @{user_depart}
+    #----进入用户管理----
+    点击系统设置（主菜单）
+    点击公司管理
+    点击用户管理
+    进入框架    id=content
+    ${index}    set variable    -1    #用于数组【index】取值，从=0开始，即从数组的第1个值取值
+    ${depart_num}    Get Length    ${user_depart}    #获得部门LIST长度
+    : FOR    ${i}    IN    @{user_name}
+    \    ${index}    Evaluate    int(${index})+1    #类似于【index】自增，从0开始
+    \    ${u_name}    set variable    @{user_name}[${index}]
+    \    ${u_mobile}    set variable    @{user_mobile}[${index}]
+    \    ${u_depart}=    set variable IF    ${depart_num} == 1    @{user_depart}[0]    @{user_depart}[${index}]
+    \    #--用户查询
+    \    输入    name=username    ${u_name}    #按‘用户名’查找 【或用 @{u_name} \ \ 】
+    \    点击    xpath=//button[@datagrid='user_datagrid'][contains(text(),"查询")]    #点击【查询】
+    \    #维护 用户信息
+    \    点击    xpath=//div[text()='${u_name}']/../preceding-sibling::td[@field='name']    #点击用户名 连接
+    \    输入    name=mobile    ${u_mobile}    #输入手机
+    \    点击    xpath=//input[@toname='dept.deptName']    #点击【部门】
+    \    点击    xpath=//span[contains(@id,"dept_lookup_tree_")][text()='${u_depart}']    #选择部门
+    \    职员类型    @{person_type}    #设置【职员类型】
+    \    点击    xpath=//button[contains(text(),"保存")]    #点【保存】
+    \    Capture Page Screenshot
+    \    sleep    0.5
+    \    点击    xpath=//a[@class='panel-tool-close']    #点【关闭】
+    \    sleep    0.2
+    离开框架
+
+用户管理-修改-造数据
+    部门初始化    @{user_depart}
+    #----进入用户管理----
+    点击系统设置（主菜单）
+    点击公司管理
+    点击用户管理
+    进入框架    id=content
+    ${index}    set variable    -1    #用于数组【index】取值，从=0开始，即从数组的第1个值取值
+    ${depart_num}    Get Length    ${user_depart}    #获得部门LIST长度
+    : FOR    ${i}    IN    @{user_name}
+    \    ${index}    Evaluate    int(${index})+1    #类似于【index】自增，从0开始
+    \    ${u_name}    set variable    @{user_name}[${index}]
+    \    ${u_mobile}    set variable    @{user_mobile}[${index}]
+    \    ${u_depart}=    set variable IF    ${depart_num} == 1    @{user_depart}[0]    @{user_depart}[${index}]
+    \    #--用户查询
+    \    输入    name=username    ${u_name}    #按‘用户名’查找 【或用 @{u_name} \ \ 】
+    \    点击    xpath=//button[@datagrid='user_datagrid'][contains(text(),"查询")]    #点击【查询】
+    \    #维护 用户信息
+    \    点击    xpath=//div[text()='${u_name}']/../preceding-sibling::td[@field='name']    #点击用户名 连接
+    \    输入    name=mobile    ${u_mobile}    #输入手机
+    \    点击    xpath=//input[@toname='dept.deptName']    #点击【部门】
+    \    点击    xpath=//span[contains(@id,"dept_lookup_tree_")][text()='${u_depart}']    #选择部门
+    \    职员类型    @{person_type}    #设置【职员类型】
+    \    点击    xpath=//button[contains(text(),"保存")]    #点【保存】
+    \    Capture Page Screenshot
+    \    sleep    0.5
+    \    点击    xpath=//a[@class='panel-tool-close']    #点【关闭】
+    \    sleep    0.2
+    离开框架
+
+用户管理-修改-造数据
+    部门初始化    @{user_depart}
+    #----进入用户管理----
+    点击系统设置（主菜单）
+    点击公司管理
+    点击用户管理
+    进入框架    id=content
+    ${index}    set variable    -1    #用于数组【index】取值，从=0开始，即从数组的第1个值取值
+    ${depart_num}    Get Length    ${user_depart}    #获得部门LIST长度
+    : FOR    ${i}    IN    @{user_name}
+    \    ${index}    Evaluate    int(${index})+1    #类似于【index】自增，从0开始
+    \    ${u_name}    set variable    @{user_name}[${index}]
+    \    ${u_mobile}    set variable    @{user_mobile}[${index}]
+    \    ${u_depart}=    set variable IF    ${depart_num} == 1    @{user_depart}[0]    @{user_depart}[${index}]
+    \    #--用户查询
+    \    输入    name=username    ${u_name}    #按‘用户名’查找 【或用 @{u_name} \ \ 】
+    \    点击    xpath=//button[@datagrid='user_datagrid'][contains(text(),"查询")]    #点击【查询】
+    \    #维护 用户信息
+    \    点击    xpath=//div[text()='${u_name}']/../preceding-sibling::td[@field='name']    #点击用户名 连接
+    \    输入    name=mobile    ${u_mobile}    #输入手机
+    \    点击    xpath=//input[@toname='dept.deptName']    #点击【部门】
+    \    点击    xpath=//span[contains(@id,"dept_lookup_tree_")][text()='${u_depart}']    #选择部门
+    \    职员类型    @{person_type}    #设置【职员类型】
+    \    点击    xpath=//button[contains(text(),"保存")]    #点【保存】
+    \    Capture Page Screenshot
+    \    sleep    0.5
+    \    点击    xpath=//a[@class='panel-tool-close']    #点【关闭】
+    \    sleep    0.2
+    离开框架
+
+用户权限设置（货代单权限）-造数据
+    #----进入用户管理----
+    点击系统设置（主菜单）
+    点击公司管理
+    点击用户管理
+    #--查找用户并维护权限----
+    ${index}    set variable    -1    #用于数组【index】取值，从=0开始，即从数组的第1个值取值
+    : FOR    ${i}    IN    @{user_name}
+    \    ${index}    Evaluate    int(${index})+1    #类似于【index】自增，从0开始
+    \    ${u_name}    set variable    @{user_name}[${index}]
+    \    进入框架    id=content
+    \    输入    name=username    ${u_name}    #按‘用户名’查找 【或用 @{u_name} \ \ 】
+    \    点击    xpath=//button[@datagrid='user_datagrid'][contains(text(),"查询")]    #点击【查询】
+    \    #点击    xpath=//a[contains(@href,"${u_name}&name=")][@title='权限管理']    #点击权限管理
+    \    点击    xpath=//a[@title='权限管理'][1]    #点击权限管理
+    \    离开框架
+    \    #---业务权限( 单权限）--
+    \    进入框架    xpath=//iframe[contains(@id,"win_")][contains(@src,"${u_name}")]    #进入用户权限维护框架
+    \    sleep    3
+    \    点击    xpath=//span[contains(text(),"业务权限设置")]
+    \    sleep    3
+    \    进入框架    id=iframe2    #进入业务权限维护框架
+    \    ${user_current_no}    get text    xpath=//span[text()='用户对应的权限']/preceding-sibling::span    #获得当前【用户对应权限】值
+    \    增减用户权限    ${set_user_rights}    #根据EXCLE值 增、减权限
+    \    点击    id=saveBtn    #点 【保存】
+    \    wait until page contains    保存成功    timeout=6    error=保存失败
+    \    离开框架
+    \    #运价权限设置    ${u_name}
+    \    点击    xpath=//i[@class='icon-close']    #点【关闭】
+    \    sleep    0.5
+
+用户权限设置（运价+货代全权限）-造数据
+    #----进入用户管理----
+    点击系统设置（主菜单）
+    点击公司管理
+    点击用户管理
+    #--查找用户并维护权限----
+    ${index}    set variable    -1    #用于数组【index】取值，从=0开始，即从数组的第1个值取值
+    : FOR    ${i}    IN    @{user_name}
+    \    ${index}    Evaluate    int(${index})+1    #类似于【index】自增，从0开始
+    \    ${u_name}    set variable    @{user_name}[${index}]
+    \    进入框架    id=content
+    \    输入    name=username    ${u_name}    #按‘用户名’查找 【或用 @{u_name} \ \ 】
+    \    点击    xpath=//button[@datagrid='user_datagrid'][contains(text(),"查询")]    #点击【查询】
+    \    点击    xpath=//a[contains(@href,"${u_name}&name=")][@title='权限管理']    #点击权限管理
+    \    离开框架
+    \    #---业务权限(全权限）--
+    \    sleep    3
+    \    进入框架    xpath=//iframe[contains(@id,"win_")][contains(@src,"${u_name}")]    #进入用户权限维护框架
+    \    点击    xpath=//span[contains(text(),"业务权限设置")]
+    \    sleep    3
+    \    进入框架    id=iframe2    #进入业务权限维护框架
+    \    点击    xpath=//div[@class='role_list ant-transfer']//div[@class='ant-transfer-list-header']/label/span/input[@class='ant-checkbox-input']    #点 待选列表的【全选】
+    \    点击    xpath=//i[@class='anticon anticon-right']/../..    #点击-移动到右侧
+    \    点击    id=saveBtn    #点 【保存】
+    \    wait until page contains    成功    timeout=6    error=保存失败
+    \    离开框架
+    \    #---维护运价权限----
+    \    运价权限设置    ${u_name}
+    \    点击    xpath=//i[@class='icon-close']    #点【关闭】
+    \    sleep    0.01
+
+用户管理-删除-造数据
+    #----进入用户管理----
+    点击系统设置（主菜单）
+    点击公司管理
+    点击用户管理
+    ${index}    set variable    -1    #用于数组【index】取值，从=0开始，即从数组的第1个值取值
+    : FOR    ${i}    IN    @{user_name}
+    \    ${index}    Evaluate    int(${index})+1    #类似于【index】自增，从0开始
+    \    ${u_name}    set variable    @{user_name}[${index}]
+    \    进入框架    id=content
+    \    输入    name=username    ${u_name}    #按‘用户名’查找 【或用 @{u_name} \ \ 】
+    \    点击    xpath=//button[@datagrid='user_datagrid'][contains(text(),"查询")]    #点击【查询】
+    \    #删除用户
+    \    离开框架
+    \    去除管理员权限    ${u_name}
+    \    进入框架    id=content
+    \    点击    xpath=//a[@title='删除']    #点击【删除】
+    \    点击    xpath=//span[text()='确定']    #点【确定】删除
+    \    Run Keyword And Ignore Error    wait until page contains    职员删除成功    timeout=6    error=保存失败
+    \    离开框架
+
+用户新增1-造数据
+    点击系统设置（主菜单）
+    点击公司管理
+    点击用户管理
+    #--添加用户----
+    ${index}    set variable    -1    #用于数组【index】取值，从=0开始，即从数组的第1个值取值
+    ${depart_num}    Get Length    ${user_depart}    #获得部门LIST长度
+    : FOR    ${i}    IN    @{user_name}
+    \    进入框架    id=content
+    \    新增指定部门的员工    ${i}    测试部
+    \    离开框架
+
+修改客商-yjy-new
+    Open Excel    C:\\Users\\叶俊彦\\Desktop\\22\\bbb2.xls
+    @{list}    get_column_values    Sheet1    0
+    ${count}    get_row_count    Sheet1
+    进入客商列表
+    sleep    2
+    : FOR    ${i}    IN    @{list}
+    \    log    ${i[1]}
+    \    ${number1}    客商列表查询    ${i[1]}
+    \    Continue For Loop If    ${number1}==0
+    \    #进入列表框架
+    \    #    点击    xpath=//span[text()='查 询']/..
+    \    #离开框架
+    \    sleep    1
+    \    进入客商详情    ${i[1]}    #变量
+    \    点击客商详情内的tab    联系方式
+    \    sleep    2
+    \    ${a}    Run Keyword And Return Status    Page Should Contain    业务关键人
+    \    Run Keyword If    ${a} == True    改变业务类型    0
+    \    关闭当前窗口
+    \    切换窗口
+
+*** Keywords ***
+临时用
+    [Arguments]    ${aa}
+    点击    xpath=//a[text()='导入开票信息']
+    点击    xpath=//span[text()='确 定']/..
+    ${num}    获取匹配xpath的个数    xpath=//table//tbody//tr//td[6][text()='${aa}']
+    log    ${num}
+    : FOR    ${i}    IN RANGE    0    ${num}
+    \    ${t}    Evaluate    int(${i})+1
+    \    ${add}    获取页面文本内容    xpath=//table//tbody//tr[${t}]//td[10]
+    \    Run Keyword If    '${add}' == 'RMB'    临时用2    ${t}    ${num}
+
+临时用2
+    [Arguments]    ${bb1}    ${bb2}
+    #点击    xpath=(//a[text()='编辑详情'])[${bb}]
+    #点击    xpath=//div[2]//div//div//table//tbody//tr[${bb}]//td//div//div//a[text()='编辑详情']
+    ${bb3}    Evaluate    ${bb2}-${bb1}
+    点击    xpath=(//a[text()='编辑详情'])[last()-${bb3}]
+    点击全选所有业务类型
+    下拉框选中    币别    CNY
+    点击    xpath=(//span[text()='保 存']/..)[last()]
+    Page Should Contain    海运出口整箱,
+
+从EXCEL获取数据
+    [Arguments]    ${excel_local}    ${start_num}    ${excel_sheet}    ${excel_column}
+    @{table_info}    create list
+    open Excel    ${excel_local}    # 打开 EXECLE 文件
+    ${excel_rows}    Get Row Count    ${excel_sheet}    #获得行数
+    ${excel_rows}    Evaluate    int(${excel_rows})+1    # EXCLE 行数+1，用于循环 ---自动计算
+    : FOR    ${i}    IN RANGE    ${start_num}    ${excel_rows}    #从第1行开始计。第一行是标题，SO从第二行取
+    \    ${row_info}    按列读取单元格    ${excel_sheet}    ${i}    ${excel_column}    #SHEET表，行号，列LIST
+    \    log    ${row_info}
+    \    @{table_info}    create list    @{table_info}    ${row_info}
+    [Return]    @{table_info}
+
+按列读取单元格
+    [Arguments]    ${excel_sheet}    ${row_index}    @{excel_column}
+    @{row_cell_text}    create list    \    #定义
+    : FOR    ${i}    IN    @{excel_column}
+    \    ${row_info}    Read Cell Data By Name    ${excel_sheet}    ${i}${row_index}
+    \    Append To List    ${row_cell_text}    ${row_info}    # 逐个赋值给 {LIST} 变量租
+    #log    ${row_cell_text}
+    [Return]    @{row_cell_text}
+
+查询客商并维护开票信息
+    [Arguments]    ${name}
+    ${result1}    Run Keyword And Return Status    查询客商是否存在    ${name}
+    Run Keyword If    '${result1}'=='True'    维护开票信息内容    ${name}
+
+查询客商是否存在
+    [Arguments]    ${i}
+    进入客商列表
+    客商列表查询    ${i}
+    进入列表框架
+    ${result}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr
+    应该要相等（数字）    ${result}    1
+    离开框架
+
+维护开票信息内容
+    [Arguments]    ${name}
+    进入客商详情    ${name}
+    点击客商详情内的tab    结算信息
+    点击结算信息列表内的tab    开票信息
+    #点击导入开票信息
+    ${result2}    Run Keyword And Return Status    点击    xpath=//a[text()='导入开票信息']
+    Run Keyword If    '${result}'=='True'    点击    xpath=//span[text()='确 定']/..
+    #维护开票信息
+    ${sum}    获取匹配xpath的个数    xpath=//b[text()='开票信息']/../../../../..//tbody[@class='ant-table-tbody']/tr
+    ${sum}    Evaluate    ${sum}/2
+    log    ${sum}
+    Run Keyword If    '${sum}'!='0' and '${sum}'!='1'    辨别数据    ${sum}
+    关闭当前窗口
+    切换窗口    欢迎您使用本系统
+
+辨别数据
+    [Arguments]    ${sum}
+    : FOR    ${g}    IN RANGE    ${sum}
+    \    ${num}    获取页面文本内容    xpath=//b[text()='开票信息']/../../../../..//tbody[@class='ant-table-tbody']/tr[${g}+1]/td[10]
+    \    Run Keyword If    '${num}'=='CNY' or '${num}'=='USD'    维护业务类型    ${g}+1
+
+维护业务类型
+    [Arguments]    ${n}
+    点击    xpath=//div[@class='ant-table-fixed-right']//tbody[@class='ant-table-tbody']/tr[${n}]//a[text()='编辑详情']
+    点击    xpath=//a[text()='全选']
+    点击    xpath=//div[@class='ant-modal-content']//span[text()='保 存']/..
+
+按单元格读取EXCEL
+    [Arguments]    ${excel_local}    ${start_num}    ${excel_sheet}    @{excel_column}
+    @{table_info}    create list    \    #
+    #---按 单元格名取---
+    open Excel    ${excel_local}    # 打开 EXECLE 文件
+    ${excel_rows}    Get Row Count    ${excel_sheet}    #获得行数
+    ${excel_rows}    Evaluate    int(${excel_rows})+1    # EXCLE 行数+1，用于循环 ---自动计算
+    Set Suite Variable    ${excel_rows}
+    : FOR    ${i}    IN RANGE    ${start_num}    ${excel_rows}    #从第1行开始计。第一行是标题，SO从第二行取
+    \    ${row_info}    按列读取单元格    ${excel_sheet}    ${i}    @{excel_column}    #SHEET表，行号，列LIST
+    \    @{table_info}    create list    @{table_info}    ${row_info}
+    ${get_row_num}    get length    ${table_info}    #获得行数
+    ${get_column_num}    get length    ${table_info[1]}    #获得列数X，实际列数=X-1
+    #log    ${table_info[1][1]}    #获得第1行的第1列值
+    #log    ${table_info[1][2]}    #获得第1行的第2列值
+    [Return]    @{table_info}
+
+点击进入客商详情
+    [Arguments]    ${i}    ${j}
+    等待加载层消失
+    进入客商详情    ${i}
+    点击客商详情内的tab    结算信息
+    点击    xpath=//div[text()='开票信息']    #点击开票信息
+    #Run Keyword And Return Status    点击    xpath=//a[text()='导入开票信息']    #页面是否存在导入开票信息按钮
+    #Run Keyword And Return Status    点击    xpath=//span[text()='确 定']/..
+    #Wait Until Element Is Not Visible    xpath=//a[text()='导入开票信息']
+    逐一点击编辑详情维护地址    ${j}
+    关闭当前窗口
+    切换窗口
+
+逐一点击编辑详情维护地址
+    [Arguments]    ${j}
+    ${count_number2}    获取匹配xpath的个数    xpath=//div[@class='ant-table-scroll']//tbody/tr    #重新获取行数
+    ${count_number2}    Evaluate    int(${count_number2})+1
+    log    ${count_number2}
+    : FOR    ${n}    IN RANGE    1    ${count_number2}
+    \    ${address_text}    获取页面文本内容    xpath=//div[@class='ant-table ant-table-small ant-table-scroll-position-left']//tbody/tr[${n}]/td[8]    #获取地址是否为空
+    \    ${address_value}    Run Keyword And Return Status    Should Be Empty    ${address_text}
+    \    Run Keyword If    '${address_value}'=='True'    log    pass    #不为空则跳过
+    \    Run Keyword If    '${address_value}'=='False'    点击编辑按钮并维护地址    ${j}    ${n}    #为空则维护地址
+    #
+
+循环写入TXT
+    Create File    ${EXECDIR}\\RFS\\GM1-货代\\GM1-UI\\write_file.txt    #OperatingSystem提供的 Create_file方法
+    @{number_list}    create_list
+    #循环一个${number_list}，用于编号
+    : FOR    ${num}    IN RANGE    ${excel_rows}    #${count_row}使用读文件时行数
+    \    ${number}    set_variable    ${num}
+    \    Append_to_list    ${number_list}    ${number}
+    #\    log    ${number_list}
+    #循环追加写入txt文件
+    log    ${a_list}
+    log    ${search_result}
+    : FOR    ${list}    IN RANGE    ${excel_rows}
+    \    ${list_num}    set_variable    ${list}
+    \    ${list_num2}    Evaluate    int(${list})-2
+    \    Append_to_file    ${EXECDIR}\\RFS\\GM1-货代\\GM1-UI\\write_file.txt    ${number_list[${list_num2}]}\.用户：${a_list[${list_num2}]}----------查询结果：${search_result[${list_num2}]}\r\n    encoding=UTF-8
+    #${number_list[${list_num}]+1}表示对应Excel的行号*********${a_list[${list_num}]}循环将${a_list}中的值取出**********循环读${search_result}并追加写入文本    @{table_ctn2}
+
+点击编辑按钮并维护地址
+    [Arguments]    ${j}    ${n}
+    点击    xpath=//div[@class='ant-table-fixed-right']//tbody/tr[${n}]//a[text()='编辑详情']    #点击编辑详情按钮
+    点击全选所有业务类型
+    #获取地址是否为空
+    #${text}    获取元素属性值    id=address@value
+    #${value}    Run Keyword And Return Status    Should Be Empty    ${text}
+    #Run Keyword If    '${value}'=='True'    输入    id=address    ${j}
+    #Run Keyword If    '${value}'=='False'    log    pass
+    结算信息详情点击保存按钮    新增开票信息
+    Run Keyword And Return Status    点击    xpath=//span[@class='ant-modal-close-x']/..
+
+读取单列Excel内容
+    [Arguments]    ${excel_local}    ${excel_sheet}    ${start_num}    ${column}
+    ${cell_data}    create list    ${empty}    #定义
+    Open Excel    ${excel_local}    # 打开 EXECLE 文件
+    ${excel_rows}    Get Row Count    ${excel_sheet}    #获得行数
+    : FOR    ${row}    IN RANGE    ${start_num}    ${excel_rows}    # 读取行的内容
+    \    ${row_data}    Read Cell Data By Coordinates    ${excel_sheet}    ${column}    ${row}    # 根据列行编号读取Excel
+    \    Append To List    ${cell_data}    ${row_data}    # 拼接数据
+    log    ${cell_data}
+    [Return]    @{cell_data}
+
+去除前后空格
+    [Arguments]    @{row_info}
+    : FOR    ${item}    IN    @{row_info[1:]}
+    \    ${item}    Evaluate    '${item}'.strip()    string    #去除前后空格/问题:元素有换行符时报错
+    \    ${item}    Evaluate    '${item}'.decode('utf-8')    string    #重新转义成utf8编码防止乱码
+    \    log    ${item}
+    [Return]    @{row_info}
+
+导入客商开票信息
+    [Arguments]    ${name}
+    点击    xpath=//table/tbody//a[text()='${name}']    # 点击客商名称
+    切换窗口    new    # 切换至新页面
+    点击    xpath=//li[text()='结算信息']    # 点击结算信息tab
+    点击    xpath=//div[text()='开票信息']    # 点击开票信息tab
+    ${isExist}    Run Keyword And Return Status    Page Should Contain    导入开票信息    # 判断是否有导入的按钮
+    run keyword if    '${isExist}'=='True'    同步开票内容
+    ...    ELSE    关闭当前窗口
+
+同步开票内容
+    点击    xpath=//span['导入开票信息']/..    # 点击同步按钮
+    ${count}    Get Element Count    xpath=//div[@class='ant-table-scroll']//table/tbody/tr    # 获取列表信息行数
+    run keyword if    ${count}>0    编辑客商业务类型    ${count}
+    ...    ELSE    关闭当前窗口
+
+编辑客商业务类型
+    [Arguments]    ${count}
+    : FOR    ${i}    IN RANGE    ${count}
+    \    ${index}    Evaluate    int(${i})+1
+    \    ${address}    获取页面文本内容    xpath=//div[@class='ant-table-scroll']//table/tbody/tr[${index}]/td[8]//span    # 获取地址内容
+    \    run keyword if    '${address}'==''    Continue For Loop
+    \    ...    ELSE    Exit For Loop
+    点击    xpath=//div[@class='ant-table-body-inner']//table/tbody/tr[${index}]//a[text()='编辑详情']    # 点击对应行的详情按钮
+    点击    xpath=//a[text()='全选']    # 点击全选按钮
+    点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+    Wait Until Page Contains    保存成功
+    关闭当前窗口
+
+改变业务类型
+    [Arguments]    ${row}
+    点击    xpath=//a[contains(text(),"小B")]
+    下拉框选中(根据代码定位)    xpath=//div[contains(@class,'businessTypes_${row} ')]    全部业务
+    点击    xpath=//span[text()="保 存"]/..
+    sleep    3

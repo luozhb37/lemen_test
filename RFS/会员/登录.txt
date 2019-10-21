@@ -1,0 +1,24 @@
+*** Settings ***
+Resource          ../Resources/main.txt
+Resource          ../Resources/基础关键字.txt
+
+*** Test Cases ***
+内部帐号登录_正确帐号登录
+    [Tags]    todo
+    打开    ${url}    #全局变量
+    点击    id=member    #员工登录窗口
+    输入    id=username    ${member_username}    #username
+    输入    id=password    ${member_password}    #password
+    点击    xpath=//a[@class="login-btn"]    #点登录按钮
+    sleep    1
+    页面包含-遗弃    内容    运价通
+    [Teardown]    关闭浏览器
+
+外部账号登录
+    打开    ${url}    #全局变量
+    点击    id=contact    #客户登录窗口
+    输入    id=username    ${contact_username}    #username
+    输入    id=password    ${contact_password}    #password
+    点击    xpath=//a[@class="login-btn"]    #点登录按钮
+    sleep    1
+    [Teardown]    关闭浏览器

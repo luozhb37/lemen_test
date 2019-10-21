@@ -1,0 +1,417 @@
+*** Settings ***
+Library           Selenium2Library
+Resource          ../Resources/基础关键字.txt
+Library           Screenshot
+Library           OlymLibrary
+Resource          ../Resources/会员操作关键字.txt
+
+*** Keywords ***
+查询整箱运价
+    [Arguments]    ${loadport}=    ${dischargeport}=    ${searoute}=    ${carrier}=
+    [Documentation]    通过查询条件查询出运价条数(支持一页内的数据,超出一页按一页最大值统计)
+    [Tags]
+    打开页面    运价维护    海运出口整箱维护
+    #输入查询条件并搜索
+    ${count}=    运价列表查询    loadport=${loadport}    dischargeport=${dischargeport}    searoute=${searoute}    carrier=${carrier}
+    log    查询(loadport=${loadport} dischargeport=${dischargeport} carrier=${carrier} searoute=${searoute}) 整箱运价 ,结果共${count}条
+    [Return]    ${count}    # 运价条数
+
+删除整箱运价
+    [Arguments]    ${sign}
+    [Documentation]    通过查询条件查询出运价全选并删除
+    [Tags]    todo
+    打开页面    运价维护    海运出口整箱维护
+    ${count}    运价列表查询    ${sign}
+    进入列表框架
+    Run Keyword If    "${count}"!="0"    点击    id=sheet_row_select_all    #点击全选
+    Run Keyword If    "${count}"!="0"    点击链接    删除
+    Run Keyword If    "${count}"!="0"    离开框架
+    Run Keyword If    "${count}"!="0"    点击    //span[contains(text(),'确认')]    #确定按钮
+    sleep    2
+    离开框架
+    重载当前页
+    [Return]    ${count}    # 运价条数
+
+删除整箱发布运价
+    [Arguments]    ${loadport}=    ${dischargeport}=    ${searoute}=    ${carrier}=
+    [Documentation]    通过查询条件查询出发布记录全选并删除
+    [Tags]    todo
+    打开页面    运价通    更多功能    xpath=//a[@data-module="fclPublishManage"]
+    #输入查询条件并搜索
+    输入    id=loadport    ${loadport}
+    输入    id=dischargeport    ${dischargeport}
+    输入    id=searoute    ${searoute}
+    输入    id=carrier    ${carrier}
+    点击    css=#search    #查询按钮
+    sleep    2
+    ${count}    获取表格行数byJquery    \#j-tableFixScroll .result-table
+    log    ${count}
+    Run Keyword If    "${count}"!="0"    点击    id=jselAll    #点击全选
+    Run Keyword If    "${count}"!="0"    点击链接    删除
+    sleep    1
+    Run Keyword If    "${count}"!="0"    点击链接    确定
+    sleep    2
+    [Return]    ${count}    # 运价条数
+
+发布整箱运价
+    [Documentation]    通过查询条件查询出运价全选并删除
+    [Tags]    todo
+    点击全选运价
+    进入列表框架
+    点击链接    发布运价
+    页面弹出框选择确定
+    离开框架
+
+新增港口数据
+    进入框架    xpath=//iframe[contains(@src,"baseSeaportFclExport")]
+    下拉选择byIndex    id=searoute    1
+    ${ennamevalue}    Execute Javascript    return $("input[name='enname']").val()
+    点击链接    保存
+    ${result}=    Confirm Action
+    点击链接    关闭
+    离开框架
+
+新增并发布驳船费
+    [Arguments]    ${recaddressEnname}    ${unloadport}    ${searouteCnname}    ${carrier}    ${dischargeport}=    ${receiveArea}=
+    ...    ${transportDays}=    ${effectiveDate}=    ${bargePrice1}=    ${bargePrice2}=    ${bargePrice3}=    ${bargePrice4}=
+    [Documentation]    以下参数必须基础资料存在, *收货地英文* , *卸货地*, \ *目的港*, \ *航线*, *船公司*
+    ...
+    ...    生效日期未填,则维护今天
+    [Tags]
+    打开页面    运价通    支线费用    驳船费管理
+    #新增
+    点击链接    新增
+    sleep    1
+    进入框架    //iframe[contains(@src,"addbarge")]
+    输入    id=receiveArea    ${receiveArea}    #收获区域
+    ${recaddressEnname}=    Evaluate    "${recaddressEnname}".upper()    #防止小写导致找不到数据
+    输入_处理弹框    id=recaddressEnname    ${recaddressEnname}    #收货地
+    输入_处理弹框    id=searouteCnname    ${searouteCnname}    #航线
+    ${unloadport}=    Evaluate    "${unloadport}".upper()
+    输入_处理弹框    id=unloadport    ${unloadport}    #卸货地
+    ${dischargeport}=    Evaluate    "${dischargeport}".upper()
+    输入_处理弹框    id=dischargeport    ${dischargeport}    #目的港
+    ${carrier}=    Evaluate    "${carrier}".upper()
+    输入_处理弹框    id=carrier    ${carrier}    #船公司
+    输入    id=transportDays    ${transportDays}    #转运天数
+    ${effectiveDate}=    Run Keyword If    "${effectiveDate}"==""    获取当前日期
+    Execute Javascript    $("#effectiveDate").val("${effectiveDate}")    #生效日期
+    输入    id=bargePrice1    ${bargePrice1}    #20gp
+    输入    id=bargePrice2    ${bargePrice2}    #40gp
+    输入    id=bargePrice3    ${bargePrice3}    #40hq
+    输入    id=bargePrice4    ${bargePrice4}    #特殊港口1
+    点击链接    保存
+    sleep    1
+    点击链接    发布
+    sleep    3
+    ${Success}    Run Keyword And Return Status    Get Webelement    id=bargePrice1
+    Run Keyword If    '${Success}'=='True'    Take Screenshot
+    Run Keyword If    ${Success}    log    新增驳船费失败,详见log截图!!!
+    Run Keyword If    ${Success}    关闭弹出框
+
+运价列表查询
+    [Arguments]    ${sign}
+    进入框架    id=mainFrame
+    点击    id=div_advancedConditionsBY
+    点击    xpath=//a[@href="javascript:setAdvancedSelect('signflag');"]
+    输入    id=advancedConditionsValue    ${sign}
+    点击    xpath=//span[@id='span_advancedSearch']/..//button
+    离开框架
+    ${count}=    获取列表记录数
+    [Return]    ${count}
+
+批量修改整箱运价_成本价
+    [Arguments]    ${sign}    ${sellprice1}
+    [Tags]
+    #输入查询条件并搜索
+    点击全选运价
+    进入列表框架
+    点击链接    批量维护
+    点击链接    成本价
+    离开框架
+    Wait Until Element Is Visible    xpath=//h4[text()='维护成本价']
+    进入框架    //iframe[contains(@src,"pop_fclmaintain_otherprice")]
+    #标准报价20GP
+    下拉选择byValue    id=fieldsellprice1    value=sellprice1    #选择标准报价
+    下拉选择byValue    id=operationsellprice1    value=equal
+    输入    id=sellprice1    ${sellprice1}
+    #提交
+    点击    xpath=//input[@value='确定']
+    离开框架
+    等待    5
+
+打开页面
+    [Arguments]    ${two}    ${three}=
+    [Documentation]    支持头部的一级,二级,三级菜单打开指定页面
+    ...    ${one} = 运价通 行为分析 等菜单名字
+    ...    ${two} = 运价维护 运价查询 等
+    ...    ${three} = 海运出口整箱维护 海运出口拼箱维护 等
+    ...
+    ...    例如: \ \ \ 打开页面 \ \ \ 运价通 \ \ \ 运价维护 \ \ 海运出口整箱维护
+    ...
+    ...    *提醒* 如果没有3级菜单,则为空
+    ...    *提醒* 如果存在相同的链接,则需要用xpath去识别. 比如港口的页面只能维护成 xpath=//a[contains(@href,"海运出口整箱港口信息")]
+    ...    *提醒* \ 打开页面后,请自行进入框架.不然无法识别到相应的元素
+    #点击一级菜单
+    点击    id=home_freight
+    #鼠标移动到二级菜单
+    mouse over    xpath=//*[@id='menu']//a[text()='${two}']
+    等待    2
+    #点击三级菜单
+    focus    xpath=//*[@id='menu']//a[text()='${three}']
+    点击    xpath=//*[@id='menu']//a[text()='${three}']
+    sleep    1
+    #清理弹出的菜单
+    mouse out    id=home_freight
+
+获取列表记录数
+    进入列表框架
+    ${result}    获取页面文本内容    xpath=//span[@class='view-page']
+    ${num}    截取字符    ${result}    共    条
+    离开框架
+    [Return]    ${num}
+
+进入列表框架
+    进入框架    id=mainFrame
+
+点击运价明细
+    进入列表框架
+    点击    xpath=//a[contains(@href,'action=fcl_detail')]
+    离开框架
+
+进入运价详情框架
+    进入框架    xpath=//iframe[starts-with(@name,'win_')]
+
+点击全选运价
+    进入列表框架
+    点击    id=sheet_row_select_all    #点击全选
+    离开框架
+
+点击复制
+    进入列表框架
+    点击链接    复制
+    离开框架
+
+已发布运价列表查询
+    [Arguments]    ${sign}
+    进入框架    id=mainFrame
+    点击    id=j-stateBtn
+    点击    xpath=//a[@href="javascript:fu_commonQuery(404)"]
+    点击    id=div_advancedConditionsBY
+    点击    xpath=//a[@href="javascript:setAdvancedSelect('signflag');"]
+    输入    id=advancedConditionsValue    ${sign}
+    点击    xpath=//span[@id='span_advancedSearch']/..//button
+    离开框架
+    ${count}    获取列表记录数
+    [Return]    ${count}
+
+点击发布运价
+    进入框架    id=mainFrame
+    点击链接    发布运价
+    离开框架
+
+点击进入海运整箱维护
+    点击    id=home_freight
+    sleep    3
+    鼠标悬停    jQuery(\"li:contains('运价维护')\").mouseover();
+    sleep    3
+    点击    id=j-fcl-query
+    sleep    3
+    mouse out    id=home_freight
+
+变量
+
+回到首页
+    go to    http://test4.100jit.com/cpthemes/applogin.ctrl
+
+登陆
+    #----登陆------
+    读取运价通登录配置信息
+    打开    http://${yjt-url}/cpmembership/commonLog.ctrl    #main变量
+    点击    id=member    #客户登录窗口
+    输入    id=username    ${yjt-username}
+    输入    id=password    ${yjt-password}
+    点击    xpath=//a[@class="login-btn"]    #点登录按钮
+    sleep    1
+    页面应该包含    运价通
+
+设定当天时间和结束时间
+    点击    id=begindate
+    点击    xpath=//button[contains(text(),"确定")]
+    Execute Javascript    $('#validdate').val("2019-12-12")
+
+点击海运出口整箱维护
+    点击    id=home_freight
+    sleep    1
+    鼠标悬停    jQuery(\"li:contains('运价维护')\").mouseover();
+    sleep    1
+    点击    id=j-fcl-query
+    sleep    1
+
+对第一行数据进行编辑
+    [Arguments]    ${a1}    ${a2}    # 变量格式如 3/4
+    输入    xpath=//*[@id="fclmaintain_home1"]/tbody/tr[1]/td[10]/input    ${a1}
+    输入    xpath=//*[@id="fclmaintain_home1"]/tbody/tr[1]/td[11]/input    ${a2}
+
+复制单条海运整箱运价
+    进入框架    id=mainFrame
+    点击链接    复制
+    sleep    3
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@name,'win_')]    #进入弹出窗框架
+    点击    id=bt_save
+    页面弹出框选择确定
+    点击    xpath=//span[text()='关闭']/..
+    离开框架
+    sleep    1
+
+复制多条海运整箱运价
+    进入列表框架
+    点击链接    复制
+    sleep    1
+    离开框架
+    Select Window
+    点击    id=btn-yes
+    sleep    1
+    点击全选运价
+    进入框架    id=mainFrame
+    点击链接    保存并退出
+    sleep    3
+    离开框架
+
+新增海运整箱运价
+    [Arguments]    ${loadport}    ${disport}    ${carrier}    ${base1}    ${base2}    ${base3}
+    ...    ${base4}    ${flag}
+    点击链接    新增
+    sleep    3
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@name,'win_')]    #进入新增弹出窗口框架
+    #输入相关数据
+    点击    id=begindate
+    设定当天时间和结束时间
+    输入    id=loadport    ${loadport}
+    默认选择下拉第一个选项    id=dischargeport
+    输入    id=carrier    ${carrier}
+    输入    id=baseprice1    ${base1}
+    输入    id=baseprice2    ${base2}
+    输入    id=signflag    ${flag}
+    点击    id=bt_save
+    页面弹出框选择确定
+    点击    xpath=//span[text()='关闭']/..
+    离开框架
+
+编辑海运整箱运价
+    [Arguments]    ${a1}    ${a2}    # 变量格式如 3/4
+    进入框架    id=mainFrame
+    点击链接    编辑
+    sleep    3
+    #输入    xpath=//*[@id="fclmaintain_home1"]/tbody/tr[1]/td[10]/input    ${a1}
+    #输入    xpath=//*[@id="fclmaintain_home1"]/tbody/tr[1]/td[11]/input    ${a2}
+    输入    xpath=//*[@title1="baseprice1"]    ${a2}
+    点击链接    保存并退出
+    离开框架
+    sleep    3
+
+删除运价
+    进入框架    id=mainFrame
+    点击    xpath=//a[text()='删除']
+    离开框架
+    点击    xpath=//span[text()='确认']/..
+
+批量修改成本价
+    [Arguments]    ${a}
+    进入列表框架
+    #${price1}    获取页面值    xpath=//*[@id="fclmaintain_home1"]/tbody/tr[1]/td[18]/span
+    点击链接    批量维护
+    点击链接    成本价
+    离开框架
+    进入框架    xpath=//h4[text()='维护成本价']/../following-sibling::iframe[starts-with(@name,'win_')]
+    #下拉选择byValue    id=fieldsellprice1    value=sellprice1
+    #下拉选择byValue    id=operationsellprice1    value=equal
+    输入    id=sellprice1    ${a}
+    点击    xpath=//input[@value='确定']
+    sleep    3
+    离开框架
+    sleep    1
+
+新增整箱运价
+    ${temp}    生成一个带有字符的随机数    A
+    进入列表框架
+    # 获取新增前列表的行数
+    ${count1}    获取匹配xpath的个数    xpath=//*[@id='j-tableFixScroll']//table//tbody/tr
+    ${new_count}    Evaluate    int(${count1})+1    # 原列表数+1作为最后期望值
+    # 新增一条数据
+    新增海运整箱运价    NINGBO    XIAMEN    CCL    2    2    2
+    ...    2    test111
+    # 验证是否新增成功
+    进入框架    id=mainFrame
+    ${count2}    获取匹配xpath的个数    xpath=//*[@id='j-tableFixScroll']//table//tbody/tr
+    离开框架
+    Should Be Equal As Strings    ${count2}    ${new_count}
+    [Return]    ${temp}
+
+新增整箱的运价
+    [Arguments]    ${loadport}    ${dischargeport}    ${carrier}    ${begindate}    ${validdate}    ${signflag}
+    ...    ${searoute_code}=hxdm    ${transferport}=CHIWAN    ${cycle}=2    ${sailtime}=12    ${sailing_date}=2017-11-2    ${massaddress}=宁波进港
+    ...    ${internetsellprice1}=1    ${internetsellprice2}=2    ${internetsellprice3}=3    ${internetsellprice4}=4    ${isnor1}= 是    ${rakeoff}=25
+    ...    ${sendtype}=正本    ${volumerange}=11    ${addfee}=自动化的附加费说明    ${linkinfo}=联系人信息15267855761    ${remark}=外面的世界很精彩    ${employee_remark}=内心要享受孤独
+    ...    ${iscommend}=是
+    [Documentation]    通用的新增功能,参数格式控制见实际业务数据
+    [Tags]
+    #点击新增按钮
+    进入框架    id=mainFrame    #进入新增页面
+    点击链接    新增
+    离开框架
+    #新增
+    进入框架    //iframe[contains(@src,"fcl_detail")]    #进入新增页面
+    Wait Until Element Is Enabled    id=loadport
+    输入    id=loadport    ${loadport}
+    输入    id=dischargeport    ${dischargeport}
+    ${status}    Run Keyword And Return Status    点击链接    点击新增此港口
+    离开框架
+    run keyword if    ${status}    新增港口数据
+    进入框架    //iframe[contains(@src,"fcl_detail")]    #进入新增页面
+    输入    id=carrier    ${carrier}
+    Execute Javascript    document.getElementById("begindate").value="${begindate}"    #有效起始日期
+    Execute Javascript    document.getElementById("validdate").value="${validdate}"    #有效结束日期
+    输入    id=searoute_code    ${searoute_code}
+    输入    id=transferport    ${transferport}
+    输入    id=cycle    ${cycle}    #船期
+    输入    id=sailtime    ${sailtime}    #航程
+    输入    id=sailing_date    ${sailing_date}    #开航日
+    输入    id=massaddress    ${massaddress}    #进港港区
+    输入    id=internetsellprice1    ${internetsellprice1}    #标准报价1
+    输入    id=internetsellprice2    ${internetsellprice2}    #标准报价2
+    输入    id=internetsellprice3    ${internetsellprice3}    #标准报价3
+    输入    id=internetsellprice4    ${internetsellprice4}    #标准报价4
+    Run Keyword If    "${isnor1}"=="是"    勾选记录    id=isnor1    #是否是冷代干价格1
+    输入    id=rakeoff    ${rakeoff}    #佣金
+    输入    id=signflag    ${signflag}    #符号
+    输入    id=sendtype    ${sendtype}    #出单方式
+    输入    id=volumerange    ${volumerange}    #限重
+    输入    id=addfee    ${addfee}    #附加费说明
+    输入    id=linkinfo    ${linkinfo}    #联系方式
+    输入    id=remark    ${remark}    #外部备注
+    输入    id=employee_remark    ${employee_remark}    #内部备注
+    Run Keyword If    "${iscommend}"=="是"    勾选记录    id=iscommend
+    点击链接    保存
+    等待    1
+    ${return-message}    页面弹出框选择确定
+    应该包含    ${return-message}    保存成功
+    点击链接    关闭
+    离开框架
+    等待    2
+    [Return]    ${return-message}
+
+刷新海运整箱维护页面
+    Reload Page
+    点击进入海运整箱维护
+
+默认选择下拉第一个选项
+    [Arguments]    ${location}
+    点击    ${location}
+    press key    ${location}    \ue015
+    press key    ${location}    \\13
+
+点击第一条运价记录
+    点击    xpath=//table//tbody/tr[1]/td[2]/input

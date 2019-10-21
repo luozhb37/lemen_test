@@ -1,0 +1,45 @@
+*** Settings ***
+Documentation     拼箱功能基本上同整箱，脚本copy整箱，若调整，需注意关键字是否共用
+Suite Setup       m4-登录
+Suite Teardown    Close All Browsers
+Test Setup        重载当前页
+Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+
+*** Test Cases ***
+新增订单
+    点击订单管理
+    点击订单中心
+    ${bussinessNO-seaexport-LCL}    订单新增（海运出口拼箱）    海运出口拼箱    goodssource1=自揽货
+    #草稿状态
+    点击状态tab    draftBtn
+    订单列表查询    ${bussinessNO-seaexport-LCL}
+    ${content}    获取订单列表记录数
+    应该包含    ${content}    共1条
+    Set Suite Variable    ${bussinessNO-seaexport-LCL}
+
+提交订单
+    点击订单管理
+    点击订单中心
+    订单列表查询    ${bussinessNO-seaexport-LCL}
+    点击提交订单    ${bussinessNO-seaexport-LCL}
+    #这两步都是为了刷新页面
+    点击订单管理
+    点击订单中心
+    点击状态tab    pendingBtn    #待处理
+    订单列表查询    ${bussinessNO-seaexport-LCL}
+    ${content}    获取订单列表记录数
+    应该包含    ${content}    共1条
+
+审核通过
+    点击订单管理
+    点击审单中心
+    订单列表查询    ${bussinessNO-seaexport-LCL}
+    进入订单详情    ${bussinessNO-seaexport-LCL}
+    切换窗口    new
+    点击审核通过    新订
+    点击订单管理
+    点击审单中心
+    点击状态tab    auditPassBtn    #审核通过
+    订单列表查询    ${bussinessNO-seaexport-LCL}
+    ${content}    获取订单列表记录数
+    应该包含    ${content}    共1条

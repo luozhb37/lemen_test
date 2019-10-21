@@ -1,0 +1,127 @@
+*** Settings ***
+Resource          M2--引用.txt
+
+*** Keywords ***
+登录
+    读取货代登录配置信息
+    Set Selenium Implicit Wait    5
+    打开    http://www.800jit.com/login.html
+    进入框架    id=loginPanel
+    Wait Until Element Is Visible    id=username
+    输入    id=username    ${M2_USERNAME}
+    输入    id=password    ${M2_PASSWORD}
+    点击    id=btn-submit
+    离开框架
+    Wait Until Page Contains    首页
+
+回到首页
+    [Arguments]    ${url}=${M2_URL}
+    Reload Page
+
+点击业务管理
+    点击    xpath=//a[text()='业务管理']    #业务管理
+
+点击业务台帐
+    点击    xpath=//a[text()='业务台帐']    #业务台帐
+
+点击海运出口
+    点击    xpath=//a[text()='海运出口']    #海运出口
+
+点击海运进口
+    点击    xpath=//a[text()='海运进口']
+
+点击空运出口
+    点击    xpath=//a[text()='空运出口']    #空运出口
+
+点击空运出口(新)
+    点击    xpath=//a[text()='空运出口(新)']    #空运出口
+
+点击空运进口
+    点击    xpath=//a[text()='空运进口']
+
+点击结算管理
+    点击    xpath=//a[text()='结算管理']
+
+点击收款核销
+    点击    xpath=//a[text()='收款核销']
+
+点击应收款审核
+    点击    xpath=//a[text()='应收款审核']
+
+点击收款单制作(费用明细)
+    点击    xpath=//a[text()='收款单制作(费用明细)']
+
+点击收款单制作(发票)
+    点击    xpath=//a[text()='收款单制作(发票)']
+
+点击反核销费用明细(收款)
+    点击    xpath=//a[text()='反核销费用明细']
+
+点击收款单查询
+    点击    xpath=//a[text()='收款单查询']
+
+点击付款核销
+    点击    xpath=//a[text()='付款核销']
+
+点击应付款审核
+    点击    xpath=//a[text()='应付款审核']
+
+点击付款申请(费用明细)
+    点击    xpath=//a[text()='付款申请(费用明细)']
+
+点击付款申请(发票)
+    点击    xpath=//a[text()='付款申请(发票)']
+
+点击反核销费用明细(付款)
+    点击    xpath=//a[contains(@href,'page=pg_blank_return&is_pay=true')]
+
+点击付款单查询
+    点击    xpath=//a[text()='付款单查询']
+
+点击发票管理(外)
+    点击    xpath=//a[@href="./application/themes/default/prompt/hdfp.htm"]
+
+点击对账单
+    点击    xpath=//a[text()='对账单']
+
+点击新增账单
+    点击    xpath=//a[text()='新增账单']
+
+点击账单管理
+    点击    xpath=//a[text()='账单管理']
+
+点击货代发票
+    点击    xpath=//a[text()='货代发票']
+
+点击新增发票(关联业务)
+    点击    xpath=//a[text()='新增发票(关联业务)']
+
+点击应付发票登记
+    点击    xpath=//a[text()='应付发票登记']
+
+点击发票管理(内)
+    点击    xpath=//a[contains(@href,'page=pg_iv_main_search&buttonid=bt_rec')]
+
+点击基础资料
+    click element    xpath=//a[contains(text(),"基础资料")]
+
+点击企业基础资料
+    click element    xpath=//a[contains(text(),"企业基础资料")]
+
+点击往来单位
+    click element    xpath=//a[contains(text(),"往来单位")]
+
+点击系统设置
+    点击    xpath=//a[contains(text(),'系统设置')]
+
+点击系统参数
+    点击    xpath=//*[contains(text(),'系统参数')]
+
+点击公司管理
+    点击    xpath=//a[contains(text(),'公司管理')]    #公司管理
+
+点击用户管理
+    点击    xpath=//a[contains(text(),'用户管理')]    #用户管理
+
+点击用户维护
+    点击    xpath=//a[contains(text(),'用户维护')]    #用户维护

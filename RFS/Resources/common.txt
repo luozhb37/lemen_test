@@ -1,0 +1,86 @@
+*** Settings ***
+Resource          main_zbb.txt
+Resource          ../Resources/基础关键字.txt
+Library           Selenium2Library
+
+*** Keywords ***
+内部用户登录
+    打开    ${url}
+    点击    id=member
+    输入    id=username    ${username}
+    输入    id=password    ${password}
+    点击    xpath=//a[@class="login-btn"]    #点登录按钮
+    sleep    1
+
+外部用户登录
+    打开    ${url}
+    点击    id=contact
+    输入    id=username    ${contact_username}
+    输入    id=password    ${contact_password}
+    点击    xpath=//a[@class="login-btn"]    #点登录按钮
+    sleep    1
+
+直接开通新增用户
+    点击    id=addContact    #新增按钮
+    进入框架    xpath=//iframe[contains(@src,"showAddMemContactView")]    #进入新增页面
+    输入    id=contact_name    直接开通101
+    输入    id=mobile    ${new_contact_username}    #直接开通新增账号
+    输入    id=company_name    zbb直接开通101的企业
+    点击链接    修改    #点击企业标签
+    离开框架
+    进入框架    xpath=//iframe[contains(@src,"SingleCompanyTagRela")]    #进入企业标签维护页面
+    点击链接    公海客户
+    点击链接    同行
+    点击    id=j-tagsave    #确定
+    进入框架    xpath=//iframe[contains(@src,"showAddMemContactView")]    #进入新增用户页面
+    sleep    1
+    点击链接    保存
+    离开框架
+    点击    xpath=//a[@title="关闭"]
+    sleep    1
+
+使用手机号码查询
+    输入    id=mobile    ${new_contact_username}
+    点击    xpath=//a[@class="nui-btn nui-btn-primary query_btn j-ga-statistics-three"]    #点击搜索按钮
+
+删除外部用户
+    使用手机号码查询
+    鼠标悬停    table.result-table tbody a:contains('详情')
+    点击链接    删除
+    sleep    1
+    点击链接    确定
+    sleep    1
+
+ots账号登录
+    打开    ${biboss_url}
+    输入    id=userName    ${biboss_username}
+    输入    id=pwd    ${biboss_password}
+    点击    xpath=//input[@type="submit"]    #点击登录按钮
+    sleep    1
+
+报价单生成
+    打开页面    运价通    运价查询    海运出口整箱查询
+    离开框架
+    进入框架    xpath=//iframe[contains(@src,"fcl_sale")]    #进入整箱查询页面
+    点击    xpath=//tbody/tr[1]/td[2]    #勾选运价
+    点击    xpath=//a[@class="btn j-ga-statistics-three"]    #点击生成报价单
+    select window    title=报价单编辑界面    #切换到报价单生成页面
+    sleep    1
+    输入    id=customSelect    zbb测试
+    sleep    1
+    点击    xpath=//div/ul/li[1]    #点击下拉框中的值
+    sleep    1
+    点击链接    保存
+    sleep    3
+    点击链接    生成报价单
+    sleep    1
+
+报价单查询
+    报价单生成
+    @{title}    get window titles
+    select window    @{title}[1]    #进入生成的报价单页面
+    ${tiny}    get text    xpath=//p/span    #获取短网址
+    关闭浏览器
+    打开    ${tiny}
+    点击    xpath=/html/body/div[3]/div[1]/h2    #点击页面，采集报价单的查询行为
+    sleep    1

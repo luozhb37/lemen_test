@@ -1,0 +1,31 @@
+*** Settings ***
+Resource          ../GM1-UI-公共/GM1-UI-引用.txt
+
+*** Keywords ***
+新增集装箱（海进）
+    [Arguments]    ${ctnno}=    ${sealno}=
+    [Documentation]    ${ctnno}箱号;${sealno}封号
+    点击    xpath=//span[text()='新 增']/..
+    输入    id=ctnno    ${ctnno}    #输入箱号，箱号现控制了唯一性，所以先注释
+    输入    id=sealno    ${sealno}
+    #点击    xpath=//input[@id='ctn']/../../..    #点击箱型
+    点击    xpath=//div[@class='ctn ant-select-lg ant-select ant-select-enabled']/div/div    #点击箱型
+    #---方法一：点击下拉框存在的指定值
+    #点击    xpath=//li[text()='20GP']    #输入下拉框中存在的箱型
+    #--方法二：用键盘点击方式输入下拉框中第一个值
+    等待    1
+    按键    xpath=//input[@id='ctn']    \\13    #点击enter
+    #--
+    Focus    xpath=//span[text()='取 消']/../following-sibling::button[1]    #有滚动条，所以先focus
+    点击    xpath=//span[text()='取 消']/../following-sibling::button[1]    #点击详情页保存按钮
+    点击详情页关闭按钮
+
+关联货物（海进）
+    点击    xpath=//div[contains(text(),'货物装载列表')]    #点击货物装载列表
+    ${删除}    Run Keyword And Return Status    点击    xpath=//a[text()='删除']    #如果有关联货物，则先删除，再重新关联
+    ${确定}    Run Keyword And Return Status    点击确定按钮
+    ${count1}    获取匹配xpath的个数    xpath=//div[text()='货物装载列表']/following-sibling::div[1]//table/tbody/tr
+    点击    xpath=//span[text()='选择货物']/..
+    Wait Until Page Contains    货物列表
+    勾选记录    xpath=//div[@class='ant-table-wrapper truck-plan-table']//div[@class='ant-table-content']//tbody//tr[1]/td[1]//input    #每次勾选第一条
+    点击确定按钮

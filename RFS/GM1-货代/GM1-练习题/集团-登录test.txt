@@ -1,0 +1,64 @@
+*** Settings ***
+Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-公用.txt
+
+*** Test Cases ***
+集团登录
+    [Setup]    m4-集团登录
+    进入客商列表
+    ${customer-fullname}    生成一个带有字符的随机数    ks
+    ${code}    生成一个带有字符的随机数
+    新增分公司客商    ${customer-fullname}    ${code}
+    ${number}    客商列表查询    ${customer-fullname}
+    应该要相等（数字）    ${number}    1
+    Set Suite Variable    ${customer-fullname}
+    [Teardown]    Close All Browsers
+
+*** Keywords ***
+m4-集团登录
+    读取集团货代登录配置信息
+    Set Selenium Implicit Wait    5
+    打开    http://${M4-OPEN-URL}/login.html
+    进入框架    id=loginPanel
+    Wait Until Element Is Visible    id=username
+    输入    id=username    ${M4-USERNAME}
+    输入    id=password    ${M4-PASSWORD}
+    点击    id=btn-submit
+    等待    5
+    wait until page contains    我的工作台
+    #等待    2
+    离开框架
+    create session    ${M4-SESSION}    http://${M4-URL}
+    读取订单内容-接口调用
+    读取订单内容-UI调用
+
+新增分公司客商
+    [Arguments]    ${customername}    ${customercode}
+    进入列表框架
+    #等待加载层消失
+    Wait Until Element Is Enabled    xpath=//span[text()='新 增']/..
+    等待    2
+    点击    xpath=//span[text()='新 增']/..
+    等待    2
+    离开框架
+    切换窗口    new
+    输入    id=name    ${customername}
+    输入    id=code    ${customercode}
+    输入    id=organizationCode    organization code    #社会信用统一代码
+    输入    id=address    浙江省宁波市鄞州区
+    勾选客户类别    委托客户
+    勾选客户类别    国际采购商
+    勾选客户类别    经营单位
+    下拉框选中    客户类型    同行
+    #客户类型(全部)
+    勾选客户类别    发货人    #发货人
+    勾选客户类别    收货人    #收货人
+    勾选客户类别    通知人    #通知人
+    勾选客户类别    海外代理    #海外代理
+    勾选客户类别    船公司    #船公司
+    勾选客户类别    订舱代理    #订舱代理
+    点击    xpath=//table//div[@class='ant-select-selection__rendered']
+    点击    xpath=//ul[contains(@class,'ant-select-dropdown')]//li[text()='${M4_GROUP[0][0]}']    # 选择第一个分公司的第一个数据-公司名称
+    #维护必填项
+    点击    xpath=//button[@class='ant-btn ant-btn-primary']
+    关闭当前窗口
+    切换窗口

@@ -1,0 +1,150 @@
+*** Settings ***
+Suite Setup       m4-登录    #变量|m4-登录
+Suite Teardown    close all browsers
+Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+
+*** Test Cases ***
+导入开票信息
+    log    ${exc_local}
+    ${row_info}    读取单列Excel内容    ${exc_local}    ${exc_sheet}    ${exc_start}    ${exc_column}
+    ${row_info}    去除前后空格    ${row_info}
+    点击    xpath=//a[text()=' 客商管理']    # 点击客商管理
+    等待加载层消失
+    点击    xpath=//span[text()='客商资料']/..
+    等待    3
+    进入框架    id=content
+    : FOR    ${index}    IN    ${row_info[1:]}    # 循环读取内容
+    \    清空输入框内容    id=name
+    \    输入    id=name    ${index}
+    \    点击    xpath=//span[text()='查 询']/..
+    \    ${count}    Get Element Count    xpath=//table/tbody/tr
+    \    run keyword if    ${count}<1    Continue For Loop
+    \    ...    ELSE    导入客商开票信息    ${index}
+
+读取文件
+    ${row_info}    读取单列Excel内容    ${exc_local}    ${exc_sheet}    ${exc_start}    1
+
+获取指定列名的位置(关键字)
+    点击业务管理
+    进入指定二级菜单    业务台账    空运出口
+    进入框架    id=content
+    ${count}    Get Element Count    xpath=//div[@class='ant-table-scroll']//table/thead/tr/th    # 获取表头个数
+    ${count}    Evaluate    int(${count})+1
+    ${list}    create list    ${empty}
+    : FOR    ${i}    IN RANGE    1    ${count}
+    \    log    ${i}
+    \    run keyword if    ${i}==1    Continue For Loop
+    \    ${name}    获取页面文本内容    xpath=//div[@class='ant-table-scroll']//table/thead/tr/th[${i}]/span
+    \    Append To List    ${list}    ${name}
+    \    log    ${list}
+    ${index}    Get Index From List    ${list}    创建时间    # 获取索引值
+    ${index}    Evaluate    int(${index})+1
+
+获取指定列名的位置(循环)
+    点击业务管理
+    进入指定二级菜单    业务台账    空运出口
+    进入框架    id=content
+    ${count}    Get Element Count    xpath=//div[@class='ant-table-scroll']//table/thead/tr/th    # 获取表头个数
+    ${count}    Evaluate    int(${count})+1
+    ${index}    Set Variable    1
+    : FOR    ${i}    IN RANGE    1    ${count}
+    \    log    ${i}
+    \    run keyword if    ${i}==1    Continue For Loop
+    \    ${name}    获取页面文本内容    xpath=//div[@class='ant-table-scroll']//table/thead/tr/th[${i}]/span
+    \    run keyword if    '${name}'=='创建时间'    Exit For Loop
+    log    ${i}
+
+*** Keywords ***
+按列读取单元格
+    [Arguments]    ${excel_local}    ${excel_sheet}    ${start_num}    ${excel_column}
+    [Documentation]    1.根据单元格名字 A1,A2 读取；
+    ...    2.逐行按单元格读取后，拼接成LIST，且第0个是空；
+    ...
+    ...    【变量说明】
+    ...    ${exc_local} ：EXCLE路径
+    ...    ${start_num} \ ：从第X行开始读；（从第一行开始读，若首行是标题，则从2开始）
+    ...    ${exc_column} ：需要读取的列名
+    ${row_cell_text}    create list    \    #定义
+    open Excel    ${excel_local}    # 打开 EXECLE 文件
+    ${excel_rows}    Get Row Count    ${excel_sheet}    #获得行数
+    ${excel_rows}    Evaluate    int(${excel_rows})+1    # EXCLE 行数+1，用于循环 ---自动计算
+    : FOR    ${i}    IN RANGE    ${start_num}    ${excel_rows}
+    \    ${row_info}    Read Cell Data By Name    ${excel_sheet}    ${excel_column}${i}    # 格式A2
+    \    Append To List    ${row_cell_text}    ${row_info}    # 逐个赋值给 {LIST} 变量租
+    log    ${row_cell_text}
+    [Return]    ${row_info}
+
+变量
+    set suite variable    ${exc_local}    C:\\Users\\yusen\\Desktop\\customerInvoice_开票.xls    #${EXECDIR}\\自动化测试\\RFS\\Resources\\public_test_file\\货代权限表.xls    # EXCLE 文件路径 （必须是 .xls）,统一放置：../RFS/Resources/public_test_file目录下；【 \ ${EXECDIR} \ 】 表示 RIDE 中脚本所在的根目录；--根据各自的目录结构定义
+    set suite variable    ${exc_sheet}    Sheet1    # EXCLE 工作表 名称，默认 sheet1    权限表-GM1
+    set suite variable    ${exc_column}    0    # EXCLE 列名
+    #----变量【新增权限】-------
+    Set Suite Variable    ${exc_start}    1    #读取excel的起始行数
+    set suite variable    @{exc_list}    1    #读取excel的对应列（A：权限代码；D：权限名称；F：权限业务对应value值）
+    #--变量--[特定公司登录账号]---
+    set suite variable    ${login_url}    http://www.800jit.com/login.html    #登录地址
+    set suite variable    ${username}    ysdc    #公司-登录名
+    set suite variable    ${password}    a111111    #登录密码
+    set suite variable    ${M4-SESSION}    gm1
+
+登录
+    #---登录----
+    打开    ${login_url}
+    进入框架    id=loginPanel
+    输入    id=username    ${username}
+    输入    id=password    ${password}
+    点击    id=btn-submit
+    wait until page contains    我的工作台
+    离开框架
+    create session    ${M4-SESSION}    ${login_url}
+
+导入客商开票信息
+    点击    xpath=//table/tbody//a[text()='${name}']    # 点击客商名称
+    切换窗口    new    # 切换至新页面
+    点击    xpath=//li[text()='结算信息']    # 点击结算信息tab
+    点击    xpath=//div[text()='开票信息']    # 点击开票信息tab
+    Comment    run keyword if    Page Should Contain Element
+
+根据列行编号读取Excel
+    [Arguments]    ${excel_local}    ${excel_sheet}    ${row}    @{excel_column}
+    [Documentation]    主要关键字：
+    ...    Read Cell Data By Coordinates \ 根据列行编号读取Excel内容(取法同数组取值)
+    ...    \ \ \ \ 用法举例：读取sheet1表第一列第一行的单元格数据
+    ...    \ \ \ \ \ \ \ ${data} \ \ \ Read Cell Data By Coordinates \ \ \ sheet1 \ \ 0 \ \ 0
+    ${col_data}    Create List    ${empty}
+    : FOR    ${i}    IN    @{excel_column}
+    \    ${row_info}    Read Cell Data By Coordinates    ${excel_sheet}    ${i}    ${row}    # 根据列行编号读取Excel
+    \    log    ${row_info}
+    \    Append To List    ${col_data}    ${row_info}    # 逐个赋值给 {LIST} 变量租
+    log    ${col_data}
+    [Return]    ${col_data}
+
+根据列编号读取Excel
+    [Arguments]    ${excel_local}    ${excel_sheet}    ${start_num}    @{exc_list}
+    @{cell_data}    create list    ${empty}    #定义
+    open Excel    ${excel_local}    # 打开 EXECLE 文件
+    ${excel_rows}    Get Row Count    ${excel_sheet}    #获得行数
+    : FOR    ${row}    IN RANGE    ${start_num}    ${excel_rows}    # 读取行的内容
+    \    ${col_data}    根据列行编号读取Excel    ${excel_local}    ${excel_sheet}    ${row}    @{exc_list}
+    \    log    ${col_data}
+    \    @{cell_data}    create list    @{cell_data}    ${col_data}    # 逐个赋值给 {LIST} 变量租
+    [Return]    @{cell_data}
+
+读取单列Excel内容
+    [Arguments]    ${excel_local}    ${excel_sheet}    ${start_num}    ${column}    # excel文件名|excel表名|开始的行数|读取的列(所在位置索引)
+    ${cell_data}    create list    ${empty}    #定义
+    Open Excel    ${excel_local}    # 打开 EXECLE 文件
+    ${excel_rows}    Get Row Count    ${excel_sheet}    #获得行数
+    : FOR    ${row}    IN RANGE    ${start_num}    ${excel_rows}    # 读取行的内容
+    \    ${row_data}    Read Cell Data By Coordinates    ${excel_sheet}    ${column}    ${row}    # 根据列行编号读取Excel
+    \    Append To List    ${cell_data}    ${row_data}    # 拼接数据
+    log    ${cell_data}
+    [Return]    ${cell_data}
+
+去除前后空格
+    [Arguments]    ${list}
+    : FOR    ${item}    IN    ${row_info[1:]}
+    \    ${item}    Evaluate    ${item}.strip()    string    #去除前后空格/问题:元素有换行符时报错
+    \    ${item}    Evaluate    ${item}.decode('utf-8')    string    #重新转义成utf8编码防止乱码
+    \    log    ${item}
+    [Return]    ${row_info}

@@ -1,0 +1,127 @@
+*** Settings ***
+Resource          基础关键字.txt
+Resource          GM1/GM1-UI/GM1-UI-公共/GM1-UI-公用.txt
+Library           Collections
+
+*** Keywords ***
+查看主运单详情
+    ${data}    Create Dictionary    id=1020
+    ${result}    m4-post-urlencoded    /fms-air-rest/rest/bnMainswayBill/getBnMainsWaybill    ${data}
+    [Return]    ${result}
+
+获取字典值
+    [Arguments]    ${dict}    ${key}
+    ${value}    Get From Dictionary    ${dict}    ${key}
+    [Return]    ${value}
+
+查看工作单企业编号
+    [Arguments]    ${type}    ${casenumber}    ${businessType}    ${hd}=${m4-session}    # 企业编码类型(工作号/委托编号)|业务编号|业务类型(空运)
+    ${cookie}    get cookies
+    ${header}    Create Dictionary    Cookie=${cookie}    Content-Type=application/x-www-form-urlencoded;charset=utf-8
+    ${data}    create dictionary    type=${type}    casenumber=${casenumber}    businessType=${businessType}
+    ${result}    Post Request    ${m4-session}    uri=fms-base-rest/rest/sysNumruleSetting/generator    data=${data}    headers=${header}
+    ${resultTOjson}    to json    ${result.text}
+    log    ${resultTOjson['data']}
+    ${companyNum}    Set Variable    ${resultTOjson['data']['companyNum']['companyNumber']}
+    log    ${companyNum}
+    ${prefix}    Set Variable    ${resultTOjson['data']['companyNum']['prefix']}
+    log    ${prefix}
+    ${return}    Create Dictionary    0=${companyNum}    1=${prefix}
+    [Return]    ${return}    # ${return[0]}:企业编码|${return[1]}:编码前缀
+
+根据列行编号读取Excel
+    [Arguments]    ${excel_local}    ${excel_sheet}    ${start_num}    @{exc_list}
+    @{cell_data}    create list    ${empty}    #定义
+    open Excel    ${excel_local}    # 打开 EXECLE 文件
+    ${excel_rows}    Get Row Count    ${excel_sheet}    #获得行数
+    : FOR    ${row}    IN RANGE    ${start_num}    ${excel_rows}    # 读取行的内容
+    \    ${col_data}    根据列行编号读取单元格    ${excel_sheet}    ${row}    @{exc_list}
+    \    log    ${col_data}
+    \    @{cell_data}    create list    @{cell_data}    ${col_data}    # 逐个赋值给 {LIST} 变量租
+    [Return]    @{cell_data}
+
+根据列行编号读取单元格
+    [Arguments]    ${excel_sheet}    ${row}    @{excel_column}
+    [Documentation]    主要关键字：
+    ...    Read Cell Data By Coordinates \ 根据列行编号读取Excel内容(取法同数组取值)
+    ...    \ \ \ \ 用法举例：读取sheet1表第一列第一行的单元格数据
+    ...    \ \ \ \ \ \ \ ${data} \ \ \ Read Cell Data By Coordinates \ \ \ sheet1 \ \ 0 \ \ 0
+    ${col_data}    Create List
+    : FOR    ${i}    IN    @{excel_column}
+    \    ${row_info}    Read Cell Data By Coordinates    ${excel_sheet}    ${i}    ${row}    # 根据列行编号读取Excel
+    \    log    ${row_info}
+    \    Append To List    ${col_data}    ${row_info}    # 逐个赋值给 {LIST} 变量租
+    log    ${col_data}
+    [Return]    ${col_data}
+
+读取Excel数据
+    [Arguments]    ${sheetname}    ${col_count}    ${row_count}
+    @{excel_data}    create list
+    : FOR    ${row}    IN RANGE    ${row_count}
+    \    @{row_data}    读取Excel各行数据    ${sheetname}    ${col_count}    ${row}
+    \    Append To List    ${excel_data}    ${row_data}
+    \    log many    @{excel_data}
+    log many    @{excel_data}
+    [Return]    @{excel_data}
+
+读取Excel各行数据
+    [Arguments]    ${sheetname}    ${col_count}    ${row}
+    @{row_data}    Create List
+    : FOR    ${i}    IN RANGE    ${col_count}
+    \    ${row_info}    Read Cell Data By Coordinates    ${sheetname}    ${i}    ${row}    # 根据列行编号读取Excel
+    \    log    ${row_info}
+    \    Append To List    ${row_data}    ${row_info}    # 逐个赋值给 {LIST} 变量租
+    log many    @{row_data}
+    [Return]    @{row_data}
+
+m4-get(带参数)
+    [Arguments]    ${uri}    ${data}    ${hd}=${m4-session}
+    ${cookies}    get cookies
+    ${header}    create dictionary    Content-Type=application/x-www-form-urlencoded;charset=utf-8    Cookie=${cookies}
+    ${total_uri}    Catenate    SEPARATOR=?    ${uri}    ${data}
+    log    ${total_uri}
+    ${result}    Get Request    ${hd}    uri=${total_uri}    headers=${header}
+    ${content}    to json    ${result.text}
+    [Return]    ${content}
+
+写入列名
+    [Arguments]    ${filename}    ${sheetname}
+    Write Cell    ${filename}    ${sheetname}    0    12    运行结果
+    Write Cell    ${filename}    ${sheetname}    0    13    错误原因
+
+模拟接口并写入结果
+    [Arguments]    ${filename}    ${sheetname}    ${data}
+    ${no}    Set Variable    ${data[0]}    # 获取接口序号
+    ${uri}    Set Variable    ${data[4]}    # 获取接口uri
+    ${method}    Set Variable    ${data[5]}    # 获取请求方法
+    ${param_type}    Set Variable    ${data[6]}    # 获取参数的类型
+    ${param}    Set Variable    ${data[7]}    # 获取请求的参数
+    ${exp}    Set Variable    ${data[11]}    # 获取预期的验证结果
+    ${param}    run keyword if    '${param_type}'=='File'    读取文件参数    ${param}
+    ...    ELSE    Set Variable    ${param}
+    ${content}    run keyword if    '${method}' == 'GET'    m4-get(带参数)    uri=${uri}    data=${param}
+    ...    ELSE    m4-post-json    uri=${uri}    data=${param}
+    ${content_string}    Convert To String    ${content}    # 转换为字符串用于进行校验
+    ${result}    Run Keyword And Return Status    should contain    ${exp}    ${content_string}
+    run keyword if    '${exp}' in '${content_string}'    写入结果正确    ${filename}    ${sheetname}    ${no}
+    ...    ELSE    写入结果错误    ${filename}    ${sheetname}    ${no}    ${content_string}
+
+写入结果正确
+    [Arguments]    ${filename}    ${sheetname}    ${row}
+    Write Cell    ${filename}    ${sheetname}    ${row}    12    成功
+    Write Cell    ${filename}    ${sheetname}    ${row}    13    \    # 记录失败原因
+    log    写入成功
+
+写入结果错误
+    [Arguments]    ${filename}    ${sheetname}    ${row}    ${data}    ${color}=2
+    Write Cell    ${filename}    ${sheetname}    ${row}    12    失败    ${color}
+    ...    # 记录运行失败
+    Write Cell    ${filename}    ${sheetname}    ${row}    13    ${data}    # 记录失败原因
+    log    写入成功
+    [Teardown]
+
+读取文件参数
+    [Arguments]    ${param}
+    ${result}    Xls To Json    ${param}    demo
+    log    ${result}
+    [Return]    ${result}

@@ -1,0 +1,115 @@
+*** Settings ***
+Documentation     【捷通网】 平台应用新增用例。
+...               --不建议随意新增；
+...
+...               为安全起见，默认 所有 【保存、提交】按钮，默认注销。 需要时，手动开启。、
+Suite Setup       Run keywords    变量
+...               AND    登录
+Suite Teardown    关闭浏览器
+Resource          ../../Resources/基础关键字.txt
+
+*** Test Cases ***
+应用基本信息
+    [Documentation]    为安全起见，默认 所有 【保存、提交】按钮，默认注销。 需要时，手动开启。、
+    点击    xpath=//div[@id='rootMenu']//a[contains(text(),"平台管理")]    #平台管理
+    点击    xpath=//div[@id='treeMenu']/ul/li[2]/div/a[contains(text(),"应用管理")]    #应用管理
+    点击    xpath=//div[@id='treeMenu']//li[2]//a[contains(text(),"应用基本信息")]    #应用基本信息
+    进入框架    id=content
+    点击    xpath=//form[@id='FORM_VRWS_CONTENTS']//a/span[contains(text(),"增加")]    #点增加
+    #---维护应用基本信息
+    输入    xpath=//form[@id='FORM_VRWS_CONTENTS']//input[contains(@id,"ma_app_code")][@tabindex="6"]    ${ma_app_code}    #应用代码
+    输入    xpath=//form[@id='FORM_VRWS_CONTENTS']//input[contains(@id,"ma_app_name")][@tabindex="7"]    ${ma_app_name}    #应用名称
+    select from list by Label    xpath=//form[@id='FORM_VRWS_CONTENTS']//select[contains(@id,"ma_app_status")][@tabindex="8"]    ${ma_app_status}    #应用状态【不可用； 工具；可用....】
+    #输入    xpath=//form[@id='FORM_VRWS_CONTENTS']//input[contains(@id,"ma_membership_impclass")][@tabindex="9"]    #会员整合实现类（可以空）
+    select from list by Label    xpath=//form[@id='FORM_VRWS_CONTENTS']//select[contains(@id,"ma_is_ibos_app")][@tabindex="10"]    ${ma_is_ibos_app}    #是否是IBOS 【否;是；】
+    sleep    0.5
+    点击    xpath=//form[@id='FORM_VRWS_CONTENTS']/table[1]//a/span[contains(text(),"保存")]    #点【保存】
+    #---返回 检查页面结果----
+    点击    xpath=//form[@id='FORM_VRWS_CONTENTS']/table[1]//a/span[contains(text(),"返回")]
+    page should contain    ${ma_app_code}
+    Capture Page Screenshot
+
+应用信息配置
+    [Documentation]    为安全起见，默认 所有 【保存、提交】按钮，默认注销。 需要时，手动开启。、
+    点击    xpath=//div[@id='rootMenu']//a[contains(text(),"平台管理")]    #平台管理
+    点击    xpath=//div[@id='treeMenu']/ul/li[2]/div/a[contains(text(),"应用管理")]    #应用管理
+    点击    xpath=//div[@id='treeMenu']//li[2]//a[contains(text(),"应用信息配置")]    #应用信息配置
+    进入框架    id=content
+    点击    xpath=//form[@id='FORM_VRWS_CONTENTS']//a/span[contains(text(),"增加行")]    #点增加行
+    #---维护应用配置信息
+    select from list by Label    xpath=//select[contains(@id,"webappid")][@tabindex="6"]    ${webappid}    #应用ID
+    输入    xpath=//input[contains(@id,"webappcontext")][@tabindex="7"]    ${webappcontext}    #应用上下文
+    输入    xpath=//input[contains(@id,"webapptheme")][@tabindex="8"]    ${webapptheme}    #应用表现层
+    输入    xpath=//input[contains(@id,"webappthemestyle")][@tabindex="9"]    ${webappthemestyle}    #应用表现层CSS
+    输入    xpath=//input[contains(@id,"webappschema")][@tabindex="10"]    ${webappschema}    #应用数据库Schema
+    输入    xpath=//input[contains(@id,"webappwsport")][@tabindex="11"]    ${webappwsport}    #应用的WebService 端口
+    输入    xpath=//input[contains(@id,"webappwsurl")][@tabindex="12"]    ${webappwsurl}    #应用的WebService URL
+    输入    xpath=//input[contains(@id,"webapploginurl")][@tabindex="13"]    ${webapploginurl}    #应用登录URL
+    输入    xpath=//input[contains(@id,"webapplogouturl")][@tabindex="14"]    ${webapplogouturl}    #应用注销URL
+    输入    xpath=//input[contains(@id,"webapploginurlmapping")][@tabindex="15"]    ${webapploginurlmapping}    #应用登录的映射URL
+    select from list by Label    xpath=//select[contains(@id,"webappstatus")][@tabindex="16"]    ${webappstatus}    #状态
+    输入    xpath=//input[contains(@id,"webappprovider_en")][@tabindex="17"]    ${webappprovider_en}    #应用提供商(英文)
+    输入    xpath=//input[contains(@id,"webappprovider_zh")][@tabindex="18"]    ${webappprovider_zh}    #应用提供商(中文)
+    输入    xpath=//input[contains(@id,"webapplogoimgurl")][@tabindex="19"]    ${webapplogoimgurl}    #应用的标记图片路径
+    输入    xpath=//input[contains(@id,"webapphelpurl")][@tabindex="20"]    ${webapphelpurl}    #应用的帮助URL
+    sleep    0.5
+    点击    xpath=//form[@id='FORM_VRWS_CONTENTS']/table[1]//a/span[contains(text(),"保存")]    #点【保存】
+    #---返回 检查页面结果----
+    点击    xpath=//form[@id='FORM_VRWS_CONTENTS']/table[1]//a/span[contains(text(),"返回")]
+    page should contain    ${ma_app_code}
+    Capture Page Screenshot
+
+站点应用维护
+    [Documentation]    为安全起见，默认 所有 【保存、提交】按钮，默认注销。 需要时，手动开启。、
+    点击    xpath=//div[@id='rootMenu']//a[contains(text(),"平台管理")]    #平台管理
+    点击    xpath=//div[@id='treeMenu']/ul/li[2]/div/a[contains(text(),"应用管理")]    #应用管理
+    点击    xpath=//div[@id='treeMenu']//li[2]//a[contains(text(),"站点应用维护")]    #站点应用维护
+    #---查询【捷通网】---
+    进入框架    id=content
+    输入    xpath=//input[@id='search_siteno']    6    #---查询【捷通网】站点 = 6
+    点击    xpath=//a[@id='pg_public_site_app_mantain_search']    #点【查询】
+    点击    xpath=//a[@class='Linkstyle'][contains(text(),"捷通网")]    # 点【捷通网】连接
+    sleep    1
+    #---进入【捷通网】并同步应用
+    点击    xpath=//form[@id='FORM_VRWS_CONTENTS']//table[1]//a[@id='pg_public_site_detail_for_app_sync']/span[contains(text(),"应用同步")]    #点【同步应用】
+    ${status}    run keyword and return status    页面弹出框选择确定
+    wait until page contains    同步成功    timeout=10    error=同步失败
+    Capture Page Screenshot
+
+*** Keywords ***
+登录
+    #---登录----
+    打开    ${login_url}
+    进入框架    id=loginPanel
+    输入    id=username    ${username}
+    输入    id=password    ${password}
+    点击    id=btn-submit
+    wait until page contains    首页    timeout=3    error=登录失败
+    离开框架
+
+变量
+    #--变量--[支撑登录账号]---
+    set suite variable    ${login_url}    http://www.800jit.com/login.html    #登录地址
+    set suite variable    ${username}    adminuser1    #支撑-登录名
+    set suite variable    ${password}    olymtech    #登录密码
+    #----应用基本信息----
+    set suite variable    ${ma_app_code}    asp_oa    #应用代码
+    set suite variable    ${ma_app_name}    oa    #应用名称
+    set suite variable    ${ma_app_status}    可用    #应用状态【不可用；工具；可用....】
+    set suite variable    ${ma_is_ibos_app}    否    #是否是IBOS 【否；是；】
+    #----应用配置信息----
+    set suite variable    ${webappid}    ${ma_app_name}    #应用ID
+    set suite variable    ${webappcontext}    oa    #应用上下文
+    set suite variable    ${webapptheme}    default    #应用表现层
+    set suite variable    ${webappthemestyle}    default    #应用表现层CSS
+    set suite variable    ${webappschema}    default    #应用数据库Schema
+    set suite variable    ${webappwsport}    default    #应用的WebService 端口
+    set suite variable    ${webappwsurl}    default    #应用的WebService URL
+    set suite variable    ${webapploginurl}    default    #应用登录URL
+    set suite variable    ${webapplogouturl}    default    #应用注销URL
+    set suite variable    ${webapploginurlmapping}    default    #应用登录的映射URL
+    set suite variable    ${webappstatus}    可用    #状态【不可用；可用】
+    set suite variable    ${webappprovider_en}    Olymtech(NingBo) Co.Ltd    #应用提供商(英文)
+    set suite variable    ${webappprovider_zh}    大掌柜国际物流有限公司    #应用提供商(中文)
+    set suite variable    ${webapplogoimgurl}    /config/app_resource/modelhome/images/logo.gif    #应用的标记图片路径
+    set suite variable    ${webapphelpurl}    https://dzg.kf5.com/hc/kb/category/28295/    #应用的帮助URL

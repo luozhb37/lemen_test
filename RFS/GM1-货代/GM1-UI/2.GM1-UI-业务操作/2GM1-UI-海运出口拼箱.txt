@@ -1,0 +1,56 @@
+*** Settings ***
+Suite Setup       m4-登录
+Suite Teardown    close all browsers
+Test Teardown     重载当前页
+Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+
+*** Test Cases ***
+【前置条件】台账新增拼箱订单
+    点击业务管理
+    点击业务台账
+    新增拼箱业务单    海运出口拼箱    自揽货
+    点击保存
+    Wait Until Page Contains    操作成功    #xpath=//span[text()='工作号：']/following-sibling::span[1]
+    ${bussinessNO-seaexport-LCL}    获取页面文本内容    xpath=//div[@class='dzg-business-info']/span[2]    #获取工作号
+    Set Suite Variable    ${bussinessNO-seaexport-LCL}
+    关闭当前窗口
+    切换窗口
+
+台账复制拼箱订单
+    点击业务管理
+    点击业务台账
+    等待加载层消失
+    Wait Until Page Contains    海运出口    timeout=3    error=失败
+    ${pages}    海运出口列表查询业务编号    ${bussinessNO-seaexport-LCL}
+    应该包含    ${pages}    共1条
+    进入框架    id=content
+    勾选记录    xpath=//div[@class='ant-table-body-inner']//tbody/tr/td[1]//input    #勾选第一条
+    点击    xpath=//span[text()='复制新增']/..    #点击复制新增按钮
+    勾选记录    xpath=//span[text()='SI信息']/../span/input    #勾选SI信息复选框
+    勾选记录    xpath=//span[text()='应收信息']/../span/input    #勾选应收信息复选框
+    勾选记录    xpath=//span[text()='应付信息']/../span/input    #勾选应付信息复选框
+    勾选记录    xpath=//span[text()='船名航次信息']/../span/input    #勾选船名航次信息复选框
+    勾选记录    xpath=//span[text()='货物信息']/../span/input    #勾选货物信息复选框
+    点击确定按钮
+    离开框架
+    切换窗口    new
+    Wait Until Page Contains    操作详情
+    ${bussinessNO-seaexport}    获取页面文本内容    xpath=//div[@class='dzg-business-info']/span[2]    #获取工作号
+    关闭当前窗口
+    切换窗口
+    ${pages}    海运出口列表查询业务编号    ${bussinessNO-seaexport}
+    应该包含    ${pages}    共2条
+
+【前置条件】台账列表进入拼箱详情页
+    #可由台账新增业务而来，也可直接维护业务编号
+    #${bussinessNO-seaexport-LCL}    Set Variable    B--2018120011
+    点击业务管理
+    点击业务台账
+    等待加载层消失
+    Wait Until Page Contains    海运出口    timeout=3    error=失败
+    ${pages}    海运出口列表查询业务编号    ${bussinessNO-seaexport-LCL}
+    应该包含    ${pages}    共1条
+    点击业务编号进入详情页    ${bussinessNO-seaexport-LCL}
+    切换窗口    new
+    Page Should Contain    海运出口拼箱
+    Set Suite Variable    ${bussinessNO-seaexport-LCL}

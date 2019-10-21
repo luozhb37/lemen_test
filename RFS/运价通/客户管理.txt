@@ -1,0 +1,36 @@
+*** Settings ***
+Suite Setup       登陆
+Suite Teardown    关闭浏览器
+Test Setup        Reload Page
+Resource          ../Resources/运价通/运价通-引用.txt
+
+*** Test Cases ***
+用户新增并设置权限
+    ${temp}    生成一个带有字符的随机数    A
+    Set Suite Variable    ${id}    ${temp}
+    ${num}    Random Num    10000    99999
+    ${phonenum}    Catenate    SEPARATOR=    134456    ${num}
+    点击进入客户管理
+    点击    id=addContact
+    进入框架    name=win_1002
+    输入    id=contact_name    ${temp}
+    输入    id=mobile    ${phonenum}
+    点击    id=j-opensave
+    离开框架
+    进入框架    xpath=//iframe[contains(@name,'win')]
+    点击    id=j-pruview-set
+    离开框架
+    进入框架    xpath=(//iframe[contains(@name,'win')])[2]
+    点击    id=tr_fcl_price_query
+    移动滚动条（M3）    500
+    点击    id=j-powerSave
+
+删除用户
+    点击进入客户管理
+    输入    id=contact_name    ${id}
+    点击    xpath=//a[@class='nui-btn nui-btn-primary query_btn j-ga-statistics-three']
+    点击    id=jselAll
+    点击    id=batchOperation
+    点击    xpath=//a[text()='删除用户账号']
+    点击    id=btn-yes
+    Page Should Contain    成功

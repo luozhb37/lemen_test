@@ -1,0 +1,61 @@
+*** Settings ***
+Resource          ../GM1-UI-公共/GM1-UI-引用.txt
+
+*** Keywords ***
+订单新增（海进）
+    [Arguments]    ${businesstype}    ${goodssource1}
+    点击新增
+    新增订单弹出框    ${businesstype}    ${goodssource1}
+    维护订单详情（海进）
+    #新增报价
+    #新增成本价
+    ${workno}    订单点击保存
+    关闭当前窗口
+    切换窗口
+    [Return]    ${workno}
+
+维护订单详情（海进）
+    切换窗口    new
+    Wait Until Page Contains    订单详情
+    #船公司 按下enter直接选中
+    勾选记录    xpath=//span[text()='拖柜']/../span/input
+    勾选记录    xpath=//span[text()='代垫关税']/../span/input
+    勾选记录    xpath=//span[text()='全程运输']/../span/input
+    勾选记录    xpath=//span[text()='仓储']/../span/input
+    勾选记录    xpath=//span[text()='报关']/../span/input
+    勾选记录    xpath=//span[text()='报检']/../span/input
+    点击    xpath=//label[contains(text(),'船公司')]/../following-sibling::div[1]
+    按键    id=carrier    \\13
+    #起运港
+    点击    xpath=//input[@id='loadportcode']
+    按键    xpath=//input[@id='loadportcode']    \\13
+    ${text}    获取元素属性值    id=loadportCountryCnname    value
+    Run Keyword If    '${text}'==''    输入    id=loadportCountryCnname    QYG    #为空，就输入
+    #目的港
+    点击    xpath=//input[@id='dischargeportcode']
+    按键    xpath=//input[@id='dischargeportcode']    \ue015
+    按键    xpath=//input[@id='dischargeportcode']    \\13
+    ${text2}    获取元素属性值    id=dischargeportCountryCnname    value
+    Run Keyword If    '${text2}'==''    输入    id=dischargeportCountryCnname    MDG    #为空，就输入
+    #维护开船日期
+    点击    xpath=//label[text()='预计到港时间']/../following-sibling::div[1]
+    点击    xpath=//a[text()='此刻']
+    #箱型    #海进为非必填项
+    Comment    下拉框选择(带筛选功能)    xpath=//label[contains(text(),'箱型箱量')]/../../../following-sibling::div[1]/ul/li/div/div[2]    id=bnMainsBookingCtnList_0_ctn    20GP
+    Comment    输入    id=bnMainsBookingCtnList_0_ctnCount    4    #count
+    #中、英文品名
+    输入    id=goodsname    板栗
+    输入    id=goodsdesc    cheesenuts
+    #将滚动条拉到下面，为了后面新增报价
+    拉动滚动条（新）    1000
+
+点击审核通过（海进）
+    #选择订舱代理
+    点击    xpath=//label[text()='订舱代理']/../following-sibling::div[1]    #点击下拉框
+    按键    id=bookingagency    \\13
+    Execute Javascript    $('.ant-layout-content div').scrollTop(0)
+    拉动滚动条（新）    0
+    点击    xpath=//span[contains(text(),'通 过')]/..    #点击通过
+    点击    xpath=//span[contains(text(),'确 定')]/..    #点击确定
+    关闭当前窗口
+    切换窗口

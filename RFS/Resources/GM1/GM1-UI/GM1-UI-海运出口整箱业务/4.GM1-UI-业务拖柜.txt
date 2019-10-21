@@ -1,0 +1,107 @@
+*** Settings ***
+Resource          ../GM1-UI-公共/GM1-UI-引用.txt
+
+*** Keywords ***
+维护装箱门点内容
+    拉动滚动条（新）    1000
+    输入    id=dataList[0].paAddress    ${详细地址}
+    输入    id=dataList[0].paEndcity    ${装箱门点}
+    输入    xpath=//input[@id='dataList[0].paLinkman']    ${输入联系人}
+    输入    id=dataList[0].paTel    ${电话}
+    选择日期（locator）    xpath=//input[@class='ant-calendar-picker-input ant-input ant-input-sm']    八月    2019年8月26日
+    点击保存
+
+点击派车完成按钮
+    点击    xpath=.//span[text()='派车完成']/..
+
+点击集卡计划TAB
+    点击    xpath=//div[text()='集卡计划']
+
+点击取消派车按钮
+    点击    xpath=//span[text()='取消派车']/..
+
+点击集卡计划号进入详情页
+    [Arguments]    ${planNo}
+    点击    xpath=//a[text()='${planNo}']
+
+点击散货计划TAB
+    点击    xpath=//div[text()='散货计划']
+
+新增集卡计划（海运出口整箱）
+    #---维护集卡计划车队内容
+    移动滚动条（M3）    200
+    点击    xpath=//span[text()='新增计划']/..
+    输入    id=planNo    ${集卡计划号}    #输入计划号，计划号有唯一性要求，用时间戳
+    输入    xpath=//input[@id='fleet']    ${车队}    #输入车队，随便，控制长度即可
+    输入    xpath=//input[@id='fleetLinkman']    ${车队联系人}    #输入联系人
+    输入    xpath=//input[@id='fleetTel']    ${车队电话}    #输入电话
+    点击    xpath=//button[@class='ant-btn ant-btn-primary']    #点击保存按钮
+    wait until page contains    操作成功    timeout=6    error=保存失败
+    #----关联集装箱
+    点击    xpath=//span[text()='添加集装箱']/..
+    勾选记录    xpath=//div[@class='ant-table-wrapper truck-plan-table ant-table-scroll-y']//tbody/tr[1]/td[1]//input    #每次勾选第一个集装箱
+    点击    xpath=//span[text()='关 联']/..
+    #----关联门点
+    Comment    勾选记录    xpath=//th[@class='ant-table-expand-icon-th']/following-sibling::th[1]//input    #勾选集装箱
+    Comment    点击    xpath=//span[text()='添加集装箱']/../following-sibling::button    #点击关联装箱门点按钮
+    Comment    #勾选记录    xpath=//div[@class='ant-table-wrapper truck-plan-table']//thead//input    #勾选装箱门点    #改造过，暂时注释，后面还要改造
+    Comment    勾选记录    xpath=//span[text()='删 除']/../../../../../../div[2]//thead//input    #勾选装箱门点
+    Comment    点击确定按钮
+    #---保存并关闭计划
+    点击    xpath=//button[@class='ant-btn ant-btn-primary']    #点击保存按钮    error=保存失败
+    点击    xpath=//div[@class='ant-modal small-modal-header']/div[1]/button    #点击X符号关闭
+
+新增散货计划（海运出口整箱）
+    点击散货计划TAB
+    点击    xpath=//span[text()='新增计划']/..    #点击新增计划按钮
+    输入    id=planNo    ${散货计划号}    #计划号
+    输入    xpath=//input[@id='fleet']    ${车队}    #车队
+    输入    xpath=//input[@id='fleetLinkman']    ${车队联系人}    #车队联系人
+    输入    xpath=//input[@id='fleetTel']    ${车队电话}    #车队电话
+    输入    id=bnTruckPlanExt.count    ${散货-件}    #件数
+    输入    id=bnTruckPlanExt.weight    ${散货-毛}    #毛重
+    输入    id=bnTruckPlanExt.volume    ${散货-体}    #体积
+    输入    xpath=//input[@id='bnTruckPlanExt.inWhname']    ${散货计划进货仓库}    #进货仓库
+    输入    id=bnTruckPlanExt.inWarehouseNo    ${进仓编号}    #进仓编号
+    Comment    输入    id=remark    ${装货要求}    #装货要求，非必填项
+    Comment    输入    id=bnTruckPlanExt.takeWhname    ${提货仓库}    #提货仓库，非必填项
+    输入    xpath=//input[@id='bnTruckPlanExt.takeLinkman']    ${提货联系人}    #提货联系人
+    输入    xpath=//input[@id='bnTruckPlanExt.takeTel']    ${装箱电话}    #装箱电话
+    选择日期（字段名称）    计划提货时间    八月    2019年8月23日
+    点击    xpath=//div[text()='散货计划']/../../div[3]/button[2]    #点击保存按钮
+    wait until page contains    操作成功    timeout=6    error=保存失败
+    点击    css=.ant-modal-close-x    #点击X符号关闭
+
+集卡派车完成
+    #--点击派车完成
+    等待    1
+    勾选记录    xpath=.//a[text()='${集卡计划号}']/../../td[1]//input    #每次勾选新增的那条计划
+    点击派车完成按钮
+    #--验证派车完成后状态：派车完成
+    ${text1}    获取页面文本内容    xpath=.//a[text()='${集卡计划号}']/../../td[3]
+    [Return]    ${text1}
+
+集卡派车取消
+    #--点击取消派车
+    等待    1
+    勾选记录    xpath=.//a[text()='${集卡计划号}']/../../td[1]//input    #勾选那条已经派车完成的计划
+    点击取消派车按钮
+    #--验证取消派车后状态：派车未完成
+    ${text2}    获取页面文本内容    xpath=.//a[text()='${集卡计划号}']/../../td[3]
+    [Return]    ${text2}
+
+散货派车完成
+    #--点击派车完成
+    勾选记录    xpath=.//a[text()='${散货计划号}']/../../td[1]//input    #每次勾选新增的那条计划
+    点击派车完成按钮
+    #--验证派车完成后状态：派车完成
+    ${text1}    获取页面文本内容    xpath=.//a[text()='${散货计划号}']/../../td[3]
+    [Return]    ${text1}
+
+散货派车取消
+    #--点击取消派车
+    勾选记录    xpath=.//a[text()='${散货计划号}']/../../td[1]//input    #勾选那条已经派车完成的计划
+    点击取消派车按钮
+    #--验证取消派车后状态：派车未完成
+    ${text2}    获取页面文本内容    xpath=.//a[text()='${散货计划号}']/../../td[3]
+    [Return]    ${text2}

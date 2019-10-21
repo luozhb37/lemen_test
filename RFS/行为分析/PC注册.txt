@@ -1,0 +1,42 @@
+*** Settings ***
+Resource          ../Resources/main.txt
+Resource          ../Resources/基础关键字.txt
+Resource          ../Resources/common.txt
+Library           Selenium2Library
+
+*** Variables ***
+
+*** Test Cases ***
+用户自主注册
+    打开    ${url}
+    点击    id=contact
+    点击    xpath=//a[@href="/cpmembership/regist.ctrl?$action=registOneView"]
+
+直接开通
+    内部用户登录
+    打开页面    运价通    客户管理    用户管理
+    sleep    2
+    直接开通新增用户
+    sleep    2
+    删除外部用户
+    点击链接    退出
+    sleep    2
+    关闭浏览器
+
+测试
+    内部用户登录
+    报价单生成
+    @{title}    get window titles
+    select window    @{title}[1]    #进入生成的报价单页面
+    ${tiny}    get text    xpath=//p/span
+    log    ${tiny}
+    [Teardown]    关闭浏览器
+
+111
+    ${text}    Set Variable    content={dt=TGT_2fa6940f-6d72-4ebd-a95a-38b770f6b810, org_name=SSD, is_temp=1, user_type=1, open_id=d070e4d8-58c7-4cc6-b2f7-368d6ef46f01, is_first_login=false, server_name=test01, org_id=21331, user_name=, ip_address=192.168.2.162, login_time=2015-12-24 15:06:08, client_type=1, name=公司管理员, domain=ssd.600jit.com, user_id=199081, open_phone=, app_code=cpthemes}
+    @{freight_login}    create list    org_name    is_temp    user_type    is_first_login    org_id
+    ...    user_name    login_time    client_type    name    user_id    open_phone
+    ...    app_code
+    : FOR    ${i}    IN    @{freight_login}
+    \    should contain    ${text}    ${i}    失败原因
+    \    log    ${i}

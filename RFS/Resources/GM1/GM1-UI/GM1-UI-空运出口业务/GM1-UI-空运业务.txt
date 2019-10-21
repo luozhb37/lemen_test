@@ -1,0 +1,424 @@
+*** Settings ***
+Resource          ../GM1-UI-公共/GM1-UI-引用.txt
+
+*** Keywords ***
+空运列表查询
+    [Arguments]    ${workno}
+    进入列表框架
+    点击    xpath=//span[text()='全 部']/..
+    输入    id=searchNo    ${workno}
+    点击    xpath=//span[text()='查 询']/..
+    wait until element is not visible    xpath=//div[@class='ant-spin-container ant-spin-blur']    timeout=10    #等待进度条消失
+    ${num}    Get Matching Xpath Count    xpath=//div[@class='ant-spin-container ant-spin-blur']    #判断加载图层是否存在
+    离开框架
+    Capture Page Screenshot
+
+进入工作单详情
+    [Arguments]    ${workno}
+    等待    1
+    进入列表框架
+    点击    xpath=//a[text()='${workno}']
+    离开框架
+
+生成指定范围内容的带字符随机数
+    [Arguments]    ${digit}    ${str}=    # digit：需要生成的数字位数|str：前面带的字符串(若需要)
+    ${len}    set variable    ${digit}
+    ${newNum}    set variable    ${empty}
+    : FOR    ${index}    IN RANGE    ${len}
+    \    ${num}    Evaluate    random.randint(0,9)    random    # 从0-9生成一个随机数字
+    \    ${newNum}    连接字符    ${newNum}    ${num}    # 拼接字符
+    ${return}    连接字符    ${str}    ${newNum}
+    [Return]    ${return}
+
+生成主运单号
+    ${num}    生成指定范围内容的带字符随机数    7
+    ${int}    Evaluate    int(${num})
+    ${eight}    Evaluate    ${int}%7    math    # 根据前7位取余
+    log    ${eight}
+    ${return}    连接字符    ${num}    ${eight}
+    [Return]    ${return}
+
+新增主运单
+    [Arguments]    ${airport}    ${workno}    ${count}    ${name}=${M4-FULLNAME}
+    点击    xpath=//span[text()='新 增']/..    # 点击新增按钮
+    选择日期（字段名称）    有效期    十二月    12/28    # 输入业务日期
+    下拉框选中(多列)    航空公司    ${airport}    # 选择航空公司/airport建议选择三字代码
+    等待    0.5
+    ${prefix}    获取页面文本内容    xpath=//input[@id='bnMainsWaybill.waybillNo']/../span
+    输入    id=bnMainsWaybill.waybillNo    ${workno}    # 输入起始主运单号
+    输入    id=number    ${count}    # 输入数量
+    下拉框选中    负责人    ${name}
+    点击    xpath=//span[text()='确 定']/..    # 点击确定按钮
+    等待    1
+    ${waybill}    Catenate    SEPARATOR=-    ${prefix}    ${workno}
+    [Return]    ${waybill}
+
+获取列表总条数
+    [Arguments]    ${xpath}    ${str_l}    ${str_r}
+    [Documentation]    返回列表总条数：
+    ...    \ \ xpath：列表总条数对应位置xpath
+    ...    \ str_l：待截断的左侧字符串
+    ...    str_r：待截断的右侧字符串
+    ${total}    获取页面文本内容    ${xpath}
+    ${count}    截取字符    ${total}    ${str_l}    ${str_r}
+    [Return]    ${count}    # 返回总条数
+
+编辑空运工作单
+    ${mblno}    生成一个带有字符的随机数    mbl-
+    ${hblno}    生成一个带有字符的随机数    hbl
+    勾选服务项    订舱
+    勾选服务项    提货
+    勾选服务项    仓储
+    勾选服务项    报关
+    ${num}    获取匹配xpath的个数    xpath=//div[@id='bnMains.mblno-master-bill-number']//i[contains(@class, 'anticon-edit')]/..
+    run keyword if    ${num}>0    run keywords    点击    xpath=//div[@id='bnMains.mblno-master-bill-number']//i[contains(@class, 'anticon-edit')]/..
+    ...    AND    输入    id=bnMains.mblno    ${mblno}
+    ${count}    获取匹配xpath的个数    xpath=//input[@id='bnMains.hblno']
+    run keyword if    ${count}>0    输入    xpath=//input[@id='bnMains.hblno']    ${hblno}    # 输入分单号
+    选择当月指定日期    预计起飞日期    14
+    选择当月指定日期    预计到达日期    15
+    选择当月指定日期    实际起飞日期    16
+    选择当月指定日期    实际到达日期    17
+    下拉框选中(多列)    起运港    YJC    # 输入起运港    YJC
+    等待    1
+    下拉框选中(多列)    目的港    YJC    2    # 输入目的港    YJC
+    # 选择第一个下拉框值    订舱代理
+    选择第一个下拉框值    航空公司
+    输入空运预计件毛体    1    1    1
+    等待    0.5
+    Execute Javascript    window.scrollTo({top:500});
+    下拉框选中    结算方式    月结    # 维护结算方式
+    点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+    Wait Until Page Contains    保存成功    20
+    ${workno}    获取页面文本内容    xpath=//span[text()='工作号']/span
+    [Return]    ${workno}    # 单子的工作号
+
+修改空运工作单
+    [Arguments]    ${date_key}    ${date_value}
+    选择当月指定日期    ${date_key}    ${date_value}
+    点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+    Wait Until Page Contains    保存成功    20
+
+删除主运单
+    点击    xpath=//div[contains(@class,'ant-table-fixed-left')]//table/tbody/tr[1]//input    # 点击勾选框
+    点击    xpath=//span[text()='删 除']/..    # 点击删除按钮
+
+下拉框选中(筛选功能下拉框)
+    [Arguments]    ${cnname}    ${content}
+    [Documentation]    适用范围：
+    ...    \ \ 带筛选功能的下拉框
+    点击    xpath=//label[contains(text(),'${cnname}')]/../following-sibling::div[1]    #点击下拉框
+    等待    0.5
+    清空输入框内容    xpath=//label[contains(text(),'${cnname}')]/../following-sibling::div[1]//input
+    # 循环输入文字内容
+    : FOR    ${str}    IN    ${content}
+    \    输入    xpath=//label[contains(text(),'${cnname}')]/../following-sibling::div[1]//input    ${str}
+    \    等待    0.5
+    点击    xpath=//li[contains(text(),'${content}')]    #选中下拉框的一条记录
+
+下拉框选择(带筛选功能)
+    [Arguments]    ${xpath1}    ${xpath2}    ${content}
+    [Documentation]    xpath1: 下拉框所在的div的xpath；
+    ...
+    ...    xpath2: 需要筛选查询的input的xpath；
+    ...
+    ...    content：查询的内容
+    点击    ${xpath1}    #点击下拉框
+    等待    0.5
+    # 循环输入文字内容
+    : FOR    ${str}    IN    ${content}
+    \    输入    ${xpath2}    ${str}
+    \    等待    0.5
+    #focus    xpath=//li[text()='${content}']
+    按键    ${xpath2}    \ue015    #往下选择
+    按键    ${xpath2}    \\13    #回车
+
+下拉框选中(下拉框在文字内)
+    [Arguments]    ${cnname}    ${content}
+    [Documentation]    适用范围：
+    ...    \ \ 企业编码中选择年份位数等类似下拉框
+    点击    xpath=//div[contains(text(),'${cnname}')]//div[@class='ant-select-selection-selected-value']    #点击下拉框
+    等待    0.5
+    点击    xpath=//li[contains(text(),'${content}')]    #选中下拉框的一条记录
+
+下拉框选中(根据代码定位)
+    [Arguments]    ${location}    ${content}
+    [Documentation]    适用范围：
+    ...    \ \ 企业编码中赋值选择工作号的类似下拉框
+    点击    ${location}    #点击下拉框
+    等待    0.5
+    : FOR    ${str}    IN    ${content}
+    \    输入    xpath=//label[contains(text(),'${cnname}')]/../following-sibling::div[1]//input    ${str}
+    \    等待    0.5
+    点击    xpath=//li[contains(text(),'${content}')]    #选中下拉框的一条记录
+
+选择日期
+    [Arguments]    ${name}    ${date}    # ${name} | ${time}=0 | ${index}=days | ${is_sec}=false字段名 | 变动时间 | 时间单位 | 最小时间是否到秒
+    [Documentation]    ${name}：字段名
+    ...    ${date}：日期，格式为页面显示的日期内容，如"2018-09-29 周六"
+    Comment    @{week_arr}    create list    周一    周二    周三    周四
+    ...    周五    周六    周七
+    Comment    Comment    ${new_time}    Evaluate    datetime.datetime.now() + datetime.timedelta(${index}=${time})    datetime
+    Comment    ${show_time}    Evaluate    (datetime.datetime.now() + datetime.timedelta(${index}=${time})).strftime('%Y-%m-%d %H:%M:%S')    datetime
+    Comment    ${date_time}    run keyword if    "${is_sec}" == 'false'    Evaluate    (datetime.datetime.now() + datetime.timedelta(${index}=${time})).strftime('%Y-%m-%d')    datetime
+    ...    ELSE    Evaluate    datetime.datetime.strptime('${show_time}', "%Y-%m-%d %H:%M:%S")    datetime
+    Comment    ${time_index}    Evaluate    datetime.datetime.strptime('${date_time}', "%Y-%m-%d").weekday()    datetime
+    Comment    ${weekday}    Set Variable    @{week_arr}[${time_index}]
+    Comment    ${date}    Catenate    ${date_time}    ${weekday}
+    Wait Until Element Is Visible    xpath=//label[text()='${name}']/../following-sibling::div[1]//input    10
+    点击    xpath=//label[text()='${name}']/../following-sibling::div[1]//input
+    输入    xpath=//div[contains(@class,'ant-calendar-picker-container')]//input    ${date}
+
+新建空运工作单
+    [Arguments]    ${sales}=${M4-FULLNAME}    ${goods}=公司货
+    业务点击新增指定按钮    业务
+    新增空运业务弹出框    空运出口    ${sales}    ${goods}
+
+勾选列表第一条数据
+    点击    xpath=//div[contains(@class,'ant-table-fixed-left')]//table/tbody/tr[1]/td[1]//input
+
+新增提货计划
+    点击    xpath=//span[text()='提货计划列表']/following-sibling::div[1]//span[text()='新 增']/..    # 选中第一条提货计划
+    ${count}    获取匹配xpath的个数    xpath=//div[@id='TRUCK_PLAN_NO_id_div']//input
+    run keyword if    ${count}>0    输入    xpath=//div[@id='TRUCK_PLAN_NO_id_div']//input    111
+    点击    xpath=(//span[text()='保 存']/..)[last()]    # 点击保存按钮
+    点击    xpath=(//button[@class='ant-modal-close'])[last()]    # 点击关闭按钮
+
+维护空运提货编号
+    [Arguments]    ${xpath}
+    ${text}    获取页面值    ${xpath}
+    run keyword if    '${text}'==''    输入    ${xpath}    111
+
+删除指定的提货计划
+    [Arguments]    ${i}=1
+    [Documentation]    ${i}：选中的行，默认为1表示第一行；取值：0/1/2/3
+    ...    0表示全选
+    run keyword if    ${i}==0    点击    xpath=//span[text()='提货计划列表']/../following-sibling::div[1]//table/thead/tr/th[1]//input
+    ...    ELSE    点击    xpath=//span[text()='提货计划列表']/../following-sibling::div[1]//table/tbody/tr[${i}]/td[1]//input    # 选中第一条提货计划
+    点击    xpath=//span[text()='提货计划列表']/following-sibling::div[1]//span[text()='删 除']/..    # 点击删除按钮
+
+新增空运出口进仓计划
+    点击    id=add    # 点击进仓计划新增按钮
+    ${count}    获取匹配xpath的个数    xpath=//input[@id='plan.storeInNo']
+    Run Keyword If    ${count}>0    维护空运进仓编号    xpath=//input[@id='plan.storeInNo']
+    选择日期    计划进仓时间    2018-12-08 周六
+    点击    xpath=//label[text()='仓库名称']/../following-sibling::div[1]//div[contains(@class,'plan.storeName')]
+    按键    id=plan.storeName    \\13
+    点击    id=savePlanIn    # 点击保存按钮
+    点击    xpath=(//button[@class='ant-modal-close'])[last()]    # 点击关闭按钮
+
+维护空运进仓编号
+    [Arguments]    ${xpath}
+    ${text}    获取页面值    ${xpath}
+    run keyword if    '${text}'==''    输入    ${xpath}    111
+
+空运出口进仓计划完成进仓
+    新增空运出口进仓记录
+    点击    id=finishPlanIn    # 点击完成进仓按钮
+    Wait Until Element Is Visible    xpath=//div[@class='ant-modal']//button[@id='revertFinish']
+    点击    xpath=(//button[@class='ant-modal-close'])[last()]    # 点击关闭按钮
+
+打开指定的仓储计划详情
+    [Arguments]    ${name}    ${i}    # name：进仓计划/出仓计划；i：第x条
+    点击    xpath=(//li[contains(text(),'${name}')]/../../following-sibling::div[1]//table/tbody/tr[${i}]//a)[last()]
+    Wait Until Page Contains    进仓计划详情
+
+新增空运出口进仓记录
+    ${count}    获取匹配xpath的个数    xpath=//div[text()='进仓记录']/../following-sibling::div[1]//table/tbody/tr
+    点击    id=addRealInRecord    # 点击货物记录新增按钮
+    点击    xpath=//div[text()='进仓记录']/../following-sibling::div[1]//table/tbody/tr[${count}]/td[3]    # 点击新增行的实际进仓时间
+    点击    xpath=//a[text()='确 定']    # 点击时间确认按钮
+    输入    id=realRecord.${count}_record_count    11    # 输入件数
+    点击    xpath=//div[text()='进仓记录']/../following-sibling::div[1]//table/tbody/tr[${count}]/td[7]    # 点击包装
+    点击    xpath=//ul[contains(@class,'ant-select-dropdown-menu-vertical')]/li[1]
+    输入    id=realRecord.${count}_record_weight    11    # 输入毛重
+    输入    id=realRecord.${count}_record_volume    11    # 输入体积
+    点击    id=savePlanIn    # 点击保存按钮
+
+删除空运出口进仓计划
+    点击    xpath=//li[contains(text(),'进仓计划')]/../../following-sibling::div[1]//table/tbody/tr[1]/td[1]//input    # 选中第一条提货计划
+    点击    xpath=//li[contains(text(),'进仓计划')]/../../following-sibling::div[1]//span[text()='删 除']/..    # 点击删除按钮
+    点击    xpath=//span[text()='确 定']/..    # 点击确定按钮
+
+勾选空运出口仓储列表指定行
+    [Arguments]    ${name}    ${i}
+    [Documentation]    name：选择哪个仓储列表，取值：进仓计划/出仓计划
+    ...    i：第几行，取值：1/2/3
+    点击    xpath=//li[contains(text(),'${name}')]/../../following-sibling::div[1]//table//tbody/tr[${i}]/td[1]
+
+第一条进仓计划撤回进仓
+    ${count}    获取匹配xpath的个数    xpath=//button[@id='revertFinish']
+    run keyword if    ${count}==0    run keywords    空运出口进仓计划完成进仓
+    ...    AND    打开指定的仓储计划详情
+    点击    xpath=//div[@class='ant-modal']//button[@id='revertFinish']    # 点击进仓撤回按钮
+    Wait Until Element Is Not Visible    xpath=//div[@class='ant-modal']//button[@id='revertFinish']
+    点击    xpath=(//button[@class='ant-modal-close'])[last()]    # 点击关闭按钮
+
+第一条进仓计划完成到仓
+    勾选空运出口仓储列表指定行    进仓计划    1
+    点击    id=finishArrive    # 点击完成到仓按钮
+
+第一条进仓计划取消完成到仓
+    勾选空运出口仓储列表指定行    进仓计划    1
+    点击    id=revertArrive    # 点击完成到仓按钮
+
+新增空运出口报关计划
+    点击    id=addEntBtn    # 点击报关计划新增按钮
+    ${count}    获取匹配xpath的个数    xpath=//input[@id='entrusted.customEntrustNo']
+    Run Keyword If    ${count}>0    维护空运报关编号    xpath=//input[@id='entrusted.customEntrustNo']
+    点击    id=savePlanIn    # 点击保存按钮
+    点击    xpath=(//button[@class='ant-modal-close'])[last()]    # 点击关闭按钮
+
+维护空运报关编号
+    [Arguments]    ${xpath}
+    ${text}    获取页面值    ${xpath}
+    run keyword if    '${text}'==''    输入    ${xpath}    111
+
+打开指定行报关计划
+    [Arguments]    ${i}=1
+    [Documentation]    i：选择的行数，默认为1
+    点击    xpath=//span[text()='报关计划列表']/../following-sibling::div[1]//table/tbody/tr[${i}]//a
+
+删除空运出口报关计划
+    点击    xpath=//span[text()='报关计划列表']/../following-sibling::div[1]//table/tbody/tr[1]/td[1]//input    # 选中第一条报关计划
+    点击    xpath=//span[text()='报关计划列表']/following-sibling::div[1]//span[text()='删 除']/..    # 点击删除按钮
+    点击    xpath=//span[text()='确 定']/..    # 点击确定按钮
+
+新增空运出口报关单
+    点击    id=addCust    # 点击新增报关单按钮
+    点击    id=savePlanIn    # 点击保存按钮
+    点击    xpath=(//button[@class='ant-modal-close'])[last()]    # 点击关闭按钮
+
+删除空运出口指定行报关单
+    [Arguments]    ${i}=1
+    [Documentation]    ${i}：选中的行，默认为1表示第一行；取值：0/1/2/3
+    ...    0表示全选
+    run keyword if    ${i}==0    点击    xpath=//span[text()='报关单']/../following-sibling::div[1]//table/thead/tr/th[1]//input
+    ...    ELSE    点击    xpath=//span[text()='报关单']/../following-sibling::div[1]//table/tbody/tr[${i}]/td[1]//input    # 选中第一条提货计划
+    点击    xpath=//span[text()='报关单']/..//button[@id='delEntBtn']    # 点击删除按钮
+    点击    xpath=//span[text()='确 定']/..    # 点击确定按钮
+
+空运出口拼入工作单
+    点击    xpath=//div[@class='ant-table-fixed-right']//a[text()='拼入']
+    Wait Until Element Is Visible    xpath=//div[text()='空运主单拼入']
+    Mouse Over    xpath=//label[text()='预计起飞日期']/../following-sibling::div[1]//i    # 清空查询日期
+    点击    xpath=//label[text()='预计起飞日期']/../following-sibling::div[1]//i    # 清空查询日期
+    点击    xpath=//span[text()='查 询']/..    # 点击查询按钮
+    ${text}    获取页面文本内容    xpath=//div[@id='case-join-search-form']/../../following-sibling::div[1]//table/tbody/tr[1]//a    # 获取待拼入的工作单号
+    点击    xpath=//div[@id='case-join-search-form']/../../following-sibling::div[1]//table/tbody/tr[1]/td[1]//input    # 勾选第一条记录
+    点击    xpath=//span[text()='确定选择']/..    # 点击确定选择按钮
+    Wait Until Page Contains    拼入成功
+    点击    xpath=//button[@class='ant-modal-close']    # 点击关闭按钮
+    [Return]    ${text}
+
+空运出口业务锁单
+    ${islocked}    空运出口是否业务锁单
+    run keyword if    ${islocked}==1    空运出口点击锁单按钮
+    空运出口点击锁单按钮
+    wait until page contains    修改锁单状态成功
+
+空运出口取消业务锁单
+    ${islocked}    空运出口是否业务锁单
+    run keyword if    ${islocked}==0    空运出口点击锁单按钮
+    空运出口点击锁单按钮
+    wait until page contains    修改锁单状态成功
+
+空运出口是否业务锁单
+    ${count}    获取匹配xpath的个数    xpath=//span[text()='业务锁单: ']/../label/span[contains(@class,'ant-checkbox-checked')]
+    ${islocked}    Set Variable If    ${count}>0    1    0
+    [Return]    ${islocked}
+
+空运出口点击锁单按钮
+    点击    xpath=//span[text()='业务锁单: ']/../label//input
+
+进入指定的订单标签
+    [Arguments]    ${label}=我的业务
+    进入列表框架
+    Wait Until Element Is Enabled    xpath=//div[@class='dzg-status-bar']
+    点击    xpath=//div[@class='dzg-status-bar']//span[text()='${label}']/..
+    等待加载层消失
+    离开框架
+
+是否勾选空运简单模式
+    [Arguments]    ${type}
+    [Documentation]    ${type}：是/否
+    run keyword if    '${type}'=='是'    点击    xpath=//span[text()='简单操作模式']/..//input
+
+选择第一个下拉框值
+    [Arguments]    ${name}
+    点击    xpath=//label[text()='${name}']/../following-sibling::div[1]
+    等待    0.5
+    按键    xpath=//label[text()='${name}']/../following-sibling::div[1]//input    \\13
+
+选择当月指定日期
+    [Arguments]    ${name}    ${day}
+    [Documentation]    ${day}:当月的日（1-31）
+    ${year}    Evaluate    time.strftime('%Y',time.localtime(time.time()))    time    # 获取当天所在年
+    ${month}    Evaluate    time.strftime('%m',time.localtime(time.time()))    time    # 获取当天所在月
+    Comment    ${month}    Evaluate    int(${month})
+    ${date}    Set Variable    ${year}/${month}/${day}
+    Wait Until Element Is Visible    xpath=//label[text()='${name}']/../following-sibling::div[1]//input    10
+    点击    xpath=//label[text()='${name}']/../following-sibling::div[1]//input
+    点击    xpath=//table[@class='ant-calendar-table']//td[@title='${date}']
+
+输入空运预计件毛体
+    [Arguments]    ${count}    ${weight}    ${volume}
+    输入    xpath=//input[@id='bnAssistants.bookingCount']    ${count}
+    输入    xpath=//input[@id='bnAssistants.bookingWeight']    ${weight}
+    输入    xpath=//input[@id='bnAssistants.bookingVolume']    ${volume}
+
+点击信控弹框
+    [Arguments]    ${button}
+    [Documentation]    ${button}：对应的按钮名称
+    ...    确 定/取 消
+    等待    2
+    ${count}    获取匹配xpath的个数    xpath=//div[@class='ant-confirm-content']
+    run keyword if    ${count}>0    点击    xpath=//div[@class='ant-confirm-btns']//span[text()='${button}']/..
+
+订单列表高级查询(双列)
+    [Arguments]    ${key}    ${value}    ${type}=精确    ${is_clear}=1
+    [Documentation]    key:高级查询条件名
+    ...
+    ...    value：高级查询条件查询内容
+    ...
+    ...    scene：适用场景；如果是财务则填写财务；
+    ...
+    ...    type:两列时选择的精确/模糊；默认为精确
+    ...
+    ...    is_clear：1/0 \ \ \ 是否清空已存在的查询条件内容；1表示需要清空；0表示不需要清空
+    进入列表框架
+    Wait Until Element Is Visible    xpath=//div[@id='dzg-adsearch']//a[text()='高级查询']
+    点击    xpath=//div[@id='dzg-adsearch']//a[text()='高级查询']
+    基石列表高级查询-内部不可引用(双列)    ${key}    ${value}    ${type}    ${is_clear}
+    点击    xpath=//div[@class='ant-modal-content']//span[text()='查询']/..    # 点击查询按钮
+    等待loading消失
+    离开框架
+
+清空已选择高级查询条件内容
+    [Arguments]    ${key}
+    ${count}    获取匹配xpath的个数    xpath=//div[@id='dzg-adSearch-condition-sort']//label[text()='${key}']/../following-sibling::div[1]//div[@class='ant-select-selection__choice__content']
+    : FOR    ${i}    IN RANGE    ${count}
+    \    点击    xpath=//div[@id='dzg-adSearch-condition-sort']//label[text()='${key}']/../following-sibling::div[1]//span[@class='ant-select-selection__choice__remove']
+    \    等待    1
+
+订单列表高级查询(单列)
+    [Arguments]    ${key}    ${value}    ${is_clear}=1
+    进入列表框架
+    Wait Until Element Is Visible    xpath=//div[@id='dzg-adsearch']//a[text()='高级查询']
+    点击    xpath=//div[@id='dzg-adsearch']//a[text()='高级查询']
+    基石列表高级查询-内部不可引用(单列)    ${key}    ${value}    ${is_clear}
+    点击    xpath=//div[@class='ant-modal-content']//span[text()='查询']/..    # 点击查询按钮
+    等待loading消失
+    离开框架
+
+复制新增第一条空运出口单子
+    [Arguments]    ${type}
+    进入框架    id=content
+    点击    xpath=//div[@id='OPERATION_COLUMN0_0']//a[contains(text(), '操作')]    # 点击第一条记录
+    Wait Until Element Is Visible    xpath=//div[contains(@class, 'ant-dropdown-placement-bottomLeft')]
+    点击    xpath=//div[contains(@class, 'ant-dropdown-placement-bottomLeft')]//li[text()='${type}']
+    Wait Until Element Is Visible    xpath=//div[@class='ant-modal-content']
+    点击    xpath=//div[@class='ant-modal-content']//span[text()='确 定']/..
+    wait until page contains    复制新增成功!
+    等待加载层消失
+    离开框架

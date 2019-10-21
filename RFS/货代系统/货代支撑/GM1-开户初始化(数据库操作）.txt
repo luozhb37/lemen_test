@@ -1,0 +1,93 @@
+*** Settings ***
+Suite Setup       SQL参数变量
+Library           DatabaseLibrary
+
+*** Test Cases ***
+GM1-开户（超管密码初始化）
+    #---MYSQL--连接信息变量
+    ORACLE -连接信息
+    #---数据库操作--
+    Connect To Database Using Custom Params    cx_Oracle    '${ora_db_user}','${ora_db_pwd}','${ora_db_ip}/${service_name}'    # 连接数据库
+    #--更改管理员密码---
+    Execute Sql String    UPDATE mem_user t set t.password ='${hd_user_pwd}' \ where \ t.user_name='${hd_user_name}'
+    ${sql_mem}    query    select t.password,t.user_name \ from mem_user t where t.user_name='${hd_user_name}'
+    log    ${sql_mem}
+    Disconnect From Database    # 断开数据库
+
+GM1-开户（币别CNY初始化）
+    #---MYSQL--连接信息变量
+    ORACLE -连接信息
+    #---数据库操作--
+    Connect To Database Using Custom Params    cx_Oracle    '${ora_db_user}','${ora_db_pwd}','${ora_db_ip}/${service_name}'    # 连接数据库
+    #--默认币别改为 CNY---
+    Execute Sql String    update modelhome.base_currencytypes set is_standard='1',code='CNY' where org_id='${hd_org_id}' and code='RMB'    #【币别信息】默认RMB，GM1需刷成CNY
+    Execute Sql String    update modelhome.base_feeitems set \ currency='CNY' where org_id='${hd_org_id}' and currency='RMB'    #【费用税率】默认RMB，GM1需刷成CNY
+    ${sql_cur}    query    select b.* \ from modelhome.base_currencytypes \ \ b where \ b.org_id='${hd_org_id}'    #【币别信息】
+    ${sql_fee}    query    select b.* \ from modelhome.base_feeitems \ \ b where \ b.org_id='${hd_org_id}'    #【费用税率】
+    log    ${sql_cur}
+    Disconnect From Database    # 断开数据库
+
+GM1-开户（系统参数及运价同步）
+    #---MYSQL--连接信息变量
+    MYSQL -连接信息    fms    #访问【 fms 】库
+    #--数据库操作( 修改用户密码）
+    Connect To Database Using Custom Params    MySQLdb    db='${db_name}',user='${db_user}',passwd='${db_pwd}', host='${db_ip}',charset="utf8"    #连接MYSQL数据库
+    Execute Sql String    insert into sys_param(org_id,name,value,remark) values('${hd_org_id}','PUSH_BASEDATA_TO_YJT','true','是否同步数据到运价通')    #【是否同步数据到运价通】    #【Execute Sql String】 增、改语句
+    Execute Sql String    insert into sys_param(org_id,name,value,remark) values('${hd_org_id}','DEBITCREDIT_SEND_AND_CONFIRM','true','导出/发送账单同时确认账单')    #【导出/发送账单同时确认账单】
+    Execute Sql String    insert into sys_param(org_id,name,value,remark) values('${hd_org_id}','DEBITCREDIT_UNIFIED_SETTING_RATE','true','账单汇率统一设置')    #【账单汇率统一设置】
+    Execute Sql String    insert into sys_param(org_id,name,value,remark) values('${hd_org_id}','org_enable_manifest','false','公司是否启用舱单功能')    #【公司是否启用舱单功能】
+    ${sql_rec}    query    select s.* from sys_param s where s.org_id='${hd_org_id}'    #按公司查找参数表
+    log    ${sql_rec}
+    Disconnect From Database    # 断开数据库
+
+运价通-开户（超管密码初始化）
+    [Setup]
+    #---MYSQL--连接信息变量
+    MYSQL -连接信息    cp_membership    #访问【 cp_membership 】库
+    #--数据库操作( 修改用户密码）
+    Connect To Database Using Custom Params    MySQLdb    db='${db_name}',user='${db_user}',passwd='${db_pwd}', host='${db_ip}',charset="utf8"    #连接MYSQL数据库
+    Execute Sql String    UPDATE mem_user t set \ t.password ='${yjt_user_pwd}' where t.user_name='${yjt_user_name}'    #修改用户密码    #【Execute Sql String】 增、改语句
+    ${sql_rec}    query    SELECT t.password,t.user_name FROM cp_membership.mem_user t \ where t.user_name='${yjt_user_name}'
+    log    ${sql_rec}
+    log    ${sql_rec[0][0]}
+    Disconnect From Database    # 断开数据库
+
+GM1-6月前老数据处理（币别CNY）
+    #---MYSQL--连接信息变量
+    ORACLE -连接信息
+    #---数据库操作--
+    Connect To Database Using Custom Params    cx_Oracle    '${ora_db_user}','${ora_db_pwd}','${ora_db_ip}/${service_name}'    # 连接数据库
+    #--默认币别改为 CNY---
+    Execute Sql String    update modelhome.base_currencytypes set is_standard='1',code='CNY' where org_id='${hd_org_id}' and code='RMB'    #【币别信息】默认RMB，GM1需刷成CNY
+    Execute Sql String    update modelhome.base_feeitems set \ currency='CNY' where org_id='${hd_org_id}' and currency='RMB'    #【费用税率】默认RMB，GM1需刷成CNY
+    Execute Sql String    update modelhome.base_banks set currencytype='CNY' where org_id='${hd_org_id}' and \ currencytype='RMB'    #【银行账户】
+    Execute Sql String    update modelhome.base_floatrates set c_currency='CNY' where org_id='${hd_org_id}' and c_currency='RMB'    #【浮动汇率-1】
+    Execute Sql String    update modelhome.base_floatrates set f_currency='CNY' where org_id='${hd_org_id}' and f_currency='RMB'    #【浮动汇率-2】
+    Execute Sql String    update asp_common.base_customerinvoicenames set currency='CNY' where org_id='${hd_org_id}' and currency='RMB';    #【发票抬头】
+    Execute Sql String    update ASP_COMMON.BASE_CUSTOMERS_BANK_ACCOUNT set currency='CNY' where org_id='${hd_org_id}' and currency='RMB';    #【客商银行】
+    Disconnect From Database    # 断开数据库
+
+*** Keywords ***
+SQL参数变量
+    #---货代SQL 参数---
+    set suite variable    ${hd_org_id}    57455    # 57449
+    set suite variable    ${hd_user_name}    autoys@test.com    # auto2@test.com
+    set suite variable    ${hd_user_pwd}    l/dl112u1WofnCtpRP0dAZdCydw=    #a111111= PjXb/9a5AOADMxNkPXjZAQzwoxI=    #l/dl112u1WofnCtpRP0dAZdCydw=
+    #----运价通 SQL参数
+    set suite variable    ${yjt_user_name}    admin123
+    set suite variable    ${yjt_user_pwd}    88e47ca11f114b12287fe0136afa6f85
+
+MYSQL -连接信息
+    [Arguments]    ${database_name}
+    #-- MYSQL 连接信息（测试环境）
+    set suite variable    ${db_ip}    114.55.23.90
+    set suite variable    ${db_user}    saas1
+    set suite variable    ${db_pwd}    ntf3MGBmZZiWrO5Q
+    set suite variable    ${db_name}    ${database_name}
+
+ORACLE -连接信息
+    #-- ORACLE 连接信息（测试环境）
+    set suite variable    ${ora_db_ip}    121.41.39.189:1521
+    set suite variable    ${ora_db_user}    membership
+    set suite variable    ${ora_db_pwd}    oracle_membership
+    set suite variable    ${service_name}    hddb

@@ -1,0 +1,302 @@
+*** Settings ***
+Resource          ../GM1-UI-公共/GM1-UI-引用.txt
+
+*** Keywords ***
+点击船只信息
+    点击    xpath=//a[text()='船舶信息']
+
+点击海运港口
+    点击    xpath=//a[text()='海运港口']
+
+点击运输条款
+    点击    xpath=//a[text()='运输条款']
+
+点击运费条款
+    点击    xpath=//a[text()='运费条款']
+
+点击箱型箱尺
+    点击    xpath=//a[text()='箱型箱尺']
+
+点击船司代码
+    点击    xpath=//a[text()='船司代码']
+
+点击海运航线
+    点击    xpath=//a[text()='海运航线']
+
+点击船期
+    点击    xpath=//a[text()='船期']
+
+点击航线代码
+    点击    xpath=//a[text()='航线代码']
+
+船只信息页列表-查询
+    [Arguments]    ${base_vessels_enname}
+    [Documentation]    ${base_vessels_enname} ：英文名称
+    ...
+    ...    ${text}：查询出来的条数
+    进入列表框架
+    输入    id=qy_base_vessels_enname    ${base_vessels_enname}    #输入港口英文进行查询
+    点击    id=bt_query    #点击查询
+    ${text}    获取页面文本内容    xpath=//span[@class='view-page']
+    离开框架
+    [Return]    ${text}
+
+点击名称进入详情页
+    [Arguments]    ${base_vessels_enname}
+    进入列表框架
+    点击    xpath=//a[text()='${base_vessels_enname}']    #点击港口名进入详情页
+    离开框架
+
+海运港口页列表-查询
+    [Arguments]    ${code}
+    输入    id=code    ${code}
+    等待    1    #这个等待时间必须要有，新增及修改的提示语刚好把查询按钮遮挡了
+    点击    xpath=//span[text()='查 询']/..
+    ${text}    获取页面文本内容    css=.ant-pagination-total-text
+    [Return]    ${text}
+
+运输/运费条款页列表-查询
+    [Arguments]    ${searchValueSearch}    ${name}
+    [Documentation]    ${searchValueSearch}:运输条款代码
+    ...
+    ...
+    ...    ${name}：查询条件：启用/禁用
+    输入    id=searchValueSearch    ${searchValueSearch}
+    点击    xpath=//div[@class='isEnableSearch ant-select-lg ant-select ant-select-enabled ant-select-allow-clear']
+    点击    xpath=//li[text()='${name}']
+    点击    id=searchButton    #点击查询
+    ${text}    获取页面文本内容    css=.ant-pagination-total-text
+    [Return]    ${text}
+
+箱型箱尺/船公司列表-查询
+    [Arguments]    ${searchValueSearch}    ${name}
+    输入    id=nameSearch    ${searchValueSearch}
+    点击    xpath=//div[@class='isEnableSearch ant-select-lg ant-select ant-select-enabled ant-select-allow-clear']
+    点击    xpath=//li[text()='${name}']
+    点击    id=searchButton    #点击查询
+    ${text}    获取页面文本内容    css=.ant-pagination-total-text
+    [Return]    ${text}
+
+海运航线列表-查询
+    [Arguments]    ${base_searoutes}
+    [Documentation]    ${base_searoutes}：航线名称
+    输入    id=cnname    ${base_searoutes}    #输入航线名称
+    点击    xpath=//span[text()='查 询']/..    #点击查询
+    ${text}    获取页面文本内容    css=.ant-pagination-total-text
+    [Return]    ${text}
+
+船期列表-查询
+    [Arguments]    ${CQ_voyno}
+    输入    id=voyno    ${CQ_voyno}
+    Mouse Over    xpath=//input[@class='ant-calendar-picker-input ant-input ant-input-lg'][1]    #先悬浮至开始时间，才能出现X符号
+    等待    1
+    Run Keyword And Return Status    点击    xpath=//label[@title='开始日期']/../following-sibling::div[1]/div//i    #删除开始日期
+    等待    1
+    Mouse Over    xpath=//div[@class='o-form o-form-explain-bottom o-form-item-label--4em o-form-item-input--small']/div[1]/div[3]//input    #先悬浮至终止时间，才能出现X符号
+    等待    1
+    Run Keyword And Return Status    点击    xpath=//label[@title='终止日期']/../following-sibling::div[1]/div//i    #删除终止日期
+    点击    xpath=//span[text()='搜 索']/..
+
+航线代码列表-查询
+    [Arguments]    ${routeCode}
+    [Documentation]    ${routeCode}：航线代码
+    输入    id=routeCode    ${routeCode}    #输入航线代码
+    点击    xpath=//span[text()='查 询']/..    #点击查询按钮
+
+船只信息-新增
+    [Arguments]    ${base_vessels_enname}    ${base_vessels_cnname}
+    [Documentation]    ${base_vessels_enname} ：英文名称，有唯一性要求
+    ...
+    ...    ${base_vessels_cnname}：中文名称
+    进入列表框架
+    点击    id=bt_add    #点击新增
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]
+    输入    id=base_vessels_enname    ${base_vessels_enname}    #输入英文名称，有唯一性要求
+    输入    id=base_vessels_cnname    ${base_vessels_cnname}    #中文名称，不要求
+    点击    id=bt_save_close    #点击保存并关闭按钮
+    离开框架
+
+船只信息-修改
+    [Arguments]    ${base_vessels_enname}
+    [Documentation]    ${base_vessels_enname}：英文名称
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]
+    清空输入框内容    id=base_vessels_enname
+    输入    id=base_vessels_enname    ${base_vessels_enname}    #填写新的港口名称
+    点击    id=bt_save_close    #点击保存并关闭按钮
+    离开框架
+
+船只信息-点击停运
+    进入列表框架
+    ${text}    获取页面文本内容    xpath=//span[@class='view-page']
+    应该包含    ${text}    共1条
+    点击    xpath=//input[@name='SHEET_ROW_SELECT_ALL']    #勾选全部
+    点击    id=bt_unusable    #点击停运
+    页面弹出框选择确定
+    等待    0.5
+    点击    xpath=//input[@name='qy_base_vessels_unusable_TempCheck']    #查询条件勾选停运
+    点击    id=bt_query    #点击查询
+    ${text}    获取页面文本内容    xpath=//span[@class='view-page']
+    应该包含    ${text}    共1条
+    离开框架
+
+船只信息-恢复
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]
+    等待    1    #页面未加载完毕，去操作下一步，容易失败，增加等待时间
+    点击    xpath=//input[@name='base_vessels_unusable_TempCheck']    #再次点击停运（去除勾选）
+    点击    id=bt_save_close    #点击保存并关闭按钮
+    离开框架
+    进入列表框架
+    等待    1
+    点击    xpath=//input[@name='qy_base_vessels_unusable_TempCheck']    #查询条件去除勾选
+    点击    id=bt_query    #点击查询
+    ${text}    获取页面文本内容    xpath=//span[@class='view-page']
+    应该包含    ${text}    共1条
+    离开框架
+
+海运港口-新增
+    [Arguments]    ${seaport_code}    ${enname}    ${cnname}
+    [Documentation]    ${seaport_code} :港口代码，最长5位，唯一性要求
+    ...
+    ...    ${enname}：英文名称
+    ...
+    ...    ${cnname}：中文名称
+    点击    xpath=//span[text()='新 增']/..    #点击新增按钮
+    输入    xpath=//input[@class='ant-input ant-input-sm uppercase']    ${seaport_code}    #港口代码
+    输入    id=enname    ${enname}    #英文名称
+    输入    id=cnname    ${cnname}    #中文名称
+    点击保存按钮
+    Wait Until Page Contains    新增成功
+
+海运港口-修改
+    [Arguments]    ${seaport_code}
+    [Documentation]    ${seaport_code}：新港口代码
+    清空输入框内容    xpath=//input[@class='ant-input ant-input-sm uppercase']
+    输入    xpath=//input[@class='ant-input ant-input-sm uppercase']    ${seaport_code}    #新港口代码
+    点击保存按钮
+    Wait Until Page Contains    修改成功
+
+海运港口-禁用
+    Page Should Not Contain Element    xpath=//td[text()='禁用']
+    勾选记录    xpath=//table//thead//input    #勾选复选框
+    点击    xpath=//span[text()='禁 用']/..    #点击禁用
+
+海运港口-启用
+    Page Should Not Contain Element    xpath=//td[text()='启用']
+    勾选记录    xpath=//table//thead//input    #勾选复选框
+    点击    xpath=//span[text()='启 用']/..    #点击启用
+
+船期-新增
+    [Arguments]    ${CQ_voyno}
+    [Documentation]    ${CQ_voyno} :航次（船名+航次，要求唯一性，因此航次设置唯一，船名直接固定维护）
+    ...
+    ...
+    ...    ${month}:月：例如：七月
+    ...
+    ...    ${data}:日，例如：2018年7月8日
+    ...
+    ...
+    ...    英文船名：固定写了：AUTO
+    ...    中文船名：固定写了：自动化船名
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]
+    输入    id=vesselEnname    AUTO    #输入英文船名
+    输入    id=voyno    ${CQ_voyno}    #输入航次    #英文船名+航次要求唯一，所以航次唯一，则航次不要求
+    输入    id=vesselCnname    自动化船名    #输入中文船名
+    点击    xpath=//span[text()='新 增']/..    #点击页面内新增
+    点击    xpath=//input[starts-with(@id,'portEnname')]/../../..    #点击起运港
+    按键    xpath=//input[starts-with(@id,'portEnname')]    \uE015    #点击文本框向下箭头
+    按键    xpath=//input[starts-with(@id,'portEnname')]    \\13    #点击enter
+    选择日期（locator）    xpath=//a[text()='删除']/../preceding-sibling::td[4]//input    七月    2018年7月9日
+    点击    xpath=//span[text()='保 存']/..
+    Wait Until Page Contains    操作成功
+    离开框架
+    点击    css=.icon-close    #点击关闭符号
+
+船期-修改
+    [Arguments]    ${CQ_voyno}
+    [Documentation]    ${CQ_voyno}：新航次
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]
+    清空输入框内容    id=voyno
+    输入    id=voyno    ${CQ_voyno}    #输入新航次
+    点击    xpath=//span[text()='保 存']/..
+    Wait Until Page Contains    操作成功
+    离开框架
+    点击    css=.icon-close    #点击关闭符号
+
+航线代码-新增
+    [Arguments]    ${routeCode}
+    [Documentation]    ${routeCode} ：#输入航线代码
+    ...
+    ...    ${carrierCode}：#输入船公司
+    ...
+    ...    ${searoutesName}：#输入航线
+    点击    xpath=//span[text()='添 加']/..    #点击新增（添加）按钮
+    输入    xpath=//input[@id='routeCode'and@class='ant-input ant-input-lg']    ${routeCode}    #输入航线代码
+    点击    xpath=//div[@class='ant-modal-body']//input[@id='carrierCode']/../../..    #点击船公司下拉框
+    按键    xpath=//div[@class='ant-modal-body']//input[@id='carrierCode']    \uE015    #点击文本框向下箭头
+    Wait Until Element Is Visible    xpath=//div[@class='ant-modal-body']//input[@id='carrierCode']
+    按键    xpath=//div[@class='ant-modal-body']//input[@id='carrierCode']    \\13    #点击enter
+    点击    xpath=//div[@class='ant-modal-body']//input[@id='searoutesName']/../../..    #点击航线
+    按键    xpath=//div[@class='ant-modal-body']//input[@id='searoutesName']    \uE015    #点击文本框向下箭头
+    Wait Until Element Is Visible    xpath=//div[@class='ant-modal-body']//input[@id='searoutesName']
+    按键    xpath=//div[@class='ant-modal-body']//input[@id='searoutesName']    \\13
+    点击    xpath=//span[text()='保 存']/..    #点击保存
+
+运费条款-新增
+    [Arguments]    ${freightcode}    ${freightenname}    ${freightcnname}
+    [Documentation]    ${freightcode}    #输入运费条款代码    #输入运费条款英文名称    #输入运费条款中文名称
+    ...
+    ...    {freightenname} \ ${freightcnname}
+    进入列表框架
+    点击    xpath=//span[text()='新 增']/..    #点击新增按钮
+    输入    id=dataVo.code    ${freightcode}    #输入代码
+    输入    id=dataVo.enname    AUTO    #输入名称英文
+    输入    id=dataVo.cnname    自动化运费条款    #输入名称中文
+    点击保存按钮
+
+箱型箱尺-新增
+    [Arguments]    ${vgm.code}    ${vgm.enName}    ${vgm.cnName}    ${vgm.teu}
+    [Documentation]    ${vgm.code}#输入代码
+    ...
+    ...    ${vgm.enName}#输入名称英文
+    ...
+    ...    ${vgm.cnName}#输入名称中文
+    ...
+    ...    ${vgm.teu} #输入teu值,数字，范围1-9
+    点击    xpath=//span[text()='新 增']/..    #点击新增按钮
+    输入    id=code    ${vgm.code}    #输入代码
+    输入    id=enName    ${vgm.enName}    #输入名称英文
+    输入    id=cnName    ${vgm.cnName}    #输入名称中文
+    输入    id=teu    ${vgm.teu}    #输入teu值
+    点击保存按钮
+
+船公司-新增
+    [Arguments]    ${boat.code}    ${boat.enShortName}    ${boat.cnShortName}    ${boat.enFullName}    ${boat.cnFullName}
+    [Documentation]    ${boat.code}#输入船公司代码    #输入全称英文
+    ...
+    ...    ${boat.enShortName} #输入简称英文
+    ...
+    ...    ${boat.cnShortName}#输入简称中文
+    ...
+    ...    ${boat.enFullName}
+    ...
+    ...    ${boat.cnFullName}#输入全称中文
+    点击    xpath=//span[text()='新 增']/..    #点击新增按钮
+    输入    id=dataVo.code    ${boat.code}    #输入船公司代码
+    输入    id=dataVo.enShortName    ${boat.enShortName}    #输入简称英文
+    输入    id=dataVo.cnShortName    ${boat.cnShortName}    #输入简称中文
+    输入    id=dataVo.enFullName    ${boat.enFullName}    #输入全称英文
+    输入    id=dataVo.cnFullName    ${boat.cnFullName}    #输入全称中文
+    点击保存按钮
+
+海运航线-新增
+    [Arguments]    ${base_searoutes}    ${base_searoutes_enname}
+    [Documentation]    ${base_searoutes} #输入航线中文名称
+    ...
+    ...    ${base_searoutes_enname}#输入英文名称
+    进入列表框架
+    点击    xpath=//span[text()='新 增']/..    #点击新增
+    输入    xpath=//input[@id='cnname'][@class='ant-input ant-input-lg']    ${base_searoutes}    #输入航线中文名称
+    输入    xpath=//input[@id='enname'][@class='ant-input ant-input-lg']    ${base_searoutes_enname}    #输入英文名称
+    点击保存按钮
+    离开框架

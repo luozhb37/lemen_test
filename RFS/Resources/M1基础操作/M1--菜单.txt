@@ -1,0 +1,143 @@
+*** Settings ***
+Resource          M1--引用.txt
+
+*** Keywords ***
+登录
+    读取货代登录配置信息
+    #设置全局隐式等待时间
+    Set Selenium Implicit Wait    5
+    打开    http://www.800jit.com/login.html
+    进入框架    id=loginPanel
+    输入    id=username    ${M1_USERNAME}
+    输入    id=password    ${M1_PASSWORD}
+    点击    id=btn-submit
+    离开框架
+    Set Selenium Implicit Wait    20
+    page should contain    首页
+
+回到首页
+    [Arguments]    ${url}=${M1_URL}
+    Reload Page
+
+点击业务管理
+    click element    xpath=//a[contains(text(),'业务管理')]
+
+点击业务台帐
+    click element    xpath=//a[contains(text(),'业务台帐')]
+
+点击海运出口
+    click element    xpath=//a[contains(text(),'海运出口')]
+
+点击海运进口
+    click element    xpath=//a[contains(text(),'海运进口')]
+
+点击空运出口
+    click element    xpath=//a[contains(text(),'空运出口')]
+
+点击空运进口
+    click element    xpath=//a[contains(text(),'空运进口')]
+
+点击结算管理
+    click element    xpath=//a[contains(text(),'结算管理')]
+
+点击费用维护
+    click element    xpath=//a[contains(text(),'费用维护')]
+
+点击应收款审核
+    click element    xpath=//a[contains(text(),'应收款审核')]
+
+点击收款单查询
+    click element    xpath=//a[contains(text(),'收款单查询')]
+
+点击收款核销
+    click element    xpath=//a[contains(text(),'收款核销')]
+
+点击收款单制作(费用明细)
+    click element    xpath=//a[contains(text(),'收款单制作(费用明细)')]
+
+点击收款核销(内)
+    click element    xpath=//div[@id='treeMenu']/ul/li[3]/ul/li[3]/a
+
+点击收款对冲核销
+    click element    xpath=//a[contains(text(),'收款对冲核销')]
+
+点击反核销费用明细(收款)
+    click element    xpath=//a[contains(text(),'反核销费用明细')]
+
+点击付款核销
+    click element    xpath=//a[contains(text(),'付款核销')]
+
+点击应付款审核
+    click element    xpath=//a[contains(text(),'应付款审核')]
+
+点击应付款对账
+    click element    xpath=//a[contains(text(),'应付款对账')]
+
+点击应付费用对账
+    click element    xpath=//a[contains(text(),'应付费用对账')]
+
+点击付款申请(费用明细)
+    click element    xpath=//a[contains(text(),'付款申请(费用明细)')]
+
+点击付款对冲核销
+    click element    xpath=//a[contains(text(),'付款对冲核销')]
+
+点击反核销费用明细(付款)
+    click element    xpath=//*[@id='treeMenu']/ul/li[4]/ul/li[9]/a
+
+点击付款单查询
+    click element    xpath=//a[contains(text(),'付款单查询')]
+
+点击发票管理
+    click element    xpath=//a[@href="./application/themes/default/prompt/hdfp.htm"]
+
+点击货代发票
+    click element    xpath=//a[contains(text(),'货代发票')]
+
+点击新增发票(关联业务)
+    click element    xpath=//a[contains(text(),'新增发票(关联业务)')]
+
+点击新增发票(费用明细)
+    click element    xpath=//a[contains(text(),'新增发票(费用明细)')]
+
+点击发票查询
+    点击    xpath=//a[contains(text(),'发票查询')]
+
+点击标记开票
+    click element    xpath=//a[contains(text(),'标记开票')]
+
+点击应付发票
+    click element    xpath=//a[contains(text(),'应付发票')]
+
+点击应付发票登记
+    click element    xpath=//a[contains(text(),'应付发票登记')]
+
+点击应付发票查询
+    click element    xpath=//a[contains(text(),'应付发票查询')]
+
+点击基础资料
+    click element    xpath=//a[contains(text(),"基础资料")]
+
+点击企业基础资料
+    click element    xpath=//div[@id='treeMenu']/ul/li[2]/a
+
+点击往来单位
+    click element    xpath=//a[contains(text(),'往来单位')]
+
+点击系统设置
+    click element    xpath=//a[contains(text(),'系统设置')]
+
+点击系统参数
+    click element    xpath=//a[contains(text(),'系统参数')]
+
+点击公司管理
+    click element    xpath=//a[contains(text(),'公司管理')]
+
+点击用户管理
+    click element    xpath=//a[contains(text(),'用户管理')]
+
+点击用户维护
+    click element    xpath=//a[contains(text(),'用户维护')]
+
+点击个人资料
+    click element    xpath=//a[contains(text(),'个人资料')]

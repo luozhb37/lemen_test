@@ -1,0 +1,311 @@
+*** Settings ***
+Library           ExcelLibrary
+Library           OlymLibrary
+
+*** Variables ***
+
+*** Keywords ***
+读取货代登录配置信息
+    [Documentation]    不同环境测试时，请修改 文件名
+    ...
+    ...    测试环境：user_login-测试.xls
+    ...
+    ...    准生产：user_login-准生产.xls
+    ...
+    ...    生产：user_login-生产.xls
+    ...
+    ...    体验：user_login-体验.xls
+    #根据不同环境，修改这个文件名
+    Open Excel Document    ${CURDIR}\\login\\user_login-生产.xlsx    user
+    ${M1_URL}    Read Excel Cell    2    3
+    ${M1_FULLNAME}    Read Excel Cell    2    4
+    ${M1_USERNAME}    Read Excel Cell    2    5
+    ${M1_PASSWORD}    Read Excel Cell    2    6
+    Comment    Open Excel    ${CURDIR}\\login\\user_login-测试.xls
+    ${M4_INTER_DIR}    Set Variable    ${CURDIR}
+    #m1
+    Comment    ${M1_URL}    Read Cell Data By Name    Sheet1    C2
+    Comment    ${M1_FULLNAME}    Read Cell Data By Name    Sheet1    D2
+    Comment    ${M1_USERNAME}    Read Cell Data By Name    Sheet1    E2
+    Comment    ${M1_PASSWORD}    Read Cell Data By Name    Sheet1    F2
+    Set Global Variable    ${M1_URL}
+    Set Global Variable    ${M1_FULLNAME}
+    Set Global Variable    ${M1_USERNAME}
+    Set Global Variable    ${M1_PASSWORD}
+    #m2
+    ${M2_URL}    Read Excel Cell    3    3
+    ${M2_FULLNAME}    Read Excel Cell    3    4
+    ${M2_USERNAME}    Read Excel Cell    3    5
+    ${M2_PASSWORD}    Read Excel Cell    3    6
+    Comment    ${M2_URL}    Read Cell Data By Name    Sheet1    C3
+    Comment    ${M2_FULLNAME}    Read Cell Data By Name    Sheet1    D3
+    Comment    ${M2_USERNAME}    Read Cell Data By Name    Sheet1    E3
+    Comment    ${M2_PASSWORD}    Read Cell Data By Name    Sheet1    F3
+    Set Global Variable    ${M2_URL}
+    Set Global Variable    ${M2_FULLNAME}
+    Set Global Variable    ${M2_USERNAME}
+    Set Global Variable    ${M2_PASSWORD}
+    #m3
+    ${M3_URL}    Read Excel Cell    4    3
+    ${M3_FULLNAME}    Read Excel Cell    4    4
+    ${M3_USERNAME}    Read Excel Cell    4    5
+    ${M3_PASSWORD}    Read Excel Cell    4    6
+    ${M3_SESSION}    Read Excel Cell    4    7
+    Comment    ${M3_URL}    Read Cell Data By Name    Sheet1    C4
+    Comment    ${M3_FULLNAME}    Read Cell Data By Name    Sheet1    D4
+    Comment    ${M3_USERNAME}    Read Cell Data By Name    Sheet1    E4
+    Comment    ${M3_PASSWORD}    Read Cell Data By Name    Sheet1    F4
+    Comment    ${M3_SESSION}    Read Cell Data By Name    Sheet1    G4
+    Set Global Variable    ${M3_URL}
+    Set Global Variable    ${M3_FULLNAME}
+    Set Global Variable    ${M3_USERNAME}
+    Set Global Variable    ${M3_PASSWORD}
+    Set Global Variable    ${M3_SESSION}
+    ${往来单位_CODE}    Read Excel Cell    5    2
+    Comment    ${往来单位_CODE}    Read Cell Data By Name    Sheet1    B5
+    Set Global Variable    ${往来单位_CODE}
+    ${往来单位}    Read Excel Cell    6    2
+    Comment    ${往来单位}    Read Cell Data By Name    Sheet1    B6
+    Set Global Variable    ${往来单位}
+    #GM1
+    ${M4-URL}    Read Excel Cell    7    3
+    ${M4-FULLNAME}    Read Excel Cell    7    4
+    ${M4-USERNAME}    Read Excel Cell    7    5
+    ${M4-PASSWORD}    Read Excel Cell    7    6
+    ${M4-SESSION}    Read Excel Cell    7    7
+    ${M4-ORGID}    Read Excel Cell    7    8
+    ${M4-OPEN-URL}    Read Excel Cell    7    9
+    ${M4-ORGNAME}    Read Excel Cell    7    10
+    ${M4-DEPARTMENT}    Read Excel Cell    7    11
+    ${M4_ServiceRuleTypeCode}    Read Excel Cell    72    13
+    Set Global Variable    ${M4-URL}
+    Set Global Variable    ${M4-USERNAME}
+    Set Global Variable    ${M4-FULLNAME}
+    Set Global Variable    ${M4-PASSWORD}
+    Set Global Variable    ${M4-SESSION}
+    Set Global Variable    ${M4-ORGID}
+    Set Global Variable    ${M4-OPEN-URL}
+    Set Global Variable    ${M4-ORGNAME}
+    Set Global Variable    ${M4-DEPARTMENT}
+    Set Global Variable    ${M4_INTER_DIR}
+    Set Global Variable    ${M4_ServiceRuleTypeCode}
+    Close Current Excel Document
+
+读取集团货代登录配置信息
+    #根据不同环境，修改这个文件名
+    Open Excel    ${CURDIR}\\login\\user_login-生产-集团账号test.xls
+    #GM1
+    ${exl_row}    Set Variable    8
+    ${M4-URL}    Read Cell Data By Name    Sheet1    C${exl_row}
+    ${M4-FULLNAME}    Read Cell Data By Name    Sheet1    D${exl_row}
+    ${M4-USERNAME}    Read Cell Data By Name    Sheet1    E${exl_row}
+    ${M4-PASSWORD}    Read Cell Data By Name    Sheet1    F${exl_row}
+    ${M4-SESSION}    Read Cell Data By Name    Sheet1    G${exl_row}
+    ${M4-ORGID}    Read Cell Data By Name    Sheet1    H${exl_row}
+    ${M4-OPEN-URL}    Read Cell Data By Name    Sheet1    I${exl_row}
+    ${M4-ORGNAME}    Read Cell Data By Name    Sheet1    J${exl_row}
+    Comment    ${M4-DEPARTMENT}    Read Cell Data By Name    Sheet1    K7
+    ${M4_ServiceRuleTypeCode}    Read Cell Data By Name    Sheet1    M${exl_row}
+    Set Global Variable    ${M4-URL}
+    Set Global Variable    ${M4-USERNAME}
+    Set Global Variable    ${M4-FULLNAME}
+    Set Global Variable    ${M4-PASSWORD}
+    Set Global Variable    ${M4-SESSION}
+    Set Global Variable    ${M4-ORGID}
+    Set Global Variable    ${M4-OPEN-URL}
+    Set Global Variable    ${M4-ORGNAME}
+    Comment    Set Global Variable    ${M4-DEPARTMENT}
+    Set Global Variable    ${M4_ServiceRuleTypeCode}
+    #---集团相关信息----
+    ${type}    Read Cell Data By Name    Sheet1    K${exl_row}
+    ${M4-TYPE}    Set Variable If    '${type}'=='分公司'    分公司    总公司
+    ${list}    Read Cell Data By Name    Sheet1    L${exl_row}
+    @{list_arr}    Split Data    ${list}    |
+    ${M4_GROUP}    Create List
+    : FOR    ${i}    IN    @{list_arr}
+    \    ${item_org}    Read Cell Data By Name    Sheet1    J${i}
+    \    ${item_sales}    Read Cell Data By Name    Sheet1    D${i}
+    \    ${item_username}    Read Cell Data By Name    Sheet1    E${i}
+    \    ${item_password}    Read Cell Data By Name    Sheet1    F${i}
+    \    ${M4-ITEM-LIST}    create list    ${item_org}    ${item_sales}
+    \    @{M4_GROUP}    create list    @{M4_GROUP}    ${M4-ITEM-LIST}
+    Set Global Variable    ${M4-TYPE}
+    Set Global Variable    ${M4_GROUP}
+
+读取货代登录配置信息（集团A公司）
+    #根据不同环境，修改这个文件名
+    Open Excel    ${CURDIR}\\login\\user_login-生产0.xls
+    ${M4_INTER_DIR}    Set Variable    ${CURDIR}
+    #m1
+    ${M1_URL}    Read Cell Data By Name    Sheet1    C2
+    ${M1_FULLNAME}    Read Cell Data By Name    Sheet1    D2
+    ${M1_USERNAME}    Read Cell Data By Name    Sheet1    E2
+    ${M1_PASSWORD}    Read Cell Data By Name    Sheet1    F2
+    Set Global Variable    ${M1_URL}
+    Set Global Variable    ${M1_FULLNAME}
+    Set Global Variable    ${M1_USERNAME}
+    Set Global Variable    ${M1_PASSWORD}
+    #m2
+    ${M2_URL}    Read Cell Data By Name    Sheet1    C3
+    ${M2_FULLNAME}    Read Cell Data By Name    Sheet1    D3
+    ${M2_USERNAME}    Read Cell Data By Name    Sheet1    E3
+    ${M2_PASSWORD}    Read Cell Data By Name    Sheet1    F3
+    Set Global Variable    ${M2_URL}
+    Set Global Variable    ${M2_FULLNAME}
+    Set Global Variable    ${M2_USERNAME}
+    Set Global Variable    ${M2_PASSWORD}
+    #m3
+    ${M3_URL}    Read Cell Data By Name    Sheet1    C4
+    ${M3_FULLNAME}    Read Cell Data By Name    Sheet1    D4
+    ${M3_USERNAME}    Read Cell Data By Name    Sheet1    E4
+    ${M3_PASSWORD}    Read Cell Data By Name    Sheet1    F4
+    ${M3_SESSION}    Read Cell Data By Name    Sheet1    G4
+    Set Global Variable    ${M3_URL}
+    Set Global Variable    ${M3_FULLNAME}
+    Set Global Variable    ${M3_USERNAME}
+    Set Global Variable    ${M3_PASSWORD}
+    Set Global Variable    ${M3_SESSION}
+    ${往来单位_CODE}    Read Cell Data By Name    Sheet1    B5
+    Set Global Variable    ${往来单位_CODE}
+    ${往来单位}    Read Cell Data By Name    Sheet1    B6
+    Set Global Variable    ${往来单位}
+    #GM1
+    ${M4-URL}    Read Cell Data By Name    Sheet1    C7
+    ${M4-FULLNAME}    Read Cell Data By Name    Sheet1    D7
+    ${M4-USERNAME}    Read Cell Data By Name    Sheet1    E7
+    ${M4-PASSWORD}    Read Cell Data By Name    Sheet1    F7
+    ${M4-SESSION}    Read Cell Data By Name    Sheet1    G7
+    ${M4-ORGID}    Read Cell Data By Name    Sheet1    H7
+    ${M4-OPEN-URL}    Read Cell Data By Name    Sheet1    I7
+    ${M4-ORGNAME}    Read Cell Data By Name    Sheet1    J7
+    ${M4-DEPARTMENT}    Read Cell Data By Name    Sheet1    K7
+    ${M4_ServiceRuleTypeCode}    Read Cell Data By Name    Sheet1    L7
+    Set Global Variable    ${M4-URL}
+    Set Global Variable    ${M4-USERNAME}
+    Set Global Variable    ${M4-FULLNAME}
+    Set Global Variable    ${M4-PASSWORD}
+    Set Global Variable    ${M4-SESSION}
+    Set Global Variable    ${M4-ORGID}
+    Set Global Variable    ${M4-OPEN-URL}
+    Set Global Variable    ${M4-ORGNAME}
+    Set Global Variable    ${M4-DEPARTMENT}
+    Set Global Variable    ${M4_INTER_DIR}
+    Set Global Variable    ${M4_ServiceRuleTypeCode}
+
+读取货代登陆配置信息（集团B公司）
+    #根据不同环境，修改这个文件名
+    Open Excel    ${CURDIR}\\login\\user_login-生产2.xls
+    ${M4_INTER_DIR}    Set Variable    ${CURDIR}
+    #m1
+    ${M1_URL}    Read Cell Data By Name    Sheet1    C2
+    ${M1_FULLNAME}    Read Cell Data By Name    Sheet1    D2
+    ${M1_USERNAME}    Read Cell Data By Name    Sheet1    E2
+    ${M1_PASSWORD}    Read Cell Data By Name    Sheet1    F2
+    Set Global Variable    ${M1_URL}
+    Set Global Variable    ${M1_FULLNAME}
+    Set Global Variable    ${M1_USERNAME}
+    Set Global Variable    ${M1_PASSWORD}
+    #m2
+    ${M2_URL}    Read Cell Data By Name    Sheet1    C3
+    ${M2_FULLNAME}    Read Cell Data By Name    Sheet1    D3
+    ${M2_USERNAME}    Read Cell Data By Name    Sheet1    E3
+    ${M2_PASSWORD}    Read Cell Data By Name    Sheet1    F3
+    Set Global Variable    ${M2_URL}
+    Set Global Variable    ${M2_FULLNAME}
+    Set Global Variable    ${M2_USERNAME}
+    Set Global Variable    ${M2_PASSWORD}
+    #m3
+    ${M3_URL}    Read Cell Data By Name    Sheet1    C4
+    ${M3_FULLNAME}    Read Cell Data By Name    Sheet1    D4
+    ${M3_USERNAME}    Read Cell Data By Name    Sheet1    E4
+    ${M3_PASSWORD}    Read Cell Data By Name    Sheet1    F4
+    ${M3_SESSION}    Read Cell Data By Name    Sheet1    G4
+    Set Global Variable    ${M3_URL}
+    Set Global Variable    ${M3_FULLNAME}
+    Set Global Variable    ${M3_USERNAME}
+    Set Global Variable    ${M3_PASSWORD}
+    Set Global Variable    ${M3_SESSION}
+    ${往来单位_CODE}    Read Cell Data By Name    Sheet1    B5
+    Set Global Variable    ${往来单位_CODE}
+    ${往来单位}    Read Cell Data By Name    Sheet1    B6
+    Set Global Variable    ${往来单位}
+    #GM1
+    ${M4-URL}    Read Cell Data By Name    Sheet1    C7
+    ${M4-FULLNAME}    Read Cell Data By Name    Sheet1    D7
+    ${M4-USERNAME}    Read Cell Data By Name    Sheet1    E7
+    ${M4-PASSWORD}    Read Cell Data By Name    Sheet1    F7
+    ${M4-SESSION}    Read Cell Data By Name    Sheet1    G7
+    ${M4-ORGID}    Read Cell Data By Name    Sheet1    H7
+    ${M4-OPEN-URL}    Read Cell Data By Name    Sheet1    I7
+    ${M4-ORGNAME}    Read Cell Data By Name    Sheet1    J7
+    ${M4-DEPARTMENT}    Read Cell Data By Name    Sheet1    K7
+    ${M4_ServiceRuleTypeCode}    Read Cell Data By Name    Sheet1    L7
+    Set Global Variable    ${M4-URL}
+    Set Global Variable    ${M4-USERNAME}
+    Set Global Variable    ${M4-FULLNAME}
+    Set Global Variable    ${M4-PASSWORD}
+    Set Global Variable    ${M4-SESSION}
+    Set Global Variable    ${M4-ORGID}
+    Set Global Variable    ${M4-OPEN-URL}
+    Set Global Variable    ${M4-ORGNAME}
+    Set Global Variable    ${M4-DEPARTMENT}
+    Set Global Variable    ${M4_INTER_DIR}
+    Set Global Variable    ${M4_ServiceRuleTypeCode}
+
+读取货代登录配置信息(python2)
+    #根据不同环境，修改这个文件名
+    Open Excel    ${CURDIR}\\login\\user_login-生产.xls
+    ${M4_INTER_DIR}    Set Variable    ${CURDIR}
+    #m1
+    ${M1_URL}    Read Cell Data By Name    Sheet1    C2
+    ${M1_FULLNAME}    Read Cell Data By Name    Sheet1    D2
+    ${M1_USERNAME}    Read Cell Data By Name    Sheet1    E2
+    ${M1_PASSWORD}    Read Cell Data By Name    Sheet1    F2
+    Set Global Variable    ${M1_URL}
+    Set Global Variable    ${M1_FULLNAME}
+    Set Global Variable    ${M1_USERNAME}
+    Set Global Variable    ${M1_PASSWORD}
+    #m2
+    ${M2_URL}    Read Cell Data By Name    Sheet1    C3
+    ${M2_FULLNAME}    Read Cell Data By Name    Sheet1    D3
+    ${M2_USERNAME}    Read Cell Data By Name    Sheet1    E3
+    ${M2_PASSWORD}    Read Cell Data By Name    Sheet1    F3
+    Set Global Variable    ${M2_URL}
+    Set Global Variable    ${M2_FULLNAME}
+    Set Global Variable    ${M2_USERNAME}
+    Set Global Variable    ${M2_PASSWORD}
+    #m3
+    ${M3_URL}    Read Cell Data By Name    Sheet1    C4
+    ${M3_FULLNAME}    Read Cell Data By Name    Sheet1    D4
+    ${M3_USERNAME}    Read Cell Data By Name    Sheet1    E4
+    ${M3_PASSWORD}    Read Cell Data By Name    Sheet1    F4
+    ${M3_SESSION}    Read Cell Data By Name    Sheet1    G4
+    Set Global Variable    ${M3_URL}
+    Set Global Variable    ${M3_FULLNAME}
+    Set Global Variable    ${M3_USERNAME}
+    Set Global Variable    ${M3_PASSWORD}
+    Set Global Variable    ${M3_SESSION}
+    ${往来单位_CODE}    Read Cell Data By Name    Sheet1    B5
+    Set Global Variable    ${往来单位_CODE}
+    ${往来单位}    Read Cell Data By Name    Sheet1    B6
+    Set Global Variable    ${往来单位}
+    #GM1
+    ${M4-URL}    Read Cell Data By Name    Sheet1    C7
+    ${M4-FULLNAME}    Read Cell Data By Name    Sheet1    D7
+    ${M4-USERNAME}    Read Cell Data By Name    Sheet1    E7
+    ${M4-PASSWORD}    Read Cell Data By Name    Sheet1    F7
+    ${M4-SESSION}    Read Cell Data By Name    Sheet1    G7
+    ${M4-ORGID}    Read Cell Data By Name    Sheet1    H7
+    ${M4-OPEN-URL}    Read Cell Data By Name    Sheet1    I7
+    ${M4-ORGNAME}    Read Cell Data By Name    Sheet1    J7
+    ${M4-DEPARTMENT}    Read Cell Data By Name    Sheet1    K7
+    Set Global Variable    ${M4-URL}
+    Set Global Variable    ${M4-USERNAME}
+    Set Global Variable    ${M4-FULLNAME}
+    Set Global Variable    ${M4-PASSWORD}
+    Set Global Variable    ${M4-SESSION}
+    Set Global Variable    ${M4-ORGID}
+    Set Global Variable    ${M4-OPEN-URL}
+    Set Global Variable    ${M4-ORGNAME}
+    Set Global Variable    ${M4-DEPARTMENT}
+    Set Global Variable    ${M4_INTER_DIR}

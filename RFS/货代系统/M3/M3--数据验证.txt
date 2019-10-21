@@ -1,0 +1,76 @@
+*** Settings ***
+Suite Setup       登录    # \ Run keywords | 系统参数设置 | AND | 往来单位初始化 | \ AND | 自定义初始化
+Suite Teardown    close all browsers    #
+Test Setup        # Reload Page
+Resource          ../../Resources/M3基础操作/M3--引用.txt
+
+*** Test Cases ***
+支出费用--数据验证
+    [Documentation]    ${row}获取的值是表格里的行数，包含标题栏
+    ...    ${i} 从 0 开始
+    @{data}    ${row}    读取金额excel
+    ${row}    Evaluate    ${row}-2
+    #若想从某一行数据运行，则改变i的值即可
+    ${i}    Set Variable    0
+    : FOR    ${i}    IN RANGE    ${i}    ${row}+1
+    \    支出费用    ${i}    @{data}
+
+收入费用--数据验证
+    @{data}    ${row}    读取金额excel
+    ${row}    Evaluate    ${row}-2
+    #若想从某一行数据运行，则改变i的值即可
+    ${i}    Set Variable    0
+    : FOR    ${i}    IN RANGE    ${i}    ${row}+1
+    \    收入费用    ${i}    @{data}
+
+收入费用--数据验证new
+    @{data}    ${row}    读取金额excel
+    ${row}    Evaluate    ${row}-2
+    #若想从某一行数据运行，则改变i的值即可
+    ${i}    Set Variable    0
+    新增海运出口业务
+    : FOR    ${i}    IN RANGE    ${i}    ${row}+1
+    \    收入费用    ${i}    @{data}
+
+*** Keywords ***
+支出费用
+    [Arguments]    ${num}    @{table_ctn}
+    #循环验证
+    : FOR    ${i}    IN    @{table_ctn}[${num}]
+    \    EXCEL数据赋值    ${i}
+    \    ${num}    Evaluate    ${num}+1    #Excel第几行
+    \    Set Test Variable    ${num}
+    \    新增海运出口业务
+    \    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    \    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    \    新增支出费用并校验    ${FEE_PRICE}    ${FEE_COUNT}    ${FEE_CURRENCY}    ${FEE_RATE}    ${ESTIMATE}
+    \    ...    ${REFERENCEAMOUNT}    ${COMPROMISE}
+    \    新增应付账单并校验    ${DEBITCREDITS_CURRENCY}    ${DEBITCREDITS_RATE}    ${DEBITCREDITS_ AMOUNT}
+    \    ${pay_check_no}    新增对账单并校验    ${CHECK_CURRENCY}    ${CHECK_RATE}    ${CHECK_AMOUNT}    pay
+    \    新增应付发票并校验    ${pay_check_no}    ${INVOICE_RATE}    ${INVOICE_ESTIMATE}
+    \    新增付款单并校验    ${BILL_CURRENCY}    ${BILL_RATE}    ${BILL_ESTIMATE}
+    \    等待    1
+
+读取金额excel
+    ${excel_local}    set variable    ${EXECDIR}\\Resources\\M3基础操作\\M3--数据验证.xlsx
+    ${excel_sheet}    set variable    Sheet1
+    @{table_ctn}    ${row}    从EXCEL获取数据    ${excel_local}    ${excel_sheet}
+    [Return]    @{table_ctn}    ${row}
+
+收入费用
+    [Arguments]    ${num}    @{table_ctn}
+    : FOR    ${i}    IN    @{table_ctn}[${num}]
+    \    EXCEL数据赋值    ${i}
+    \    ${NUM}    Evaluate    ${NUM}+1    #Excel第几行
+    \    Set Test Variable    ${NUM}
+    \    #Reload Page
+    \    Comment    ${result}    Run Keyword If    结算管理数据验证--收入    ${i}
+    \    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    \    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    \    新增收入费用并校验    ${FEE_PRICE}    ${FEE_COUNT}    ${FEE_CURRENCY}    ${FEE_RATE}    ${ESTIMATE}
+    \    ...    ${REFERENCEAMOUNT}    ${COMPROMISE}
+    \    新增应收账单并校验    ${DEBITCREDITS_CURRENCY}    ${DEBITCREDITS_RATE}    ${DEBITCREDITS_ AMOUNT}
+    \    ${rec_check_no}    新增对账单并校验    ${CHECK_CURRENCY}    ${CHECK_RATE}    ${CHECK_AMOUNT}    rec
+    \    新增应收发票(汇总)并校验    ${rec_check_no}    ${INVOICE_RATE}    ${INVOICE_ESTIMATE}
+    \    新增收款单并校验    ${BILL_CURRENCY}    ${BILL_RATE}    ${BILL_ESTIMATE}
+    \    等待    1

@@ -1,0 +1,29 @@
+*** Settings ***
+Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+
+*** Test Cases ***
+业务参数-保存
+    [Setup]
+    点击系统设置（主菜单）
+    点击系统设置（菜单）
+    进入框架    id=content
+    ${radio_value}    获取页面文本内容    xpath=//div[text()='是否为代操作公司']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]    # 获取代操作公司值
+    Run Keyword If    '${radio_value}'=='是'    设置业务参数(单选)    是否为代操作公司    否
+    ...    ELSE    设置业务参数(单选)    是否为代操作公司    是
+    ${select_value}    获取页面文本内容    xpath=//div[text()='海运出口整箱SI港口表现形式']/following-sibling::div[1]//div[@class='ant-select-selection-selected-value']    # 获取海运出口SI港口表现值
+    Run Keyword If    '${select_value}'=='港口英文，国家英文'    设置业务参数(下拉框)    海运出口整箱SI港口表现形式    港口英文
+    ...    ELSE    设置业务参数(下拉框)    海运出口整箱SI港口表现形式    港口英文，国家英文
+    ${input_value}    生成一个带有字符的随机数    fhr    # 获取货代发票复核人的值
+    设置业务参数(输入框)    货代发票复核人    ${input_value}
+    点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+    离开框架
+    点击    xpath=//a[text()=' 基础资料']
+    点击系统设置（主菜单）
+    点击系统设置（菜单）
+    进入框架    id=content
+    ${new_radio_value}    获取页面文本内容    xpath=//div[text()='是否为代操作公司']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]    # 获取保存后的代操作公司值
+    ${new_select_value}    获取页面文本内容    xpath=//div[text()='海运出口整箱SI港口表现形式']/following-sibling::div[1]//div[@class='ant-select-selection-selected-value']    # 获取保存后的海运出口SI港口表现值
+    ${new_input_value}    获取页面值    xpath=//div[text()='货代发票复核人']/following-sibling::div[1]//input    # 获取保存后的货代发票复核人的值
+    作为字符串应该不相等    ${radio_value}    ${new_radio_value}
+    作为字符串应该不相等    ${select_value}    ${new_select_value}
+    作为字符串应该相等    ${input_value}    ${new_input_value}

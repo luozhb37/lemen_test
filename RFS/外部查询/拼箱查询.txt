@@ -1,0 +1,224 @@
+*** Settings ***
+Resource          ../Resources/基础关键字.txt
+Resource          ../Resources/会员操作关键字.txt
+Resource          ../Resources/拼箱操作关键字.txt
+Resource          ../Resources/基础资料操作关键字.txt
+
+*** Test Cases ***
+外部拼箱查询初始化
+    [Tags]    init
+    [Setup]    用例开始
+    [Timeout]
+    登录内部账号
+    #清理测试数据
+    删除拼箱运价    dischargeport=waibu1
+    删除拼箱发布运价    dischargeport=waibu1
+    删除拼箱运价    dischargeport=waibu2
+    删除拼箱发布运价    dischargeport=waibu2
+    #查询功能测试运价数据
+    新增拼箱航线    澳新    aoxin    #已存在则不保存
+    #新增拼箱港口    enname=NINGBO    searoute=1    #已存在则不保存
+    新增船公司信息    HANJIN    HANJIN    carrierseacode2=HANJIN    #已存在则不保存
+    新增拼箱港口    enname=waibu1    searoute=澳新    code=RFS    cnname=测试专用港口1    cncountryname=中国    encountryname=CHINA
+    ...    isbaseport=是    searchcode=NINGBO
+    新增拼箱运价    loadport=NINGBO    dischargeport=waibu1    carrier=HANJIN    begindate=2015-05-01    validdate=2020-05-01    warehouse=大榭
+    ...    agentfeetype=高    volumerange=体积范围内容    transferport=NINGBO    cycle=1/3    sailtime=99    cbmbaseprice=1010
+    ...    mtbaseprice=1600    cbmsellprice=1020    mtsellprice=1700    cbmprice=1050    mtprice=1800    isnor1=是
+    ...    quoteorg=开源    addfee=附加费说明内容    linkinfo=阿狗 13967880231    remark=外部备注内容    iscommend=是    employee_remark=无
+    发布拼箱运价    dischargeport=waibu1
+    #权限控制测试专用数据    #新增一个中东的运价
+    新增拼箱航线    中东    zdong
+    新增拼箱港口    enname=waibu2    searoute=中东
+    新增拼箱运价    loadport=SHEKOU    dischargeport=waibu2    carrier=HANJIN    begindate=2015-05-01    validdate=2020-05-01    cbmsellprice=1020
+    ...    mtsellprice=1700    cbmprice=1050    mtprice=1800
+    发布拼箱运价    dischargeport=waibu2
+    #子母港测试专用数据
+    新增整箱港口-引用本体库    SHENZHEN    1    isloadport=是
+    [Teardown]    关闭浏览器
+
+MP_LCL_1目的港查询
+    [Documentation]    输入目的港(RFS) \ \ 检查查询结果是否正确
+    [Tags]    zs
+    [Setup]    登录外部账号
+    [Template]
+    [Timeout]
+    #用例步骤&检查点
+    进入拼箱查询页面    WAIBU1    NINGBO
+    sleep    3
+    页面包含-遗弃    内容    测试专用港口
+    [Teardown]    关闭浏览器
+
+MP_LCL_2是否中转查询
+    [Documentation]    按直达查询 和按中转查询
+    [Tags]    zs
+    [Setup]    登录外部账号
+    [Template]
+    [Timeout]
+    #用例步骤&检查点
+    进入拼箱查询页面    WAIBU1    NINGBO
+    #查询条件为直达的情况
+    点击链接    直达
+    sleep    3
+    页面包含-遗弃    内容    暂时没有搜到符合您查询条件的运价
+    #查询条件为中转的情况
+    点击链接    搜索    #重置查询条件
+    sleep    3
+    点击链接    中转
+    sleep    3
+    页面包含-遗弃    内容    测试专用港口
+    [Teardown]    关闭浏览器
+
+MP_LCL_3船公司查询
+    [Documentation]    登录后点 一个船公司查询
+    [Tags]    zs
+    [Setup]    登录外部账号
+    #用例步骤&检查点
+    进入拼箱查询页面    WAIBU1    NINGBO
+    sleep    3
+    点击链接    HANJIN
+    sleep    5    #外部查询速度比较慢,暂时增加等待时间
+    页面包含-遗弃    内容    测试专用港口1
+    [Teardown]    关闭浏览器
+
+MP_LCL_4_5截开查询
+    [Documentation]    查询 截关日期和开航日期 查询有值的情况
+    ...
+    ...    查询 截关日期和开航日期 查询没有结果的情况
+    [Tags]    zs
+    [Setup]    登录外部账号
+    ${JGRQ}    Set variable    周一    #截关日期
+    ${KHRQ}    Set variable    周三    #开航日期
+    #用例步骤&检查点
+    进入拼箱查询页面    WAIBU1    NINGBO
+    点击    xpath=//div[@data-type="cutoff"]//a[contains(.,'${JGRQ}')]    #点击截关${JGRQ}
+    sleep    3
+    点击    xpath=//div[@data-type="departure"]//a[contains(.,'${KHRQ}')]    #点击开航${KHRQ}
+    sleep    3
+    页面包含-遗弃    内容    测试专用港口
+    #查询结果无记录的情况
+    点击链接    搜索    #重置查询条件
+    sleep    3
+    点击    xpath=//div[@data-type="cutoff"]//a[contains(.,'周日')]    #点击截关周日
+    sleep    3
+    点击    xpath=//div[@data-type="departure"]//a[contains(.,'周日')]    #点击开航周日
+    sleep    3
+    页面包含-遗弃    内容    暂时没有搜到符合您查询条件的运价
+    [Teardown]    关闭浏览器
+
+MP_LCL_6列表内容显示
+    [Documentation]    运价明细页检查点含
+    ...
+    ...    起运港=宁波 | 目的港=测试专用港口 | 中转港=DUBAI | 符号=FH | 轻货=1050 | 重货=1800 | 体积范围=体积范围内容 | 航程=99| 船公司=HANJIN | 有效期开始=2015-05-01 | 截关=周一截关 | 离港=周三离港 | 仓库=大榭 | 有效期=2016-05-01 | 备注=外部备注内容 \ | 航线=澳新 | 目的港收货人=直客 | 目的港收费标准=高 | 联系方式=阿狗 13967880231 | 附加费说明=附加费说明内容 | 附件=附件文档.txt
+    ...
+    ...    以上这些字段
+    [Tags]    zs
+    [Setup]    登录外部账号
+    @{cheackList}    create list    宁波    测试专用港口1    1050    1800    体积范围内容
+    ...    99    HANJIN    2015-05-01    周一截关    周三离港    大榭
+    ...    2020-05-01    外部备注内容    中国    澳新    高    阿狗 13967880231
+    ...    附加费说明内容
+    进入拼箱查询页面    waibu1    ningbo
+    点击链接    展开详情
+    sleep    1
+    页面检查多个内容    @{cheackList}
+    [Teardown]    关闭浏览器
+
+MP_LCL_7查询权限控制
+    [Documentation]    \ 登录一个有权限控制的帐号(航线控制)
+    ...
+    ...    查询一个有权限的航线, 能查到数据
+    ...
+    ...    查询一个无权限的航线, 不能查询到数据
+    [Tags]    zs
+    [Setup]
+    #前置设置
+    登录内部账号
+    修改会员航线控制    isopen=TRUE    SelectlclExportRoute=澳新    UnSelectlclExportRoute=中东
+    关闭浏览器
+    #用例步骤&检查点
+    登录外部账号
+    进入拼箱查询页面    waibu1
+    页面包含-遗弃    内容    HANJIN    #航线控制,只能看到澳新的运价
+    返回首页
+    进入拼箱查询页面    waibu2
+    页面包含-遗弃    内容    暂时没有搜到符合您查询条件的运价    #航线控制,只能看到澳新的运价
+    关闭浏览器
+    #数据清理
+    登录内部账号
+    修改会员航线控制    isopen=FALSE
+    [Teardown]    关闭浏览器
+
+MP_LCL_8多级运价
+    [Documentation]    按港口设置多级运价,查询的价格显示了多级运价
+    [Tags]    zs
+    [Setup]
+    #list说明    --    轻货    重货
+    @{cheackList}    create list    1100    1900
+    #前置
+    登录内部账号
+    新增多级运价-海运    拼箱目的港waibu2    拼箱    dischargeport=waibu2    replaced=True    lcl_ctn_cbm=50    lcl_ctn_mt=100
+    引用多级运价-海运    拼箱目的港waibu2
+    关闭浏览器
+    #用例步骤&检查点
+    登录外部账号
+    进入拼箱查询页面    waibu2
+    点击链接    展开详情
+    sleep    1
+    页面检查多个内容    @{cheackList}
+    [Teardown]    关闭浏览器
+
+MP_LCL_9外部查询代码查询
+    [Documentation]    暂不支持
+    [Tags]    zs
+    [Setup]
+    #用例步骤&检查点
+    log    拼箱暂时不支持外部代码查询
+    [Teardown]
+
+MP_LCL_10子母港查询
+    [Documentation]    查询深圳(shenzhen)的时候能查询到蛇口(shekou)的运价
+    [Tags]    zs
+    [Setup]    登录外部账号
+    #用例步骤&检查点
+    进入拼箱查询页面    waibu2    SHENZHEN
+    sleep    1
+    页面包含-遗弃    内容    蛇口
+    [Teardown]    关闭浏览器
+
+MP_LCL_11算一算功能
+    [Documentation]    近期项目有算一算相关的改造. 脚本暂时不写
+    [Tags]    todo
+    [Setup]
+    log    功能要调整,暂时不写
+
+*** Keywords ***
+进入拼箱查询页面
+    [Arguments]    ${dischargeport}    ${loadport}=
+    [Documentation]    进入整箱查询页面,
+    ...    当前功能限制必须含有目的港 ${dischargeport} \ 才能跳转
+    ...
+    ...    *前置条件*
+    ...    必须是登录后才能使用,(默认业务类型不影响)
+    ...
+    ...    参数:
+    ...    _${dischargeport} _ \ 为港口英文名称
+    ...
+    ...    _${loadport}_ 为起运港英文名称 默认是 空值
+    点击    xpath=//li[@search_type="lcl"]    #整箱查询tab
+    sleep    1
+    输入    id=loadport    ${loadport}    #起运港输入
+    sleep    1
+    输入    id=dischargeport    ${dischargeport}    #目的港输入
+    点击    id=search_home    #点搜索
+    sleep    3    #查询结果异步加载,需要等待较长时间
+    页面包含-遗弃    内容    轻货    #验证是否正常跳转到整箱页面
+    Execute Javascript
+
+返回首页
+    [Documentation]    *前置条件*
+    ...
+    ...    必须是在查询页面才能使用 (因为首页中没有返回首页的链接)
+    点击链接    运价查询首页
+    sleep    2
+
+清理数据

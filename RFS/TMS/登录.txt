@@ -1,0 +1,71 @@
+*** Settings ***
+Resource          TMS-resource/会员.txt
+
+*** Test Cases ***
+用户登录
+    用户登录    sh.ngrok.900jit.com    xs    111111    # 调用“登录”关键字
+
+新增出运计划
+    点击按钮    新增出运计划    #点击【新增出运计划】按钮
+    sleep    2
+    input text    name=orderNo    CP-26806    #输入 \ NC订单号
+    点击按钮    选择货物    # 点击 【选择货物】
+    sleep    2
+    点击复选框    3    # 勾选本次所需要货物数量N，若=0，则表示“全选”，若>0的整数，则依次选择N条记录（非全选）
+    sleep    5
+    点击按钮    确定    //div[@avalonctrl="dialogGood"]    # 【选择货物】页面 点【确定】
+    ${customerName}    get text    name=customerName
+    ${cusname}    Catenate    ${customerName}    -RFS
+    input text    name=customerName    ${cusname}
+    点击按钮    提交预算柜    # 点[提交预算柜] 按钮
+
+新增出运计划copy
+    [Documentation]    将 每个 NC订单号的货物选择 \ 组织成 关键字
+    ...    //div[@id="content-wrapper"]//div[3]//li//a[contains(text(),"添加订单号")]
+    ...
+    ...    1. 新增出运计划 DIV[1]
+    ...    2. 货物信息 DIV[2]
+    ...    3. 第一个 NC 订单 \ DIV[3]
+    ...    4. 第二个 NC订单 DIV【4】 依次类推
+    点击按钮    新增出运计划    #点击【新增出运计划】按钮
+    sleep    2
+    input text    name=orderNo    CP-26806    #输入 \ NC订单号
+    点击按钮    选择货物    # 点击 【选择货物】
+    sleep    2
+    点击复选框    3    # 勾选本次所需要货物数量N，若=0，则表示“全选”，若>0的整数，则依次选择N条记录（非全选）
+    sleep    3
+    点击按钮    确定    //div[@avalonctrl="dialogGood"]    # 【选择货物】页面 点【确定】
+    #-----[可略]-------- 增加 第二个订单，
+    click link    xpath=//div[@id="content-wrapper"]//div[3]//li//a[contains(text(),"添加订单号")]    #添加订单号div[3]表示 第一条 NC订单上的按钮[添加订单号]
+    input text    xpath=//div[@id="content-wrapper"]//div[4]//input[@name="orderNo"]    CP-26506    #注：第二条NC订单记录在DIV[4]，第一个是DIV[3]
+    点击按钮    选择货物    //div[@id="content-wrapper"]//div[4]    # 点击 【选择货物】
+    sleep    2
+    点击复选框    2    # 勾选本次所需要货物数量N，若=0，则表示“全选”，若>0的整数，则依次选择N条记录（非全选）
+    sleep    5
+    点击按钮    确定    //div[@avalonctrl="dialogGood"]    # 【选择货物】页面 点【确定】
+    sleep    2
+    点击按钮    确定    //div[@avalonctrl="warn" ]//div[@class="oly-dialog-btns"]    # [温馨提示-订单客户信息不一致]-点[确定]
+    sleep    1
+    #------第二个订单 结束 -----
+    #click link    xpath=//div[@id="content-wrapper"]//div[4]//li//a[contains(text(),"添加订单号")]    #添加订单号div[4]表示 第2条 NC订单上的按钮[添加订单号]
+    ${customerName}    get text    name=customerName
+    ${cusname}    Catenate    ${customerName}    -RFS
+    input text    name=customerName    ${cusname}
+    点击按钮    提交预算柜    # 点[提交预算柜] 按钮
+
+新增出运计划2
+    点击按钮    新增出运计划    #点击【新增出运计划】按钮
+    sleep    2
+    input text    name=orderNo    CP-26806    #输入 \ NC订单号
+    点击按钮    选择货物    # 点击 【选择货物】
+    sleep    2
+    Click Element    xpath=//div[contains(@class="oly-dialog-title","选择货物")]
+    #Wait Until Element Is Visible    xpath=//table[@class="panel-table-line"]//thead//input[@class="oly-checkbox-input"]    #等待 货物列表 全选按钮 出现
+    #Wait Until Element Contains    xpath=//table[@class="panel-table-line"]//thead//input[@class="oly-checkbox-input"]    20    error
+    点击复选框    3    # 勾选本次所需要货物数量N，若=0，则表示“全选”，若>0的整数，则依次选择N条记录（非全选）
+    sleep    5
+    点击按钮    确定    //div[@avalonctrl="dialogGood"]    # 【选择货物】页面 点【确定】
+    ${customerName}    get text    name=customerName
+    ${cusname}    Catenate    ${customerName}    -RFS
+    input text    name=customerName    ${cusname}
+    点击按钮    提交预算柜    # 点[提交预算柜] 按钮

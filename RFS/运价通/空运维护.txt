@@ -1,0 +1,28 @@
+*** Settings ***
+Suite Setup       登陆
+Suite Teardown    关闭浏览器
+Test Setup        Reload Page
+Resource          ../Resources/运价通/运价通-引用.txt
+
+*** Test Cases ***
+新增空运运价
+    点击进入空运维护
+    # 获取新增前列表的行数
+    进入框架    id=mainFrame
+    ${count1}    获取匹配xpath的个数    xpath=//*[@id='j-tableFixScroll']//table//tbody/tr
+    离开框架
+    ${new_count}    Evaluate    int(${count1})+1    # 原列表数+1作为最后期望值
+    # 新增一条数据
+    新增空运运价
+    # 验证是否新增成功
+    进入框架    id=mainFrame
+    ${count2}    获取匹配xpath的个数    xpath=//*[@id='j-tableFixScroll']//table//tbody/tr
+    离开框架
+    Should Be Equal As Strings    ${count2}    ${new_count}
+
+删除空运运价
+    点击进入空运维护
+    空运列表查询    110
+    离开框架
+    点击全选运价
+    删除运价

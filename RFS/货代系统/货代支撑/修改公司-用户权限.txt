@@ -1,0 +1,179 @@
+*** Settings ***
+Suite Setup       Run keywords    变量
+...               AND    登录
+Suite Teardown    关闭浏览器
+Library           Collections
+Library           ExcelLibrary
+Resource          ../../Resources/基础关键字.txt
+
+*** Test Cases ***
+修改公司权限-增加(可作废）
+    点击    xpath=//div[@id='rootMenu']//a[contains(text(),"运营商公司管理")]    #运营商公司管理
+    点击    xpath=//div[@id='treeMenu']/ul/li[2]/a[contains(text(),"公司管理")]    #公司管理
+    点击    xpath=//div[@id='treeMenu']//li[2]//a[contains(text(),"公司角色调整")]    #公司角色调整
+    进入框架    id=content
+    #---查找公司----
+    输入    id=role_adjust_org_name    @{client_name}
+    点击    id=pg_role_adjust_search    # 点【查询】
+    page should contain    共1条    #验证：检索结果是否只有1条
+    #---编辑公司权限---
+    进入框架    id=content
+    点击    //div[@class='template_content']//a[contains(text(),"角色调整")]    #点击【角色调整】
+    page should contain    @{client_name}    #验证：打开的页面，是否=查询公司名称
+    #---调整权限-（增加）--
+    进入框架    id=content
+    权限列表左右调整    ${exc_local}    ${exc_sheet}    fromOrgRoleList    selectedOrgRoleList    selectedOrgRoleList    toRight
+    #--【保存】---
+    点击    id=pg_org_app_model_role_save    # 点【保存】
+    wait until page contains    公司和角色关联成功    timeout=3    error=公司和角色关联-失败
+    Capture Page Screenshot
+
+修改公司权限-减少
+    点击    xpath=//div[@id='rootMenu']//a[contains(text(),"运营商公司管理")]    #运营商公司管理
+    点击    xpath=//div[@id='treeMenu']/ul/li[2]/a[contains(text(),"公司管理")]    #公司管理
+    点击    xpath=//div[@id='treeMenu']//li[2]//a[contains(text(),"公司角色调整")]    #公司角色调整
+    进入框架    id=content
+    #---查找公司----
+    输入    id=role_adjust_org_name    @{client_name}
+    点击    id=pg_role_adjust_search    # 点【查询】
+    page should contain    共1条    #验证：检索结果是否只有1条
+    #---编辑公司权限---
+    进入框架    id=content
+    点击    //div[@class='template_content']//a[contains(text(),"角色调整")]    #点击【角色调整】
+    page should contain    @{client_name}    #验证：打开的页面，是否=查询公司名称
+    #---调整权限-（增加）--
+    进入框架    id=content
+    权限列表左右调整    ${exc_local}    ${exc_sheet}    selectedOrgRoleList    fromOrgRoleList    selectedOrgRoleList    toLeft
+    #--【保存】---
+    点击    id=pg_org_app_model_role_save    # 点【保存】
+    wait until page contains    公司和角色关联成功    timeout=3    error=公司和角色关联-失败
+    Capture Page Screenshot
+
+用户角色调整-增加
+    点击    xpath=//div[@id='rootMenu']//a[contains(text(),"运营商公司管理")]    #运营商公司管理
+    点击    xpath=//div[@id='treeMenu']/ul/li[2]/a[contains(text(),"公司管理")]    #公司管理
+    点击    xpath=//div[@id='treeMenu']//li[2]//a[contains(text(),"用户角色调整")]    #用户角色调整
+    进入框架    id=content
+    #---查找公司----
+    输入    id=search_orgname    @{client_name}    #输入客户名称
+    输入    id=search_username    @{login_name}    #输入用户登录名
+    点击    id=bt_search    # 点【查询】
+    page should contain    共1条    #验证：检索结果是否只有1条
+    #---编辑公司权限---
+    进入框架    id=content
+    点击    //div[@class='template_content']//a[contains(text(),"角色调整")]    #点击【角色调整】
+    page should contain    @{login_name}    #验证：打开的页面，是否=查询公司名称
+    #---调整权限-（增加）--
+    进入框架    id=content
+    权限列表左右调整    ${exc_local}    ${exc_sheet}    fromUserRoleList    selectedUserRoleList    selectedUserRoleList    toRight
+    #--【保存】---
+    点击    id=pg_user_app_model_role_save    # 点【保存】
+    wait until page contains    用户和角色关联成功    timeout=3    error=用户和角色关联-失败
+    Capture Page Screenshot
+
+用户角色调整-减少
+    点击    xpath=//div[@id='rootMenu']//a[contains(text(),"运营商公司管理")]    #运营商公司管理
+    点击    xpath=//div[@id='treeMenu']/ul/li[2]/a[contains(text(),"公司管理")]    #公司管理
+    点击    xpath=//div[@id='treeMenu']//li[2]//a[contains(text(),"用户角色调整")]    #用户角色调整
+    进入框架    id=content
+    #---查找公司----
+    输入    id=search_orgname    @{client_name}    #输入客户名称
+    输入    id=search_username    @{login_name}    #输入用户登录名
+    点击    id=bt_search    # 点【查询】
+    page should contain    共1条    #验证：检索结果是否只有1条
+    #---编辑公司权限---
+    进入框架    id=content
+    点击    //div[@class='template_content']//a[contains(text(),"角色调整")]    #点击【角色调整】
+    page should contain    @{login_name}    #验证：打开的页面，是否=查询公司名称
+    #---调整权限-（增加）--
+    进入框架    id=content
+    权限列表左右调整    ${exc_local}    ${exc_sheet}    selectedUserRoleList    fromUserRoleList    selectedUserRoleList    toLeft
+    #--【保存】---
+    点击    id=pg_user_app_model_role_save    # 点【保存】
+    wait until page contains    用户和角色关联成功    timeout=3    error=用户和角色关联-失败
+    Capture Page Screenshot
+
+修改公司权限-增加-(批量）
+    点击    xpath=//div[@id='rootMenu']//a[contains(text(),"运营商公司管理")]    #运营商公司管理
+    点击    xpath=//div[@id='treeMenu']/ul/li[2]/a[contains(text(),"公司管理")]    #公司管理
+    点击    xpath=//div[@id='treeMenu']//li[2]//a[contains(text(),"公司角色调整")]    #公司角色调整
+    进入框架    id=content
+    : FOR    ${i}    IN    @{company}
+    \    #---查找公司----
+    \    输入    id=role_adjust_org_name    ${i}
+    \    点击    id=pg_role_adjust_search    # 点【查询】
+    \    page should contain    共1条    #验证：检索结果是否只有1条
+    \    #---编辑公司权限---
+    \    进入框架    id=content
+    \    点击    //div[@class='template_content']//a[contains(text(),"角色调整")]    #点击【角色调整】
+    \    page should contain    ${i}    #验证：打开的页面，是否=查询公司名称
+    \    #---调整权限-（增加）--
+    \    进入框架    id=content
+    \    select from list by Label    id=applicationId    ${app_name}
+    \    权限列表左右调整    ${exc_local}    ${exc_sheet}    fromOrgRoleList    selectedOrgRoleList    selectedOrgRoleList
+    \    ...    toRight
+    \    #--【保存】---
+    \    点击    id=pg_org_app_model_role_save    # 点【保存】
+    \    wait until page contains    公司和角色关联成功    timeout=3    error=公司和角色关联-失败
+    \    Capture Page Screenshot
+    \    sleep    2
+    \    #进入框架    id=content
+    \    点击    xpath=//span[text()='返回']    #点击【返回】name=pg_org_app_model_role_cancel
+
+*** Keywords ***
+登录
+    #---登录----
+    打开    ${login_url}
+    进入框架    id=loginPanel
+    输入    id=username    ${username}
+    输入    id=password    ${password}
+    点击    id=btn-submit
+    wait until page contains    首页    timeout=3    error=登录失败
+    离开框架
+
+变量
+    #--变量--[支撑登录账号]---
+    set suite variable    ${login_url}    http://www.800jit.com/login.html    #登录地址    #http://www.800jit.com/login.html    #http://vip.stage.800jit.com/login.html
+    set suite variable    ${username}    olymtech_admin    #支撑-登录名    #olymtech_admin    #olymtech_admin
+    set suite variable    ${password}    olymtech    #登录密码    #olymtech    #111111
+    #----权限参数[引用EXCEL]---
+    set suite variable    @{exc_info}    \    #定义 需要逐个存储的 {LIST} ,默认空
+    set suite variable    ${text}    \    #定义 EXCLE 临时读取的单元格内容,默认空
+    set suite variable    ${exc_local}    ${EXECDIR}\\自动化测试\\RFS\\Resources\\public_test_file\\货代权限表.xls    # EXCLE 文件路径 （必须是 .xls）,统一放置：../RFS/Resources/public_test_file目录下；【 \ ${EXECDIR} \ 】 表示 RIDE 中脚本所在的根目录；--根据各自的目录结构定义
+    set suite variable    ${exc_sheet}    Sheet3    # EXCLE 工作表 名称，默认 sheet1
+    set suite variable    ${exc_lie}    A    # EXCLE 列名
+    #--变量--[修改公司权限]--
+    set suite variable    @{client_name}    m3- 测试公司-hovi版 -B    #公司名称
+    #---【用户角色调整】---
+    set suite variable    @{login_name}    gzbt@qq.com    #用户登录名 + 公司名称
+    #---变量2-【修改公司权限】--按“应用模块”    #--按“应用模块”---按需
+    set suite variable    @{company}    GM1-准生产-性能-A    GM1-准生产-性能-B    GM1-准生产测试公司-G
+    set suite variable    ${app_name}    在线货代软件3
+
+权限列表左右调整
+    [Arguments]    ${exc_local}    ${exc_sheet}    ${left_list_name}    ${right_list_name}    ${check_list_name}    ${to_remove}
+    [Documentation]    ${exc_local} = EXCEL 路径；
+    ...    ${exc_sheet} = EXCEL 工作表名；
+    ...    ${left_list_name} = 左侧 列表名name；
+    ...    ${right_list_name} = 右侧 列表名 name ；
+    ...    ${check_list_name} =待检查列表名name；
+    ...    ${to_remove} = 移动到左边、右边 （右移=加权限=toRight \ ； 左移=减权限=toLeft：
+    #---读取 EXCLE 权限列表----
+    open Excel    ${exc_local}    # 打开 EXECLE 文件
+    ${exc_rows}    Get Row Count    ${exc_sheet}
+    ${exc_rows}    Evaluate    int(${exc_rows})+1    # EXCLE 行数+1，用于循环 ---自动计算
+    : FOR    ${i}    IN RANGE    1    ${exc_rows}
+    \    ${text}    Read Cell Data By Name    ${exc_sheet}    ${exc_lie}${i}    # 逐个读取 EXCEL 单元格内容
+    \    log    ${text}
+    \    Append To List    ${exc_info}    ${text}    \    # 逐个赋值给 {LIST} 变量租
+    \    select from list by Label    name=${left_list_name}    ${text}    # 逐个选择左侧待选择权限
+    点击    name=${to_remove}    # 点击 移动到 用户权限列表
+    sleep    3
+    log    ${exc_info}    #打印 EXCLE 全选列表
+    Capture Page Screenshot
+    #---检验移动结果
+    ${sec_value}    Get List Items    name=${check_list_name}
+    log    ${sec_value}
+    ${sec_count}    get matching xpath count    xpath=//select[@name='${check_list_name}']/option    #获得列表总数
+    log    ${sec_count}
+    sleep    5

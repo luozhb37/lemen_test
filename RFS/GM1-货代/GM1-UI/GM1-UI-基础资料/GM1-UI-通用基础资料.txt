@@ -1,0 +1,344 @@
+*** Settings ***
+Suite Setup       m4-登录
+Suite Teardown    close all browsers
+Test Teardown     重载当前页
+Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+
+*** Test Cases ***
+其他基础资料-新增
+    ${code}    生成一个带有字符的随机数    A
+    点击基础资料
+    进入指定二级菜单    业务基础资料    通用基础资料
+    新增其他基础资料    ${code}    叶
+    验证是否新增    valueSearch    ${code}
+    Set Suite Variable    ${code}
+
+其他基础资料-启用/禁用
+    点击基础资料
+    进入指定二级菜单    业务基础资料    通用基础资料
+    点击其他基础资料
+    等待加载层消失
+    进入框架    id=content
+    ${count}    其他基础资料列表信息查询    ${code}
+    Run Keyword If    ${count}==0    log    没有数据
+    ...    ELSE    启用和禁用
+
+货物状态-新增
+    ${statusCode}    生成一个带有字符的随机数    B
+    点击基础资料
+    进入指定二级菜单    业务基础资料    通用基础资料
+    点击货物状态
+    等待加载层消失
+    新增货物状态    ${statusCode}    CCC    DEFT
+    验证是否新增    searchValueSearch    ${statusCode}
+    Set Suite Variable    ${statusCode}
+
+货物状态-启用/禁用
+    点击基础资料
+    进入指定二级菜单    业务基础资料    通用基础资料
+    点击货物状态
+    等待加载层消失
+    进入框架    id=content
+    ${count}    货物状态信息列表查询    ${statusCode}
+    Run Keyword If    ${count}==0    log    没有数据
+    ...    ELSE    启用和禁用
+
+币别信息--新增/删除
+    点击基础资料
+    进入指定二级菜单    业务基础资料    通用基础资料
+    点击币别信息
+    #币别信息--新增
+    ${time}    get time    epoch
+    币别信息--新增    ${time}
+    币别信息--查询    ${time}
+    #验证数据
+    进入列表框架
+    ${result}    获取页面数据条数
+    应该要相等（数字）    ${result}    1
+    离开框架
+    #币别信息--删除
+    币别信息--查询    ${time}
+    币别信息--删除
+    #验证数据
+    进入列表框架
+    ${result}    获取页面列表条数    费用项目列表
+    应该要相等（数字）    ${result}    0
+    离开框架
+
+商品分类-新增
+    ${goodscode}    生成一个带有字符的随机数    C
+    点击基础资料
+    进入指定二级菜单    业务基础资料    通用基础资料
+    等待加载层消失
+    点击商品分类
+    新增商品分类    ${goodscode}    MATA
+    验证是否新增    codeSearch    ${goodscode}
+    Set Suite Variable    ${goodscode}
+
+商品分类-启用/禁用
+    点击基础资料
+    进入指定二级菜单    业务基础资料    通用基础资料
+    点击商品分类
+    等待加载层消失
+    进入框架    id=content
+    ${count}    商品分类信息列表查询    ${goodscode}
+    Run Keyword If    ${count}==0    log    没有数据
+    ...    ELSE    启用和禁用
+
+货物信息-新增
+    ${goodses_code}    生成一个带有字符的随机数    D
+    点击基础资料
+    进入指定二级菜单    业务基础资料    通用基础资料
+    点击货物信息
+    等待加载层消失
+    新增货物信息    ${goodses_code}    SCORE
+    货物信息或包装类型新增验证    qy_base_goodses_code    ${goodses_code}
+    Set Suite Variable    ${goodses_code}
+
+货物信息-删除
+    点击基础资料
+    进入指定二级菜单    业务基础资料    通用基础资料
+    点击货物信息
+    等待加载层消失
+    货物信息列表查询    ${goodses_code}
+    Run Keyword If    ${count}==0    log    没有数据
+    删除货物信息并校验    ${goodses_code}
+
+贸易方式-新增
+    ${typecode}    生成一个带有字符的随机数    F
+    点击基础资料
+    进入指定二级菜单    业务基础资料    通用基础资料
+    点击贸易方式
+    等待加载层消失
+    新增贸易方式    ${typecode}    YJY    YEJUNYAN
+    验证是否新增    titleSearch    ${typecode}
+    Set Suite Variable    ${typecode}
+
+贸易方式-启用/禁用
+    点击基础资料
+    进入指定二级菜单    业务基础资料    通用基础资料
+    点击贸易方式
+    等待加载层消失
+    进入框架    id=content
+    ${count}    贸易信息列表查询    ${typecode}
+    Run Keyword If    ${count}==0    log    没有数据
+    ...    ELSE    启用和禁用
+
+成交方式-新增
+    ${dealcode}    生成一个带有字符的随机数    D
+    点击基础资料
+    进入指定二级菜单    业务基础资料    通用基础资料
+    点击成交方式
+    等待加载层消失
+    新增成交方式    ${dealcode}    湖人    LAKERS
+    验证是否新增    codeSearch    ${dealcode}
+    Set Suite Variable    ${dealcode}
+
+成交方式-启用/禁用
+    点击基础资料
+    进入指定二级菜单    业务基础资料    通用基础资料
+    点击成交方式
+    等待加载层消失
+    进入框架    id=content
+    ${count}    成交方式信息列表查询    ${dealcode}
+    Run Keyword If    ${count}==0    log    没有数据
+    ...    ELSE    启用和禁用
+
+结算类型--新增/删除
+    点击基础资料
+    进入指定二级菜单    业务基础资料    通用基础资料
+    点击结算类型
+    #结算类型--新增
+    ${time}    get time    epoch
+    结算类型--新增    ${time}
+    结算类型--查询    ${time}
+    #验证数据
+    进入列表框架
+    ${实际值}    获取匹配xpath的个数    xpath=//table[@id='sp_base_settletype_tbl5']/tbody/tr
+    ${预期值}    Evaluate    str(2)
+    ${return}    run keyword and return status    应该要相等    ${实际值}    ${预期值}
+    离开框架
+    #结算类型--删除
+    结算类型--查询    ${time}
+    结算类型--删除
+    #验证数据
+    进入列表框架
+    ${实际值}    获取匹配xpath的个数    xpath=//table[@id='sp_base_settletype_tbl5']/tbody/tr
+    ${预期值}    Evaluate    str(1)
+    ${return}    run keyword and return status    应该要相等    ${实际值}    ${预期值}
+    离开框架
+
+费用分类管理--新增/删除
+    点击基础资料
+    进入指定二级菜单    业务基础资料    通用基础资料
+    点击费用分类管理
+    #费用分类管理--新增
+    进入列表框架
+    ${新增前}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr
+    离开框架
+    ${time}    get time    epoch
+    费用分类管理--新增    ${time}
+    #验证数据
+    进入列表框架
+    ${新增后}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr
+    ${实际值1}    Evaluate    ${新增后}-${新增前}
+    应该要相等（数字）    ${实际值1}    1
+    离开框架
+    #费用分类管理--删除
+    进入列表框架
+    ${删除前}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr
+    离开框架
+    费用分类管理--删除    ${time}
+    #验证数据
+    进入列表框架
+    ${删除后}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr
+    ${实际值2}    Evaluate    ${删除前}-${删除后}
+    应该要相等（数字）    ${实际值2}    1
+    离开框架
+
+计费方式和单位-新增
+    ${modeEnname}    生成一个带有字符的随机数    G
+    ${Chinesename}    生成一个带有字符的随机数    哈哈
+    点击基础资料
+    进入指定二级菜单    业务基础资料    通用基础资料
+    点击计费方式和单位
+    等待加载层消失
+    新增计费方式和单位    COUNT    箱    ${modeEnname}    ${Chinesename}
+    验证是否新增    unitEnnameSearch    ${modeEnname}
+    Set Suite Variable    ${modeEnname}
+
+计费方式和单位-启用/禁用
+    点击基础资料
+    进入指定二级菜单    业务基础资料    通用基础资料
+    点击计费方式和单位
+    等待加载层消失
+    进入框架    id=content
+    ${count}    计费方式和单位信息列表查询    ${modeEnname}
+    Run Keyword If    ${count}==0    log    没有数据
+    ...    ELSE    启用和禁用
+
+包装类型-新增
+    ${base_packagetypes_code}    生成一个带有字符的随机数    H
+    点击基础资料
+    进入指定二级菜单    业务基础资料    通用基础资料
+    点击包装类型
+    等待加载层消失
+    新增包装类型    ${base_packagetypes_code}    Faker
+    #验证
+    货物信息或包装类型新增验证    qy_base_packagetypes_code    ${base_packagetypes_code}
+    Set Suite Variable    ${base_packagetypes_code}
+
+包装类型-删除
+    点击基础资料
+    进入指定二级菜单    业务基础资料    通用基础资料
+    点击包装类型
+    等待加载层消失
+    包装列表信息查询    ${base_packagetypes_code}
+    Run Keyword If    ${count}==0    log    没有数据
+    ...    ELSE    删除包装类型并校验    ${base_packagetypes_code}
+
+国家-新增
+    ${country}    Set Variable    UU
+    点击基础资料
+    进入指定二级菜单    业务基础资料    通用基础资料
+    点击国家
+    等待加载层消失
+    新增国家    ${country}    Nouth
+    #验证
+    进入框架    id=content
+    验证是否新增    searchNo    ${country}
+    Set Suite Variable    ${country}
+
+国家-启用/禁用
+    点击基础资料
+    进入指定二级菜单    业务基础资料    通用基础资料
+    点击国家
+    等待加载层消失
+    进入框架    id=content
+    ${count}    城市或国家列表信息查询    UU
+    Run Keyword If    ${count}==0    log    没有数据
+    ...    ELSE    国家或城市启用和禁用
+
+国家-删除
+    点击基础资料
+    进入指定二级菜单    业务基础资料    通用基础资料
+    点击国家
+    等待加载层消失
+    进入框架    id=content
+    ${count}    城市或国家列表信息查询    UU
+    Run Keyword If    ${count}==0    log    没有数据
+    ...    ELSE    删除国家或城市记录并校验
+
+城市-新增
+    ${city}    Set Variable    YJYJY
+    点击基础资料
+    进入指定二级菜单    业务基础资料    通用基础资料
+    点击城市
+    等待加载层消失
+    新增城市    ${city}    Hangzhou    AE
+    #验证
+    进入框架    id=content
+    验证是否新增    searchNo    ${city}
+    Set Suite Variable    ${city}
+
+城市-启用/禁用
+    点击基础资料
+    进入指定二级菜单    业务基础资料    通用基础资料
+    点击城市
+    等待加载层消失
+    进入框架    id=content
+    ${count}    城市或国家列表信息查询    YJYJY
+    Run Keyword If    ${count}==0    log    没有数据
+    ...    ELSE    国家或城市启用和禁用
+
+城市-删除
+    点击基础资料
+    进入指定二级菜单    业务基础资料    通用基础资料
+    点击城市
+    等待加载层消失
+    进入框架    id=content
+    ${count}    城市或国家列表信息查询    YJYJY
+    Run Keyword If    ${count}==0    log    没有数据
+    ...    ELSE    删除国家或城市记录并校验
+
+箱型箱尺-新增
+    #--要勾选箱型箱尺-新增
+    点击基础资料
+    进入指定二级菜单    业务基础资料    海运基础资料
+    点击箱型箱尺
+    等待加载层消失
+    进入列表框架
+    ${text}    箱型箱尺/船公司列表-查询    ${vgm.code}    启用
+    应该包含    ${text}    共1条
+    #勾选禁用
+    勾选记录    xpath=//table//thead//input    #勾选复选框
+    点击    xpath=//span[text()='禁 用']/..    #点击禁用
+    ${text}    箱型箱尺/船公司列表-查询    ${vgm.code}    禁用
+    应该包含    ${text}    共1条
+    #勾选启用
+    勾选记录    xpath=//table//thead//input    #勾选复选框
+    点击    xpath=//span[text()='启 用']/..    #点击启用
+    ${text}    箱型箱尺/船公司列表-查询    ${vgm.code}    启用
+    应该包含    ${text}    共1条
+
+箱型箱尺-启用/禁用
+    #--要勾选箱型箱尺-新增
+    点击基础资料
+    进入指定二级菜单    业务基础资料    海运基础资料
+    点击箱型箱尺
+    等待加载层消失
+    进入列表框架
+    ${text}    箱型箱尺/船公司列表-查询    ${vgm.code}    启用
+    应该包含    ${text}    共1条
+    #勾选禁用
+    勾选记录    xpath=//table//thead//input    #勾选复选框
+    点击    xpath=//span[text()='禁 用']/..    #点击禁用
+    ${text}    箱型箱尺/船公司列表-查询    ${vgm.code}    禁用
+    应该包含    ${text}    共1条
+    #勾选启用
+    勾选记录    xpath=//table//thead//input    #勾选复选框
+    点击    xpath=//span[text()='启 用']/..    #点击启用
+    ${text}    箱型箱尺/船公司列表-查询    ${vgm.code}    启用
+    应该包含    ${text}    共1条
+
+*** Keywords ***

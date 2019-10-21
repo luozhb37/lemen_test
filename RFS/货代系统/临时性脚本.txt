@@ -1,0 +1,480 @@
+*** Settings ***
+Suite Setup       登录
+Suite Teardown    close all browsers
+Library           OlymLibrary
+Library           Collections
+Resource          ../Resources/M3基础操作/M3--引用.txt
+Library           Selenium2Library
+Library           OperatingSystem
+Resource          ../Resources/m3基础操作.txt
+Library           AutoItLibrary
+Library           ExcelLibrary
+
+*** Test Cases ***
+打开不同域名后截图
+    [Documentation]    为测试云解析不同的域名，然后截图进行对比验证
+    @{a}    create list
+    ${a}    read document    C:\\Users\\hovi\\Desktop\\ss.txt
+    : FOR    ${i}    IN    @{a}
+    \    ${status}    run keyword and return status    打开    ${i}
+    \    截屏
+    \    关闭浏览器
+
+上传下载附件
+    ${下载文件所在的路径}    set variable    C:\\Users\\hovi\\Downloads\\c5d3.1502180179724.txt    #运行浏览器下载的文件所在的路径
+    ${filename}    set variable    333.txt    #附件 名
+    登录
+    进入业务管理
+    进入业务台帐
+    进入海运出口
+    #${businessNo}    新增海运出口业务台帐
+    进入台帐详情    EXP17080072    #${businessNo}
+    select frame by index    tag=iframe    -1
+    点击    id=bt_remark    #点击备注
+    离开框架
+    select frame by index    tag=iframe    -1
+    等待    1
+    #点击    xpath=//span[contains(text(),'新增')]
+    #离开框架
+    等待    2
+    log    ${CURDIR}
+    #select frame by index    tag=iframe    -1
+    #选择文件    xpath=//input[contains(@id,'bn_remarks_adjunct')]    ${CURDIR}\\333.txt
+    #等待    2
+    #输入    xpath=//textarea[contains(@id,'bn_remarks_remark')]    测试上传附件的备注
+    #点击    id =bt_save_close    #保存并关闭
+    #离开框架
+    #点击    xpath=//td[contains(text(),'备注')]/following-sibling::td[3]    #点击关闭
+    移除文件    ${下载文件所在的路径}
+    文件不存在    ${下载文件所在的路径}
+    #进入台帐详情框架
+    #点击    id=bt_remark    #点击备注
+    #离开框架
+    #select frame by index    tag=iframe    -1
+    点击附件名下载    ${filename}    ${下载文件所在的路径}
+    [Teardown]    close browser
+
+循环修改m3台帐详情
+    点击业务管理
+    点击业务台帐
+    点击海运出口
+    : FOR    ${n}    IN RANGE    2    17
+    \    进入列表页面框架
+    \    log    ${n}
+    \    点击    xpath=//tbody/tr[${n}]/td[3]/a
+    \    离开框架
+    \    台账详情修改目的港
+    \    关闭所有弹出框
+
+新增出口整箱运价
+    登录
+    点击运价管理
+    进入运价维护
+    ${signflag}    get timestamp    #符号内容自动生成，方便查询
+    新增海运出口整箱运价    loadport=NINGBO    dischargeport=SHENZHEN    cycle=2/3    sailtime=25    carrier=APL    beginDate=2016-12-22
+    ...    validdate=2017-12-29    signflag=${signflag}
+    ${result}    运价查询    signflag=${signflag}
+    should contain    ${result}    共1条
+    删除查询出来的全部运价
+    点击运价管理
+
+订单-上传托书-校对页面接单
+    [Documentation]    模板编号：zjlb_p161129
+    点击订单管理
+    点击订单查询
+    ${bn_bookings_bookingno}    上传托书
+    等待    6
+    订单查询    ${bn_bookings_bookingno}
+    订单查询    ${bn_bookings_bookingno}
+    ${bussiness_no}    校对页面接单
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${bussiness_no}
+
+循环新增费用-多票
+    登录
+    点击业务管理
+    点击业务台帐
+    点击海运出口
+    #{list_b}设置需新增费用的业务编号
+    ${list_b}    create list    EXP1709600    EXP1709601    EXP1709602    EXP1709603    EXP1709604
+    ...    EXP1709605    EXP1709606    EXP1709607    EXP1709608    EXP1709609
+    : FOR    ${i}    IN    @{list_b}
+    \    log    ${i}
+    \    ${businessNO}    Set Variable    ${i}
+    \    海运出口列表查询业务编号    ${businessNO}
+    \    进入台帐详情    ${businessNO}
+    \    从台帐详情进入费用页面
+    \    #从业务列表进入费用页面
+    \    新增收入费用
+    \    select frame by index    tag=iframe    -1
+    \    ${fee_amount_rec}    获取页面文本内容    xpath=//*[@id="pg_fee_apply_tbl12"]/tbody/tr[1]/td[2]/font[1]
+    \    应该要相等    ${fee_amount_rec}    RMB:1,000.00
+    \    离开框架
+    \    关闭所有弹出框
+    \    进入台帐详情    ${businessNO}
+    \    从台帐详情进入费用页面
+    \    新增支出费用
+    \    select frame by index    tag=iframe    -1
+    \    ${fee_amount_pay}    获取页面文本内容    xpath=//*[@id="pg_fee_apply_tbl12"]/tbody/tr[2]/td[2]/font
+    \    应该要相等    ${fee_amount_pay}    RMB:300.00
+    \    离开框架
+    \    关闭所有弹出框
+    [Teardown]    close all browsers
+
+循环新增用户
+    #登录
+    点击公司管理
+    点击用户管理
+    ${user_password}    Set Variable    a111111
+    ${xing}    Set Variable    m3yj-auto
+    : FOR    ${i}    IN RANGE    4    100    #循环新增：zsc-auto1~9的用户
+    \    log    ${i}
+    \    ${user_name}    Catenate    SEPARATOR=    ${xing}    ${i}
+    \    ${last_name}    Set Variable    ${xing}
+    \    ${first_name}    Set Variable    ${i}
+    \    点击用户维护
+    \    进入列表页面框架
+    \    点击    id=bt_add_user
+    \    输入    id=user_name    ${user_name}
+    \    ${user_name}    获取页面值    id=user_name
+    \    输入    id=sur_name    ${last_name}
+    \    输入    id=first_name    ${first_name}
+    \    输入    id=password    ${user_password}
+    \    输入    id=repeat_password    ${user_password}
+    \    输入    id=email    11@qq.com
+    \    勾选记录    xpath=//*[@id="pg_add_user_tbl7"]/tbody/tr[2]/td[2]/table/tbody/tr/td[1]/span/input    #勾选操作员 \
+    \    勾选记录    xpath=//*[@id="pg_add_user_tbl7"]/tbody/tr[2]/td[2]/table/tbody/tr/td[2]/span/input    #勾选客服 \
+    \    勾选记录    xpath=//*[@id="pg_add_user_tbl7"]/tbody/tr[2]/td[2]/table/tbody/tr/td[5]/span/input    #勾选商务 \
+    \    勾选记录    xpath=//*[@id="pg_add_user_tbl7"]/tbody/tr[2]/td[2]/table/tbody/tr/td[8]/span/input    #勾选销售员
+    \    点击    id=bt_save_and_set_role    #点击保存并设置角色
+    \    勾选记录    xpath=//td[contains(text(),"在线货代软件3")]/following-sibling::td[7]//input[@name='token[]']    #存在多个时，勾选指定应用 M3
+    \    #勾选记录    name=token[]    #勾选第一个记录
+    \    点击    id=bt_next    #点击下一步
+    \    点击    id=pg_user_app_model_role_save    #点保存
+    \    sleep    0.5
+    \    离开框架
+    [Teardown]    close all browsers
+
+循环修改用户
+    [Timeout]
+    登录
+    点击公司管理
+    点击用户管理    # 循环修改用户权限
+    ${zsc_cargo}    create list    gjf    cn    zh    qh    sjl
+    ...    pyc    hjh_zsc    cyj    hyd1    sss    cammy
+    ...    zw    zsc-jingnaw    cjy    wyc1    zdd    lgy
+    ...    sq    cf    wjn-3    helen2    testhovi    wsg
+    ...    wyczsc    chengjie    hml    lj    ykzsc    xxf
+    ...    px    leos    xy    hovi2
+    ${zsc_xhw}    Set Variable    m3yj-auto
+    ${list_test}    create list    m3-auto1    m3-auto2    m3-auto3    m3-auto4    m3-auto5
+    ...    m3-auto6    m3-auto7    m3-auto8    m3-auto9    m3-auto10
+    #: FOR    ${i}    IN    @{zsc_cargo}
+    : FOR    ${i}    IN RANGE    1    201
+    \    log    ${i}
+    \    #${user_name}    Set Variable    ${i}
+    \    ${user_name}    Catenate    SEPARATOR=    ${zsc_xhw}    ${i}
+    \    点击用户维护
+    \    #用户查询
+    \    进入框架    id=content
+    \    输入    id=user_name_search    ${user_name}
+    \    点击    id=bt_search
+    \    离开框架
+    \    #用户角色、权限维护
+    \    打开用户详情
+    \    保存职员类型
+    \    进入框架    id=content
+    \    点击    id=bt_save_and_set_role    #点击保存并设置角色
+    \    勾选记录    name=token[]
+    \    点击    id=bt_next    #点击下一步
+    \    点击    id=pg_user_app_model_role_save    #点保存
+    \    ${page}    获取页面文本内容    css=.list-middle-show    #检查‘保存成功’信息
+    \    ${return}    run keyword and return status    应该包含    ${page}    保存成功    #用户和角色关系保存成功！
+    \    离开框架
+    [Teardown]    close all browsers
+
+循环修改组机构
+    登录
+    点击公司管理
+    #循环 修改组织结构
+    点击    xpath=//*[contains(text(),'组织机构')]
+    : FOR    ${i}    IN RANGE    10
+    \    点击    xpath=//*[contains(text(),'部门信息')]
+    \    进入框架    id=content
+    \    点击    id=pg_usergroup_system_save
+    \    sleep    0.2
+    \    ${page}    获取页面文本内容    css=.list-middle-show    #检查‘保存成功’信息
+    \    ${return}    run keyword and return status    应该包含    ${page}    保存成功
+    \    离开框架
+    \    点击    xpath=//*[contains(text(),'上下级信息（NEW）')]
+    \    进入框架    id=content
+    \    进入框架    id=allocate
+    \    点击    id=pg_usergroup_system_save
+    \    sleep    0.2
+    \    ${page}    获取页面文本内容    css=.list-middle-show    #检查‘保存成功’信息
+    \    ${return}    run keyword and return status    应该包含    ${page}    保存成功
+    \    离开框架
+    [Teardown]    close all browsers
+
+循环新增-报关-装箱-分单-费用
+    登录
+    点击业务管理
+    点击业务台帐
+    点击海运出口
+    #{list_b}设置需新增费用的业务编号
+    #${list_b}    create list    EXP17120125
+    ${list_b}    Set Variable    EXP171200
+    #:FOR    ${i}    IN    @{list_b}
+    : FOR    ${i}    IN RANGE    51    100    #51~151
+    \    log    ${i}
+    \    #${businessno}    ${casenumber}    新增海运出口业务
+    \    #${businessno}    Set Variable    ${i}
+    \    ${businessno}    Catenate    SEPARATOR=    ${list_b}    ${i}
+    \    log    ${businessno}
+    \    海运出口列表查询业务编号    ${businessno}
+    \    进入台帐详情    ${businessno}
+    \    ${TIME1}    get timestamp    #生成时间戳来表示下面的箱号
+    \    #新增报关
+    \    进入详情框架
+    \    点击    id=bt_custom
+    \    等待    2
+    \    离开框架
+    \    select frame by index    tag=iframe    -1
+    \    点击    xpath=.//*[contains(@href,"javascript:process_action_sp_excustoms_add")]/span    #点击 新增'报关单'
+    \    输入    xpath=//input[contains(@id,'bn_customs_custombillno')]    BGDH_001    #输入 报关单号
+    \    输入    xpath=//input[contains(@id,'bn_customs_customcount')]    2    #输入 件数
+    \    点击    id=bt_save    #点击 保存
+    \    page should contain    保存成功
+    \    离开框架
+    \    #execute javascript    jQuery(".icon-close").get(0).click();    #点击 \ 关闭 按钮
+    \    关闭所有弹出框
+    \    #新增- 装箱
+    \    进入台帐详情    ${businessno}
+    \    新增集装箱信息    ctnno=${TIME1}    sealno=${TIME1}
+    \    select frame by index    tag=iframe    -1
+    \    点击    id=bt_sendgoods    #点击内装
+    \    等待    1
+    \    点击    xpath=.//*[@id='sp_sendgoods_seacontainers_tbl5']/tbody/tr[2]/td[10]/a    #点击修改：检查页面是否能正常打开
+    \    page should contain    内装信息
+    \    离开框架
+    \    #分单（接口）
+    \    进入详情框架
+    \    ${casenumber}    获取页面值    id=client_casenumber    #获取casenumber
+    \    log    ${casenumber}
+    \    离开框架
+    \    ${cookies}    get cookies
+    \    ${header}    create Dictionary    Content-Type=application/x-www-form-urlencoded;charset=utf-8    Cookie=${cookies}
+    \    create session    alias    http://${hd_domain}
+    \    ${data}    create dictionary    casenumber=${casenumber}    hblCount=2    hblnoBase=mblno    hblnoAdd=letter
+    \    ${result}    post request    alias    uri=/fms-rest/rest/bnHousebills/masterSplit?_method=get    data=${data}    headers=${header}
+    \    log    ${result.text}
+    \    should contain    ${result.text}    ${businessno}A
+    \    关闭所有弹出框
+    \    #新增收入-支出费用
+    \    海运出口列表查询业务编号    ${businessno}
+    \    进入台帐详情    ${businessno}
+    \    从台帐详情进入费用页面
+    \    #从业务列表进入费用页面
+    \    新增收入费用
+    \    select frame by index    tag=iframe    -1
+    \    ${fee_amount_rec}    获取页面文本内容    xpath=//*[@id="pg_fee_apply_tbl12"]/tbody/tr[1]/td[2]/font[1]
+    \    应该要相等    ${fee_amount_rec}    RMB:1,000.00
+    \    离开框架
+    \    #----关闭所有弹出框
+    \    #----进入台帐详情    ${businessNO}
+    \    #---从台帐详情进入费用页面
+    \    sleep    1
+    \    新增支出费用
+    \    select frame by index    tag=iframe    -1
+    \    ${fee_amount_pay}    获取页面文本内容    xpath=//*[@id="pg_fee_apply_tbl12"]/tbody/tr[2]/td[2]/font
+    \    应该要相等    ${fee_amount_pay}    RMB:300.00
+    \    离开框架
+    \    关闭所有弹出框
+    [Teardown]    close all browsers
+
+循环-登录-查询（不关浏览器）
+    [Setup]
+    ${list_b}    Set Variable    EXP17120079    EXP17120080
+    ${username}    Set Variable    ${m3_username}
+    ${password}    Set Variable    ${m3_password}
+    ${session}    Set Variable    ${m3-session}
+    Set Selenium Implicit Wait    5
+    打开    http://www.800jit.com/login.html
+    : FOR    ${i}    IN RANGE    1    50
+    \    #登录
+    \    go to    http://www.800jit.com/login.html
+    \    进入框架    id=loginPanel
+    \    输入    id=username    ${username}
+    \    输入    id=password    ${password}
+    \    点击    id=btn-submit
+    \    #等待    5
+    \    wait until page contains    首页    timeout=3    error=登录失败
+    \    #等待    2
+    \    离开框架
+    \    create session    ${session}    http://${m3-url}
+    \    #----登录完成
+    \    点击业务管理
+    \    点击业务台帐
+    \    #点击海运出口    #若默认第一个是 海运出口，可临时去掉本步骤
+    \    ${cookies}    get cookies
+    \    log    ${cookies}
+    \    log    ${session}
+    \    #查询 第一个业务编号
+    \    ${businessno}    Set Variable    ${list_b[0]}
+    \    海运出口列表查询业务编号    ${businessno}
+    \    ${pages}    获取列表记录数
+    \    应该包含    ${pages}    共1条    #验证新增的业务编号在列表上可以查询到一条记录
+    \    sleep    1
+    \    Capture Page Screenshot
+    \    #查询第二个业务编号
+    \    ${businessno}    Set Variable    ${list_b[1]}
+    \    海运出口列表查询业务编号    ${businessno}
+    \    ${pages}    获取列表记录数
+    \    应该包含    ${pages}    共1条    #验证新增的业务编号在列表上可以查询到一条记录
+    \    sleep    1
+    \    Capture Page Screenshot
+    \    退出
+    \    sleep    1
+    [Teardown]    close all browsers
+
+新舱单业务-增加
+    点击业务管理
+    点击业务台帐
+    点击海运出口
+    进入列表页面框架
+    点击    id=bt_add    #新增
+    离开框架
+    进入详情框架
+    输入    id=bn_mains_customername    腾讯游戏
+    输入    id=bn_mains_receiptname    腾讯游戏
+    输入    id=bn_mains_mblno    DNF54321
+    输入    id=bn_mains_sales    叶俊彦
+    输入    id=bn_mains_ctncount1    2
+    点击    id=bt_save
+    点击    id=bt_truck
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@name,'win_')]
+    输入    xpath=//*[@id="sp_seacontainers_tbl5"]/tbody/tr[2]/td[3]/ipunt    TRU123
+    输入    xpath=//*[@id="sp_seacontainers_tbl5"]/tbody/tr[2]/td[3]/ipunt    CCDX
+    输入    xpath=//*[@id="sp_seacontainers_tbl5"]/tbody/tr[3]/td[4]/ipunt    TRU124
+    输入    xpath=//*[@id="sp_seacontainers_tbl5"]/tbody/tr[3]/td[5]/ipunt    CCDXR
+    点击    id=bt_save_close
+
+循环修改用户-业务-基础资料
+    #登录
+    ${zsc_xhw}    Set Variable    h01@800jit.com    #zsc-auto
+    ${list_test}    create list    m3-auto1    m3-auto2    m3-auto3    m3-auto4    m3-auto5
+    ...    m3-auto6    m3-auto7    m3-auto8    m3-auto9    m3-auto10
+    #: FOR    ${i}    IN    @{zsc_cargo}
+    :FOR    ${i}    IN RANGE    1    50
+    \    log    ${i}
+    \    ${user_name}    Set Variable    ${zsc_xhw}    #${i}
+    \    ${businessNO}    Set Variable    EXP2018110093
+    \    ${base_customers_code}    Set Variable    WGFCO    #往来单位CODE
+    \    #【操作1】业务详情----临时
+    \    Reload Page
+    \    点击业务管理
+    \    点击业务台帐
+    \    点击海运出口
+    \    海运出口列表查询业务编号    ${businessNO}
+    \    进入台帐详情    ${businessNO}
+    \    台账详情修改目的港
+    \    关闭所有弹出框
+    \    #【操作2】用户管理
+    \    Reload Page
+    \    点击公司管理
+    \    点击用户管理
+    \    点击用户维护
+    \    #-按用户名打开详情
+    \    进入框架    id=content
+    \    点击    xpath=//div[@user_name='${user_name}']/a/img[@src="application/themes/default/images/user_edit.gif"]
+    \    离开框架
+    \    保存职员类型
+    \    进入框架    id=content
+    \    点击    id=bt_save_and_set_role    #点击保存并设置角色
+    \    勾选记录    name=token[]
+    \    点击    id=bt_next    #点击下一步
+    \    点击    id=pg_user_app_model_role_save    #点保存
+    \    ${page}    获取页面文本内容    css=.list-middle-show    #检查‘保存成功’信息
+    \    ${return}    run keyword and return status    应该包含    ${page}    保存成功    #用户和角色关系保存成功！
+    \    离开框架
+    \    #【操作3】基础资料-往来单位
+    \    Reload Page
+    \    点击基础资料
+    \    点击企业基础资料
+    \    点击    xpath=//a[text()='往来单位']
+    \    等待加载层消失
+    \    进入列表页面框架
+    \    输入    qy_base_customers_code    ${base_customers_code}
+    \    点击    id=bt_query
+    \    点击    xpath=//a[text()='${base_customers_code}']    #打开往来单位详情
+    \    离开框架
+    \    进入详情框架
+    \    点击    id=bt_save    #点保
+    \    ${return}    run keyword and return status    应该包含    ${page}    保存成功    #用户和角色关系保存成功！
+    \    离开框架
+    \    关闭所有弹出框
+
+*** Keywords ***
+订单查询
+    [Arguments]    ${bn_bookings_bookingno}
+    进入列表页面框架
+    点击    id=bt_query    #为刷新页面
+    sleep    3
+    输入    id=qyac_bookingno    ${bn_bookings_bookingno}
+    点击    id=bt_query
+    离开框架
+
+校对页面接单
+    进入列表页面框架
+    点击    xpath=//a[text()='校对']
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@name,'win_')]
+    Wait Until Page Contains    接单
+    输入    id=bn_bookings_sales    叶俊彦
+    输入    id=bn_bookings_customerlinkman    YE
+    输入    id=bn_bookings_customermobile    123456
+    输入    id=bn_bookings_customeremail    AHFI@DAFU.COM
+    sleep    1
+    点击    id=actions_bt_accept
+    离开框架
+    进入框架    xpath=//h3[text()='业务信息']/../..//iframe[starts-with(@id,'win_')]
+    Page Should Contain Element    id=se_businessno_prefix
+    ${se_businessno_prefix}    Get Selected List Value    id=se_businessno_prefix
+    ${se_yearmonth}    Get Selected List Value    id=se_yearmonth
+    ${se_businessno_write}    获取页面值    id=se_businessno_write
+    ${bussiness_no}    Catenate    SEPARATOR=    ${se_businessno_prefix}    ${se_yearmonth}    ${se_businessno_write}
+    点击    id=bt_ok
+    Run Keyword And Return Status    send    {ENTER}
+    sleep    5
+    点击    css=.icon-close
+    离开框架
+    [Return]    ${bussiness_no}
+
+台账详情修改目的港
+    进入详情框架
+    输入    id=bn_assistants_dischargeportcode    ${SPACE}
+    按键    id=bn_assistants_dischargeportcode    \ue015
+    按键    id=bn_assistants_dischargeportcode    \\13
+    点击    id=bt_save
+    离开框架
+
+保存业务
+    进入详情框架
+    下拉选择byValue    id=businessno_yearmonth    1901
+    输入    id=bn_mains_customername    大香蕉
+    输入    id=bn_mains_receiptname    大香蕉
+    点击    id=bt_save
+    sleep    2
+    离开框架
+    关闭所有弹出框
+
+保存并关闭业务
+    进入详情框架
+    下拉选择byValue    id=businessno_yearmonth    1901
+    输入    id=bn_mains_customername    大香蕉
+    输入    id=bn_mains_receiptname    大香蕉
+    点击    id=bt_save_close
+    sleep    2
+    离开框架

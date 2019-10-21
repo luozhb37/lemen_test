@@ -1,0 +1,275 @@
+*** Settings ***
+Library           Selenium2Library
+Resource          ../Resources/基础关键字.txt
+Library           Screenshot
+Library           Collections
+Library           OlymLibrary
+
+*** Keywords ***
+新增拼箱运价
+    [Arguments]    ${loadport}    ${dischargeport}    ${carrier}    ${begindate}    ${validdate}    ${warehouse}=
+    ...    ${transferport}=    ${cycle}=    ${sailtime}=    ${cbmbaseprice}=    ${mtbaseprice}=    ${cbmsellprice}=
+    ...    ${mtsellprice}=    ${cbmprice}=    ${mtprice}=    ${isnor1}=    ${quoteorg}=    ${agentfeetype}=
+    ...    ${volumerange}=    ${addfee}=    ${linkinfo}=    ${remark}=    ${employee_remark}=    ${iscommend}=
+    ...    ${searoute}=1
+    [Documentation]    通用的新增功能
+    [Tags]
+    打开页面    运价通    运价维护    海运出口拼箱维护
+    #点击新增按钮
+    进入框架    id=mainFrame    #进入新增页面
+    点击链接    新增
+    离开框架
+    #新增
+    进入框架    //iframe[contains(@src,"lcl_detail")]    #进入新增页面
+    输入    id=loadport    ${loadport}
+    sleep    1
+    ${addPort}=    Run Keyword And Return Status    点击链接    点击新增此港口
+    sleep    3
+    Run Keyword If    ${addPort}    create_baseport    ${searoute}
+    输入    id=dischargeport    ${dischargeport}
+    sleep    1
+    ${dischargeport}=    Run Keyword And Return Status    点击链接    点击新增此港口
+    sleep    3
+    Run Keyword If    ${dischargeport}    create_baseport    ${searoute}
+    输入    id=carrier    ${carrier}
+    Execute Javascript    document.getElementById("begindate").value="${begindate}"    #有效起始日期
+    Execute Javascript    document.getElementById("validdate").value="${validdate}"    #有效结束日期
+    输入    id=warehouse    ${warehouse}    #仓库
+    输入    xpath=//input[@id='transferport' and @type='text']    ${transferport}
+    输入    id=cycle    ${cycle}    #船期
+    输入    id=sailtime    ${sailtime}    #航程
+    输入    id=cbmbaseprice    ${cbmbaseprice}    #轻货底价
+    输入    id=mtbaseprice    ${mtbaseprice}    #重货底价
+    输入    id=cbmsellprice    ${cbmsellprice}    #轻货成本价
+    输入    id=mtsellprice    ${mtsellprice}    #重货成本价
+    输入    id=cbmprice    ${cbmprice}    #轻货标准价
+    输入    id=mtprice    ${mtprice}    #重货标准价
+    #Run Keyword If    "${isnor1}"=="是"    Select Checkbox    id=isnor1    #是否是冷代干价格1
+    #输入    id=quoteorg    ${EMPTY}    #订舱代理 (先不使用)
+    输入    id=agentfeetype    ${agentfeetype}    #目的港收获标准
+    #Run Keyword If    "${fc}"!=""    下拉选择    ${fc}
+    输入    id=volumerange    ${volumerange}    #体积范围
+    输入    id=addfee    ${addfee}    #附加费说明
+    输入    id=linkinfo    ${linkinfo}    #联系方式
+    输入    id=remark    ${remark}    #外部备注
+    输入    id=employee_remark    ${employee_remark}    #内部备注
+    Run Keyword If    "${iscommend}"=="是"    Select Checkbox    id=iscommend
+    点击链接    保存
+    sleep    3
+    ${message}=    Confirm Action
+    Capture Page Screenshot
+    点击链接    关闭
+    离开框架
+    sleep    2
+    log    新增拼箱运价(起运港:${loadport}, 目的港=${dischargeport}) ${message}
+
+查询拼箱运价
+    [Arguments]    ${loadport}=    ${dischargeport}=    ${transferport}=    ${searoute}=
+    [Documentation]    通过查询条件查询出运价条数(支持一页内的数据,超出一页按一页最大值统计)
+    [Tags]
+    打开页面    运价通    运价维护    海运出口拼箱维护
+    #输入查询条件并搜索
+    ${count}=    lcl_query_search    ${loadport}    ${dischargeport}    ${transferport}    ${searoute}
+    log    查询(loadport=${loadport} dischargeport=${dischargeport} transferport=${transferport} searoute=${searoute}) 拼箱运价 ,结果共${result}条
+    [Return]    ${count}    # 运价条数
+
+修改拼箱运价
+    [Arguments]    ${loadport}=    ${dischargeport}=    ${transferport}=    ${searoute}=    &{options}
+    [Documentation]    通过查询条件,筛选数据
+    ...    如果有多条记录,则打开查询结果后的第一个明细记录
+    [Tags]
+    打开页面    运价通    运价维护    海运出口拼箱维护
+    ${count}=    lcl_query_search    ${loadport}    ${dischargeport}    ${transferport}    ${searoute}
+    点击链接    明细
+    离开框架
+    #修改
+    进入框架    //iframe[contains(@src,"lcl_detail")]
+    : FOR    ${option}    IN    @{options}
+    \    ${inputvalue}    get from dictionary    ${options}    ${option}
+    \    ${ElementType}    Get Element Attribute    id=${option}@type
+    \    Run Keyword If    "${ElementType}"=="text"    输入    id=${option}    ${inputvalue}
+    \    sleep    1
+    点击    id=bt_save
+
+批量修改拼箱运价_成本价
+    [Arguments]    ${loadport}=    ${dischargeport}=    ${transferport}=    ${searoute}=    ${cbmsellprice}=    ${mtsellprice}=
+    ...    ${cbmprice}=    ${mtprice}=
+    [Documentation]    查询条件 ${loadport}= | ${dischargeport}= | ${transferport}= | ${searoute}=
+    ...
+    ...    批量修改参数 ${cbmsellprice}= | ${mtsellprice}= |${cbmprice}=|${mtprice}=
+    ...    *暂时只支持 成本价= ${cbmsellprice}*
+    [Tags]
+    打开页面    运价通    运价维护    海运出口拼箱维护
+    #输入查询条件并搜索
+    ${count}=    lcl_query_search    ${loadport}    ${dischargeport}    ${transferport}    ${searoute}
+    Run Keyword If    "${count}"=="0"    Fail    msg=将要批量操作的运价不存在,请确认
+    点击    id=sheet_row_select_all    #点击全选
+    点击链接    批量维护
+    点击链接    成本价
+    sleep    1
+    离开框架
+    进入框架    //iframe[contains(@src,"pop_lclmaintain_otherprice")]
+    #成本价cbm
+    下拉选择    css=select#fieldcbmsellprice    成本价
+    下拉选择    css=select#operationcbmsellprice    \=
+    输入    css=input#cbmsellprice    ${cbmsellprice}
+    #成本价mt
+    下拉选择    css=select#fieldmtsellprice    成本价
+    下拉选择    css=select#operationmtsellprice    \=
+    输入    css=input#mtsellprice    ${mtsellprice}
+    #标准报价cbm
+    下拉选择    css=select#fieldcbmprice    标准报价
+    下拉选择    css=select#operationcbmprice    \=
+    输入    css=input#cbmprice    ${cbmprice}
+    #标准报价mt
+    下拉选择    css=select#fieldmtprice    标准报价
+    下拉选择    css=select#operationmtprice    \=
+    输入    css=input#mtprice    ${mtprice}
+    #提交
+    点击    css=input.buttonSys
+    sleep    5
+    [Return]    ${count}    # 运价条数
+
+删除拼箱运价
+    [Arguments]    ${loadport}=    ${dischargeport}=    ${transferport}=    ${searoute}=
+    [Documentation]    通过查询条件查询出运价全选并删除
+    [Tags]    todo
+    打开页面    运价通    运价维护    海运出口拼箱维护
+    #输入查询条件并搜索
+    ${count}=    lcl_query_search    ${loadport}    ${dischargeport}    ${transferport}    ${searoute}
+    Run Keyword If    "${count}"!="0"    点击    id=sheet_row_select_all    #点击全选
+    Run Keyword If    "${count}"!="0"    点击链接    删除
+    Run Keyword If    "${count}"!="0"    sleep    2
+    Run Keyword If    "${count}"!="0"    离开框架
+    Run Keyword If    "${count}"!="0"    点击    //span[contains(text(),'确认')]    #确定按钮
+    sleep    2
+    log    删除拼箱运价(loadport=${loadport} dischargeport=${dischargeport} transferport=${transferport} searoute=${searoute}) :共 ${count} 条
+    [Return]    ${count}    # 运价条数
+
+删除拼箱发布运价
+    [Arguments]    ${loadport}=    ${dischargeport}=    ${searoute}=    ${carrier}=
+    [Documentation]    通过查询条件查询出发布记录全选并删除
+    [Tags]    todo
+    打开页面    运价通    更多功能    xpath=//a[contains(@href,"海运出口拼箱发布记录")]
+    #输入查询条件并搜索
+    进入框架    xpath=//iframe[contains(@src,"LclHistoryQuery")]
+    输入    id=loadport    ${loadport}
+    输入    id=dischargeport    ${dischargeport}
+    下拉选择    id=searoute    ${searoute}
+    输入    id=carrier    ${carrier}
+    点击链接    查询
+    sleep    2
+    ${count}    获取表格行数    id    lclPriceHistory
+    Run Keyword If    "${count}"!="0"    点击    id=allselect    #点击全选
+    Run Keyword If    "${count}"!="0"    点击链接    删除
+    Run Keyword If    "${count}"!="0"    Confirm Action    #弹出警告
+    Run Keyword If    "${count}"!="0"    sleep    1
+    Run Keyword If    "${count}"!="0"    Confirm Action    #删除成功点确定
+    Run Keyword If    "${count}"!="0"    sleep    1
+    关闭弹出框
+    sleep    2
+    log    删除拼箱发布运价(loadport=${loadport} dischargeport=${dischargeport} searoute=${searoute} carrier=${carrier}) 拼箱运价 ,结果共${count}条
+    [Return]    ${count}    # 运价条数
+
+发布拼箱运价
+    [Arguments]    ${loadport}=    ${dischargeport}=    ${transferport}=    ${searoute}=
+    [Documentation]    根据查询条件,发布所有运价
+    ...    返回运价数量 (支持小余1页的数量)
+    [Tags]    todo
+    打开页面    运价通    运价维护    海运出口拼箱维护
+    #输入查询条件并搜索
+    ${count}=    lcl_query_search    ${loadport}    ${dischargeport}    ${transferport}    ${searoute}
+    点击    id=sheet_row_select_all    #点击全选
+    点击链接    发布运价
+    sleep    3
+    ${msg}    Confirm Action    #发布成功弹出框
+    sleep    2
+    Run Keyword If    "${msg}"=="存在本周内已发布的运价,是否要继续发布运价?"    Confirm Action
+    sleep    2
+    [Return]    ${count}    # 运价条数
+
+create_baseport
+    [Arguments]    ${searoute}=1
+    离开框架
+    进入框架    //iframe[contains(@src,"baseSeaportLclExport")]
+    Run Keyword And Return Status    下拉选择    id=searoute    ${searoute}
+    Run Keyword And Return Status    下拉选择byIndex    id=searoute    ${searoute}
+    ${ennamevalue}    Execute Javascript    return $("input[name='enname']").val()
+    点击链接    保存
+    sleep    4
+    ${result}=    Confirm Action
+    点击链接    关闭
+    离开框架
+    进入框架    //iframe[contains(@src,"lcl_detail")]
+    log    新增港口${ennamevalue} : ${result}
+
+lcl_query_search
+    [Arguments]    ${loadport}=    ${dischargeport}=    ${transferport}=    ${searoute}=
+    进入框架    id=mainFrame    #进入新增页面
+    输入    id=qy_loadport_temp    ${loadport}
+    Run Keyword If    "${loadport}"!=""    点击    id=loadport
+    Run Keyword If    "${dischargeport}"!=""    输入    id=qy_dischargeport_temp    ${dischargeport}
+    Run Keyword If    "${dischargeport}"!=""    点击    id=dischargeport
+    Run Keyword If    "${transferport}"!=""    输入    id=qy_transferport_temp    ${transferport}
+    Run Keyword If    "${transferport}"!=""    点击    id=transferport
+    Run Keyword If    "${searoute}"!=""    输入    id=qy_searoute_temp    ${searoute}
+    Run Keyword If    "${searoute}"!=""    点击    id=searoute
+    sleep    2
+    点击链接    id=j-stateBtn
+    点击链接    全部
+    sleep    2
+    ${count}=    获取表格行数    id    lclmaintain_home1
+    [Return]    ${count}
+
+新增整箱的运价
+    [Arguments]    ${loadport}    ${dischargeport}    ${carrier}    ${begindate}    ${validdate}    ${signflag}
+    ...    ${searoute_code}=hxdm    ${transferport}=CHIWAN    ${cycle}=2    ${sailtime}=12    ${sailing_date}=2017-11-2    ${massaddress}=宁波进港
+    ...    ${internetsellprice1}=1    ${internetsellprice2}=2    ${internetsellprice3}=3    ${internetsellprice4}=4    ${isnor1}= 是    ${rakeoff}=25
+    ...    ${sendtype}=正本    ${volumerange}=11    ${addfee}=自动化的附加费说明    ${linkinfo}=联系人信息15267855761    ${remark}=外面的世界很精彩    ${employee_remark}=内心要享受孤独
+    ...    ${iscommend}=是
+    [Documentation]    通用的新增功能,参数格式控制见实际业务数据
+    [Tags]
+    #点击新增按钮
+    进入框架    id=mainFrame    #进入新增页面
+    点击链接    新增
+    离开框架
+    #新增
+    进入框架    //iframe[contains(@src,"fcl_detail")]    #进入新增页面
+    Wait Until Element Is Enabled    id=loadport
+    输入    id=loadport    ${loadport}
+    输入    id=dischargeport    ${dischargeport}
+    ${status}    Run Keyword And Return Status    点击链接    点击新增此港口
+    离开框架
+    run keyword if    ${status}    新增港口数据
+    进入框架    //iframe[contains(@src,"fcl_detail")]    #进入新增页面
+    输入    id=carrier    ${carrier}
+    Execute Javascript    document.getElementById("begindate").value="${begindate}"    #有效起始日期
+    Execute Javascript    document.getElementById("validdate").value="${validdate}"    #有效结束日期
+    输入    id=searoute_code    ${searoute_code}
+    输入    id=transferport    ${transferport}
+    输入    id=cycle    ${cycle}    #船期
+    输入    id=sailtime    ${sailtime}    #航程
+    输入    id=sailing_date    ${sailing_date}    #开航日
+    输入    id=massaddress    ${massaddress}    #进港港区
+    输入    id=internetsellprice1    ${internetsellprice1}    #标准报价1
+    输入    id=internetsellprice2    ${internetsellprice2}    #标准报价2
+    输入    id=internetsellprice3    ${internetsellprice3}    #标准报价3
+    输入    id=internetsellprice4    ${internetsellprice4}    #标准报价4
+    Run Keyword If    "${isnor1}"=="是"    勾选记录    id=isnor1    #是否是冷代干价格1
+    输入    id=rakeoff    ${rakeoff}    #佣金
+    输入    id=signflag    ${signflag}    #符号
+    输入    id=sendtype    ${sendtype}    #出单方式
+    输入    id=volumerange    ${volumerange}    #限重
+    输入    id=addfee    ${addfee}    #附加费说明
+    输入    id=linkinfo    ${linkinfo}    #联系方式
+    输入    id=remark    ${remark}    #外部备注
+    输入    id=employee_remark    ${employee_remark}    #内部备注
+    Run Keyword If    "${iscommend}"=="是"    勾选记录    id=iscommend
+    点击链接    保存
+    等待    1
+    ${return-message}    页面弹出框选择确定
+    应该包含    ${return-message}    保存成功
+    点击链接    关闭
+    离开框架
+    等待    2
+    [Return]    ${return-message}

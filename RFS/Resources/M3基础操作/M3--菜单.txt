@@ -1,0 +1,272 @@
+*** Settings ***
+Resource          M3--引用.txt
+
+*** Keywords ***
+登录
+    读取货代登录配置信息
+    Set Selenium Implicit Wait    5
+    打开    http://www.800jit.com/login.html
+    #等待    3
+    进入框架    id=loginPanel
+    输入    id=username    ${M3_USERNAME}
+    输入    id=password    ${M3_PASSWORD}
+    点击    id=btn-submit
+    #等待    5
+    wait until page contains    首页
+    #等待    2
+    离开框架
+    create session    ${M3_SESSION}    http://${M3_URL}
+    关闭更新弹框2
+
+回到首页
+    [Arguments]    ${domain}=${M3_URL}
+    go to    http://${domain}/modelhome3/applogin
+
+shipper登录
+    [Arguments]    ${username}=${m3_username}    ${password}=${m3_password}
+    打开    http://shipper.800jit.com/web/
+    进入框架    css=.ignore
+    输入    id=username    ${username}
+    输入    id=password    ${password}
+    点击    id=btn-submit
+    wait until page contains    首页    timeout=3    error=登录失败
+    等待    2
+
+点击订单管理
+    点击    css=.icon-dingdan
+    等待加载层消失
+
+点击订单查询
+    点击    xpath=//a[contains(text(),"订单查询")]
+    等待加载层消失
+
+点击运价管理
+    点击    css=.icon-yunjiaguanli
+    等待加载层消失
+
+进入运价维护
+    点击    xpath=//*[contains(text(),'运价维护')]
+    等待加载层消失
+
+点击业务管理
+    点击    css=.icon-yewu
+    等待加载层消失
+
+点击业务台帐
+    点击    xpath=//a[text()='业务台帐']
+    等待加载层消失
+
+点击海运出口
+    点击    xpath=//a[text()='海运出口']
+    等待加载层消失
+
+点击海运进口
+    点击    xpath=//a[text()='海运进口']
+    等待加载层消失
+
+点击空运出口(新)
+    点击    xpath=//a[text()='空运出口(新)']
+    等待加载层消失
+
+点击空运进口
+    点击    xpath=//a[text()='空运进口']
+    等待加载层消失
+
+点击结算管理
+    点击    css=.icon-jiesuan
+    等待加载层消失
+
+点击账单管理
+    点击    xpath=.//*[contains(@href,'pg_debitnotebill_search')]
+    等待加载层消失
+
+点击对账
+    点击    xpath=.//a[contains(@href,"checkbill_fee_search")]
+    等待加载层消失
+
+点击新增对账单
+    点击    xpath=//*[text()="新增对账单"]
+    等待加载层消失
+
+点击对账单管理
+    点击    xpath=//a[text()="对账单管理"]
+    等待加载层消失
+
+点击发票
+    点击    xpath=//a[text()="发票"]    #点击发票
+    等待加载层消失
+
+点击新增发票
+    点击    xpath=//a[text()="新增发票"]
+    等待加载层消失
+
+点击按业务
+    进入列表页面框架
+    点击    xpath=//span[text()="按业务"]
+    离开框架
+
+点击发票管理
+    点击    xpath=//a[text()="发票管理"]
+    等待加载层消失
+
+收（付）款登记-点击按费用明细
+    进入列表页面框架
+    点击    xpath=.//*[contains(@href,"bt_byfeeitems")]
+    离开框架
+
+点击收款
+    点击    xpath=//*[text()="收款"]    #点击收款
+    等待加载层消失
+
+点击收款核销
+    点击    xpath=//a[text()='收款核销']
+    等待加载层消失
+
+点击收款登记
+    点击    xpath=//a[text()="收款登记"]
+    等待加载层消失
+
+点击收款单管理
+    点击    xpath=//a[text()='收款单管理']
+    等待加载层消失
+
+点击核销记录(收款)
+    点击    xpath=//a[text()='核销记录']
+    等待加载层消失
+
+点击付款
+    点击    xpath=.//a[contains(@href,"pg_payinvoice_mainssearch")]    #点击付款
+    等待加载层消失
+
+点击付款申请
+    点击    xpath=//a[text()="付款申请"]
+    等待加载层消失
+
+点击付款单管理
+    点击    xpath=//a[text()="付款单管理"]
+    等待加载层消失
+
+点击核销记录(付款)
+    点击    xpath=//a[text()='核销记录']
+    等待加载层消失
+
+点击对冲
+    点击    xpath=.//a[contains(@href,"pg_maininvoice_search")]    #点击对冲
+    等待加载层消失
+
+点击对冲申请
+    点击    xpath=//a[text()="对冲申请"]
+    等待加载层消失
+
+点击对冲单管理
+    点击    xpath=//a[text()="对冲单管理"]
+    等待加载层消失
+
+点击归档
+    点击    xpath=.//a[contains(@href,"pg_reviewreconciliation")]
+    等待加载层消失
+
+点击呆坏账管理
+    点击    xpath=.//a[contains(@href,"pg_feeclearstatus_search")]
+    等待加载层消失
+
+点击基础资料
+    点击    css=.icon-jichuziliao
+    等待加载层消失
+
+点击企业基础资料
+    点击    xpath=//a[text()='企业基础资料']
+    等待加载层消失
+
+点击系统设置
+    Focus    css=.icon-systemconfig
+    点击    css=.icon-systemconfig
+    等待加载层消失
+
+点击系统参数
+    点击    xpath=//a[text()='系统参数']
+    等待加载层消失
+
+点击财务参数
+    点击    xpath=//a[text()='财务参数']
+    等待加载层消失
+
+点击公司管理
+    点击    css=.icon-gongsi
+    等待加载层消失
+
+点击用户管理
+    点击    xpath=//a[text()='用户管理']
+    等待加载层消失
+
+点击用户维护
+    点击    xpath=//a[text()='用户维护']
+    等待加载层消失
+
+等待加载层消失
+    #等待加载层消失
+    Wait Until Element Is Not Visible    xpath=//div[contains(@class,'ant-spin-spinning')]
+
+点击陆运基础资料
+    点击    xpath=//a[text()='陆运基础资料']
+    等待加载层消失
+
+点击司机运费
+    点击    xpath=//a[text()='司机运费']
+    等待加载层消失
+
+点击财务接口
+    点击    xpath=//a[text()='财务接口']
+    等待加载层消失
+
+点击调度派车
+    点击    xpath=//a[text()='调度派车']
+    等待加载层消失
+
+点击陆运出口（新）
+    点击    xpath=//a[text()='陆运出口(新)']
+    等待加载层消失
+
+关闭更新弹框2
+    ${count}    获取匹配xpath的个数    xpath=//div[@class='odw-body']//span[text()='不再提示']    # 判断是否存在更新弹框的不再提示按钮
+    run keyword if    ${count}>0    点击    xpath=//span[text()='不再提示']/..    # 如果存在更新弹框则点击按钮关闭
+    Wait Until Element Is Not Visible    xpath=//span[text()='不再提示']/..
+
+点击货代基础资料
+    点击    xpath=//a[text()='货代基础资料']
+    等待加载层消失
+
+收（付）款登记-点击按发票
+    进入列表页面框架
+    点击    xpath=.//*[contains(@href,"bt_byinvoices")]
+    离开框架
+
+收（付）款登记-点击按对账单
+    进入列表页面框架
+    点击    xpath=.//*[contains(@href,"bt_bycheckaccount")]
+    离开框架
+
+收（付）款登记-点击按账单
+    进入列表页面框架
+    点击    xpath=.//*[contains(@href,"bt_bydebitcredit")]
+    离开框架
+
+点击按发票
+    进入列表页面框架
+    点击    xpath=//span[text()="按发票"]
+    离开框架
+
+新增发票-点击按对账单
+    进入列表页面框架
+    点击    xpath=//a[contains(@href,"bt_tab3")]
+    离开框架
+
+新增发票-点击按账单
+    进入列表页面框架
+    点击    xpath=//a[contains(@href,"bt_tab4")]
+    离开框架
+
+新增发票-点击按业务
+    进入列表页面框架
+    点击    xpath=//a[contains(@href,"bt_tab1")]
+    离开框架

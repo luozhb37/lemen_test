@@ -1,0 +1,282 @@
+*** Settings ***
+Suite Setup       登陆
+Suite Teardown    关闭浏览器
+Test Setup        Reload Page
+Resource          ../Resources/运价通/运价通-引用.txt
+
+*** Test Cases ***
+新增海运出口整箱港口
+    点击进入港口信息
+    进入框架    name=win_1002
+    点击    xpath=//span[text()='新增']/..
+    离开框架
+    #新增
+    进入框架    xpath=//h4[text()='新增海运出口整箱港口资料']/../following-sibling::iframe[starts-with(@name,'win_')]
+    默认选择下拉框第一个选项    id=searoute
+    输入    id=code    YUYAO
+    输入    id=enname    YUYAO
+    点击    id=isbaseport
+    点击    id=is_loadport
+    点击    xpath=//span[text()='保存并关闭']
+    页面弹出框选择确定
+    离开框架
+    #验证
+    进入框架    name=win_1002
+    输入    id=enname    YUYAO
+    点击    xpath=//span[text()='查询']/..
+    ${num}    获取匹配xpath的个数    xpath=//table[@id='baseSeaportFclExport']/tbody/tr
+    Should Be Equal    ${num}    1
+    离开框架
+
+删除海运出口整箱港口
+    点击进入港口信息
+    进入框架    name=win_1002
+    输入    id=code    YUYAO
+    点击    xpath=//span[text()='查询']/..
+    点击    id=allselect
+    点击    xpath=//span[text()='删除']/..
+    页面弹出框选择确定
+    sleep    3
+    页面弹出框选择确定
+    输入    id=enname    YUYAO
+    点击    xpath=//span[text()='查询']/..
+    ${num}    获取匹配xpath的个数    xpath=//table[@id='baseSeaportFclExport']/tbody/tr
+    Should Be Equal    ${num}    0
+    离开框架
+
+新增海运出口整箱航线
+    点击进入航线信息
+    进入框架    name=win_1002
+    点击    xpath=//span[text()='新增']/..
+    离开框架
+    进入框架    xpath=//h4[text()='新增海运出口整箱航线资料']/../following-sibling::iframe[starts-with(@name,'win_')]
+    输入    id=cnname    国内
+    输入    id=enname    Domestic
+    点击    xpath=//span[text()='保存并关闭']/..
+    页面弹出框选择确定
+    离开框架
+    #验证
+    进入框架    name=win_1002
+    输入    id=enname    Domestic
+    点击    xpath=//span[text()='查询']/..
+    ${num}    获取匹配xpath的个数    xpath=//table[@id='baseSearouteFclExport']/tbody/tr
+    Should Be Equal    ${num}    1
+    离开框架
+
+删除海运出口整箱航线
+    点击进入航线信息
+    进入框架    name=win_1002
+    输入    id=enname    Domestic
+    点击    xpath=//span[text()='查询']/..
+    点击    id=allselect
+    点击    xpath=//span[text()='删除']/..
+    页面弹出框选择确定
+    sleep    3
+    页面弹出框选择确定
+    输入    id=enname    Domestic
+    点击    xpath=//span[text()='查询']/..
+    ${num}    获取匹配xpath的个数    xpath=//table[@id='baseSeaportFclExport']/tbody/tr
+    Should Be Equal    ${num}    0
+    离开框架
+
+新增船公司信息
+    [Documentation]    这个用例的mouse over有问题，暂时无法使用
+    点击进入船公司信息
+    进入框架    name=win_1002
+    点击    xpath=//span[text()='新增']/..
+    离开框架
+    进入框架    xpath=//h4[text()='新增船公司信息']/../following-sibling::iframe[starts-with(@name,'win_')]
+    输入    id=code    Surprise
+    输入    id=name    乱七八糟
+    点击    xpath=//span[text()='保存并关闭']
+    页面弹出框选择确定
+    离开框架
+    #验证
+    进入框架    name=win_1002
+    输入    id=code    Surprise
+    点击    xpath=//span[text()='查询']/..
+    ${num}    获取匹配xpath的个数    xpath=//table[@id='baseCarrier']/tbody/tr
+    Should Be Equal    ${num}    1
+    离开框架
+
+删除船公司信息
+    点击进入船公司信息
+    进入框架    name=win_1002
+    输入    id=code    Surprise
+    点击    xpath=//span[text()='查询']/..
+    点击    id=allselect
+    点击    xpath=//span[text()='删除']/..
+    页面弹出框选择确定
+    sleep    3
+    页面弹出框选择确定
+    #验证
+    输入    id=code    Surprise
+    点击    xpath=//span[text()='查询']/..
+    ${num}    获取匹配xpath的个数    xpath=//table[@id='baseSeaportFclExport']/tbody/tr
+    Should Be Equal    ${num}    0
+    离开框架
+
+新增订舱代理信息
+    点击进入订舱代理信息
+    进入框架    name=win_1002
+    点击    xpath=//span[text()='新增']/..
+    离开框架
+    进入框架    xpath=//h4[text()='新增订舱代理信息']/../following-sibling::iframe[starts-with(@name,'win_')]
+    输入    id=code    Surprise
+    输入    id=name    乱七八糟
+    输入    id=fullname    haha
+    点击    xpath=//span[text()='保存并关闭']
+    页面弹出框选择确定
+    离开框架
+    #验证
+    进入框架    name=win_1002
+    输入    id=code    Surprise
+    点击    xpath=//span[text()='查询']/..
+    ${num}    获取匹配xpath的个数    xpath=//table[@id='baseBookingagent']/tbody/tr
+    Should Be Equal    ${num}    1
+    离开框架
+
+删除订舱代理信息
+    点击进入订舱代理信息
+    进入框架    name=win_1002
+    输入    id=code    Surprise
+    点击    xpath=//span[text()='查询']/..
+    点击    id=allselect
+    点击    xpath=//span[text()='删除']/..
+    页面弹出框选择确定
+    sleep    3
+    页面弹出框选择确定
+    #验证
+    输入    id=code    Surprise
+    点击    xpath=//span[text()='查询']/..
+    ${num}    获取匹配xpath的个数    xpath=//table[@id='baseBookingagent']/tbody/tr
+    Should Be Equal    ${num}    0
+    离开框架
+
+新增航空公司信息
+    点击进入航空公司信息
+    进入框架    name=win_1002
+    点击    xpath=//span[text()='新增']/..
+    离开框架
+    进入框架    xpath=//h4[text()='新增航空公司信息']/../following-sibling::iframe[starts-with(@name,'win_')]
+    输入    id=code    Surprise
+    输入    id=name    乱七八糟
+    点击    xpath=//span[text()='保存并关闭']
+    页面弹出框选择确定
+    离开框架
+    #验证
+    进入框架    name=win_1002
+    输入    id=code    Surprise
+    点击    xpath=//span[text()='查询']/..
+    ${num}    获取匹配xpath的个数    xpath=//table[@id='baseAirway']/tbody/tr
+    Should Be Equal    ${num}    1
+    离开框架
+
+新增航班信息
+    点击进入航班信息
+    进入框架    name=win_1002
+    点击    xpath=//span[text()='新增']/..
+    离开框架
+    进入框架    xpath=//h4[text()='航班信息编辑']/../following-sibling::iframe[starts-with(@name,'win_')]
+    输入    id=flightccode    Surprise
+    输入    id=airlinecode    Surprise
+    输入    id=flightdate    3
+    点击    xpath=//span[text()='保存并关闭']
+    页面弹出框选择确定
+    离开框架
+    #验证
+    进入框架    name=win_1002
+    输入    id=airlinecode    Surprise
+    点击    xpath=//span[text()='查询']/..
+    ${num}    获取匹配xpath的个数    xpath=//table[@id='baseFlightinfos']/tbody/tr
+    Should Be Equal    ${num}    1
+    离开框架
+
+删除航班信息
+    点击进入航班信息
+    进入框架    name=win_1002
+    输入    id=airlinecode    Surprise
+    点击    xpath=//span[text()='查询']/..
+    点击    id=allselect
+    点击    xpath=//span[text()='删除']/..
+    页面弹出框选择确定
+    sleep    3
+    页面弹出框选择确定
+    #验证
+    输入    id=airlinecode    Surprise
+    点击    xpath=//span[text()='查询']/..
+    ${num}    获取匹配xpath的个数    xpath=//table[@id='baseFlightinfos']/tbody/tr
+    Should Be Equal    ${num}    0
+    离开框架
+
+新增航空港口分区
+    点击进入航空港口分区
+    进入框架    name=win_1002
+    点击    xpath=//span[text()='新增']/..
+    离开框架
+    进入框架    xpath=//h4[text()='航空目的港分区编辑']/../following-sibling::iframe[starts-with(@name,'win_')]
+    输入    id=areascode    Surprise
+    输入    id=airlinecode    Surprise
+    点击    xpath=//span[text()='保存并关闭']
+    页面弹出框选择确定
+    离开框架
+    #验证
+    进入框架    name=win_1002
+    输入    id=airlinecode    Surprise
+    点击    xpath=//span[text()='查询']/..
+    ${num}    获取匹配xpath的个数    xpath=//table[@id='baseAirportAreas']/tbody/tr
+    Should Be Equal    ${num}    1
+    离开框架
+
+删除航空港口分区
+    点击进入航空港口分区
+    进入框架    name=win_1002
+    输入    id=airlinecode    Surprise
+    点击    xpath=//span[text()='查询']/..
+    点击    id=allselect
+    点击    xpath=//span[text()='删除']/..
+    页面弹出框选择确定
+    sleep    3
+    页面弹出框选择确定
+    #验证
+    输入    id=airlinecode    Surprise
+    点击    xpath=//span[text()='查询']/..
+    ${num}    获取匹配xpath的个数    xpath=//table[@id='baseAirportAreas']/tbody/tr
+    Should Be Equal    ${num}    0
+    离开框架
+
+新增仓库基础资料
+    点击进入仓库基础资料
+    进入框架    xpath=//iframe[starts-with(@name,'win_')]
+    点击    id=addWarehouse
+    离开框架
+    进入框架    xpath=//h4[text()='新增仓库资料']/../following-sibling::iframe[starts-with(@name,'win_')]
+    输入    id=warehouseName    Surprise
+    点击    id=save
+    离开框架
+
+删除仓库基础资料
+    [Documentation]    该功能的删除目前有BUG
+    点击进入仓库基础资料
+    进入框架    xpath=//iframe[starts-with(@name,'win_')]
+    输入    id=warehouseName    Surprise
+    点击    id=jselAll
+    点击    id=deleteWarehouse
+    离开框架
+
+删除航空公司信息
+    点击进入航空公司信息
+    进入框架    name=win_1002
+    输入    id=code    Surprise
+    点击    xpath=//span[text()='查询']/..
+    点击    id=allselect
+    点击    xpath=//span[text()='删除']/..
+    页面弹出框选择确定
+    sleep    3
+    页面弹出框选择确定
+    #验证
+    输入    id=code    Surprise
+    点击    xpath=//span[text()='查询']/..
+    ${num}    获取匹配xpath的个数    xpath=//table[@id='baseAirway']/tbody/tr
+    Should Be Equal    ${num}    0
+    离开框架

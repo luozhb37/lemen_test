@@ -1,0 +1,27 @@
+*** Settings ***
+Resource          ../GM1-UI-公共/GM1-UI-引用.txt
+
+*** Keywords ***
+点击舱单导入
+    点击    xpath=//span[text()='舱单导入']/..
+
+舱单提单新增
+    [Arguments]    ${count1}
+    [Documentation]    ${count1}行数
+    点击    xpath=//span[text()='新 增']/..    #点击新增
+    点击    xpath=//input[@id='dataList[0].hblno']/../../..    #点击提单号
+    按键    xpath=//input[@id='dataList[0].hblno']    \\13    #点击enter
+    点击    xpath=//input[@id='dataList[0].ctnno']/../../..    #点击箱号
+    按键    xpath=//input[@id='dataList[0].ctnno']    \\13    #点击enter
+    输入    id=dataList[${count1}].goodsDesc    english    #输入英文品名
+    输入    id=dataList[${count1}].hsCode    111    #输入HScode
+    输入    id=dataList[${count1}].count    1    #输入件数
+    输入    id=dataList[${count1}].weight    1    #输入毛重
+    输入    id=dataList[${count1}].volume    1    #输入体积
+    点击    xpath=//div[@class='dataList[${count1}].packkind ant-select-lg ant-select ant-select-enabled ant-select-allow-clear']/div/div    #点击包装
+    等待    0.5
+    点击    xpath=//li[text()='BASKETS']
+    #按键    id=dataList[${count1}].packkind    \\13    #点击enter
+    点击保存
+    点击确定按钮
+    Wait Until Page Contains    操作成功

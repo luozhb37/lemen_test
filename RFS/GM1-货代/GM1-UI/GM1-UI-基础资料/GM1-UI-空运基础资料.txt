@@ -1,0 +1,137 @@
+*** Settings ***
+Suite Setup       m4-登录
+Suite Teardown    close all browsers
+Test Teardown     重载当前页
+Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-公用.txt
+
+*** Test Cases ***
+机场-新增
+    [Documentation]    前提：列表的IATA字段要排列在第一个
+    点击基础资料
+    进入指定二级菜单    业务基础资料    空运基础资料    # 进入空运基础资料菜单
+    点击    xpath=//a[text()='空运机场']    # 点击空运机场菜单
+    进入框架    id=content
+    ${count}    查询是否存在测试机场    yjc
+    Run Keyword If    ${count}>0    删除机场第一条数据
+    Comment    ${str}    生成指定位数的随机字符串    3    True
+    ${airport}    生成一个带有字符的随机数    air_
+    新增机场    yjc    ${airport}
+    ${code}    获取页面文本内容    xpath=//table/tbody/tr[1]/td[3]    # 获取第一行的IATA code
+    作为字符串应该相等    ${code}    YJC
+    离开框架
+
+机场-修改
+    点击基础资料
+    进入指定二级菜单    业务基础资料    空运基础资料    # 进入空运基础资料菜单
+    点击    xpath=//a[text()='空运机场']    # 点击空运机场菜单
+    进入框架    id=content
+    ${count}    查询是否存在测试机场    yst
+    Run Keyword If    ${count}==0    新增机场    yst    test_airport    # 如果没有则新增测试机场
+    点击    xpath=//a[text()='YST']    # 点击第一条数据
+    # -----修改机场英文名-----
+    ${airport}    生成一个带有字符的随机数    edit_
+    输入    id=enname    ${airport}
+    点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+    点击    xpath=//a[text()='YST']    # 点击第一条数据
+    ${edit_airport}    获取页面值    id=enname    # 获取修改后的机场英文值
+    作为字符串应该相等    ${airport}    ${edit_airport}
+    离开框架
+
+机场-启用/禁用
+    点击基础资料
+    进入指定二级菜单    业务基础资料    空运基础资料    # 进入空运基础资料菜单
+    点击    xpath=//a[text()='空运机场']    # 点击空运机场菜单
+    进入框架    id=content
+    ${count}    查询是否存在测试机场    yst
+    Run Keyword If    ${count}==0    新增机场    yst    add_airport    # 无数据时新增一条
+    点击    xpath=//table/tbody/tr[1]//input    # 点击checkbox
+    点击    xpath=//div[contains(@class,'olym_table_select')]//span[text()='启 用']/..    # 点击启用按钮
+    Page Should Contain Element    xpath=//table/tbody/tr[1]/td[text()='启用']
+    点击    xpath=//table/tbody/tr[1]//input    # 点击checkbox
+    点击    xpath=//div[contains(@class,'olym_table_select')]//span[text()='禁 用']/..    # 点击禁用按钮
+    Page Should Contain Element    xpath=//table/tbody/tr[1]/td[text()='禁用']
+    离开框架
+
+机场-删除
+    点击基础资料
+    进入指定二级菜单    业务基础资料    空运基础资料    # 进入空运基础资料菜单
+    点击    xpath=//a[text()='空运机场']    # 点击空运机场菜单
+    进入框架    id=content
+    ${count}    查询是否存在测试机场    yst
+    Run Keyword If    ${count}==0    新增机场    yst    add_airport    # 无数据时新增一条
+    删除机场第一条数据
+    ${count}    获取匹配xpath的个数    xpath=//table/tbody/tr    # 获取匹配的xpath个数
+    应该要相等（数字）    ${count}    0
+    离开框架
+
+航线-新增
+    ${cnname}    生成一个带有字符的随机数    中文航线
+    ${enname}    生成一个带有字符的随机数    enname
+    ${code}    生成指定位数的随机字符串    4
+    ${num}    生成指定范围内容的带字符随机数    2
+    点击基础资料
+    进入指定二级菜单    业务基础资料    空运基础资料    # 进入空运基础资料菜单
+    点击    xpath=//a[text()='空运航线']    # 点击空运航线菜单
+    进入框架    id=content
+    ${count}    获取列表数量    xpath=//li[@class='ant-pagination-total-text']
+    ${exp_count}    Evaluate    int(${count})+1    # 原列表数+1作为最后期望值
+    点击    xpath=//span[text()='新 增']/..    # 点击新增按钮
+    新增航线    ${cnname}    ${enname}    ${code}    ${num}
+    ${new_count}    获取列表数量    xpath=//li[@class='ant-pagination-total-text']
+    应该要相等（数字）    ${new_count}    ${exp_count}
+    离开框架
+
+航线-删除
+    点击基础资料
+    进入指定二级菜单    业务基础资料    空运基础资料    # 进入空运基础资料菜单
+    点击    xpath=//a[text()='空运航线']    # 点击空运航线菜单
+    进入框架    id=content
+    输入    id=cnname    测试航线
+    点击    xpath=//span[text()='查 询']/..
+    ${count}    获取列表数量    xpath=//li[@class='ant-pagination-total-text']
+    ${exp_count}    run keyword if    ${count}==1    Evaluate    1
+    ...    ELSE    Evaluate    int(${count})-1    # 若无内容则1为期望值    # 原列表数-1作为最后期望值
+    run keyword if    ${count}==1    点击    id=bt_add
+    ...    AND    离开框架
+    ...    AND    新增航线
+    ...    AND    进入框架    id=content
+    点击    xpath=//table[@id='qp_base_airroutes_tbl5']/tbody/tr[2]/td[2]/input
+    点击    id=bt_delete
+    页面弹出框选择确定
+    Comment    ${new_count}    获取匹配xpath的个数    xpath=//table[@id='qp_base_airroutes_tbl5']/tbody/tr
+    ${new_text}    获取页面文本内容    xpath=//span[@class='view-page']
+    ${new_count}    截取字符    ${new_text}    共    条
+    应该要相等（数字）    ${new_count}    ${exp_count}
+    离开框架
+
+航班-新增(建议先勾选机场-新增)
+    [Documentation]    建议执行前先勾选机场-新增，防止新建航班时机场不存在
+    点击基础资料
+    进入指定二级菜单    业务基础资料    空运基础资料    # 进入空运基础资料菜单
+    点击    xpath=//a[text()='航班信息']    # 点击航班信息菜单
+    进入框架    id=content
+    ${count}    获取匹配xpath的个数    xpath=//table/tbody/tr
+    ${count}    run keyword if    ${count}>1    run keywords    获取页面文本内容    xpath=//span[@class='view-page']
+    ...    AND    截取字符    ${text}    共    条
+    ${exp_count}    Evaluate    int(${count})+1    # 原列表数+1作为最后期望值
+    ${flight_no}    生成一个带有字符的随机数
+    新增航班    ${flight_no}
+    ${new_count}    获取匹配xpath的个数    xpath=//table/tbody/tr
+    应该要相等（数字）    ${exp_count}    ${new_count}
+    离开框架
+
+航班-删除
+    点击基础资料
+    进入指定二级菜单    业务基础资料    空运基础资料    # 进入空运基础资料菜单
+    点击    xpath=//a[text()='航班信息']    # 点击航班信息菜单
+    进入框架    id=content
+    查询航班    testflight
+    ${count}    获取匹配xpath的个数    xpath=//table/tbody/tr
+    ${exp_count}    run keyword if    ${count}==0    Evaluate    0
+    ...    ELSE    Evaluate    int(${count})-1    # 列表无数据时0作为最后期望值    # 原列表数-1作为最后期望值
+    run keyword if    ${count}==0    新增航班    testflight
+    删除航班第一条数据
+    ${new_count}    获取匹配xpath的个数    xpath=//table/tbody/tr
+    应该要相等（数字）    ${exp_count}    ${new_count}
+    离开框架

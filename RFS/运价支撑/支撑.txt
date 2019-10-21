@@ -1,0 +1,181 @@
+*** Settings ***
+Suite Setup       Run keywords    变量
+...               AND    登录
+Suite Teardown    关闭浏览器
+Test Setup
+Resource          ../Resources/main.txt
+Resource          ../Resources/基础关键字.txt
+
+*** Test Cases ***
+支撑开户
+    ${index}    set variable    -1    #用于数组【index】取值，从=0开始，即从数组的第1个值取值
+    #----开户管理-----
+    reload page
+    sleep    1
+    点击    xpath=//div/ul/li/a[contains(text(),'开户管理')]
+    : FOR    ${i}    IN    @{org_name}
+    \    ${index}    Evaluate    int(${index})+1    #类似于【index】自增，从0开始
+    \    进入框架    id=mainFrame
+    \    点击    xpath=//div//button/em[contains(text(),'新增公司')]
+    \    离开框架
+    \    进入框架    id=nevinfrm_mainFrame
+    \    输入    id=org_name    @{org_name}[${index}]    #客户公司名称
+    \    输入    id=email    @{email}[${index}]    #邮箱
+    \    输入    id=contact    @{contact}[${index}]    #联系人
+    \    输入    id=sitedomain    @{sitedomain}[${index}]    #公司域名
+    \    输入    id=user_name    @{user_name}[${index}]    #管理员账号
+    \    select from list by Label    id=portal_type    咖狗版    #营销门户版本=咖狗版； 普通版
+    \    点击    id=checkbox_is_new_efcl    # 勾选 “模板维护运价（海运出口整箱）”
+    \    #点击    id=checkbox_is_new_eair    # 勾选 “模板维护运价（空运）”
+    \    #---新增许可---
+    \    输入    id=numbers    @{yg_count}[${index}]    #内部账号数
+    \    #---新增服务---
+    \    新增服务    新增公司    ${product}    @{service}
+    \    点击    id=bt_save
+    \    ${status}    run keyword and return status    页面弹出框选择确定
+    \    离开框架
+
+绑定操作系统
+    [Documentation]    说明： 为绑定正确，默认 都以“查询结果只有1条” 的前提进行绑定，否则退出 本次循环。 \
+    ${index}    set variable    -1    #用于数组【index】取值，从=0开始，即从数组的第1个值取值
+    #----开户管理-----
+    点击    xpath=//div/ul/li/a[contains(text(),'开户管理')]
+    : FOR    ${i}    IN    @{org_name}
+    \    log    ${i}
+    \    ${index}    Evaluate    int(${index})+1    #类似于【index】自增，从0开始
+    \    进入框架    id=mainFrame
+    \    输入    id=org_name    ${i}    #输入公司名称
+    \    点击    xpath=//button[contains(text(),"搜 索")]    #点击【搜索】
+    \    page should contain    共1条    #验证：检索结果是否1条，确保绑定正确（注：测试环境犹豫一个数据，返回结果按GM1-库和老货代库同步检索后拼接，导致2条。生产、准生产则显示1条）
+    \    进入框架    id=mainFrame    #犹豫使用【page should contain】后，需要重新进入框架    ge
+    \    点击    xpath=//form[@id="contractForm"]/div[1]/div[3]//tr[1]/td/input[@id="org_id"]    #默认选择 查询列表的第一个公司
+    \    点击    xpath=//div//button/em[contains(text(),'绑定操作系统')]    #绑定操作系统
+    \    离开框架
+    \    进入框架    id=nevinfrm_mainFrame
+    \    输入    id=hd_orgName    ${i}    #输入 客户名称
+    \    点击    id=hd_email    #【自动匹配】--有BUG，点其他区域(邮箱）
+    \    点击    xpath=//tr[1]//input[@id='select_org_id']    #默认选择列表第一个
+    \    ${hd_orgid}    get text    xpath=//tr[1]/td[3]    # 默认获取 列表第一个 货代公司的 orgid
+    \    ${list_num}    获取匹配xpath的个数    xpath=//table[@id='licenseTable']/tbody/tr    #获取当前“服务列表”行数,获得初始行数
+    \    ${yjt_orgid}    get value    xpath=//input[@type='text'][@id='org_Id']    #获得 运价通 ORGID
+    \    Run Keyword If    '${list_num}' != '${company_num}'    Exit For Loop    log    公司匹配失败，请检查
+    \    点击    id=bt_save    #点击【保存】
+    \    sleep    0.5
+    \    ${status}    run keyword and return status    页面弹出框选择确定
+    \    log    ${yjt_orgid}
+    \    log    ${hd_orgid}
+    \    Capture Page Screenshot
+
+编辑公司
+    ${index}    set variable    -1    #用于数组【index】取值，从=0开始，即从数组的第1个值取值
+    #----开户管理-----
+    点击    xpath=//div/ul/li/a[contains(text(),'开户管理')]
+    : FOR    ${i}    IN    @{org_name}
+    \    ${index}    Evaluate    int(${index})+1    #类似于【index】自增，从0开始
+    \    进入框架    id=mainFrame
+    \    输入    id=org_name    ${i}    #输入公司名称
+    \    点击    xpath=//button[contains(text(),"搜 索")]    #点击【搜索】
+    \    page should contain    共1条    #验证：检索结果是否只有1条，确保绑定正确
+    \    进入框架    id=mainFrame
+    \    点击    xpath=//form[@id="contractForm"]/div[1]/div[3]//tr[1]/td/input[@id="org_id"]    #默认选择 查询列表的第一个公司
+    \    点击    xpath=//div//button/em[contains(text(),'编辑公司')]    #编辑公司
+    \    离开框架
+    \    进入框架    id=nevinfrm_mainFrame
+    \    #---新增许可---
+    \    输入    id=numbers    @{yg_count}[${index}]    #内部账号数
+    \    #---新增服务---
+    \    新增服务    编辑公司    ${product}    6    #@{service}
+    \    点击    id=bt_save
+    \    ${status}    run keyword and return status    页面弹出框选择确定
+    \    离开框架
+
+*** Keywords ***
+变量
+    [Documentation]    说明： @{} \ 表示支持 多组数据 ， 用例 会根据 数组内个数，循环执行。    #客户公司名称    #邮箱    #联系人    #公司域名    #管理员账号    #内部账号数    #待新增服务：    #用于检验搜索列表的公司记录数据；【注：测试环境由于一个数据，代码按GM1-库和老货代库各自检索并拼接后返回，因此-测试环境是同一个库，返回=2条记录；生产、准生产各库独立，因此显示1条]
+    ...    @{org_name} \ 公司名称
+    ...    @{email} \ 公司邮箱
+    ...    @{contact} \ 联系人
+    ...    @{sitedomain} \ 公司域名
+    ...    @{user_name} \ 管理员账号
+    ...    @{yg_count} \ 运价内部账号数
+    ...    ${product} \ 需要增加的 产品名称 【 运价通 、 掌柜互联。。。。。】
+    ...    @{service} \ 需要维护的【服务】（“基础设置“ 是必须项）
+    ...
+    ...    ${company_num}
+    #---登录---
+    set suite variable    ${bops_url}    http://bops.600jit.com/cpmembership/commonLog.ctrl
+    set suite variable    ${mem_username}    adminuser1    #测试=adminuser1 ,准生产=olymtech_admin
+    set suite variable    ${mem_password}    a111111    #测试=a111111 ，准生产=olymtest2015
+    #---开户信息----
+    set suite variable    @{org_name}    上海葵克国际货运代理-TEST
+    set suite variable    @{email}    jingnaw@olymtech.com
+    set suite variable    @{contact}    刘克松
+    set suite variable    @{sitedomain}    kkgj.test.200jit.com
+    set suite variable    @{user_name}    kkgj_test
+    set suite variable    @{yg_count}    25
+    set suite variable    ${company_num}    2    #测试环境=2； 生产、准生产=1；------用于检验搜索列表的公司记录数据；【注：测试环境由于一个数据，代码按GM1-库和老货代库各自检索并拼接后返回，因此-测试环境是同一个库，返回=2条记录；生产、准生产各库独立，因此显示1条）
+    set suite variable    ${product}    freight    # 设置 产品【运价通 = freight】
+    set suite variable    @{service}    1    2    4    7    #需增加的服务
+    ${service_startdate}    当前日期加减天数    +0    #服务开始日期
+    ${service_enddate}    当前日期加减天数    +365    #服务结束日期
+    set suite variable    ${service_startdate}
+    set suite variable    ${service_enddate}
+
+登录
+    #------登录-----
+    打开    ${bops_url}
+    点击    id=member    #员工登录窗口
+    输入    id=username    ${mem_username}    #username
+    输入    id=password    ${mem_password}    #password
+    点击    xpath=//a[@class="login-btn"]    #点登录按钮
+    sleep    1
+    页面应该包含    支撑
+
+新增许可
+    #---新增许可信息----
+    点击    xpath=//form[@id="cp_contractForm"]/div[2]/div[1]/div[3]//button[@class="nui-btn"]    # 点‘许可信息’下的”新增“    #待优化--FOR 新增个数
+    下拉选择    xpath=//form[@id="cp_contractForm"]/div[2]/div[1]/div[4]//tbody//tr[1]//select[@id="license_productCode"]    crm    #--待优化；tr[1]变量法师，value=变量法师
+
+新增服务
+    [Arguments]    ${do_type}    ${product}    @{service}
+    [Documentation]    ---说明----    #若是【新增公司】，则服务新增、维护的DIV 分别为 5，6    #若是【编辑公司】，则服务新增、维护的DIV 分别为 6,7
+    ...    ${do_typy} ： 定义是【新增公司】 OR 【编辑公司】；
+    ...
+    ...
+    ...
+    ...    原因：新增公司与编辑公司页面的【许可、服务】列表的DIV所在层 不同；
+    ...    xpath=//form[@id="cp_contractForm"]/div[2]/div[1]/div[@{_x}[1]]/table//tbody/tr
+    ...
+    ...
+    ...    ${product} : 定义 【产品】 运价通 、行为分析。。。。
+    ...
+    ...    @{service} ： 定义 【服务名称】 ：整箱出口、拼箱出口、基础服务。。。。。
+    ...    \ \ \
+    ${index}    set variable    1    #用于定位服务列表的行数【index】取值，从=0开始，即从数组的第1个值取值
+    ${add_server}    get length    ${service}    # 初始化 需要增加服务的个数。默认 = 传参服务个数
+    log    ${do_type}
+    @{_x}    Run Keyword If    '${do_type}' == '新增公司'    create list    5    6
+    ...    ELSE IF    '${do_type}' == '编辑公司'    create list    6    7
+    ...    ELSE    log    ---请设置【新增公司】OR【编辑公司】
+    ${ser_list_no}    获取匹配xpath的个数    xpath=//form[@id="cp_contractForm"]/div[2]/div[1]/div[@{_x}[1]]/table//tbody/tr    #获取当前“服务列表”行数,获得初始行数
+    ${v_name}    Get Element Attribute    xpath=//form[@id="cp_contractForm"]/div[2]/div[1]/div[@{_x}[1]]//tbody//tr[${ser_list_no}]//select[contains(@id,"service_id")]@name    #获得当期服务列表-最后一行“service_id"服务类型的【name 属性】
+    #--判断：若当前服务列表‘最后一行’服务id是 “只读”，则说明是“编辑公司”，【新增服务】个数=@{service}变量个数。否则是“新增公司”，则 新增服务个数 = @{service}个数 -1
+    ${add_server}    Run Keyword If    '${v_name}'=='service_id_display'    Evaluate    int(${add_server})+0
+    ...    ELSE    Evaluate    int(${add_server})-1
+    ${index}    Run keyword if    '${v_name}' == 'service_id_display'    Evaluate    int(${ser_list_no})+1
+    ...    ELSE    Evaluate    int(${ser_list_no})+0
+    #---新增服务信息----
+    : FOR    ${i}    IN RANGE    ${add_server}
+    \    点击    xpath=//form[@id="cp_contractForm"]/div[2]/div[1]/div[@{_x}[0]]//button[@class="nui-btn"]    # 点‘服务信息’下的”新增“
+    Capture Page Screenshot
+    : FOR    ${i}    IN    @{service}
+    \    #--选择【产品、服务】
+    \    下拉选择byValue    xpath=//form[@id="cp_contractForm"]/div[2]/div[1]/div[@{_x}[1]]//tbody//tr[${index}]//select[@id="service_productCode"]    ${product}    #--待优化；tr[1]变量法师，value=变量法师
+    \    下拉选择byValue    xpath=//form[@id="cp_contractForm"]/div[2]/div[1]/div[@{_x}[1]]//tbody//tr[${index}]//select[@id="service_id"]    ${i}    # 1=海运出口整箱; 2=海运出口拼箱;3=空运; 7=基础服务;
+    \    #--设置【开始、结束时间】
+    \    点击    xpath=//tr[${index}]//input[@id="start_date"]    #点击“日期控件”--开始日期
+    \    点击    xpath=//button[contains(text(),"确定")]    # 日期控件，默认今天，点【确定】
+    \    Assign Id To Element    xpath=//tr[${index}]//input[@id="end_date"]    time${index}    #给输入框赋值个临时id=time。 PS： 若连续有多个需要定义，建议用不同的变量（或者自增），否则可能引起识别失效；
+    \    Execute Javascript    window.document.getElementById('time${index}').value="${service_enddate}"    \    #执行JS
+    \    ${index}    Evaluate    int(${index}) +1
+    Capture Page Screenshot

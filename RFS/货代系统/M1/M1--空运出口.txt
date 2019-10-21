@@ -1,0 +1,100 @@
+*** Settings ***
+Suite Setup       登录    # Run keywords | 系统参数设置-应付对账核销模式 | AND | 往来单位初始化
+Suite Teardown    close all browsers
+Test Setup        回到首页
+Resource          ../../Resources/M1基础操作/M1--引用.txt
+
+*** Test Cases ***
+新增空运出口业务台帐
+    ${businessNo}    新增空运出口业务台帐
+    ${pages}    列表查询业务编号    ${businessNo}
+    应该包含    ${pages}    共1条
+
+复制空运出口业务台帐
+    ${businessNo}    新增空运出口业务台帐
+    ${pages}    列表查询业务编号    ${businessNo}
+    进入一个框架后-全选记录
+    ${businessNo}    复制空运出口业务台帐
+    ${pages}    列表查询业务编号    ${businessNo}
+    应该包含    ${pages}    共1条
+
+删除空运出口业务台帐
+    ${businessNo}    新增空运出口业务台帐
+    ${pages}    列表查询业务编号    ${businessNo}
+    进入一个框架后-全选记录
+    删除业务台帐
+    ${pages}    列表查询业务编号    ${businessNo}
+    应该包含    ${pages}    共0条
+
+空运出口退关--标记退关/取消
+    ${businessNo}    新增空运出口业务台帐
+    ${pages}    列表查询业务编号    ${businessNo}
+    进入一个框架后-全选记录
+    退关--标记退关
+    ${pages}    列表查询业务编号    ${businessNo}    #获取页面文本内容
+    应该包含    ${pages}    共0条
+    进入框架    id=content
+    select from list by value    id=qybu_iscanceled    true
+    点击    id=bt_query    #点击查询
+    ${pages}    get text    css=span.view-page    #获取页面文本内容
+    应该包含    ${pages}    共1条
+    离开框架
+    进入框架    id=content
+    select checkbox    xpath=.//*[@id='qp_airexport0_tbl5']/tbody/tr[2]/td[2]/input    #勾选第一条记录
+    离开框架
+    退关--取消退关
+    进入框架    id=content
+    ${pages}    get text    css=span.view-page    #获取页面文本内容
+    应该包含    ${pages}    共0条
+    离开框架
+    进入框架    id=content
+    select from list by value    id=qybu_iscanceled    false    #查询条件选择为未退关
+    点击    id=bt_query    #点击查询
+    ${pages}    get text    css=span.view-page    #获取页面文本内容
+    应该包含    ${pages}    共1条
+
+空运出口批量完成--提单确认
+    ${businessNo}    新增空运出口业务台帐
+    ${pages}    列表查询业务编号    ${businessNo}
+    进入一个框架后-全选记录
+    批量提单确认
+    ${content}    获取台帐详情提单确认状态    ${businessNo}
+    应该要相等    ${content}    true
+
+空运出口批量完成--应收费用制单
+    ${businessNo}    新增空运出口业务台帐
+    ${pages}    列表查询业务编号    ${businessNo}
+    进入一个框架后-全选记录
+    批量应收费用制单
+    进入框架    id=content
+    select checkbox    xpath=.//*[@id='qp_airexport0_tbl5']/tbody/tr[2]/td[2]/input    #勾选第一条记录
+    点击    id=bt_fee
+    离开框架
+    ${content}    获取费用信息收入制单完成状态    ${businessNo}
+    应该要相等    ${content}    已完成
+
+空运出口批量完成--应付费用制单
+    ${businessNo}    新增空运出口业务台帐
+    ${pages}    列表查询业务编号    ${businessNo}
+    进入一个框架后-全选记录
+    批量应付费用制单
+    进入框架    id=content
+    select checkbox    xpath=.//*[@id='qp_airexport0_tbl5']/tbody/tr[2]/td[2]/input    #勾选第一条记录
+    点击    id=bt_fee
+    离开框架
+    ${content}    获取费用信息支出制单完成状态    ${businessNo}
+    应该要相等    ${content}    已完成
+
+空运出口批量完成--业务制单完成/取消
+    ${businessNo}    新增空运出口业务台帐
+    ${pages}    列表查询业务编号    ${businessNo}
+    进入一个框架后-全选记录
+    批量业务制单完成
+    ${content}    获取空运出口台帐业务制单完成状态    ${businessNo}
+    应该要相等    ${content}    已完成
+    进入框架    id=content
+    select checkbox    xpath=.//*[@id='qp_airexport0_tbl5']/tbody/tr[2]/td[2]/input    #勾选第一条
+    离开框架
+    批量取消业务制单完成
+    ${content1}    获取空运出口台帐业务制单取消状态    ${businessNo}
+    应该要相等    ${content1}    false

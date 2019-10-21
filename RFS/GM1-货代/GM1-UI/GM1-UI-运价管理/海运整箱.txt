@@ -1,0 +1,69 @@
+*** Settings ***
+Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+Resource          ../../../Resources/整箱操作关键字.txt
+
+*** Test Cases ***
+整箱运价-新增
+    ${temp1}    生成一个带有字符的随机数    A
+    点击    xpath=//a[text()=' 运价管理']
+    等待加载层消失
+    进入指定二级菜单    运价维护    海运出口整箱
+    进入框架    id=content
+    ${count1}    获取匹配xpath的个数    xpath=//*[@id='j-tableFixScroll']//table//tbody/tr
+    ${new_count}    Evaluate    int(${count1})+1    # 原列表数+1作为最后期望值
+    # 新增一条数据
+    海运整箱-新增    001    ${temp1}    2
+    # 验证是否新增成功
+    进入框架    id=content
+    ${count2}    获取匹配xpath的个数    xpath=//*[@id='j-tableFixScroll']//table//tbody/tr
+    离开框架
+    Should Be Equal As Strings    ${count2}    ${new_count}
+    Set Suite Variable    ${temp1}
+
+整箱运价-发布
+    点击    xpath=//a[text()=' 运价管理']
+    等待加载层消失
+    进入指定二级菜单    运价维护    海运出口整箱
+    ${count}=    整箱列表运价查询    ${temp1}
+    Run Keyword If    '${count}'=='0'    fail    msg=没有可批量操作的运价，请先新增
+    ...    ELSE    点击全选按钮
+    海运整箱-发布
+    sleep    1
+    页面弹出框选择确定
+    #验证是否发布
+    ${count1}    获取整箱列表记录数
+    Should Be Equal As Integers    ${count1}    0
+
+海运整箱-复制
+    ${temp3}    生成一个带有字符的随机数    C
+    点击    xpath=//a[text()=' 运价管理']
+    等待加载层消失
+    进入指定二级菜单    运价维护    海运出口整箱
+    进入框架    id=content
+    海运整箱-新增    001    ${temp3}    2
+    ${count}=    整箱列表运价查询    ${temp3}
+    Run Keyword If    '${count}'=='0' and '${count}'>=2    fail    msg=没有可批量操作的运价，请先新增
+    ...    ELSE    点击全选按钮
+    # 复制运价
+    复制单条海运整箱运价
+    # 验证是否新增成功
+    ${count2}=    获取整箱列表记录数
+    离开框架
+    Should Be Equal As Strings    ${count2}    2
+
+整箱运价-删除
+    ${temp2}    生成一个带有字符的随机数    B
+    点击    xpath=//a[text()=' 运价管理']
+    等待加载层消失
+    进入指定二级菜单    运价维护    海运出口整箱
+    进入框架    id=content
+    海运整箱-新增    001    ${temp2}    2
+    ${count}=    海运整箱船公司查询    001
+    Run Keyword If    '${count}'=='0'    fail    msg=没有可批量操作的运价，请先新增
+    ...    ELSE    点击全选按钮
+    删除运价
+    #验证是否删除
+    ${count1}    获取整箱列表记录数
+    Should Be Equal As Integers    ${count1}    0
+
+*** Keywords ***

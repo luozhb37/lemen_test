@@ -1,0 +1,61 @@
+*** Settings ***
+Documentation     Example test case using the gherkin syntax.
+...
+...               This test has a workflow similar to the keyword-driven
+...               examples. The difference is that the keywords use higher
+...               abstraction level and their arguments are embedded into
+...               the keyword names.
+...
+...               This kind of _gherkin_ syntax has been made popular by
+...               [http://cukes.info|Cucumber]. It works well especially when
+...               tests act as examples that need to be easily understood also
+...               by the business people.
+Library           Selenium2Library
+Resource          ../Resources/基础关键字.txt
+Library           OlymLibrary
+
+*** Test Cases ***
+登录一个正确的外部帐号
+    Given 有一个外部帐号
+    When 打开http://test.600jit.com
+    and 输入帐号13967880231
+    and 输入密码111111.
+    and 点击登录
+    then 显示外部查询页面
+
+外部查询
+    #前置条件
+    员工新增一个NINGBO到DUBAI的整箱运价
+    发布这条NINGBO到DUBAI的整箱运价
+    #测试步骤
+    客户登录账号
+    查询NINGBO到DUBAI的整箱运价
+    #预期结果
+    能查询到目的港是DUBAI的运价
+
+case
+    ${case}    Re Search    123456789    1    9
+    log    ${case}
+
+*** Keywords ***
+有一个外部帐号
+    log    前置条件
+
+打开${url}
+    打开    ${url}
+
+输入帐号${username}
+    log    帐号是${username}
+
+输入密码${password}
+    log    密码是${password}
+
+点击登录
+    log    登录
+
+显示外部查询页面
+    log    显示了登录页
+
+员工新增一个${loadport}到${dischargeport}的整箱运价
+    log    起运港是: ${loadport}
+    log    目的港是: ${dischargeport}

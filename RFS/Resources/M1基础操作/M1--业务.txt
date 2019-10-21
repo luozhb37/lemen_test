@@ -1,0 +1,482 @@
+*** Settings ***
+Resource          M1--引用.txt
+
+*** Keywords ***
+新增海运出口业务台帐
+    点击业务管理
+    点击业务台帐
+    点击海运出口
+    进入框架    id=content
+    点击    id=bt_add
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]
+    输入    id=bn_mains_customername    ${往来单位}
+    等待    2
+    输入    id=bn_mains_sales    ${M1_FULLNAME}
+    ${currenttime}    当前日期加减天数    +0
+    ${currenttime+7}    当前日期加减天数    +7
+    输入    id=bn_mains_etd    ${currenttime+7}    #离港日期
+    输入    id=bn_mains_eta    ${currenttime}    #抵港日期
+    点击    id=bt_save    #点击保存
+    ${status}    run keyword and return status    页面弹出框选择确定    #有没有超期提醒都不报错
+    Wait Until Element Contains    xpath=//div[@class='list-middle-show']/span    保存成功
+    离开框架
+    等待    2
+    ${businessNo}    业务台帐保存后获取业务编号
+    关闭业务信息页面
+    等待    2
+    [Teardown]
+    [Return]    ${businessNo}
+
+复制海运出口业务台帐
+    进入框架    id=content
+    点击    id=bt_copy
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]    #进入复制详情框架
+    ${businessNo}    get value    id=qycopy_businessno_content    #获取复制新增后的业务编号
+    点击    id=bt_ok_close    #点击复制并关闭
+    离开框架
+    [Return]    ${businessNo}
+
+新增海运进口业务台帐
+    点击业务管理
+    点击业务台帐
+    点击海运进口
+    进入框架    id=content
+    点击    id=bt_add
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]
+    输入    id=bn_mains_customername    ${往来单位}
+    等待    1
+    输入    id=bn_mains_sales    ${M1_FULLNAME}
+    ${currenttime}    当前日期加减天数    +0
+    ${currenttime+7}    当前日期加减天数    +7
+    输入    id=bn_mains_etd    ${currenttime+7}    #离港日期
+    输入    id=bn_mains_eta    ${currenttime}    #抵港日期
+    点击    id=bt_save    #点击保存
+    sleep    1
+    ${status}    run keyword and return status    页面弹出框选择确定    #有没有超期提醒都不报错
+    离开框架
+    ${businessNo}    业务台帐保存后获取业务编号
+    关闭业务信息页面
+    sleep    1
+    [Return]    ${businessNo}
+
+复制海运进口业务台帐
+    进入框架    id=content
+    点击    id=bt_copy
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]    #进入复制详情框架
+    ${businessNo}    get value    id=qycopy_businessno_content    #获取复制新增后的业务编号
+    点击    id=bt_ok_close    #点击复制并关闭
+    离开框架
+    [Return]    ${businessNo}
+
+新增空运出口业务台帐
+    点击业务管理
+    点击业务台帐
+    点击空运出口
+    进入框架    id=content
+    点击    id=bt_add
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]
+    输入    id=bn_mains_customername    ${往来单位}
+    等待    1
+    输入    id=bn_mains_sales    ${M1_FULLNAME}
+    ${currenttime}    当前日期加减天数    +0
+    ${currenttime+7}    当前日期加减天数    +7
+    输入    id=bn_mains_etd    ${currenttime+7}    #离港日期
+    输入    id=bn_mains_eta    ${currenttime}    #抵港日期
+    点击    id=bt_save    #点击保存
+    sleep    1
+    ${status}    run keyword and return status    页面弹出框选择确定    #有没有超期提醒都不报错
+    离开框架
+    ${businessNo}    业务台帐保存后获取业务编号
+    点击    css=.tclose    #关闭业务信息页面
+    sleep    1
+    [Return]    ${businessNo}
+
+复制空运出口业务台帐
+    进入框架    id=content
+    select checkbox    xpath=.//*[@id='qp_airexport0_tbl5']/tbody/tr[2]/td[2]/input    #勾选第一条业务
+    点击    id=bt_copy
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]    #进入复制详情框架
+    ${businessNo}    get value    id=qycopy_businessno_content    #获取复制新增后的业务编号
+    点击    id=bt_ok_close    #点击复制并关闭
+    等待    2
+    离开框架
+    [Return]    ${businessNo}
+
+新增空运进口业务台帐
+    点击业务管理
+    点击业务台帐
+    点击空运进口
+    进入框架    id=content
+    点击    id=bt_add
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]
+    输入    id=bn_mains_customername    ${往来单位}
+    等待    1
+    输入    id=bn_mains_sales    ${M1_FULLNAME}
+    sleep    2
+    ${currenttime}    当前日期加减天数    +0
+    ${currenttime+7}    当前日期加减天数    +7
+    输入    id=bn_mains_etd    ${currenttime+7}    #离港日期
+    输入    id=bn_mains_eta    ${currenttime}    #抵港日期
+    点击    id=bt_save    #点击保存
+    sleep    1
+    ${status}    run keyword and return status    页面弹出框选择确定    #有没有超期提醒都不报错
+    离开框架
+    ${businessNo}    业务台帐保存后获取业务编号
+    关闭业务信息页面
+    sleep    1
+    [Return]    ${businessNo}
+
+复制空运进口业务台帐
+    进入框架    id=content
+    select checkbox    xpath=.//*[@id='qp_airimport_tbl5']/tbody/tr[2]/td[2]/input    #勾选第一条业务
+    点击    id=bt_copy
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]    #进入复制详情框架
+    ${businessNo}    get value    id=qycopy_businessno_content    #获取复制新增后的业务编号
+    点击    id=bt_ok_close    #点击复制并关闭
+    离开框架
+    [Return]    ${businessNo}
+
+业务台帐保存后获取业务编号
+    进入详情框架
+    ${businessNo}    获取页面文本内容    xpath=//span[@elementname='bn_mains_businessno']/span[2]
+    离开框架
+    [Return]    ${businessNo}
+
+列表查询业务编号
+    [Arguments]    ${businessNo}
+    进入列表页面框架
+    输入    id=qybu_serialnumber    ${businessNo}
+    点击    id=bt_query
+    ${pages}    获取页面文本内容    css=span.view-page    #获取页面文本内容
+    离开框架
+    [Return]    ${pages}
+
+关闭业务信息页面
+    点击    xpath=//td[contains(text(),'业务信息')]/following-sibling::td[3]
+
+删除业务台帐
+    select frame    id=content    #进入列表框架
+    click element    id=bt_delete
+    confirm action    #页面弹出框选择确定
+    choose OK on next confirmation
+    unselect frame    #离开框架
+
+退关--标记退关
+    进入框架    id=content
+    鼠标悬停    jQuery("a:contains('退关')").mouseover();    #鼠标移动到“退关”
+    点击    id=bt_sign_back
+    等待    1
+    页面弹出框选择确定
+    离开框架
+
+退关--取消退关
+    进入框架    id=content
+    鼠标悬停    jQuery("a:contains('退关')").mouseover();    #鼠标移动到“退关”
+    点击    id=bt_cancel_back
+    等待    1
+    页面弹出框选择确定
+    离开框架
+
+批量提单确认
+    进入框架    id=content
+    鼠标悬停    jQuery("a:contains('批量完成')").mouseover();    #鼠标移至批量完成
+    点击    id=bt_batch_stblconfirmfinish
+    等待    1
+    页面弹出框选择确定
+    离开框架
+
+批量应收费用制单
+    进入框架    id=content
+    鼠标悬停    jQuery("a:contains('批量完成')").mouseover();    #鼠标移动到“批量完成”
+    点击    id=bt_batch_stfeefinish_rec
+    等待    1
+    页面弹出框选择确定
+    离开框架
+
+批量应付费用制单
+    进入框架    id=content
+    鼠标悬停    jQuery("a:contains('批量完成')").mouseover();    #鼠标移动到“批量完成”
+    点击    id=bt_batch_stfeefinish_pay
+    等待    1
+    页面弹出框选择确定
+    离开框架
+
+批量业务制单完成
+    进入框架    id=content
+    鼠标悬停    jQuery("a:contains('批量完成')").mouseover();    #鼠标移动到“批量完成”
+    点击    id=bt_batch_stopfinish
+    等待    1
+    页面弹出框选择确定
+    离开框架
+
+批量取消业务制单完成
+    进入框架    id=content
+    鼠标悬停    jQuery("a:contains('批量完成')").mouseover();    #鼠标移动到“批量完成”
+    点击    id=bt_cancel_stopfinish
+    等待    1
+    页面弹出框选择确定
+    离开框架
+
+获取台帐详情提单确认状态
+    [Arguments]    ${businessNo}
+    进入框架    id=content
+    点击    xpath=//a[contains(text(),'${businessNo}')]
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]    #进入海运出口台帐详情页面
+    ${content}    获取页面值    id=bn_mains_stblconfirmfinish
+    离开框架
+    点击    css=.tclose    #关闭详情页面
+    等待    2
+    [Return]    ${content}
+
+获取海运出口台帐业务制单完成状态
+    [Arguments]    ${businessNo}
+    进入框架    id=content
+    点击    xpath=//a[contains(text(),'${businessNo}')]    #进入台帐详情
+    离开框架
+    进入框架    xpath=//iframe[contains(@id,'win_')]
+    ${content}    get text    xpath=//div[@id='left2_11']/span[2]/span[1]/font
+    离开框架
+    点击    css=.tclose    #关闭详情页面
+    等待    2
+    [Return]    ${content}
+
+获取海运出口台帐业务制单取消状态
+    [Arguments]    ${businessNo}
+    进入框架    id=content
+    点击    xpath=//a[contains(text(),'${businessNo}')]    #进入台帐详情
+    离开框架
+    进入框架    xpath=//iframe[contains(@id,'win_')]
+    ${content}    get value    id=bn_mains_stopfinish    #xpath=//div[@id='left2_11']/span[2]/span[1]/input
+    离开框架
+    点击    css=.tclose    #关闭详情页面
+    等待    2
+    [Return]    ${content}
+
+获取海运进口台帐业务制单完成状态
+    [Arguments]    ${businessNo}
+    进入框架    id=content
+    点击    xpath=//a[contains(text(),'${businessNo}')]    #进入台帐详情
+    离开框架
+    进入框架    xpath=//iframe[contains(@id,'win_')]
+    ${content}    get text    xpath=//span[@elementname="bn_mains_stopfinish"]/span[2]/font
+    离开框架
+    点击    css=.tclose    #关闭详情页面
+    等待    2
+    [Return]    ${content}
+
+获取海运进口台帐业务制单取消状态
+    [Arguments]    ${businessNo}
+    进入框架    id=content
+    点击    xpath=//a[contains(text(),'${businessNo}')]    #进入台帐详情
+    离开框架
+    进入框架    xpath=//iframe[contains(@id,'win_')]
+    ${content}    get value    id=bn_mains_stopfinish    #xpath=//div[@id='left2_11']/span[2]/span[1]/input
+    离开框架
+    点击    css=.tclose    #关闭详情页面
+    等待    2
+    [Return]    ${content}
+
+获取空运出口台帐业务制单完成状态
+    [Arguments]    ${businessNo}
+    进入框架    id=content
+    点击    xpath=//a[contains(text(),'${businessNo}')]    #进入台帐详情
+    离开框架
+    进入框架    xpath=//iframe[contains(@id,'win_')]
+    ${content}    get text    xpath=//div[@id='left2_11']/span[2]/span[1]/font
+    离开框架
+    点击    css=.tclose    #关闭详情页面
+    等待    2
+    [Return]    ${content}
+
+获取空运出口台帐业务制单取消状态
+    [Arguments]    ${businessNo}
+    进入框架    id=content
+    点击    xpath=//a[contains(text(),'${businessNo}')]    #进入台帐详情
+    离开框架
+    进入框架    xpath=//iframe[contains(@id,'win_')]
+    ${content}    get value    id=bn_mains_stopfinish    #xpath=//div[@id='left2_11']/span[2]/span[1]/input
+    离开框架
+    点击    css=.tclose    #关闭详情页面
+    等待    2
+    [Return]    ${content}
+
+获取空运进口台帐业务制单完成状态
+    [Arguments]    ${businessNo}
+    进入框架    id=content
+    点击    xpath=//a[contains(text(),'${businessNo}')]    #进入台帐详情
+    离开框架
+    进入框架    xpath=//iframe[contains(@id,'win_')]
+    ${content}    get text    xpath=//div[@id='left4_1']/span[4]/span[2]/font
+    离开框架
+    点击    css=.tclose    #关闭详情页面
+    等待    2
+    [Return]    ${content}
+
+获取空运进口台帐业务制单取消状态
+    [Arguments]    ${businessNo}
+    进入框架    id=content
+    点击    xpath=//a[contains(text(),'${businessNo}')]    #进入台帐详情
+    离开框架
+    进入框架    xpath=//iframe[contains(@id,'win_')]
+    ${content}    get value    id=bn_mains_stopfinish    #xpath=//div[@id='left2_11']/span[2]/span[1]/input
+    离开框架
+    点击    css=.tclose    #关闭详情页面
+    等待    2
+    [Return]    ${content}
+
+用户查询
+    进入框架    id=content
+    输入    id=user_name_search    ${M1_USERNAME}
+    点击    id=bt_search
+    离开框架
+
+打开用户详情
+    进入框架    id=content
+    点击    xpath=//img[@src="application/themes/default/images/user_edit.gif"]
+    离开框架
+
+保存职员类型
+    进入框架    id=content
+    勾选记录    xpath=//*[@name="person_type"][@value="1"]
+    勾选记录    xpath=//*[@name="person_type"][@value="2"]
+    勾选记录    xpath=//*[@name="person_type"][@value="4"]
+    勾选记录    xpath=//*[@name="person_type"][@value="5"]
+    勾选记录    xpath=//*[@name="person_type"][@value="8"]    #勾选销售员类型
+    点击    id=bt_save
+    离开框架
+
+新增往来单位
+    [Arguments]    ${code}    ${name}    ${sale}
+    进入框架    id=content
+    点击    bt_add
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]
+    输入    id=base_customers_code    ${code}
+    输入    id=base_customers_name    ${name}
+    输入    id=base_customers_fms_sales    ${sale}
+    select checkbox    name=base_customers_fms_isagent_TempCheck
+    #select checkbox    xpath=//table[@id='pg_base_customer_edit_tbl1']/tbody/tr/td[2]/div[12]/span[2]/input
+    select checkbox    xpath=//input[@id='ck_all']
+    点击    bt_save_close
+    等待    2
+    run keyword and return status    confirm action    #弹出框确定确认
+    离开框架
+
+修改往来单位
+    [Arguments]    ${sale}
+    进入框架    id=content
+    点击    xpath=//a[contains(@href,'javascript:navigateUrl')]
+    离开框架
+    进入详情框架
+    输入    id=base_customers_linkman    小胡伟    #联系人
+    输入    id=base_customers_mobilephone    99994999998    #联系人手机号
+    输入    id=base_customers_email    23@qq.com    #联系人邮箱
+    输入    id=base_customers_fms_sales    ${sale}    #维护销售员
+    输入    id=base_customers_bank    宁波银行    #人民币开户行
+    输入    id=base_customers_accountno    6228789878654    #人民币开户帐号
+    输入    id=base_customers_usdbank    建设银行    #美元开户行
+    输入    id=base_customers_usdaccountno    6228 8987 89887 23    #美元开户帐号
+    等待    2
+    点击    id=bt_save_close
+    等待    2
+    离开框架
+
+往来单位查询客户名称
+    [Arguments]    ${customer}
+    进入框架    id=content
+    等待    2
+    下拉选择byValue    id=qy_base_customers_typename    -1    #类型选择全部
+    等待    2
+    输入    id=qy_base_customers_name    ${customer}
+    点击    id=bt_query
+    ${page}    获取页面文本内容    css=.view-page
+    ${return}    run keyword and return status    应该包含    ${page}    共1条    #目的是为了 如果找不到时，可以 新增基础资料
+    离开框架
+    [Return]    ${return}
+
+点击公司银行账户
+    点击    xpath=//a[contains(@href,'pg_base_bank_search')]
+
+新增公司银行账户
+    [Arguments]    ${bankname}=auto建设    ${bankcode}=CHINA
+    [Documentation]    新增一条USD的银行
+    进入框架    id=content
+    点击    xpath=//a[contains(@href,'process_action_sp_base_banks_add')]/span
+    离开框架
+    进入详情框架
+    输入    xpath=//input[contains(@id,'base_banks_code')]    ${bankcode}
+    等待    1
+    输入    xpath=//input[contains(@id,'base_banks_name')]    ${bankname}
+    等待    1
+    输入    xpath=//input[contains(@id,'base_banks_account')]    998998998
+    等待    1
+    输入    xpath=//input[contains(@id,'base_banks_currencytype')]    USD
+    等待    1
+    点击    id=bt_save
+    等待    1
+    ${status}    run keyword and return status    页面弹出框选择确定
+    等待    1
+    离开框架
+    点击    css=.tclose
+    等待    1
+
+公司银行账户查询
+    [Arguments]    ${bankname}    ${bankcode}
+    进入框架    id=content
+    输入    id=qy_base_banks_name    ${bankname}
+    输入    id=qy_base_banks_code    ${bankcode}
+    点击    id=bt_query
+    等待    1
+    ${page}    获取页面文本内容    css=.vrws-label-paging
+    ${status}    run keyword and return status    should contain    ${page}    共1条
+    离开框架
+    [Return]    ${status}
+
+修改个人资料--姓名
+    进入框架    id=content
+    输入    id=sur_name    测
+    输入    id=first_name    试
+    点击    bt_save
+    sleep    2
+    离开框架
+    close all browsers
+
+系统参数单选框设置
+    [Arguments]    ${group_name}    ${value}
+    单选框选择    group_name=${group_name}    value=${value}
+    等待    1
+
+进入一个框架后-全选记录
+    进入列表页面框架
+    勾选记录    xpath=//input[@name="SHEET_ROW_SELECT_ALL"]
+    离开框架
+
+查询列表勾选第一条记录
+    [Documentation]    列表上仅查询出一条记录时，才可用
+    进入列表页面框架
+    勾选记录    xpath=//tr[contains(@class,'vrws-row-portlet0')]/td[2]/input
+    离开框架
+
+获取单个列表记录数
+    进入列表页面框架
+    ${pages}    获取页面文本内容    css=span.view-page    #获取页面文本内容
+    离开框架
+    [Return]    ${pages}
+
+进入列表页面框架
+    进入框架    id=content
+
+进入详情框架
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]
+
+关闭页面
+    点击    css=.tclose

@@ -1,0 +1,5 @@
+*** Settings ***
+Library           OlymLibrary
+Library           ExcelLibrary
+Library           requests
+Resource          ../Resources/开发平台接口/开发平台API.txt

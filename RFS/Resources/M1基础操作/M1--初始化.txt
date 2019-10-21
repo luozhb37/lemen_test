@@ -1,0 +1,40 @@
+*** Settings ***
+Resource          M1--引用.txt
+
+*** Keywords ***
+往来单位初始化
+    登录
+    点击公司管理
+    点击用户管理
+    点击用户维护
+    用户查询
+    打开用户详情
+    保存职员类型
+    点击公司管理
+    点击基础资料
+    点击企业基础资料
+    点击往来单位
+    ${return1}    往来单位查询客户名称    ${往来单位}
+    run keyword if    '${return1}'=='True'    修改往来单位    ${M1_FULLNAME}
+    ...    ELSE    新增往来单位    ${往来单位_CODE}    ${往来单位}    ${M1_FULLNAME}
+    点击基础资料
+
+系统参数设置-应付对账核销模式
+    登录
+    点击系统设置
+    点击系统参数
+    进入列表页面框架
+    下拉选择byValue    name=sys_paras_iv_writeoff_start    1    #收款核销模式：发票核销
+    下拉选择byValue    name=sys_paras_pay_writeoff_start    2    #付款核销模式：对账核销
+    系统参数单选框设置    group_name=sys_paras_allow_writeoff    value=1    #允许核销未审核费用:是
+    系统参数单选框设置    group_name=sys_paras_checkaccount_payaudit    value=0    #应付对账前必须费用审核：否
+    系统参数单选框设置    group_name=sys_paras_buaudit_isfeeaudit    value=0    #业务审核前应收费用必须审核：否
+    系统参数单选框设置    group_name=sys_paras_invoice_recfeeaudit    value=0    #开发票前必须费用审核：否
+    系统参数单选框设置    group_name=sys_paras_fee_confirm    value=0    #开发票前费用确认：否
+    点击    id=bt_save    #点击保存
+    离开框架
+    点击公司银行账户
+    ${return}    公司银行账户查询    bankname=auto建设    bankcode=CHINA
+    run keyword if    '${return}'=='True'    关闭浏览器
+    ...    ELSE    新增公司银行账户
+    [Teardown]    关闭浏览器

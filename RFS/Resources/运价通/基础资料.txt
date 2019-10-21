@@ -1,0 +1,111 @@
+*** Settings ***
+Resource          ../../Resources/运价通/运价通-引用.txt
+
+*** Keywords ***
+点击进入港口信息
+    点击    id=home_freight
+    sleep    3
+    Mouse Over    xpath=//a[text()="基础资料"]
+    #鼠标悬停    jQuery(\"li:contains('基础资料')\").mouseover();
+    sleep    3
+    点击    xpath=//a[contains(@href,"海运出口整箱港口信息")]
+    sleep    3
+    mouse out    id=home_freight
+
+点击进入航线信息
+    点击    id=home_freight
+    sleep    3
+    Mouse Over    xpath=//a[text()="基础资料"]
+    #鼠标悬停    jQuery(\"li:contains('基础资料')\").mouseover();
+    sleep    3
+    点击    xpath=//a[contains(@href,"海运出口整箱航线信息")]
+    sleep    3
+    mouse out    id=home_freight
+
+点击进入船公司信息
+    点击    id=home_freight
+    sleep    3
+    Mouse Over    xpath=//a[text()="基础资料"]
+    #鼠标悬停    jQuery(\"li:contains('基础资料')\").mouseover();
+    #focus    xpath=//a[text()="基础资料"]
+    sleep    3
+    点击    xpath=//a[contains(@href,"船公司信息")]
+    sleep    3
+    mouse out    id=home_freight
+
+点击进入支线费用
+    点击    id=home_freight
+    sleep    3
+    Mouse Over    xpath=//a[text()="基础资料"]
+    #鼠标悬停    jQuery(\"li:contains('支线费用')\").mouseover();
+    sleep    3
+    点击    xpath=//a[text()='驳船费管理']
+    sleep    3
+    mouse out    id=home_freight
+
+点击进入订舱代理信息
+    点击    id=home_freight
+    sleep    3
+    Mouse Over    xpath=//a[text()="基础资料"]
+    #鼠标悬停    jQuery(\"li:contains('基础资料')\").mouseover();
+    #focus    xpath=//a[text()="基础资料"]
+    sleep    3
+    点击    xpath=//a[contains(@href,"订舱代理信息")]
+    sleep    3
+    mouse out    id=home_freight
+
+点击进入航空公司信息
+    点击    id=home_freight
+    sleep    3
+    Mouse Over    xpath=//a[text()="基础资料"]
+    #鼠标悬停    jQuery(\"li:contains('基础资料')\").mouseover();
+    #focus    xpath=//a[text()="基础资料"]
+    sleep    3
+    点击    xpath=//a[contains(@href,"航空公司信息")]
+    sleep    3
+    mouse out    id=home_freight
+
+点击进入航班信息
+    点击    id=home_freight
+    sleep    3
+    Mouse Over    xpath=//a[text()="基础资料"]
+    #鼠标悬停    jQuery(\"li:contains('基础资料')\").mouseover();
+    #focus    xpath=//a[text()="基础资料"]
+    sleep    3
+    点击    xpath=//a[contains(@href,"航班信息")]
+    sleep    3
+    mouse out    id=home_freight
+
+点击进入航空港口分区
+    点击    id=home_freight
+    sleep    3
+    Mouse Over    xpath=//a[text()="基础资料"]
+    #鼠标悬停    jQuery(\"li:contains('基础资料')\").mouseover();
+    #focus    xpath=//a[text()="基础资料"]
+    sleep    3
+    点击    xpath=//a[contains(@href,"航空港口分区")]
+    sleep    3
+    mouse out    id=home_freight
+
+点击进入仓库基础资料
+    点击    id=home_freight
+    sleep    3
+    Mouse Over    xpath=//a[text()="基础资料"]
+    #鼠标悬停    jQuery(\"li:contains('基础资料')\").mouseover();
+    #focus    xpath=//a[text()="基础资料"]
+    sleep    3
+    点击    xpath=//a[contains(@href,"仓库基础资料")]
+    sleep    3
+    mouse out    id=home_freight
+
+新增航空公司
+    点击进入航空公司信息
+    进入框架    name=win_1002
+    点击    xpath=//span[text()='新增']/..
+    离开框架
+    进入框架    xpath=//h4[text()='新增航空公司信息']/../following-sibling::iframe[starts-with(@name,'win_')]
+    输入    id=code    hehe
+    输入    id=name    乱七八糟
+    点击    xpath=//span[text()='保存并关闭']
+    页面弹出框选择确定
+    离开框架

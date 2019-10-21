@@ -1,0 +1,145 @@
+*** Settings ***
+Suite Setup       新建掌门人客户会话
+Suite Teardown    Delete All Sessions
+Library           Collections
+Library           OlymLibrary
+Resource          ../Resources/会员接口.txt
+
+*** Test Cases ***
+home
+    [Documentation]    外部查询首页/marketing-portal-rest/rest/home
+    ...
+    ...    检查点: 登录名为 ${username}
+    [Tags]    complete
+    ${username}    set variable    章鱼
+    ${case}    get request    ${运价外部_session}    /marketing-portal-rest/rest/home
+    Should Contain    ${case.text}    ${username}
+
+home_history
+    [Documentation]    /marketing-portal-rest/rest/home/history?type=XXX&dischargeport=
+    [Tags]    complete
+    ${result}    post request    ${运价外部_session}    /marketing-portal-rest/rest/home/history?type=lcl&dischargeport=    #data=${data}    headers=${headers}
+    ${resultJson}    to json    ${result.text}
+    log    ${result.text}
+    Should Be equal    ${resultJson['resultCode']}    ${100}
+
+home_analysiswriteswitchpricetype_fcl
+    [Documentation]    /marketing-portal-rest/rest/home/analysiswriteswitchpricetype/fcl
+    [Tags]    complete
+    ${username}    set variable    章鱼
+    ${case}    get request    ${运价外部_session}    /marketing-portal-rest/rest/home/analysiswriteswitchpricetype/fcl
+    log    ${case.text}
+    #Should Contain    ${case.text}    ${username}
+
+notice_findNotices
+    [Documentation]    /marketing-portal-rest/rest/notice/findNotices?type=1
+    [Tags]    complete
+    ${headers}    create dictionary    Content-Type=application/json
+    ${result1}    post request    ${运价外部_session}    /marketing-portal-rest/rest/notice/findNotices?type=1    headers=${headers}
+    ${result1Json}    to json    ${result1.text}
+    log    ${result1.text}
+    Should Not Be Empty    ${result1Json['data']['pageInfo']['list']}    msg=公告1不存在
+    ${result2}    post request    ${运价外部_session}    /marketing-portal-rest/rest/notice/findNotices?type=2    headers=${headers}
+    ${result2Json}    to json    ${result2.text}
+    log    ${result2.text}
+    Should Not Be Empty    ${result2Json['data']['pageInfo']['list']}    msg=公告2不存在
+
+queryCommendEfclList
+    [Documentation]    外部查询首页-> 推荐运价
+    ...    /marketing-portal-rest/rest/efcl/queryCommendEfclList
+    ...    检查点: resultcode=100
+    [Tags]    complete
+    ${username}    set variable    章鱼
+    ${data}    Json Dumps    {"pageNum": "1"}
+    ${headers}    Create Dictionary    Content-Type=application/json
+    ${case}    post request    ${运价外部_session}    /marketing-portal-rest/rest/efcl/queryCommendEfclList    data=${data}    headers=${headers}
+    ${caseJson}    to json    ${case.text}
+    log    ${case.text}
+    Should Be Equal    ${caseJson['resultCode']}    ${100}
+
+queryCommendElclList
+    [Documentation]    外部查询首页-> 推荐运价
+    ...    /marketing-portal-rest/rest/efcl/queryCommendEfclList
+    ...    检查点: resultcode=100
+    [Tags]    complete
+    ${username}    set variable    章鱼
+    ${data}    Json Dumps    {"pageNum": "1"}
+    ${headers}    Create Dictionary    Content-Type=application/json
+    ${case}    post request    ${运价外部_session}    /marketing-portal-rest/rest/efcl/queryCommendEfclList    data=${data}    headers=${headers}
+    ${caseJson}    to json    ${case.text}
+    log    ${case.text}
+    should Not Be Empty    ${caseJson['data']['pageInfo']['list']}    msg=拼箱推荐运价无数据,请检查是否正确
+
+carriers
+    [Documentation]    /marketing-portal-rest/rest/carriers/carr
+    [Tags]    complete
+    ${data}    create dictionary    pageNum=1    pageSize=10
+    ${headers}    create dictionary    Content-Type=application/x-www-form-urlencoded
+    ${result}    post request    ${运价外部_session}    /marketing-portal-rest/rest/carriers/carr    data=${data}    headers=${headers}
+    ${resultJson}    to json    ${result.text}
+    log    ${result.text}
+    Should Not Be Empty    ${resultJson['data']['list']}    msg=船公司列表为空
+
+searoutes_fcl
+    [Documentation]    /marketing-portal-rest/rest/searoutes/fcl
+    [Tags]    complete
+    ${data}    create dictionary    pageNum=1    pageSize=30
+    ${headers}    create dictionary    Content-Type=application/x-www-form-urlencoded
+    ${result}    post request    ${运价外部_session}    /marketing-portal-rest/rest/searoutes/fcl    data=${data}    headers=${headers}
+    ${resultJson}    to json    ${result.text}
+    Should Not Be Empty    ${resultJson['data']['list']}    msg=航线列表为空
+
+searoutes_lcl
+    [Documentation]    /marketing-portal-rest/rest/searoutes/fcl
+    [Tags]    complete
+    ${data}    create dictionary    pageNum=1    pageSize=30
+    ${headers}    create dictionary    Content-Type=application/x-www-form-urlencoded
+    ${result}    post request    ${运价外部_session}    /marketing-portal-rest/rest/searoutes/lcl    data=${data}    headers=${headers}
+    ${resultJson}    to json    ${result.text}
+    Should Not Be Empty    ${resultJson['data']['list']}    msg=航线列表为空
+
+efcl_search
+    [Documentation]    /marketing-portal-rest/rest/efcl/search
+    ...    返回整箱运价查询页面
+    [Tags]    complete
+    ${data}    create dictionary    dischargeport=DUBAI    queryConditions={%22dischargeport%22:%22DUBAI%22,%22loadport%22:%22NINGBO%22}
+    ${headers}    create dictionary    Content-Type=application/x-www-form-urlencoded
+    ${result}    post request    ${运价外部_session}    /marketing-portal-rest/rest/efcl/search?dischargeport=DUBAI&queryConditions={%22dischargeport%22:%22DUBAI%22,%22loadport%22:%22NINGBO%22}    headers=${headers}    #data=${data}
+    log    ${result.text}
+    should contain    ${result.text}    直达    msg=整箱查询返回html有异常
+
+efcl_queryFclList
+    [Documentation]    /marketing-portal-rest/rest/efcl/queryFclList 返回运价数据(json)
+    [Tags]    complete
+    #查询条件
+    ${dischargeport}    Set Variable    WAIBU1
+    ${loadport}    Set Variable    NINGBO
+    #请求
+    ${data}    Jsonstr to Dict    {"queryConditions":"{\\\"dischargeport\\\":\\\"${dischargeport}\\\",\\\"loadport\\\":\\\"${loadport}\\\"}","pageNum":1,"pageSize":30,"sortColumn":"internetsellprice2","sortBy":"asc","biKey":"4449801457439053226","isPage":false}    #转义符要多加几个.不然decode会异常
+    ${headers}    create dictionary    Content-Type=application/json
+    ${result}    post request    ${运价外部_session}    /marketing-portal-rest/rest/efcl/queryFclList    headers=${headers}    data=${data}
+    ${resultJson}    to json    ${result.text}
+    Should Contain    ${resultJson['data']['list'][0]['dischargeport']}    ${dischargeport}    msg=返回结果中未没有运价记录, 请确认 返回内容如下:${result.text}
+
+elcl_search
+    [Documentation]    /marketing-portal-rest/rest/elcl/search
+    ...    返回整箱运价查询页面
+    [Tags]    complete
+    ${data}    create dictionary    dischargeport=DUBAI    queryConditions={%22dischargeport%22:%22DUBAI%22,%22loadport%22:%22NINGBO%22}
+    ${headers}    create dictionary    Content-Type=application/x-www-form-urlencoded
+    ${result}    post request    ${运价外部_session}    /marketing-portal-rest/rest/elcl/search?dischargeport=DUBAI&queryConditions={%22dischargeport%22:%22DUBAI%22,%22loadport%22:%22NINGBO%22}    headers=${headers}    #data=${data}
+    log    ${result.text}
+    should contain    ${result.text}    直达    msg=拼箱查询返回html有异常
+
+efcl_querylclList
+    [Documentation]    /marketing-portal-rest/rest/efcl/queryFclList 返回运价数据(json)
+    [Tags]    complete
+    #查询条件
+    ${dischargeport}    Set Variable    WAIBU1
+    ${loadport}    Set Variable    NINGBO
+    #请求
+    ${data}    Jsonstr to Dict    {"advSearchValue":"[{\\\"fieldNum\\\":1,\\\"fieldItem\\\":\\\"dischargeport\\\",\\\"fieldValue\\\":\\\"WAIBU1\\\"},{\\\"fieldNum\\\":2,\\\"fieldItem\\\":\\\"loadport\\\",\\\"fieldValue\\\":\\\"NINGBO\\\"}]","pageNum":1,"pageSize":30,"biKey":"1987371457510036116","isPage":false,"transports":"直达,DIR,DIRECT,DIRECTLY"}    #转义符要多加几个.不然decode会异常
+    ${headers}    create dictionary    Content-Type=application/json
+    ${result}    post request    ${运价外部_session}    /marketing-portal-rest/rest/elcl/queryELclList    headers=${headers}    data=${data}
+    ${resultJson}    to json    ${result.text}
+    Should Contain    ${resultJson['data']['page']['list'][0]['dischargeport']}    ${dischargeport}    msg=返回结果中未没有运价记录, 请确认 返回内容如下:${result.text}

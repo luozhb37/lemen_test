@@ -1,0 +1,27 @@
+*** Settings ***
+Suite Setup       新建内部账号会话
+Suite Teardown    Delete All Sessions
+Library           OlymLibrary
+Library           Collections
+Library           ../Resources/Tool.py
+
+*** Variables ***
+${IMID}           priceservice_198993_21289    # 对应rfs公司13967880231的imid
+
+*** Test Cases ***
+getImInfoByToken
+    ${result}    get request    ${session}    /im-common/getImInfoByToken?token=YWMtdzUEbusYEeWWAFv93EQMhgAAAVSyFQEl0MMcD43-Ks4tQAarUI48tjhkquo&jsonpcallback=jQuery111105865551647730172_1458184203623&_=1458184203624
+    Should Contain    ${result.text}    ${IMID}    msg=获取IMinfo异常
+
+getimcontactlist
+    [Documentation]    /im-common/getimcontactlist?jsonpcallback=jQuery11110023497935850173235_1458203907062
+    ${data}    create dictionary    imIdList=priceservice_198581_21289
+    ${result}    post request    ${session}    /im-common/getimcontactlist?jsonpcallback=jQuery11110023497935850173235_1458203907062    data=${data}
+    log    ${result.text}
+    Should Contain    ${result.text}    ${IMID}    msg=获取IMinfo异常
+
+getimhistory
+    [Documentation]    /im-common/getimhistory?token=YWMtdzUEbusYEeWWAFv93EQMhgAAAVSyFQEl0MMcD43-Ks4tQAarUI48tjhkquo&msgtoId=priceservice_198581_21289&pageSize=5&pageNo=1&jsonpcallback=jQuery111108481549166608602_1458207841679&_=1458207841680
+    ${result}    get request    ${session}    /im-common/getimhistory?token=YWMtdzUEbusYEeWWAFv93EQMhgAAAVSyFQEl0MMcD43-Ks4tQAarUI48tjhkquo&msgtoId=priceservice_198581_21289&pageSize=5&pageNo=1&jsonpcallback=jQuery111108481549166608602_1458207841679&_=1458207841680
+    log    ${result.text}
+    #Should Contain    ${result.text}    ${IMID}    msg=获取IMinfo异常

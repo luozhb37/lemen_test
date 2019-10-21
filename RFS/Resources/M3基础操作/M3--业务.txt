@@ -1,0 +1,1133 @@
+*** Settings ***
+Resource          M3--引用.txt
+
+*** Keywords ***
+confirm弹出框选择确认
+    点击    css=.confirm    #弹出框点击确认
+    等待    2
+
+m3--分单
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入详情框架
+    点击    id=bt_housebill    #点击分单
+    离开框架
+    等待加载层消失
+    #进入分单详情
+    进入框架    xpath=//h3[text()='分单信息']/../..//iframe[starts-with(@id,'win_')]
+    点击    xpath=//span[text()='主单拆分']/..
+    输入    id=hblCount    3
+    点击    xpath=//span[text()='确 定']/..
+    等待    2
+    #验证分单行数
+    ${result}    获取匹配xpath的个数    xpath=//div[@class='ant-table ant-table-small ant-table-scroll-position-left']//tbody/tr    #获取列表个数
+    应该要相等（数字）    ${result}    3
+    点击    xpath=//span[text()='保 存']/..
+    Comment    Wait Until Element Is Not Visible    xpath=//span[text()='验证信息']/..
+    点击    xpath=//span[text()='继续保存']/..
+    等待    2
+    离开框架
+    点击    xpath=//h3[text()='分单信息']/../i[@class='icon-close']
+    等待加载层消失
+    进入详情框架
+    ${content}    获取页面文本内容    xpath=//span[@elementname='bn_mains_hblcount']//a
+    应该要相等（数字）    ${content}    3
+    离开框架
+    关闭所有弹出框
+
+上传托书
+    进入列表页面框架
+    点击    id=bt_upload_booking
+    离开框架
+    进入详情框架
+    输入    id=bn_bookings_customername    ${往来单位}
+    ${bn_bookings_bookingno}    获取页面值    id=bn_bookings_bookingno
+    选择文件    id=bn_bookings_adjunct    ${CURDIR}\\frank_multitable_20181023.doc
+    点击    id=bt_ok
+    离开框架
+    [Return]    ${bn_bookings_bookingno}
+
+业务台帐保存后获取业务编号
+    进入详情框架
+    ${BUSINESSNO-SUIT}    获取页面文本内容    xpath=//span[@elementname='bn_mains_businessno']/span[2]
+    离开框架
+    Set Suite Variable    ${BUSINESSNO-SUIT}
+    [Return]    ${BUSINESSNO-SUIT}
+
+业务台帐保存后获取业务编号-海运出口
+    进入详情框架
+    ${BUSINESSNO-SUIT-SEAEXPORT}    获取页面文本内容    xpath=//span[@elementname='bn_mains_businessno']/span[2]
+    离开框架
+    Set Suite Variable    ${BUSINESSNO-SUIT-SEAEXPORT}
+    [Return]    ${BUSINESSNO-SUIT-SEAEXPORT}
+
+保存职员类型
+    [Documentation]    \#勾选销售员
+    进入框架    id=content
+    勾选记录    xpath=//*[@name="person_type"][@value="1"]
+    勾选记录    xpath=//*[@name="person_type"][@value="2"]
+    勾选记录    xpath=//*[@name="person_type"][@value="4"]
+    勾选记录    xpath=//*[@name="person_type"][@value="5"]
+    勾选记录    xpath=//*[@name="person_type"][@value="8"]    #勾选销售员类型
+    点击    id=bt_save
+    离开框架
+
+修改往来单位
+    [Arguments]    ${sale_name}    ${code}=${往来单位_CODE}
+    进入框架    id=content
+    点击    xpath=//a[contains(text(),"${code}")]
+    离开框架
+    进入详情框架
+    #${customer}    获取页面文本内容    id=base_customers_name
+    输入    id=base_customers_linkman    小胡伟    #联系人
+    输入    id=base_customers_mobilephone    99994999998    #联系人手机号
+    输入    id=base_customers_email    23@qq.com    #联系人邮箱
+    输入    id=base_customers_fms_sales    ${sale_name}    #维护销售员
+    输入    id=base_customers_bank    宁波银行    #人民币开户行
+    输入    id=base_customers_accountno    6228789878654    #人民币开户帐号
+    输入    id=base_customers_usdbank    建设银行    #美元开户行
+    输入    id=base_customers_usdaccountno    6228 8987 89887 23    #美元开户帐号
+    勾选记录    id=ck_all    #应用于=全选
+    等待    2
+    点击    id=bt_save_close
+    离开框架
+
+关闭所有弹出框
+    execute javascript    jQuery(".icon-close-all").get(0).click();
+    等待    2
+    confirm弹出框选择确认
+
+凭证导出系统参数初始化-步骤1
+    [Documentation]    凭证初始化分为两个步骤，第一步为判断当前系统参数是否为导出设置，如果是，直接跳过，如果不是，则需要进入步骤2进行初始化
+    点击系统设置
+    点击系统参数
+    点击    xpath=//a[text()='财务参数']
+    进入列表页面框架
+    ${sys_paras_financialsoftware}    Get Selected List Label    id=sys_paras_financialsoftware
+    ${sys_paras_payable_voucheroutput_mode}    Get Selected List Label    id=sys_paras_payable_voucheroutput_mode
+    离开框架
+    Run Keyword If    '${sys_paras_financialsoftware}'!='金蝶云EAS导出' and '${sys_paras_payable_voucheroutput_mode}'!='按发票'    凭证导出系统参数初始化-步骤2
+
+凭证导出系统参数初始化-步骤2
+    进入列表页面框架
+    下拉选择byValue    id=sys_paras_financialsoftware    kcloudeas
+    下拉选择byValue    id=sys_paras_payable_voucheroutput_mode    0
+    点击    id=bt_save
+    Wait Until Page Contains    保存成功
+    离开框架
+    点击    css=.icon-arrow-down
+    点击    xpath=.//a[contains(@href,"/modelhome3/logout.jsp")]
+    Sleep    5
+    进入框架    id=loginPanel
+    输入    id=username    ${M3_USERNAME}
+    输入    id=password    ${M3_PASSWORD}
+    点击    id=btn-submit
+    #等待    5
+    wait until page contains    首页
+    #等待    2
+    离开框架
+
+列表全选记录
+    进入框架    id=content
+    勾选记录    xpath=//input[@name='SHEET_ROW_SELECT_ALL']
+    离开框架
+
+删除业务台帐
+    进入列表页面框架
+    等待    5
+    点击    id=bt_delete
+    等待    1
+    confirm弹出框选择确认
+    离开框架    #离开框架
+
+删除往来单位
+    进入列表页面框架
+    勾选记录    xpath=//input[@name="SHEET_ROW_SELECT_ALL"]
+    点击    id=bt_delete
+    页面弹出框选择确定
+    ${page}    获取页面文本内容    css=.view-page
+    应该包含    ${page}    共0条
+    离开框架
+
+删除海运出口业务
+    列表页面-全选记录
+    进入列表页面框架
+    点击    id=bt_delete    #点击删除
+    等待    1
+    confirm弹出框选择确认
+    离开框架
+
+判断是否存在全局变量业务编号-海运出口
+    等待    2
+    ${businessno_exit}    Run Keyword And Return Status    Wait Until Page Does Not Contain Element    ${BUSINESSNO-SUIT-SEAEXPORT}
+    Run Keyword If    '${businessno_exit}'=='False'    新增海运出口业务台账
+    ...    ELSE    log    已存在全局变量
+
+判断是否存在全局变量业务编号-海运进口
+    等待    2
+    ${businessno_exit}    Run Keyword And Return Status    Page Should Not Contain    ${BUSINESSNO-SUIT-SEAIMPORT}
+    Run Keyword If    '${businessno_exit}'=='False'    新增海运进口业务台帐
+    ...    ELSE    log    已存在全局变量
+
+判断是否存在全局变量业务编号-空运出口(新)
+    等待    2
+    ${businessno_exit}    Run Keyword And Return Status    Wait Until Page Does Not Contain Element    ${BUSINESSNO-SUIT-AIREXPORT}
+    Run Keyword If    '${businessno_exit}'=='False'    新增空运出口(新)业务台帐
+    ...    ELSE    log    已存在全局变量
+
+判断是否存在全局变量业务编号-空运进口
+    等待    2
+    ${businessno_exit}    Run Keyword And Return Status    Wait Until Page Does Not Contain Element    ${BUSINESSNO-SUIT-AIRIMPORT}
+    Run Keyword If    '${businessno_exit}'=='False'    新增空运进口业务台帐
+    ...    ELSE    log    已存在全局变量
+
+勾选包含业务编号的台帐
+    [Arguments]    ${business-no}
+    进入列表页面框架
+    勾选记录    xpath=//input[@class='vrws-row-portlet-sel-checkbox'][contains(@name,'businessno=${business-no}')]
+    离开框架
+
+复制海运出口业务-方法2
+    进入框架    id=content
+    点击    id=bt_copy
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]
+    点击    id=bt_ok    #点击复制
+    等待    2
+    ${status}    run keyword and return status    confirm弹出框选择确认
+    ${content}    获取页面文本内容    xpath=//*[@class="list-middle-show"]/span    #获取复制新增后的业务编号等文字说明
+    ${no}    截取字符    ${content}    生成的业务编号为:    , 复制
+    离开框架
+    关闭所有弹出框
+    [Return]    ${no}
+
+复制海运进口业务台帐
+    进入框架    id=content
+    勾选记录    xpath=.//*[@id='qp_seaimport0_tbl5']/tbody/tr[2]/td[2]/input    #勾选第一条记录
+    点击    id=bt_copy
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]    #进入复制详情框架
+    点击    id=bt_ok    #点击复制
+    等待    2
+    ${content}    获取页面文本内容    xpath=//div[@class='list-middle-show']/span
+    ${no}    截取字符    ${content}    生成的业务编号为:    , 复制
+    离开框架
+    关闭所有弹出框
+    [Return]    ${no}    # 新生成的业务编号
+
+复制空运出口(新)业务台帐
+    进入框架    id=content
+    select checkbox    xpath=.//*[@id='qp_airexport1_tbl5']/tbody/tr[2]/td[2]/input    #勾选第一条业务
+    点击    id=bt_copy
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]    #进入复制详情框架
+    点击    id=bt_ok    #点击复制
+    等待    2
+    ${content}    获取页面文本内容    xpath=//div[@class='list-middle-show']/span
+    ${no}    截取字符    ${content}    生成的业务编号为:    , 复制
+    离开框架
+    关闭所有弹出框
+    [Return]    ${no}
+
+复制空运进口业务台帐
+    进入框架    id=content
+    等待    1
+    select checkbox    xpath=.//*[@id='qp_airimport_tbl5']/tbody/tr[2]/td[2]/input    #勾选第一条业务
+    点击    id=bt_copy
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]    #进入复制详情框架
+    点击    id=bt_ok    #点击复制
+    等待    2
+    ${content}    获取页面文本内容    xpath=//div[@class='list-middle-show']/span
+    ${no}    截取字符    ${content}    生成的业务编号为:    , 复制
+    离开框架
+    关闭所有弹出框
+    [Return]    ${no}
+
+费用拆分
+    进入费用信息页面框架
+    点击    id=bt_split
+    离开框架
+    进入框架    xpath=//h3[text()='费用拆分']/../..//iframe[starts-with(@id,'win_')]
+    点击    xpath=//span[text()='拆分']/..
+    confirm弹出框选择确认
+    点击    id=bt_save_close
+    离开框架
+
+导入往来单位
+    [Documentation]    ${CURDIR}
+    ...    路径是：E:\Olymtech\技术\06.部门管理\测试组\自动化测试\RFS\Resources
+    进入列表页面框架
+    点击    id=bt_insert    #点击导入往来单位
+    离开框架
+    #select frame by index    tag= iframe    -1
+    Select Frame    xpath=//iframe[starts-with(@src,'about:blank?___')]
+    选择文件    id=e_upload_xml    ${CURDIR}\\customers.xls    #下载的往来单位模板
+    等待    2
+    点击    id=bt_upload    #点击上传
+    离开框架
+    关闭所有弹出框
+    ${return2}    往来单位查询客户    AUTO
+    should be equal as strings    ${return2}    True
+
+往来单位查询客户
+    [Arguments]    ${客户代码}
+    进入框架    id=content
+    下拉选择byValue    id=qy_base_customers_typename    -1    #类型选择全部
+    输入    id=qy_base_customers_code    ${客户代码}
+    点击    id=bt_query
+    ${page}    获取页面文本内容    css=.view-page
+    ${return}    run keyword and return status    应该包含    ${page}    共0条    #目的是为了 如果找不到时，可以 新增基础资料
+    离开框架
+    [Return]    ${return}
+
+打开用户详情
+    [Documentation]    前面搜索出来一条记录后，打开对应姓名的用户详情
+    进入框架    id=content
+    点击    xpath=//img[@src="application/themes/default/images/user_edit.gif"]
+    离开框架
+
+批量业务制单完成
+    进入列表页面框架
+    点击    id=bt_operate    #点击操作
+    等待    1
+    鼠标移至批量完成
+    execute javascript    jQuery("#bt_batch_stopfinish").get(0).click();    #业务制单
+    等待    2
+    confirm弹出框选择确认
+    离开框架
+
+批量修改-目的港
+    [Arguments]    ${待改字段}    ${改变的值}    # 目的港，起运港等等
+    [Documentation]    针对有下拉框数据的内容修改
+    进入列表页面框架
+    点击    id=bt_operate    #点击操作
+    等待    1
+    Comment    鼠标悬停    jQuery("a:contains('批量修改')").mouseover();
+    Wait Until Page Contains Element    xpath=//span[text()='批量修改']
+    点击    id=bt_transship    #点击批量修改
+    离开框架
+    进入详情框架
+    下拉选择by value    id =se_transship    ${待改字段}    #修改哪个字段
+    输入    id=se_tansship_change    ${改变的值}    #维护内容
+    按键    id=se_tansship_change    \ue015    #向下
+    按键    id=se_tansship_change    \\13    #enter
+    点击    id =bt_ok
+    点击    css=.confirm    #点击确认
+    离开框架
+
+批量取消业务制单完成
+    进入列表页面框架
+    点击    id=bt_operate
+    等待    1
+    鼠标移至批量完成
+    等待    1
+    execute javascript    jQuery("#bt_cancel_stopfinish").get(0).click();    #取消业务制单
+    等待    1
+    confirm弹出框选择确认
+    离开框架
+
+批量提单确认
+    进入列表页面框架
+    点击    id=bt_operate
+    等待    1
+    鼠标移至批量完成
+    等待    1
+    Execute Javascript    jQuery("#bt_batch_stblconfirmfinish").get(0).click();
+    等待    1
+    confirm弹出框选择确认
+    离开框架
+
+报关
+    [Arguments]    ${id}
+    进入框架    Xpath=//*[contains(@src, './application/themes/default/index_zh.jsp')]
+    输入    id=multi_number    ${id}
+    点击    xpath=//div[@title='截关日期']
+    点击    xpath=//li[text()='接单日期']
+    点击    xpath=//span[text()='查 询']/..
+    sleep    3
+    点击    xpath=//input[@class='ant-checkbox-input'][1]
+    点击    xpath=//span[text()='委托报关']/..
+    Wait Until Page Contains    成功
+    离开框架
+
+新增往来单位
+    进入框架    id=content
+    点击    id=bt_add
+    离开框架
+    进入详情框架
+    输入    id=base_customers_code    ${往来单位_CODE}    #往来单位代码
+    输入    id=base_customers_name    ${往来单位}    #往来单位名称
+    输入    id=base_customers_fms_sales    ${m3_fullname}    #维护销售员为当前登录人
+    勾选记录    id=ck_all    #应用于=全选
+    #勾选记录    name=base_customers_fms_seaexp_TempCheck    #应用于海运出口
+    勾选记录    name=base_customers_fms_isagent_TempCheck    #勾选货代
+    勾选记录    name=base_customers_fms_isshipper_TempCheck    #勾选发货人
+    勾选记录    name=base_customers_fms_isconsignee_TempCheck    #勾选收货人
+    勾选记录    name=base_customers_fms_isnotify_TempCheck    #勾选通知人
+    #点击    xpath=.//*[contains(@href,"base_customers_resolve_templatename")]/span    #新增解析插件模板
+    #输入    xpath=.//*[contains(@name,"base_customers_resolve_templateno")]    zjlb_p161129    #使用该模板
+    #输入    xpath=.//*[contains(@name,"base_customers_resolve_templatename")]    zjlb_p161129
+    点击    id=bt_save_close    #点击保存并关闭
+    离开框架
+    ${return2}    往来单位查询客户    ${往来单位}
+    should be equal as strings    ${return2}    True
+
+新增海运出口业务
+    点击业务管理
+    点击业务台帐
+    点击海运出口
+    进入列表页面框架
+    点击    id=bt_add    #新增
+    离开框架
+    进入详情框架
+    ${currenttime+7}    当前日期加减天数    +7
+    sleep    2
+    ${CASENUMBER-SUIT}    获取页面值    id=client_casenumber    #获取casenumber
+    输入    id=bn_mains_customername    ${往来单位}    #${往来单位_CODE}
+    Comment    输入    id=bn_mains_receiptname    ${往来单位}
+    #Comment    输入    id=bn_mains_sales    ${M3_FULLNAME}
+    输入    id=bn_mains_etd    ${currenttime+7}    #离港日期
+    等待    1
+    点击    id=bt_save    #点击保存
+    等待    1
+    ${status}    run keyword and return status    confirm弹出框选择确认
+    #等待直到定位到 业务编号
+    Wait Until Page Contains Element    xpath=//span[@elementname='bn_mains_businessno']/span[2]
+    离开框架
+    ${BUSINESSNO-SUIT-SEAEXPORT}    业务台帐保存后获取业务编号-海运出口
+    关闭所有弹出框
+    Set Suite Variable    ${CASENUMBER-SUIT}
+    [Return]    ${BUSINESSNO-SUIT-SEAEXPORT}
+
+新增海运出口业务-删除专用
+    点击业务管理
+    点击业务台帐
+    点击海运出口
+    进入列表页面框架
+    点击    id=bt_add    #新增
+    离开框架
+    进入详情框架
+    ${currenttime+7}    当前日期加减天数    +7
+    ${CASENUMBER-SUIT}    获取页面值    id=client_casenumber    #获取casenumber
+    输入    id=bn_mains_customername    ${往来单位}
+    输入    id=bn_mains_receiptname    ${往来单位}
+    输入    id=bn_mains_sales    ${M3_FULLNAME}
+    输入    id=bn_mains_etd    ${currenttime+7}    #离港日期
+    点击    id=bt_save    #点击保存
+    等待    1
+    ${status}    run keyword and return status    confirm弹出框选择确认
+    #等待直到定位到 业务编号
+    Wait Until Page Contains Element    xpath=//span[@elementname='bn_mains_businessno']/span[2]
+    离开框架
+    ${BUSINESSNO-SUIT}    业务台帐保存后获取业务编号
+    关闭所有弹出框
+    Set Suite Variable    ${CASENUMBER-SUIT}
+
+新增海运出口业务台账
+    新增海运出口业务
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    ${pages}    获取列表记录数
+    应该包含    ${pages}    共1条    #验证新增的业务编号在列表上可以查询到一条记录
+    点击业务管理
+
+新增海运出口业务台账-删除专用
+    新增海运出口业务-删除专用
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT}
+    ${pages}    获取列表记录数
+    应该包含    ${pages}    共1条    #验证新增的业务编号在列表上可以查询到一条记录
+    点击业务管理
+
+新增海运出口整箱运价
+    [Arguments]    ${loadport}    ${dischargeport}    ${cycle}    ${sailtime}    ${carrier}    ${beginDate}
+    ...    ${validdate}    ${signflag}
+    进入框架    id=content
+    点击    css=.iconAdd2
+    离开框架
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]
+    输入    id=loadport    ${loadport}
+    输入    id=dischargeport    ${dischargeport}
+    输入    id=cycle    ${cycle}    #船期
+    输入    id=sailtime    ${sailtime}    #航程
+    输入    id=carrier    ${carrier}    #船公司
+    输入    id=signflag    ${signflag }    #符号
+    execute javascript    window.document.getElementById('begindate').value='${beginDate}'    #有效期开始
+    execute javascript    window.document.getElementById('validdate').value='${validdate}'    #有效期结束
+    点击    id=bt_save
+    页面弹出框选择确定
+    点击    xpath=//span[contains(text(),"关闭")]
+
+新增海运进口业务台帐
+    [Timeout]
+    点击业务管理
+    点击业务台帐
+    点击海运进口
+    进入列表页面框架
+    ${currenttime}    当前日期加减天数    +0
+    ${currenttime+7}    当前日期加减天数    +7
+    点击    id=bt_add
+    离开框架
+    进入详情框架
+    输入    id=bn_mains_customername    ${往来单位}
+    sleep    1
+    #赋值为空    id=bn_mains_sales    ‘’
+    #输入    id=bn_mains_sales    ${M3_FULLNAME}
+    sleep    1
+    输入    id=bn_mains_etd    ${currenttime+7}    #离港日期
+    输入    id=bn_mains_eta    ${currenttime}    #抵港日期
+    点击    id=bt_save    #点击保存
+    sleep    1
+    ${status}    run keyword and return status    confirm弹出框选择确认    #有没有超期提醒都不报错
+    离开框架
+    ${BUSINESSNO-SUIT-SEAIMPORT}    业务台帐保存后获取业务编号
+    Set Suite Variable    ${BUSINESSNO-SUIT-SEAIMPORT}
+    sleep    1
+    关闭所有弹出框
+    点击业务管理
+    [Return]    ${BUSINESSNO-SUIT-SEAIMPORT}
+
+新增海运进口业务台帐-删除专用
+    点击业务管理
+    点击业务台帐
+    点击海运进口
+    进入列表页面框架
+    ${currenttime}    当前日期加减天数    +0
+    ${currenttime+7}    当前日期加减天数    +7
+    点击    id=bt_add
+    离开框架
+    进入详情框架
+    输入    id=bn_mains_customername    ${往来单位}
+    sleep    1
+    #输入    id=bn_mains_sales    ${M3_FULLNAME}
+    sleep    1
+    输入    id=bn_mains_etd    ${currenttime+7}    #离港日期
+    输入    id=bn_mains_eta    ${currenttime}    #抵港日期
+    点击    id=bt_save    #点击保存
+    sleep    1
+    ${status}    run keyword and return status    confirm弹出框选择确认    #有没有超期提醒都不报错
+    离开框架
+    ${no}    业务台帐保存后获取业务编号
+    sleep    1
+    关闭所有弹出框
+    ${pages}    海运进口、空运列表查询业务编号    ${no}
+    应该包含    ${pages}    共1条    #msg=该业务编号${businessNo}不存在    #验证新增的业务编号在列表上可以查询到一条记录
+    点击业务管理
+    [Return]    ${no}
+
+新增空运出口(新)业务台帐
+    点击业务管理
+    点击业务台帐
+    点击空运出口(新)
+    ${currenttime+7}    当前日期加减天数    +7
+    进入列表页面框架
+    点击    id=bt_add
+    离开框架
+    进入详情框架
+    输入    id=bn_mains_customername    ${往来单位}
+    等待    1
+    #输入    id=bn_mains_sales    ${M3_FULLNAME}
+    等待    1
+    输入    id=bn_assistants_flight2date    ${currenttime+7}    #离港日期
+    点击    id=bt_save    #点击保存
+    sleep    1
+    ${status}    run keyword and return status    confirm弹出框选择确认    #有没有超期提醒都不报错
+    离开框架
+    sleep    1
+    ${BUSINESSNO-SUIT-AIREXPORT}    业务台帐保存后获取业务编号
+    Set Suite Variable    ${BUSINESSNO-SUIT-AIREXPORT}
+    关闭所有弹出框
+    ${pages}    海运进口、空运列表查询业务编号    ${BUSINESSNO-SUIT-AIREXPORT}
+    应该包含    ${pages}    共1条    #msg=该业务编号${businessNo}不存在    #验证新增的业务编号在列表上可以查询到一条记录
+    点击业务管理
+
+新增空运出口(新)业务台帐-删除专用
+    点击业务管理
+    点击业务台帐
+    点击空运出口(新)
+    ${currenttime+7}    当前日期加减天数    +7
+    进入列表页面框架
+    点击    id=bt_add
+    离开框架
+    进入详情框架
+    输入    id=bn_mains_customername    ${往来单位}
+    等待    1
+    #输入    id=bn_mains_sales    ${M3_FULLNAME}
+    等待    1
+    输入    id=bn_assistants_flight2date    ${currenttime+7}    #离港日期
+    点击    id=bt_save    #点击保存
+    sleep    1
+    ${status}    run keyword and return status    confirm弹出框选择确认    #有没有超期提醒都不报错
+    离开框架
+    sleep    1
+    ${no}    业务台帐保存后获取业务编号
+    关闭所有弹出框
+    ${pages}    海运进口、空运列表查询业务编号    ${no}
+    [Return]    ${no}
+
+新增空运进口业务台帐
+    点击业务管理
+    点击业务台帐
+    点击空运进口
+    ${currenttime}    当前日期加减天数    +0
+    ${currenttime+7}    当前日期加减天数    +7
+    进入列表页面框架
+    点击    id=bt_add
+    离开框架
+    进入详情框架
+    输入    id=bn_mains_customername    ${往来单位}
+    等待    1
+    #输入    id=bn_mains_sales    ${M3_FULLNAME}
+    输入    id=bn_mains_etd    ${currenttime+7}    #离港日期
+    输入    id=bn_mains_eta    ${currenttime}    #抵港日期
+    点击    id=bt_save    #点击保存
+    sleep    1
+    ${status}    run keyword and return status    confirm弹出框选择确认    #有没有超期提醒都不报错
+    离开框架
+    sleep    1
+    ${BUSINESSNO-SUIT-AIRIMPORT}    业务台帐保存后获取业务编号
+    Set Suite Variable    ${BUSINESSNO-SUIT-AIRIMPORT}
+    关闭所有弹出框
+    ${pages}    海运进口、空运列表查询业务编号    ${BUSINESSNO-SUIT-AIRIMPORT}
+    应该包含    ${pages}    共1条    #msg=该业务编号${businessNo}不存在    #验证新增的业务编号在列表上可以查询到一条记录
+    点击业务管理
+
+新增空运进口业务台帐-删除专用
+    点击业务管理
+    点击业务台帐
+    点击空运进口
+    ${currenttime}    当前日期加减天数    +0
+    ${currenttime+7}    当前日期加减天数    +7
+    进入列表页面框架
+    点击    id=bt_add
+    离开框架
+    进入详情框架
+    输入    id=bn_mains_customername    ${往来单位}
+    等待    1
+    #输入    id=bn_mains_sales    ${M3_FULLNAME}
+    输入    id=bn_mains_etd    ${currenttime+7}    #离港日期
+    输入    id=bn_mains_eta    ${currenttime}    #抵港日期
+    点击    id=bt_save    #点击保存
+    sleep    1
+    ${status}    run keyword and return status    confirm弹出框选择确认    #有没有超期提醒都不报错
+    离开框架
+    sleep    1
+    ${no}    业务台帐保存后获取业务编号
+    关闭所有弹出框
+    ${pages}    海运进口、空运列表查询业务编号    ${no}
+    点击业务管理
+    [Return]    ${no}
+
+新增航次
+    [Arguments]    ${temp}
+    进入详情框架
+    输入    id=bn_mains_vesselname    GTR413
+    输入    id=bn_mains_voyno    ${temp}
+    ${currenttime}    当前日期加减天数    +0
+    输入    id=bn_assistants_planetd    ${currenttime}
+    点击    xpath=//span[text()='新增航次']/..
+    点击    xpath=//button[text()='确认']
+    sleep    3
+    离开框架
+
+新增集装箱信息
+    [Arguments]    ${ctnno}    ${sealno}    # 箱号，封号
+    进入详情框架
+    点击    id=bt_truck
+    等待    2
+    离开框架
+    Select Frame    xpath=//iframe[starts-with(@src,'about:blank?')]
+    点击    xpath=.//*[contains(@href,"javascript:process_action_sp_seacontainers_add")]/span    #点击新增
+    等待    2
+    输入    xpath=//input[contains(@id,'bn_containers_ctnno')]    ${ctnno}    #箱号
+    输入    xpath=//input[contains(@id,'bn_containers_sealno')]    ${sealno}
+    点击    id=bt_save_close    #保存并关闭
+    等待    2
+    ${status}    run keyword and return status    confirm弹出框选择确认
+    等待    2
+    离开框架
+    进入详情框架
+    点击    id=bt_truck    #点击装箱
+    离开框架
+    等待    1
+    Select Frame    xpath=//iframe[starts-with(@src,'about:blank?')]
+    #${ctnno1}    获取页面文本内容    xpath=//td[@elementname='sp_sea_containers_vgm:bn_containers_ctnno']
+    #${ctnno2}    获取页面文本内容    xpath=//td[@elementname='sp_sea_containers_truck:bn_containers_ctnno']
+    #should be equal as strings    ${ctnno1}    ${ctnno}
+    #should be equal as strings    ${ctnno2}    ${ctnno}
+    page should contain    ${ctnno}
+    离开框架
+
+新舱单增加集装箱信息
+    进入框架    xpath=//h3[text()='舱单信息']/../..//iframe[starts-with(@id,'win_')]
+    sleep    2.5
+    点击    xpath=//span[text()='新 增']/..
+    输入    id=dataList[0].goodsdesc    yingyingying
+    输入    id=dataList[0].hscode    888888
+    输入    id=dataList[0].count    1
+    输入    id=dataList[0].weight    1
+    输入    id=dataList[0].volume    1
+    点击    xpath=//span[text()='保 存']/..
+    点击    xpath=//span[text()='确 定']/..
+    等待    2
+    离开框架
+
+新舱单添加数据
+    [Arguments]    ${id}    ${temp}
+    进入台帐详情    ${id}
+    进入详情框架
+    输入    id=bn_mains_mblno    ${temp}
+    点击    id=bt_save
+    等待    1.5
+    点击    id=bt_shoppingBill
+    离开框架
+    新舱单增加集装箱信息
+    点击    xpath=//h3[text()='舱单信息']/..//i[@class="icon-close"]
+    等待    2
+
+派车
+    [Arguments]    ${fleetName}    ${truckno}    # 车队|车牌号
+    进入列表页面框架
+    点击    xpath=//span[text()='派车']/..
+    离开框架
+    进入详情框架
+    输入    id=dis_fleetname    ${fleetName}
+    输入    id=dis_truckno    ${truckno}
+    点击    xpath=//span[text()='确定']/..
+    页面弹出框选择确定
+    离开框架
+
+海运出口列表查询业务编号
+    [Arguments]    ${BUSINESSNO-SUIT}
+    进入列表页面框架
+    点击    id=bt_search    #为刷新页面
+    下拉选择byvalue    id=qybu_datetype_seaexp    value=1    #按接单日期查询
+    下拉选择byvalue    id=qybu_elementname_seaexp    businessno
+    输入    id=qybu_elementvalue    ${BUSINESSNO-SUIT}
+    点击    id=bt_search
+    离开框架
+
+海运出口填写离港日期
+    ${currenttime+7}    当前日期加减天数    +7
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}    #进入台帐详情
+    进入详情框架
+    输入    id=bn_mains_etd    ${currenttime+7}    #离港日期
+    点击    id=bt_save    #点击保存
+    等待    1
+    离开框架
+    关闭所有弹出框
+
+海运进口、空运列表查询业务编号
+    [Arguments]    ${BUSINESSNO-SUIT}
+    进入框架    id=content    #xpath=//*[contains(@src,'./application/themes/default/welcome.jsp')]    #进入列表框架
+    等待    1
+    输入    id=qybu_serialnumber    ${BUSINESSNO-SUIT}
+    等待    1
+    Clear Element Text    id=qybu_elementvalue
+    点击    id=bt_query
+    等待    1
+    ${pages}    get text    css=span.view-page    #获取页面文本内容
+    离开框架
+    [Return]    ${pages}
+
+海运进口、空运批量业务制单完成
+    进入列表页面框架
+    鼠标移至批量完成
+    execute javascript    jQuery("#bt_batch_stopfinish").get(0).click();    #业务制单
+    等待    2
+    confirm弹出框选择确认
+    离开框架
+
+海运进口、空运批量取消业务制单完成
+    进入列表页面框架
+    鼠标移至批量完成
+    等待    1
+    execute javascript    jQuery("#bt_cancel_stopfinish").get(0).click();    #取消业务制单
+    等待    1
+    confirm弹出框选择确认
+    离开框架
+
+海运进口填写离港日期
+    海运进口、空运列表查询业务编号    ${BUSINESSNO-SUIT-SEAIMPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAIMPORT}
+    等待    1
+    进入详情框架
+    ${currenttime}    当前日期加减天数    +0
+    ${currenttime+7}    当前日期加减天数    +7
+    输入    id=bn_mains_etd    ${currenttime+7}    #离港日期
+    输入    id=bn_mains_eta    ${currenttime}    #抵港日期
+    点击    id=bt_save    #点击保存
+    离开框架
+    关闭所有弹出框
+
+用户查询
+    [Documentation]    查询用户名
+    进入框架    id=content
+    输入    id=user_name_search    ${m3_username}
+    点击    id=bt_search
+    离开框架
+
+空运--批量应付费用制单
+    进入框架    id=content
+    鼠标悬停    jQuery("a:contains('批量完成')").mouseover();    #鼠标移动到“批量完成”
+    点击    id=bt_batch_stfeefinish_pay
+    等待    1
+    confirm弹出框选择确认
+    离开框架
+
+空运--批量应收费用制单
+    进入框架    id=content
+    鼠标悬停    jQuery("a:contains('批量完成')").mouseover();    #鼠标移动到“批量完成”
+    点击    id=bt_batch_stfeefinish_rec
+    等待    1
+    confirm弹出框选择确认
+    离开框架
+
+空运--批量提单确认
+    进入列表页面框架
+    鼠标移至批量完成
+    等待    1
+    Execute Javascript    jQuery("#bt_batch_stblconfirmfinish").get(0).click();
+    等待    1
+    confirm弹出框选择确认
+    离开框架
+
+空运出口(新)填写离港日期
+    进入台帐详情    ${BUSINESSNO-SUIT-AIREXPORT}    #进入台帐详情
+    进入详情框架
+    ${currenttime+7}    当前日期加减天数    +7
+    输入    id=bn_assistants_flight2date    ${currenttime+7}    #离港日期
+    点击    id=bt_save    #点击保存
+    sleep    1
+    离开框架
+    关闭所有弹出框
+
+空运进口填写离港日期
+    海运进口、空运列表查询业务编号    ${BUSINESSNO-SUIT-AIRIMPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-AIRIMPORT}
+    等待    1
+    进入详情框架
+    ${currenttime}    当前日期加减天数    +0
+    ${currenttime+7}    当前日期加减天数    +7
+    输入    id=bn_mains_etd    ${currenttime+7}    #离港日期
+    输入    id=bn_mains_eta    ${currenttime}    #抵港日期
+    点击    id=bt_save    #点击保存
+    sleep    1
+    离开框架
+    关闭所有弹出框
+
+系统参数下拉框设置
+    [Arguments]    ${locator}    ${value}
+    进入列表页面框架
+    下拉选择byvalue    ${locator}    ${value}
+    离开框架
+
+系统参数单选框设置
+    [Arguments]    ${group_name}    ${value}
+    [Documentation]    系统参数设置页面，复选框的功能可用
+    进入框架    id=content
+    单选框选择    group_name=${group_name}    value=${value}
+    离开框架
+
+系统参数设置点击保存
+    进入框架    id=content
+    点击    id=bt_save
+    离开框架
+
+获取列表数量
+    [Arguments]    ${xpath}=//ul[contains(@class,'ant-table-pagination')]/li[1]    # "共xx条"所在位置的xpath
+    [Documentation]    参数：xpath：默认值为大列表的分页位置xpath；若页面中存在多个列表时需自己传参
+    ...
+    ...
+    ...
+    ...    原理：判断"共xx条，"所在的xpath是否存在，如果存在，则截取条数；否则为0
+    ${list_count}    获取匹配xpath的个数    ${xpath}
+    ${count}    run keyword if    ${list_count}>0    获取列表总条数    ${xpath}    str_l=共    str_r=条，
+    ...    ELSE    Set Variable    0
+    [Return]    ${count}    # 返回列表总数
+
+获取列表记录数
+    进入列表页面框架
+    ${pages}    获取页面文本内容    css=span.view-page
+    离开框架
+    [Return]    ${pages}
+
+获取列表记录数（另一种）
+    进入列表页面框架
+    ${pages}    获取页面文本内容    css=.vrws-label-paging
+    离开框架
+    [Return]    ${pages}
+
+获取台帐详情提单确认状态
+    [Arguments]    ${BUSINESSNO-SUIT}
+    进入台帐详情    ${BUSINESSNO-SUIT}    #进入台帐详情
+    进入详情框架
+    ${content}    获取页面值    id=bn_mains_stblconfirmfinish
+    点击    id=bt_save_close    #点击保存并关闭
+    离开框架
+    [Return]    ${content}
+
+获取台帐详情未锁定的业务制单状态
+    [Arguments]    ${BUSINESSNO-SUIT}
+    进入台帐详情    ${BUSINESSNO-SUIT}    #进入台帐详情
+    进入详情框架
+    ${content}    获取页面值    id=bn_mains_stopfinish
+    离开框架
+    [Return]    ${content}
+
+获取台帐详情锁定后的业务制单状态
+    [Arguments]    ${BUSINESSNO-SUIT}
+    进入台帐详情    ${BUSINESSNO-SUIT}
+    等待    1
+    进入详情框架
+    ${content}    获取页面值    id=bn_mains_stopfinish
+    离开框架
+    [Return]    ${content}
+
+调度派车列表查询
+    [Arguments]    ${ctnno}    ${qydi_businessno}=    ${qydi_truckno}=    # 箱号|业务编号|车牌号
+    [Documentation]    默认要查箱号
+    进入框架    id=content
+    输入    id=qydi_businessno    ${qydi_businessno}
+    输入    id=qydi_ctnno    ${ctnno}
+    输入    id=qydi_truckno    ${qydi_truckno}
+    点击    id=bt_query
+    Comment    点击    id=bt_dispatch
+    离开框架
+
+列表页面-全选记录
+    [Documentation]    全选
+    进入列表页面框架
+    勾选记录    xpath=//input[@name="SHEET_ROW_SELECT_ALL"]
+    离开框架
+
+进入列表页面框架
+    进入框架    id=content
+
+进入台帐详情
+    [Arguments]    ${BUSINESSNO-SUIT}
+    进入列表页面框架
+    点击    xpath=//a[text()='${BUSINESSNO-SUIT}']
+    离开框架
+
+进入详情框架后-全选记录
+    [Documentation]    全选
+    进入详情框架
+    勾选记录    xpath=//input[@name="SHEET_ROW_SELECT_ALL"]
+    离开框架
+
+进入新增业务信息
+    [Arguments]    ${BUSINESSNO-SUIT-SEAEXPORT}
+    点击业务台帐
+    点击海运出口
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入列表页面框架
+    点击    xpath=//a[text()='${BUSINESSNO-SUIT-SEAEXPORT}']
+    离开框架
+
+进入详情框架
+    进入框架    xpath=//iframe[starts-with(@id,'win_')]
+
+退出
+    execute javascript    jQuery("span:contains('退出')").click();
+
+选择航次
+    [Arguments]    ${temp}
+    进入详情框架
+    点击    xpath=//span[text()='选航次']/..
+    离开框架
+    sleep    10
+    #选择航次
+    进入框架    xpath=//h3[text()='选择航次']/../..//iframe[starts-with(@id,'win_')]
+    sleep    5
+    输入    xpath=//*[@id="voyno"]    ${temp}
+    点击    xpath=//span[text()='搜 索']/..
+    点击    xpath=//a[text()='选择']
+    点击    xpath=//span[text()='确 定']/..
+    点击    xpath=//span[text()='知道了']/..
+    离开框架
+    进入详情框架
+    点击    id=bt_save    #点击保存
+    等待    1
+    离开框架
+
+鼠标移至批量完成
+    鼠标悬停    jQuery("a:contains('批量完成')").mouseover();
+
+修改为按费用核销
+    点击    xpath=//*[text()="系统设置"]
+    点击    xpath=//*[text()="系统参数"]
+    进入框架    id=content
+    点击    id=sys_paras_iv_writeoff_start
+    点击    xpath=//*[text()="费用核销"]
+    点击    xpath=//*[text()="保存"]
+    离开框架
+
+新增海运出口添加费用
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    新增收入费用    1000    1    RMB    1
+    关闭所有弹出框
+
+新增海运费用:代码
+    [Arguments]    ${size}
+    #进入详情框架
+    进入费用信息页面框架
+    点击    xpath=//a[contains(@href,'process_action_sp_receipt_apply_add')]    #新增费用
+    等待加载层消失
+    输入    xpath=//table[@id='sp_receipt_apply_tbl5']/tbody/tr[${size}+1]//input[contains(@id,'bn_receipts_feeitem')]    代码
+    输入    xpath=//table[@id='sp_receipt_apply_tbl5']/tbody/tr[${size}+1]//input[contains(@id,'bn_receipts_rate')]    1    #汇率
+    输入    xpath=//table[@id='sp_receipt_apply_tbl5']/tbody/tr[${size}+1]//input[contains(@id,'bn_receipts_price')]    1000    #单价
+    #输入    xpath=//input[contains(@id,'bn_receipts_count')]    ${rec_count}    #数量
+    #下拉选择byValue    xpath=//select[contains(@id,'bn_receipts_currency')]    USD    #币别
+    点击    id=bt_save
+    离开框架
+
+付款费用对账并开票
+    [Arguments]    ${size}    ${a}
+    进入特定页面框架    费用信息
+    费用信息页面勾选支出费用    ${size}
+    点击    xpath=//span[text()="对账"]
+    离开框架
+    进入特定页面框架    选择结算单位
+    点击    xpath=//input[@name="SHEET_ROW_SELECT_ALL"]
+    点击    xpath=//span[text()="生成对账单"]
+    离开框架
+    进入特定页面框架    对账单
+    点击    xpath=//span[text()="保存"]
+    点击    xpath=//span[text()="开票"]
+    离开框架
+    进入特定页面框架    账单开票-费用选择
+    点击    xpath=//input[@name="SHEET_ROW_SELECT_ALL"]
+    点击    xpath=//span[text()="应付登记发票"]
+    离开框架
+    进入特定页面框架    支出登记发票
+    输入    id=write_invoiceno    ${a}    #输入业务编号
+    点击    xpath=//span[text()="确认"]
+    离开框架
+    关闭所有弹出框
+
+海运出口业务列表查询
+    [Arguments]    ${value1}=1    ${start-date}=    ${end-date}=    ${value2}=false    ${value3}=false    ${value4}=-1
+    ...    ${yes1}=true    ${value5}=-1    ${yes2}=true    ${value6}=-1    ${value7}=-1    ${value8}=
+    [Documentation]    ${value1}日期按 |接单日期：1 ，离港：2 ， 抵港：3 ， 完结：4 ， 审核：5 ， 截关：6 ，放舱：7 ， 预配：8 ， 装箱：9
+    ...
+    ...    ${value2} 退关状态| 全部：-1，未退关：false ,已退关： true
+    ...
+    ...    ${value3}审核状态 | 全部：-1， 未审核：false, 已审核：true
+    ...
+    ...    ${value4}状态按 | 请选择：-1， 放舱：booking_st ，装箱：truck_st ，报关：custom_st ，提单确认：stblconfirmfinish ，应收费用制单：stfeefinish_rec ，应付费用制单：stfeefinish_pay ，费用确认：stfeeconfirm，开票：stinvoicesend ，应付费用结清：stpayfinish ，应收费用结清：streceiptfinish，
+    ...    已审核：audut_st ，箱单已打印：stzxdcomplete ，业务制单：opfinish_st ，返客户：return_st ，已订舱：pre_booking_st ，通知目的港：overreceipt_st ，目的港操作：overreceipt_st ，负利润：negative_profit ，负利润已审核：negative_profit_audit
+    ...
+    ...    ${value5} 服务类型 |请选择：-1，订舱服务：bookingservice ，陆运服务：landservice ，报关服务：customerservice ，报检服务：inspectservice ，押箱服务：pawnservice ，内装（进仓）：sendgoodsservice
+    ...
+    ...    ${value6} 托运类型 | 全部：-1，FCL：1 ，LCL：2 ， BULK： 3 ，BREAK BULK： 5
+    ...    ${value7} 条件按 | 各类编号：-1， 业务编号：businessno ，委托编号：customername， 委托单位：customername， 销售员：sales ，船名：vesselname ，航次：voyno ，主单号：mblno ，分单号：hblno， 起运港：loadport，目的港：dischargeport，航线：searoute，合同号：compactno ，报关单号：custombillno ，箱号：ctnno ，船公司：carrier ，车队：fleet，报关行：custombroker， 操作员：op， 创建人：createby ，通关单号：ciqpassno ，订舱代理：bookingagency ，客服 ：servicecustomer ，商务：businesspeople ，目的港代理：disagency ，S/O 号：sono ，保险单号：insurancebillno ，house收货人：houseconsignee ，master收货人：masterconsignee ，货物描述：goodsdesc ，house发货人;houseshipper , master发货人:mastershipper , \ 订舱编号:bookingnumber ,无费用: nofee \ 合约号: contractno \ , 单证员: docby \ , 结算单位 : \ receiptname
+    ...    ${value8} 输入框
+    进入列表页面框架
+    #点击    id=bt_search    #为刷新页面
+    下拉选择byvalue    id=qybu_datetype_seaexp    ${value1}    #按接单日期查询
+    Execute Javascript    window.document.getElementById('qybu_datestart0').value='${start-date}'    #开始日期
+    Execute Javascript    window.document.getElementById('qybu_dateend').value='${end-date}'    #结束日期
+    下拉选择byvalue    id=qybu_iscanceled    ${value2}    #退关状态
+    下拉选择byvalue    id=qybu_staudits    ${value3}    #审核状态
+    下拉选择byvalue    id=qybu_statstype    ${value4}    #状态按
+    点击    xpath=//input[@id='qybu_truefalse2'][@value='${yes1}']    #状态按后面的状态
+    下拉选择byvalue    id=qybu_servicetype    ${value5}    #服务类型
+    点击    xpath=//input[@id='qybu_truefalse1'] [@value='${yes2}']    #服务按后面的状态
+    下拉选择byvalue    id=qybu_seaconsigntype    ${value6}    #托运类型
+    下拉选择byvalue    id=qybu_elementname_seaexp    ${value7}    #条件按
+    输入    id=qybu_elementvalue    ${value8}    #输入各种编号
+    点击    id=bt_search    #点击查询
+    离开框架
+
+个性设置-勾选所有服务
+    点击    xpath=//li[contains(@onclick,'userSettingEdit')]
+    进入详情框架
+    ${booking-status}    获取元素属性值    xpath=//span[text()='订舱服务']/../span    class
+    ${status1}    run keyword and return status    Should Contain    ${booking-status}    ant-checkbox-checked
+    run keyword if    '${status1}'=='False'    勾选记录    xpath=//span[text()='订舱服务']/..//input
+    ${neizhuang-status}    获取元素属性值    xpath=//span[text()='内装(进仓)']/../span    class
+    ${status2}    run keyword and return status    Should Contain    ${neizhuang-status}    ant-checkbox-checked
+    run keyword if    '${status2}'=='False'    勾选记录    xpath=//span[text()='内装(进仓)']/..//input
+    ${land-status}    获取元素属性值    xpath=//span[text()='陆运服务']/../span    class
+    ${status3}    run keyword and return status    Should Contain    ${land-status}    ant-checkbox-checked
+    run keyword if    '${status3}'=='False'    勾选记录    xpath=//span[text()='陆运服务']/..//input
+    ${baoguan-status}    获取元素属性值    xpath=//span[text()='报关服务']/../span    class
+    ${status4}    run keyword and return status    Should Contain    ${baoguan-status}    ant-checkbox-checked
+    run keyword if    '${status4}'=='False'    勾选记录    xpath=//span[text()='报关服务']/..//input
+    ${baojian-status}    获取元素属性值    xpath=//span[text()='报检服务']/../span    class
+    ${status5}    run keyword and return status    Should Contain    ${baojian-status}    ant-checkbox-checked
+    run keyword if    '${status5}'=='False'    勾选记录    xpath=//span[text()='报检服务']/..//input
+    ${yaxiang-status}    获取元素属性值    xpath=//span[text()='押箱服务']/../span    class
+    ${status6}    run keyword and return status    Should Contain    ${yaxiang-status}    ant-checkbox-checked
+    run keyword if    '${status6}'=='False'    勾选记录    xpath=//span[text()='押箱服务']/..//input
+    点击    xpath=//span[text()='保 存']/..
+    点击    xpath=//span[text()='知道了']/..
+    离开框架
+
+批量操作-标记退关
+    业务列表-点击操作按钮
+    进入列表页面框架
+    点击    id=bt_sign_back    #标记退关
+    页面弹出框选择确定
+    Wait Until Element Is Visible    xpath=//span[text()='1、标记退关成功！']
+    离开框架
+
+业务列表-点击操作按钮
+    进入列表页面框架
+    点击    id=bt_operate    #点击操作
+    离开框架
+
+批量操作-取消退关
+    业务列表-点击操作按钮
+    进入列表页面框架
+    点击    id=bt_cancel_back    #取消退关
+    confirm弹出框选择确认
+    离开框架
+
+业务信息-点击装箱
+    进入详情框架
+    点击    id=bt_truck    #点击装箱
+    离开框架
+
+装运信息-新增集装箱
+    [Arguments]    ${sealno}    ${ctnno}    ${pa-date}=    # 封号、箱号、装箱日期
+    进入特定页面框架    装运信息
+    点击    xpath=//table[@id='sp_seacontainers_tbl3']//span[text()='新增']
+    输入    id=bn_mains_padate    ${pa-date}    #装箱日期
+    输入    xpath=//input[contains(@id,'bn_containers_sealno')]    ${sealno}    #封号
+    输入    xpath=//input[contains(@id,'bn_containers_ctnno')]    ${ctnno}    #箱号
+    输入    xpath=//input[contains(@id,'bn_containers_count')]    2    #件数
+    输入    xpath=//input[contains(@id,'bn_containers_volume')]    3.333    #体积
+    输入    xpath=//input[contains(@id,'bn_containers_weight')]    4.444    #毛重
+    点击    id=bt_save    #点击保存
+
+装运信息-标记已还箱
+    进入特定页面框架    装运信息
+    勾选记录    xpath=//table[@id='sp_seacontainers_tbl5']//input[contains(@name,'SHEET_ROW_CHECK_bn_containers')]
+    点击    id=bt_sign_billback    #标记还箱
+    confirm弹出框选择确认
+    离开框架
+
+装运信息-标记未还箱
+    进入特定页面框架    装运信息
+    勾选记录    xpath=//table[@id='sp_seacontainers_tbl5']//input[contains(@name,'SHEET_ROW_CHECK_bn_containers')]
+    点击    id=bt_unsign_billback    #标记未还箱
+    confirm弹出框选择确认
+    离开框架
+
+装运信息-标记已打印
+    进入特定页面框架    装运信息
+    勾选记录    xpath=//table[@id='sp_seacontainers_tbl5']//input[contains(@name,'SHEET_ROW_CHECK_bn_containers')]
+    点击    id=bt_sign_print    #标记已打印
+    confirm弹出框选择确认
+    离开框架
+
+装运信息-标记未打印
+    进入特定页面框架    装运信息
+    勾选记录    xpath=//table[@id='sp_seacontainers_tbl5']//input[contains(@name,'SHEET_ROW_CHECK_bn_containers')]
+    点击    id=bt_unsign_print    #标记未打印
+    confirm弹出框选择确认
+    离开框架

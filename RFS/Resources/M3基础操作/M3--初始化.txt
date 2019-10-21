@@ -1,0 +1,156 @@
+*** Settings ***
+Resource          M3--引用.txt
+
+*** Keywords ***
+系统参数设置
+    登录
+    点击系统设置
+    点击系统参数
+    系统参数单选框设置    group_name=sys_paras_new_invoicememu    value=1    #启用新发票模式
+    系统参数单选框设置    group_name=sys_paras_checkaccount_payaudit    value=0    #对账前不需要审核
+    系统参数下拉框设置    id=sys_paras_iv_writeoff_start    3    #选择按费用核销
+    系统参数单选框设置    group_name=sys_paras_allow_writeoff    value=0    #选择按费用核销前不需要审核
+    系统参数单选框设置    group_name=sys_paras_fee_confirm    value=0    #开发票前不需要费用确认
+    系统参数单选框设置    group_name=sys_paras_invoice_recfeeaudit    value=0    #开发票前不需要费用审核
+    系统参数单选框设置    group_name=sys_paras_sales_readonly    value=0    #业务台帐销售员不能修改=否
+    系统参数单选框设置    group_name=sys_paras_stopfinish_lock    value=0    #选择业务制单完成后不锁定页面
+    系统参数单选框设置    group_name=sys_paras_feerate_editable    value=0    #汇率不允许在费用中修改
+    系统参数设置点击保存
+    #财务参数
+    点击财务参数
+    系统参数下拉框设置    id=sys_paras_financialsoftware    value=-1    #财务软件：-请选择--
+    系统参数设置点击保存
+    点击系统设置
+    退出
+    关闭浏览器
+    [Teardown]    close browser
+
+往来单位初始化
+    [Documentation]    查询 ${测试环境_往来单位}、${测试环境_销售员} 的内容是否存在，存在时，直接通过；不存在时，则新增该往来单位
+    ...    备注：目前只支持一条${测试环境_销售员} 内容存在
+    登录
+    点击公司管理
+    点击用户管理
+    点击用户维护
+    用户查询
+    打开用户详情
+    保存职员类型
+    点击公司管理
+    点击基础资料
+    点击企业基础资料
+    ${return1}    往来单位查询客户    ${往来单位_CODE}
+    run keyword if    '${return1}'=='False'    修改往来单位    ${m3_fullname}
+    ...    ELSE    新增往来单位
+    Wait Until Element Is Visible    css=.icon-jichuziliao
+    点击基础资料
+    退出
+    关闭浏览器
+    [Teardown]
+
+自定义初始化
+    登录
+    #费用页面自定义列表初始化
+    新增海运出口业务
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    进入详情框架
+    点击    xpath=//span[contains(text(),'收入费用列表')]/a    #进入应收列表自定义
+    confirm弹出框选择确认
+    离开框架
+    收入费用自定义可选列移动到已选列    账单号    对账单号    发票号    收款单号    参考金额
+    进入详情框架
+    点击    xpath=//span[contains(text(),'支出费用列表')]/a    #进入支出列表自定义
+    confirm弹出框选择确认
+    离开框架
+    支出费用自定义可选列移动到已选列    账单号    对账单号    发票号    付款单号    参考金额
+    关闭所有弹出框
+    Reload Page
+
+自定义移动字段
+    [Arguments]    ${id}    ${text}    ${button}
+    Select From List By Label    id=${id}    ${text}
+    点击    id=${button}
+
+收入费用自定义已选列移动到可选列
+    [Arguments]    @{content}
+    进入框架    xpath=//iframe[contains(@src,'portlet_name=sp_receipt_apply')]
+    @{集合}    get list items    id=selectedElements
+    : FOR    ${text}    IN    @{content}
+    \    ${result}    Run Keyword And Return Status    List Should Contain Value    ${集合}    ${text}
+    \    run keyword if    '${result}'=='True'    自定义移动字段    selectedElements    ${text}    button_remove
+    点击    name=Save
+    点击    name=Cancel
+    离开框架
+
+收入费用自定义可选列移动到已选列
+    [Arguments]    @{content}
+    进入框架    xpath=//iframe[contains(@src,'portlet_name=sp_receipt_apply')]
+    @{集合}    get list items    id=availableElements
+    : FOR    ${text}    IN    @{content}
+    \    ${result}    Run Keyword And Return Status    List Should Contain Value    ${集合}    ${text}
+    \    run keyword if    '${result}'=='True'    自定义移动字段    availableElements    ${text}    button_add
+    点击    name=Save
+    点击    name=Cancel
+    离开框架
+
+支出费用自定义已选列移动到可选列
+    [Arguments]    @{content}
+    进入框架    xpath=//iframe[contains(@src,'portlet_name=sp_pay_apply')]
+    @{集合}    get list items    id=selectedElements
+    : FOR    ${text}    IN    @{content}
+    \    ${result}    Run Keyword And Return Status    List Should Contain Value    ${集合}    ${text}
+    \    run keyword if    '${result}'=='True'    自定义移动字段    selectedElements    ${text}    button_remove
+    点击    name=Save
+    点击    name=Cancel
+    离开框架
+
+支出费用自定义可选列移动到已选列
+    [Arguments]    @{content}
+    进入框架    xpath=//iframe[contains(@src,'portlet_name=sp_pay_apply')]
+    @{集合}    get list items    id=availableElements
+    : FOR    ${text}    IN    @{content}
+    \    ${result}    Run Keyword And Return Status    List Should Contain Value    ${集合}    ${text}
+    \    run keyword if    '${result}'=='True'    自定义移动字段    availableElements    ${text}    button_add
+    点击    name=Save
+    点击    name=Cancel
+    离开框架
+
+系统参数设置-费用核销模式
+    登录
+    点击系统设置
+    点击系统参数
+    系统参数单选框设置    group_name=sys_paras_new_invoicememu    value=1    #启用新发票模式
+    系统参数单选框设置    group_name=sys_paras_checkaccount_payaudit    value=0    #对账前不需要审核
+    系统参数下拉框设置    id=sys_paras_iv_writeoff_start    3    #选择按费用核销
+    系统参数单选框设置    group_name=sys_paras_allow_writeoff    value=0    #选择按费用核销前不需要审核
+    系统参数单选框设置    group_name=sys_paras_fee_confirm    value=0    #开发票前不需要费用确认
+    系统参数单选框设置    group_name=sys_paras_invoice_recfeeaudit    value=0    #开发票前不需要费用审核
+    系统参数设置点击保存
+    #财务参数
+    点击财务参数
+    系统参数下拉框设置    id=sys_paras_financialsoftware    value=-1    #财务软件：-请选择--
+    系统参数设置点击保存
+    点击系统设置
+    退出
+    关闭浏览器
+    [Teardown]    close browser
+
+系统参数设置-发票核销模式
+    登录
+    点击系统设置
+    点击系统参数
+    系统参数单选框设置    group_name=sys_paras_new_invoicememu    value=1    #启用新发票模式
+    系统参数单选框设置    group_name=sys_paras_checkaccount_payaudit    value=0    #对账前不需要审核
+    系统参数下拉框设置    id=sys_paras_iv_writeoff_start    1    #选择按费用核销
+    系统参数单选框设置    group_name=sys_paras_allow_writeoff    value=0    #选择按费用核销前不需要审核
+    系统参数单选框设置    group_name=sys_paras_fee_confirm    value=0    #开发票前不需要费用确认
+    系统参数单选框设置    group_name=sys_paras_invoice_recfeeaudit    value=0    #开发票前不需要费用审核
+    系统参数设置点击保存
+    #财务参数
+    点击财务参数
+    系统参数下拉框设置    id=sys_paras_financialsoftware    value=-1    #财务软件：-请选择--
+    系统参数设置点击保存
+    点击系统设置
+    退出
+    关闭浏览器
