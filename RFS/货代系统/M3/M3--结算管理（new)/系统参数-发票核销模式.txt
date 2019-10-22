@@ -151,7 +151,7 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     应该要相等    ${fee_recbillno}    ${Payment receipt number}
     应该要相等    3,000.00    ${amount}
 
-收款-发票核销(生成并核销)
+收款-发票核销(生成并核销) - tc1050
     点击业务管理
     点击业务台帐
     海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
