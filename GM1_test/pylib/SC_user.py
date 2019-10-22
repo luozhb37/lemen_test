@@ -38,7 +38,7 @@ class SC_user:
         self.driver.find_element_by_css_selector('#username').send_keys(username)
         self.driver.find_element_by_css_selector('#password').send_keys(password+'\n')
         time.sleep(3)
-        window_ele = self.driver.find_elements_by_css_selector('a.know')#处理弹窗
+        window_ele = self.driver.find_elements_by_css_selector('div.ant-modal-body a span')#处理弹窗
         if window_ele:
             window_ele[0].click()
 
@@ -51,17 +51,16 @@ class SC_user:
         # self.driver.find_element_by_css_selector('ul#rootMenu li:nth-child(1)').click()
         # time.sleep(3)
         self.driver.implicitly_wait(10)
-        self.driver.find_element_by_css_selector('ul#rootMenu li:nth-child(8)').click()
-        move = self.driver.find_element_by_xpath("//div[@id='sidebar-menu']/ul/li[2]")
+        move = self.driver.find_element_by_xpath('//span[text()="设置"]')
         ActionChains(self.driver).move_to_element(move).perform()
-        move.find_element_by_xpath("ul[@class='list-unstyled']/li[8]").click()
+        move.find_element_by_xpath("//span[text()='用户管理']").click()
         time.sleep(3)
 
     def add_user(self):
         try:
             self.driver.implicitly_wait(10)
             self.click_user_setting()
-            self.driver.switch_to.frame('content')
+            self.driver.switch_to.frame('GM1ExternalFrame')
             self.driver.find_element_by_css_selector('div.ant-table-title div.custom_other_btn_right:nth-child(1)').click()
             time.sleep(1)
             self.driver.find_element_by_css_selector('input#username').send_keys(self.timestamp)
@@ -70,24 +69,27 @@ class SC_user:
             self.driver.find_element_by_css_selector('input#firstName').send_keys(self.timestamp)
             self.driver.find_element_by_css_selector('input#nickName').send_keys(self.timestamp)
             self.driver.find_element_by_css_selector('span.ant-select-selection__rendered span').click()
-            time.sleep(1)
             select_departments = self.driver.find_elements_by_css_selector('ul.ant-select-tree span:nth-child(2)')
             select_departments[0].click()
-            self.driver.find_element_by_xpath("//input[@id='roleGroupList']/../../../..").click()
+            time.sleep(2)
+            self.driver.find_element_by_xpath("//input[@id='roleGroupList']/../../../..").click()#角色
             time.sleep(1)
             selects = self.driver.find_elements_by_css_selector("ul[role='listbox'] li:nth-of-type(2)")
             selects[0].click()
-            time.sleep(1)
-            self.driver.find_element_by_css_selector('div#personType').click()
+            self.driver.find_element_by_css_selector('input#username').click()
+            time.sleep(2)
+            self.driver.find_element_by_css_selector('div#personType').click()#岗位
             time.sleep(1)
             selects = self.driver.find_elements_by_css_selector("ul[role='listbox'] li:nth-of-type(2)")
             selects[1].click()
-            time.sleep(1)
+            self.driver.find_element_by_css_selector('input#username').click()
+            time.sleep(2)
             self.driver.find_element_by_css_selector('input#mobile').send_keys(self.phoneNORandomGenerator())
             self.driver.find_element_by_css_selector('input#emailAddress').send_keys(f'{self.timestamp}@qq.com')
             self.driver.find_element_by_css_selector('button.ant-btn.ant-btn-primary').click()
             time.sleep(3)
             self.driver.find_element_by_css_selector('button[aria-label="Close"]').click()
+            time.sleep(1)
         except:
             print(traceback.format_exc())
 
@@ -104,7 +106,7 @@ class SC_user:
             self.driver.refresh()#不加无法跳转
             time.sleep(3)
             self.click_user_setting()
-            self.driver.switch_to.frame('content')
+            self.driver.switch_to.frame('GM1ExternalFrame')
             time.sleep(3)
             self.action_first_user()
             time.sleep(1)
@@ -132,7 +134,7 @@ class SC_user:
             self.driver.refresh()  # 不加无法跳转
             time.sleep(3)
             self.click_user_setting()
-            self.driver.switch_to.frame('content')
+            self.driver.switch_to.frame('GM1ExternalFrame')
             self.action_first_user()
             time.sleep(1)
             menu = self.driver.find_element_by_css_selector("tbody.ant-table-tbody td input")
@@ -150,8 +152,8 @@ if __name__ == '__main__':
     s1.open_broswer()
     s1.login()
     s1.add_user()
-    s1.modify_user()
-    s1.delete_user()
+    # s1.modify_user()
+    # s1.delete_user()
     s1.close_broswer()
 
 
