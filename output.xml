@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generator="Robot 3.1.2 (Python 3.6.5 on win32)" generated="20191025 10:55:22.674" rpa="false">
+<suite id="s1" name="GM1用户管理" source="D:\lemen_test\GM1_test\tc\GM1用户管理.robot">
+<kw name="sc_login" type="setup">
+<arguments>
+<arg>sc_lzb</arg>
+<arg>a111111</arg>
+</arguments>
+<msg timestamp="20191025 10:55:43.450" level="FAIL">Multiple keywords with name 'sc_login' found. Give the full name of the keyword you want to use:
+    SCcommon.Sc Login
+    SCuser.Sc Login</msg>
+<status status="FAIL" starttime="20191025 10:55:43.450" endtime="20191025 10:55:43.450"></status>
+</kw>
+<test id="s1-t1" name="添加用户 - tc000001">
+<status status="FAIL" starttime="20191025 10:55:43.450" endtime="20191025 10:55:43.451" critical="yes">Parent suite setup failed:
+Multiple keywords with name 'sc_login' found. Give the full name of the keyword you want to use:
+    SCcommon.Sc Login
+    SCuser.Sc Login</status>
+</test>
+<test id="s1-t2" name="修改用户 - tc000002">
+<status status="FAIL" starttime="20191025 10:55:43.454" endtime="20191025 10:55:43.455" critical="yes">Parent suite setup failed:
+Multiple keywords with name 'sc_login' found. Give the full name of the keyword you want to use:
+    SCcommon.Sc Login
+    SCuser.Sc Login</status>
+</test>
+<test id="s1-t3" name="删除用户 - tc000003">
+<status status="FAIL" starttime="20191025 10:55:43.457" endtime="20191025 10:55:43.458" critical="yes">Parent suite setup failed:
+Multiple keywords with name 'sc_login' found. Give the full name of the keyword you want to use:
+    SCcommon.Sc Login
+    SCuser.Sc Login</status>
+</test>
+<status status="FAIL" starttime="20191025 10:55:22.676" endtime="20191025 10:55:43.460">Suite setup failed:
+Multiple keywords with name 'sc_login' found. Give the full name of the keyword you want to use:
+    SCcommon.Sc Login
+    SCuser.Sc Login</status>
+</suite>
+<statistics>
+<total>
+<stat pass="0" fail="3">Critical Tests</stat>
+<stat pass="0" fail="3">All Tests</stat>
+</total>
+<tag>
+</tag>
+<suite>
+<stat pass="0" fail="3" id="s1" name="GM1用户管理">GM1用户管理</stat>
+</suite>
+</statistics>
+<errors>
+</errors>
+</robot>

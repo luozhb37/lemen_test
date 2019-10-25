@@ -3,7 +3,7 @@ from tkinter import filedialog
 from GM1_test.pylib.SCcommon import *
 class SCcompany(SCcommon):
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
-    name = 'sccompany'
+    name = 'sccompany_github'
 
     def modify_company_infomation(self):
         time.sleep(3)
