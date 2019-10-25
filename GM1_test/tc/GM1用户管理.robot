@@ -1,8 +1,8 @@
 *** Settings ***
-Library  GM1_test/pylib/SCcommon.py
-Library  GM1_test/pylib/SCuser.py
-Variables  GM1_test/tc/sc_cfg.py
-Suite Setup  sc_login  sc_lzb  a111111
+Library  pylib.SCcommon
+Library  pylib.SCuser
+Variables  sc_cfg.py
+Suite Setup  pylib.SCcommon.sc_login  sc_lzb  a111111
 
 *** Test Cases ***
 添加用户 - tc000001
