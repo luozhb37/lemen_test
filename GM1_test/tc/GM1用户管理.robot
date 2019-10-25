@@ -1,7 +1,8 @@
 *** Settings ***
-Library  dazhanggui_test/pylib/SC_user.py
-Variables  dazhanggui_test/tc/sc_cfg.py
-Suite Setup  login
+Library  GM1_test/pylib/SCcommon.py
+Library  GM1_test/pylib/SCuser.py
+Variables  GM1_test/tc/sc_cfg.py
+Suite Setup  sc_login  sc_lzb  a111111
 
 *** Test Cases ***
 添加用户 - tc000001

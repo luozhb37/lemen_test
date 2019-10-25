@@ -1,5 +1,6 @@
 *** Settings ***
-Library  dazhanggui_test/pylib/SC_user.py
-Variables  dazhanggui_test/tc/sc_cfg.py
-Suite Setup    open_broswer
+Library  GM1_test/pylib/SCcommon.py
+Library  GM1_test/pylib/SCuser.py
+Variables  GM1_test/tc/sc_cfg.py
+Suite Setup         open_broswer
 Suite Teardown    close_broswer
