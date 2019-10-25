@@ -5,7 +5,7 @@ from selenium.webdriver import ActionChains
 
 class SCuser(SCcommon):
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
-    name = 'sc_user'
+    name = 'scuser'
     timestamp = str(time.time())
 
 

@@ -5,7 +5,7 @@ from selenium.webdriver import ActionChains
 
 class SCcommon:
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
-    name = 'sc_common'
+    name = 'sccommon'
 
     def __init__(self):
         options = webdriver.ChromeOptions()
