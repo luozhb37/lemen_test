@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="8c0e5177-5e44-4be8-8ed4-b5ec4371cd0f" name="Default Changelist" comment="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml">
+    <list default="true" id="8c0e5177-5e44-4be8-8ed4-b5ec4371cd0f" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GM1_test/pylib/SCcommon.py" beforeDir="false" afterPath="$PROJECT_DIR$/GM1_test/pylib/SCcommon.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GM1_test/pylib/SCcompany.py" beforeDir="false" afterPath="$PROJECT_DIR$/GM1_test/pylib/SCcompany.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GM1_test/pylib/SCuser.py" beforeDir="false" afterPath="$PROJECT_DIR$/GM1_test/pylib/SCuser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GM1_test/tc/__init__.robot" beforeDir="false" afterPath="$PROJECT_DIR$/GM1_test/tc/__init__.robot" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -24,7 +28,7 @@
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../dzg_test" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/GM1_test" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -290,7 +294,7 @@
       <workItem from="1571808429140" duration="6376000" />
       <workItem from="1571882207768" duration="24683000" />
       <workItem from="1571920703207" duration="1216000" />
-      <workItem from="1571965659808" duration="5974000" />
+      <workItem from="1571965659808" duration="8316000" />
     </task>
     <task id="LOCAL-00001" summary="无需">
       <created>1571644841141</created>
@@ -334,7 +338,14 @@
       <option name="project" value="LOCAL" />
       <updated>1571971644515</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml">
+      <created>1571972729604</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1571972729604</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

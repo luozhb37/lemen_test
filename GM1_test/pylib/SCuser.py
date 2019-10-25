@@ -1,5 +1,5 @@
-from GM1_test.pylib.SCcommon import SCcommon
-from GM1_test.tc.sc_cfg import *
+from pylib.SCcommon import SCcommon
+from sc_cfg import *
 import time,random,traceback
 from selenium.webdriver import ActionChains
 

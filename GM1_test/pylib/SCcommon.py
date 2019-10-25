@@ -1,5 +1,5 @@
 from selenium import webdriver
-from GM1_test.tc.sc_cfg import *
+from sc_cfg import *
 import time,random,traceback
 from selenium.webdriver import ActionChains
 
@@ -19,10 +19,12 @@ class SCcommon:
         # options.add_argument("disable-infobars")  # 关闭'chrome正受到自动测试软件的控制'提示
         options.add_argument('--ignore-certificate-errors')
         options.add_argument('--ignore-ssl-errors')
-        self.driver = webdriver.Chrome(chrome_options=options)
-        self.driver.maximize_window()
+        self.options=options
+
 
     def open_broswer(self):
+        self.driver = webdriver.Chrome(chrome_options=self.options)
+        self.driver.maximize_window()
         self.driver.implicitly_wait(3)
 
     def sc_login(self,username,password):#登录 账号 密码

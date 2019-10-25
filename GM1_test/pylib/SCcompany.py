@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog
-from GM1_test.pylib.SCcommon import *
+from pylib.SCcommon import *
 class SCcompany(SCcommon):
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
     name = 'sccompany_github'
