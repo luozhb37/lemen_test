@@ -1,0 +1,48 @@
+*** Settings ***
+Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
+
+*** Test Cases ***
+预付款(核销)--明细
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增支出费用-选定费用    2000
+    ${fapiao}    付款--对账并开票    ${BUSINESSNO-SUIT-SEAEXPORT}
+    点击付款
+    点击付款单管理
+    ${paynum}    预付款申请    ${fapiao}    2000    ${往来单位}    RMB
+    预付款核销--明细    ${paynum}    ${fapiao}
+    点击付款单管理
+    付款单管理已核销列表查询    ${paynum}
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击付款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_paybillno}    ${amount}    费用列表获取付款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_paybillno}    ${paynum}
+    应该要相等    2,000.00    ${amount}
+
+预付款(核销)--异币
+    新增海运出口业务台账
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增支出费用-选定费用    1000
+    ${fapiao}    付款--对账并开票    ${BUSINESSNO-SUIT-SEAEXPORT}
+    点击付款
+    点击付款单管理
+    ${paynum}    预付款申请    ${fapiao}    142.86    ${往来单位}    USD
+    预付款核销--异币    ${paynum}    ${fapiao}
+    点击付款单管理
+    付款单管理已核销列表查询    ${paynum}
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击付款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_paybillno}    ${amount}    费用列表获取付款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_paybillno}    ${paynum}
+    应该要相等    1,000.00    ${amount}

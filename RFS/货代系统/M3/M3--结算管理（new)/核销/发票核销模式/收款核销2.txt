@@ -1,0 +1,189 @@
+*** Settings ***
+Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
+
+*** Test Cases ***
+收款核销2(生成并核销)-按发票-收款登记
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    1000
+    费用信息页面勾选收入费用    ${row}
+    ${Invoice}    标记开票-费用信息页面
+    点击业务管理
+    #生成收款单
+    点击结算管理
+    ${Payment receipt number}    ${Cost}    按发票--核销    ${Invoice}
+    点击收款单管理
+    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${Payment receipt number}    #按回款日期、收款单号查询
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${Payment receipt number}
+    应该要相等    1,000.00    ${amount}
+
+收款核销2(审核并核销)-按发票-收款登记
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    2000
+    费用信息页面勾选收入费用    ${row}
+    ${Invoice}    标记开票-费用信息页面
+    点击业务管理
+    #生成收款单
+    点击结算管理
+    ${Payment receipt number}    ${Cost}    按发票--审核并核销    ${Invoice}
+    点击收款单管理
+    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${Payment receipt number}    #按回款日期、收款单号查询
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${Payment receipt number}
+    应该要相等    2,000.00    ${amount}
+
+收款核销2(生成并核销)--按费用明细-收款登记
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    3000
+    费用信息页面勾选收入费用    ${row}
+    ${Invoice}    标记开票-费用信息页面
+    点击业务管理
+    #生成收款单
+    点击结算管理
+    ${Payment receipt number}    ${Cost}    按费用明细--核销(生成并核销)    ${Invoice}
+    点击收款单管理
+    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${Payment receipt number}    #按回款日期、收款单号查询
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${Payment receipt number}
+    应该要相等    3,000.00    ${amount}
+
+收款核销2(审核并核销)--按费用明细-收款登记
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    3000
+    费用信息页面勾选收入费用    ${row}
+    ${Invoice}    标记开票-费用信息页面
+    点击业务管理
+    #生成收款单
+    点击结算管理
+    ${Payment receipt number}    ${Cost}    按费用明细(审核并核销)    ${Invoice}
+    点击收款单管理
+    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${Payment receipt number}    #按回款日期、收款单号查询
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${Payment receipt number}
+    应该要相等    3,000.00    ${amount}
+
+收款核销2(审核并核销)--待审核-收款单管理
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    3000
+    费用信息页面勾选收入费用    ${row}
+    ${Invoice}    标记开票-费用信息页面
+    点击业务管理
+    #生成收款单
+    点击结算管理
+    ${Payment receipt number}    ${Cost}    收款单管理--待审核(审核并核销)    ${Invoice}
+    点击收款单管理
+    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${Payment receipt number}    #按回款日期、收款单号查询
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${Payment receipt number}
+    应该要相等    3,000.00    ${amount}
+
+收款核销2(核销)--待审核-收款单管理
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    3000
+    费用信息页面勾选收入费用    ${row}
+    ${Invoice}    标记开票-费用信息页面
+    点击业务管理
+    #生成收款单
+    点击结算管理
+    ${Payment receipt number}    ${Cost}    收款单管理--待审核(核销)    ${Invoice}
+    点击收款单管理
+    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${Payment receipt number}    #按回款日期、收款单号查询
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${Payment receipt number}
+    应该要相等    3,000.00    ${amount}
+
+收款核销2(生成并核销)-发票管理
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    3000
+    费用信息页面勾选收入费用    ${row}
+    ${Invoice}    标记开票-费用信息页面
+    点击业务管理
+    #生成收款单
+    点击结算管理
+    ${Payment receipt number}    ${Cost}    标记发票(生成并核销)    ${Invoice}
+    点击收款
+    点击收款单管理
+    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${Payment receipt number}    #按回款日期、收款单号查询
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${Payment receipt number}
+    应该要相等    3,000.00    ${amount}
+
+收款核销2(审核并核销)-发票管理
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    3000
+    费用信息页面勾选收入费用    ${row}
+    ${Invoice}    标记开票-费用信息页面
+    点击业务管理
+    #生成收款单
+    点击结算管理
+    ${Payment receipt number}    ${Cost}    标记发票(审核并核销)    ${Invoice}
+    点击收款
+    点击收款单管理
+    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${Payment receipt number}    #按回款日期、收款单号查询
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${Payment receipt number}
+    应该要相等    3,000.00    ${amount}

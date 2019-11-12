@@ -1,0 +1,330 @@
+*** Settings ***
+#Suite Setup       run keywords    系统参数设置-发票核销模式
+#...               AND    登录
+#...               AND    新增海运出口业务
+Suite Setup       登录
+Suite Teardown    close all browsers
+Test Setup        Reload Page    #
+Resource          ../../../Resources/M3基础操作/M3--引用.txt
+
+*** Test Cases ***
+收款-收款登记按发票(生成并核销)
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    1000
+    费用信息页面勾选收入费用    ${row}
+    ${Invoice}    获取当前时间    #使用当前时间作为发票号
+    费用页面最后一条费用开票    ${Invoice}
+    点击业务管理
+    #生成收款单
+    点击结算管理
+    ${Payment receipt number}    ${Cost}    按发票--核销    ${Invoice}
+    点击收款单管理
+    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${Payment receipt number}    #按回款日期、收款单号查询
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${Payment receipt number}
+    应该要相等    1,000.00    ${amount}
+
+收款-收款登记按发票(审核并核销)
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    2000
+    费用信息页面勾选收入费用    ${row}
+    ${Invoice}    获取当前时间
+    费用页面最后一条费用开票    ${Invoice}
+    点击业务管理
+    #生成收款单
+    点击结算管理
+    ${Payment receipt number}    ${Cost}    按发票--审核并核销    ${Invoice}
+    点击收款单管理
+    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${Payment receipt number}    #按回款日期、收款单号查询
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${Payment receipt number}
+    应该要相等    2,000.00    ${amount}
+
+收款--收款登记按费用明细(生成并核销) -tc101
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    EXP1910265
+    进入台帐详情    EXP1910265
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    3000
+    费用信息页面勾选收入费用    ${row}
+    ${Invoice}    获取当前时间
+    费用页面最后一条费用开票    ${Invoice}
+    点击业务管理
+    #生成收款单
+    点击结算管理
+    ${Payment receipt number}    ${Cost}    按费用明细--核销(生成并核销)    ${Invoice}
+    点击收款单管理
+    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${Payment receipt number}    #按回款日期、收款单号查询
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${Payment receipt number}
+    应该要相等    3,000.00    ${amount}
+
+收款--收款登记按费用明细(审核并核销)
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    3000
+    费用信息页面勾选收入费用    ${row}
+    ${Invoice}    获取当前时间
+    费用页面最后一条费用开票    ${Invoice}
+    点击业务管理
+    #生成收款单
+    点击结算管理
+    ${Payment receipt number}    ${Cost}    按费用明细(审核并核销)    ${Invoice}
+    点击收款单管理
+    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${Payment receipt number}    #按回款日期、收款单号查询
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${Payment receipt number}
+    应该要相等    3,000.00    ${amount}
+
+收款--收款单管理(待审核:审核并核销)
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    3000
+    费用信息页面勾选收入费用    ${row}
+    ${Invoice}    获取当前时间
+    费用页面最后一条费用开票    ${Invoice}
+    点击业务管理
+    #生成收款单
+    点击结算管理
+    ${Payment receipt number}    ${Cost}    收款单管理--待审核(审核并核销)    ${Invoice}
+    点击收款单管理
+    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${Payment receipt number}    #按回款日期、收款单号查询
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${Payment receipt number}
+    应该要相等    3,000.00    ${amount}
+
+收款--收款单管理(待审核:核销)
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    3000
+    费用信息页面勾选收入费用    ${row}
+    ${Invoice}    获取当前时间
+    费用页面最后一条费用开票    ${Invoice}
+    点击业务管理
+    #生成收款单
+    点击结算管理
+    ${Payment receipt number}    ${Cost}    收款单管理--待审核(核销)    ${Invoice}
+    点击收款单管理
+    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${Payment receipt number}    #按回款日期、收款单号查询
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${Payment receipt number}
+    应该要相等    3,000.00    ${amount}
+
+收款-发票核销(生成并核销)
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    3000
+    费用信息页面勾选收入费用    ${row}
+    ${Invoice}    获取当前时间
+    费用页面最后一条费用开票    ${Invoice}
+    点击业务管理
+    #生成收款单
+    点击结算管理
+    ${Payment receipt number}    ${Cost}    标记发票(生成并核销)    ${Invoice}
+    点击收款
+    点击收款单管理
+    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${Payment receipt number}    #按回款日期、收款单号查询
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${Payment receipt number}
+    应该要相等    3,000.00    ${amount}
+
+收款-发票核销(审核并核销)
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    3000
+    费用信息页面勾选收入费用    ${row}
+    ${Invoice}    获取当前时间
+    费用页面最后一条费用开票    ${Invoice}
+    点击业务管理
+    #生成收款单
+    点击结算管理
+    ${Payment receipt number}    ${Cost}    标记发票(审核并核销)    ${Invoice}
+    点击收款
+    点击收款单管理
+    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${Payment receipt number}    #按回款日期、收款单号查询
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${Payment receipt number}
+    应该要相等    3,000.00    ${amount}
+
+收款--反核销(核销记录)
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    1000
+    费用信息页面勾选收入费用    ${row}
+    ${Invoice}    获取当前时间
+    费用页面最后一条费用开票    ${Invoice}
+    点击业务管理
+    #生成收款单
+    点击结算管理
+    ${Payment receipt number}    ${Cost}    按发票--核销    ${Invoice}
+    反核销--核销记录    ${Payment receipt number}
+    离开框架
+    点击收款单管理
+    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${Payment receipt number}    #按回款日期、收款单号查询
+    ${page}    获取列表记录数
+    应该包含    ${page}    共0条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该不相等    ${fee_recbillno}    ${Payment receipt number}
+    应该要相等    0.00    ${amount}
+
+收款--反核销(收款单管理)
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    1000
+    费用信息页面勾选收入费用    ${row}
+    ${Invoice}    获取当前时间
+    费用页面最后一条费用开票    ${Invoice}
+    点击业务管理
+    #生成收款单
+    点击结算管理
+    ${Payment receipt number}    ${Cost}    按发票--核销    ${Invoice}
+    反核销--收款单管理    ${Payment receipt number}
+    离开框架
+    点击收款单管理
+    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${Payment receipt number}    #按回款日期、收款单号查询
+    ${page}    获取列表记录数
+    应该包含    ${page}    共0条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该不相等    ${fee_recbillno}    ${Payment receipt number}
+    应该要相等    0.00    ${amount}
+
+收款--反核销(费用反核销)
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    1000
+    费用信息页面勾选收入费用    ${row}
+    ${Invoice}    获取当前时间
+    费用页面最后一条费用开票    ${Invoice}
+    点击业务管理
+    #生成收款单
+    点击结算管理
+    ${Payment receipt number}    ${Cost}    按发票--核销    ${Invoice}
+    反核销--费用反核销    ${Payment receipt number}
+    离开框架
+    点击收款单管理
+    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${Payment receipt number}    #按回款日期、收款单号查询
+    ${page}    获取列表记录数
+    应该包含    ${page}    共0条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该不相等    ${fee_recbillno}    ${Payment receipt number}
+    应该要相等    0.00    ${amount}
+
+收款--预收款核销(明细)
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    1000
+    费用信息页面勾选收入费用    ${row}
+    ${Invoice}    获取当前时间
+    费用页面最后一条费用开票    ${Invoice}
+    点击业务管理
+    #生成收款单
+    点击结算管理
+    ${Payment receipt number}    预收款登记
+    ${Cost}    预收款核销(明细)    ${Payment receipt number}    ${Invoice}
+    点击收款单管理
+    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${Payment receipt number}    #按回款日期、收款单号查询
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${Payment receipt number}
+    应该要相等    1,000.00    ${amount}
+
+收款--预收款核销(异币)
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增费用--USD    USD
+    费用信息页面勾选收入费用    ${row}
+    费用页面最后一条费用开票    ${BUSINESSNO-SUIT-SEAEXPORT}
+    点击业务管理
+    #生成收款单
+    点击结算管理
+    ${Payment receipt number}    预收款登记
+    ${Cost}    预收款核销(异币)    ${Payment receipt number}    ${Invoice}
+    点击收款单管理
+    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${Payment receipt number}    #按回款日期、收款单号查询
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${Payment receipt number}
+    应该要相等    142.86    ${amount}

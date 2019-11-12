@@ -1,0 +1,51 @@
+*** Settings ***
+Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
+
+*** Test Cases ***
+预付款核销--明细
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    EXP1911153
+    进入台帐详情    EXP1911153
+    从台帐详情进入费用页面
+    ${row}    新增支出费用-选定费用    2000
+    关闭所有弹出框
+    点击业务管理
+    点击结算管理
+    点击付款
+    点击付款单管理
+    ${fukuan}    预付款登记（未开票）
+    预付款核销按明细    ${fukuan}    EXP1911153
+    #校验
+    点击付款单管理
+    付款单管理已核销列表查询    ${fukuan}
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击付款单管理
+    ${fee_paybillno}    ${amount}    费用列表获取付款单号-选定费用    EXP1911153    ${row}
+    应该要相等    ${fee_paybillno}    ${fukuan}
+    应该要相等    2,000.00    ${amount}
+
+预付款核销--异币
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增支出费用-选定费用    1000
+    关闭所有弹出框
+    点击业务管理
+    点击结算管理
+    点击付款
+    点击付款单管理
+    ${fukuan}    预付款登记（未开票/异币）
+    预付款核销按异币    ${fukuan}    ${BUSINESSNO-SUIT-SEAEXPORT}
+    #校验
+    点击付款单管理
+    付款单管理已核销列表查询    ${fukuan}
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击付款单管理
+    ${fee_paybillno}    ${amount}    费用列表获取付款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_paybillno}    ${fukuan}
+    应该要相等    1,000.00    ${amount}
