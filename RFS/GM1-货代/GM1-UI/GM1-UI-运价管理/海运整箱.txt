@@ -8,13 +8,13 @@ Resource          ../../../Resources/整箱操作关键字.txt
     点击    xpath=//a[text()=' 运价管理']
     等待加载层消失
     进入指定二级菜单    运价维护    海运出口整箱
-    进入框架    id=content
+    进入列表框架
     ${count1}    获取匹配xpath的个数    xpath=//*[@id='j-tableFixScroll']//table//tbody/tr
     ${new_count}    Evaluate    int(${count1})+1    # 原列表数+1作为最后期望值
     # 新增一条数据
     海运整箱-新增    001    ${temp1}    2
     # 验证是否新增成功
-    进入框架    id=content
+    进入列表框架
     ${count2}    获取匹配xpath的个数    xpath=//*[@id='j-tableFixScroll']//table//tbody/tr
     离开框架
     Should Be Equal As Strings    ${count2}    ${new_count}
@@ -39,7 +39,7 @@ Resource          ../../../Resources/整箱操作关键字.txt
     点击    xpath=//a[text()=' 运价管理']
     等待加载层消失
     进入指定二级菜单    运价维护    海运出口整箱
-    进入框架    id=content
+    进入列表框架
     海运整箱-新增    001    ${temp3}    2
     ${count}=    整箱列表运价查询    ${temp3}
     Run Keyword If    '${count}'=='0' and '${count}'>=2    fail    msg=没有可批量操作的运价，请先新增
@@ -56,7 +56,7 @@ Resource          ../../../Resources/整箱操作关键字.txt
     点击    xpath=//a[text()=' 运价管理']
     等待加载层消失
     进入指定二级菜单    运价维护    海运出口整箱
-    进入框架    id=content
+    进入列表框架
     海运整箱-新增    001    ${temp2}    2
     ${count}=    海运整箱船公司查询    001
     Run Keyword If    '${count}'=='0'    fail    msg=没有可批量操作的运价，请先新增

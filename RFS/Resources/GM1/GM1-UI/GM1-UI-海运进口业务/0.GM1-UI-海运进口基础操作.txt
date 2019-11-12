@@ -6,7 +6,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 新增海运进口业务单
     [Arguments]    ${text}
     [Documentation]    ${text}货物来源
-    进入框架    id=content
+    进入主页面框架
     点击    xpath=//span[text()='新 增']/..
     Wait Until Element Is Visible    xpath=//label[text()='业务类型']
     下拉框选中    货物来源    ${text}
@@ -31,7 +31,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 海运进口列表查询业务编号
     [Arguments]    ${bussinessNO}
-    进入列表框架
+    进入主页面框架
     输入    id=businessNumbers    ${bussinessNO}    #各类编号查询业务订单
     #Mouse Over    xpath=//span[@class='ant-calendar-picker-input ant-input ant-input-lg']//input[1]    #x悬停至时间
     #点击    xpath=//span[@class='ant-calendar-picker-input ant-input ant-input-lg']//i    #点击时间的删除
@@ -46,7 +46,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     点击业务管理
     进入指定二级菜单    业务台账    海运进口
     等待加载层消失
-    进入列表框架
+    进入主页面框架
     点击    xpath=//span[text()='自定义列']/..    #点击自定义列
     输入    xpath=//span[text()='已选']/../../following-sibling::div[1]//input[@class='ant-input ant-transfer-list-search']    业务编号    #筛选业务编号
     勾选记录    xpath=//li[@title='业务编号']//input    #勾选业务编号
@@ -57,7 +57,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 点击业务编号进入详情页（海进）
     [Arguments]    ${bussinessNO}
-    进入列表框架
+    进入主页面框架
     等待    2
     点击    xpath=//div[@class='ant-table-body-inner']//a[text()='${bussinessNO}']
     离开框架

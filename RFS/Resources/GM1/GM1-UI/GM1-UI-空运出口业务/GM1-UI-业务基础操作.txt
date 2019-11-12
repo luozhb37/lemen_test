@@ -5,7 +5,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 设置为非代操作公司
     点击系统设置（主菜单）
     点击系统设置（菜单）
-    进入框架    id=content
+    进入主页面框架
     设置业务参数(单选)    是否为代操作公司    否    # 设置为非代操作公司
     点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
     离开框架
@@ -16,7 +16,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     等待加载层消失    # 等待加载层消失
     进入指定二级菜单    企业基础资料    服务类型
     等待加载层消失    # 等待加载层消失
-    进入框架    id=content
+    进入主页面框架
     点击    xpath=//a[text()='${service}']    # 点击对应服务内容
     点击    xpath=//label[text()='默认订单']/../following-sublings::div[1]//span[text()='${order}']/../span[1]/input    # 点击是否默认订单
     点击    xpath=//label[text()='默认工作单']/../following-sublings::div[1]//span[text()='${order}']/../span[1]/input    # 点击是否默认订单
@@ -29,7 +29,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     ${company}    Set Variable    yusen测试
     点击业务管理
     进入指定二级菜单    业务台账    空运出口    # 进入空运出口
-    进入框架    id=content
+    进入主页面框架
     Wait Until Element Is Enabled    xpath=//span[text()='新 增']/..
     点击    xpath=//span[text()='新 增']/..    # 点击新增按钮
     ${prefix}    获取页面文本内容    xpath=//div[@id='BUSINESS_NO_id_div']//div[@class='ant-select-selection-selected-value']    # 获取企业编码前缀
@@ -48,7 +48,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     [Documentation]    查询是否存在指定机场，若没有，则生成该机场
     进入指定一级菜单    资料
     进入指定二级菜单    业务基础资料    空运基础资料
-    进入框架    id=content
+    进入主页面框架
     输入    id=searchNo    ${airport}
     点击    xpath=//span[text()='查 询']/..    # 点击查询按钮
     ${count}    获取匹配xpath的个数    xpath=//a[text()='${airport}']
@@ -59,14 +59,14 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     进入指定一级菜单    资料
     进入指定二级菜单    业务基础资料    空运基础资料
     点击    xpath=//a[text()='空运航线']    # 点击空运航线菜单
-    进入框架    id=content
+    进入主页面框架
     输入    id=cnname    测试航线
     点击    xpath=//span[text()='查 询']/..    # 点击查询按钮
     ${count}    获取匹配xpath的个数    xpath=//table[@id='qp_base_airroutes_tbl5']/tbody/tr
     run keyword if    ${count}==1    run keywords    点击    id=bt_add
     ...    AND    离开框架
     ...    AND    新增航线
-    ...    AND    进入框架    id=content
+    ...    AND    进入主页面框架
     离开框架
 
 勾选服务项
@@ -83,7 +83,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     ...    参数ishidden，默认取值为false
     进入指定一级菜单    设置
     进入指定二级菜单    系统设置    业务参数
-    进入框架    id=content
+    进入主页面框架
     Run Keyword If    '${ishidden}'=='true'    设置业务参数(单选)    ${name}    是
     ...    ELSE    设置业务参数(单选)    ${name}    否
     点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
@@ -92,7 +92,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 业务点击新增指定按钮
     [Arguments]    ${name}
     [Documentation]    $name：新增按钮下拉对应的按钮名称
-    进入框架    id=content
+    进入主页面框架
     Wait Until Element Is Enabled    xpath=//span[text()='新增 ']/..    10
     click element    xpath=//span[text()='新增 ']/..
     Wait Until Element Is Visible    xpath=//div[contains(@class, 'ant-dropdown-placement-bottomLeft')]//span[text()='${name}']/..
@@ -102,7 +102,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 全业务列表进入对应视图
     [Arguments]    ${name}
-    进入框架    id=content
+    进入主页面框架
     Wait Until Element Is Enabled    xpath=//span[text()='视图']/..
     mouse over    xpath=//span[text()='视图']/..
     Wait Until Element Is Visible    xpath=//div[contains(@class, 'ant-dropdown-placement-bottomLeft')]//li[text()='${name}']
@@ -123,7 +123,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     [Arguments]    ${type}    ${name}
     进入指定一级菜单    资料
     进入指定二级菜单    企业基础资料    服务类型
-    进入框架    id=content
+    进入主页面框架
     输入    xpath=//input[@id='serviceTypeName']    ${name}
     点击    id=businessType
     点击    xpath=//ul[contains(@class, 'ant-select-dropdown-menu-root')]//li[text()='${type}']

@@ -57,7 +57,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     ${text}    船只信息页列表-查询    ${base_vessels_enname}
     应该包含    ${text}    共1条
     #勾选删除
-    进入列表框架
+    进入主页面框架
     点击    xpath=//input[@name='SHEET_ROW_SELECT_ALL']    #勾选全部
     点击    id=bt_delete    #点击删除
     页面弹出框选择确定
@@ -72,7 +72,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    海运基础资料
     点击海运港口
     Wait Until Page Contains Element    id=content    #等待页面加载完毕，出现元素
-    进入列表框架
+    进入主页面框架
     海运港口-新增    ${seaport_code}    AUTO    自动化港口名称
     ${text}    海运港口页列表-查询    ${seaport_code}
     应该包含    ${text}    共1条
@@ -85,13 +85,13 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    海运基础资料
     点击海运港口
     Wait Until Page Contains Element    id=content    #等待页面加载完毕，出现元素
-    进入列表框架
+    进入主页面框架
     ${text}    海运港口页列表-查询    ${seaport_code}
     应该包含    ${text}    共1条
     离开框架
     点击名称进入详情页    ${seaport_code}
     ${seaport_code}    生成一个带有字符的随机数    B    #重新生成一个新港口代码
-    进入列表框架
+    进入主页面框架
     海运港口-修改    ${seaport_code}
     ${text}    海运港口页列表-查询    ${seaport_code}
     应该包含    ${text}    共1条
@@ -104,7 +104,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    海运基础资料
     点击海运港口
     Wait Until Page Contains Element    id=content    #等待页面加载完毕，出现元素
-    进入列表框架
+    进入主页面框架
     ${text}    海运港口页列表-查询    ${seaport_code}
     应该包含    ${text}    共1条
     海运港口-禁用
@@ -121,7 +121,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    海运基础资料
     点击海运港口
     Wait Until Page Contains Element    id=content    #等待页面加载完毕，出现元素
-    进入列表框架
+    进入主页面框架
     ${text}    海运港口页列表-查询    ${seaport_code}
     应该包含    ${text}    共1条
     #勾选删除
@@ -139,7 +139,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    海运基础资料
     点击运输条款
     等待加载层消失
-    进入列表框架
+    进入主页面框架
     点击    xpath=//span[text()='新 增']/..    #点击新增按钮
     输入    id=dataVo.code    ${dataVo.code}    #输入运输条款代码
     输入    id=dataVo.name    AUTO运输条款    #输入运输条框名称
@@ -154,14 +154,14 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    海运基础资料
     点击运输条款
     等待加载层消失
-    进入列表框架
+    进入主页面框架
     运输/运费条款页列表-查询    ${dataVo.code}    启用
     ${text}    获取页面文本内容    css=.ant-pagination-total-text
     应该包含    ${text}    共1条
     离开框架
     点击名称进入详情页    ${dataVo.code}
     ${dataVo.code}    Get Timestamp    #生成新条款代码
-    进入列表框架
+    进入主页面框架
     输入    id=dataVo.code    ${dataVo.code}    #输入运输条款代码
     点击保存按钮
     运输/运费条款页列表-查询    ${dataVo.code}    启用
@@ -175,7 +175,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    海运基础资料
     点击运输条款
     等待加载层消失
-    进入列表框架
+    进入主页面框架
     运输/运费条款页列表-查询    ${dataVo.code}    启用
     ${text}    获取页面文本内容    css=.ant-pagination-total-text
     应该包含    ${text}    共1条
@@ -207,13 +207,13 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    海运基础资料
     点击运费条款
     等待加载层消失
-    进入列表框架
+    进入主页面框架
     ${text}    运输/运费条款页列表-查询    ${freightcode}    启用
     应该包含    ${text}    共1条
     离开框架
     点击名称进入详情页    ${freightcode}
     ${freightcode}    Get Timestamp    #生成新条款代码
-    进入列表框架
+    进入主页面框架
     输入    id=dataVo.code    ${freightcode}    #输入运输条款代码
     点击保存按钮
     ${text}    运输/运费条款页列表-查询    ${freightcode}    启用
@@ -226,7 +226,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    海运基础资料
     点击运费条款
     等待加载层消失
-    进入列表框架
+    进入主页面框架
     ${text}    运输/运费条款页列表-查询    ${freightcode}    启用
     应该包含    ${text}    共1条
     #勾选禁用
@@ -246,7 +246,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    海运基础资料
     点击船司代码
     等待加载层消失
-    进入列表框架
+    进入主页面框架
     船公司-新增    ${boat.code}    AUTO    自动化船公司    AUTO-boat    自动化-船公司
     ${text}    箱型箱尺/船公司列表-查询    ${boat.code}    启用
     应该包含    ${text}    共1条
@@ -259,7 +259,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    海运基础资料
     点击船司代码
     等待加载层消失
-    进入列表框架
+    进入主页面框架
     ${text}    箱型箱尺/船公司列表-查询    ${boat.code}    启用
     应该包含    ${text}    共1条
     点击    xpath=//tr[@class='ant-table-row \ ant-table-row-level-0']/td[3]/a    #点击名进入详情页
@@ -267,7 +267,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     #点击名称进入详情页    ${boat.code}
     #修改船公司代码
     ${boat.code}    Get Timestamp    #生成新船公司代码
-    进入列表框架
+    进入主页面框架
     输入    id=dataVo.code    ${boat.code}    #输入船公司代码
     点击保存按钮
     ${text}    箱型箱尺/船公司列表-查询    ${boat.code}    启用
@@ -280,7 +280,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    海运基础资料
     点击船司代码
     等待加载层消失
-    进入列表框架
+    进入主页面框架
     ${text}    箱型箱尺/船公司列表-查询    ${boat.code}    启用
     应该包含    ${text}    共1条
     #勾选禁用
@@ -304,7 +304,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     点击海运航线
     等待加载层消失
     海运航线-新增    ${base_searoutes}    ${base_searoutes_enname}
-    进入列表框架
+    进入主页面框架
     ${text}    海运航线列表-查询    ${base_searoutes}
     应该包含    ${text}    共1条
     离开框架
@@ -316,7 +316,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    海运基础资料
     点击海运航线
     等待加载层消失
-    进入列表框架
+    进入主页面框架
     ${text}    海运航线列表-查询    ${base_searoutes}
     应该包含    ${text}    共1条
     离开框架
@@ -325,7 +325,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     ${base_searoutes}    Catenate    SEPARATOR=    航线    ${base_searoutes1}    #拼接要填入的航线中文名称
     Set Suite Variable    ${base_searoutes}
     #修改海运航线代码
-    进入列表框架
+    进入主页面框架
     输入    xpath=//input[@id='cnname'][@class='ant-input ant-input-lg']    ${base_searoutes}    #输入新海运航线代码
     点击保存按钮    #点击保存
     ${text}    海运航线列表-查询    ${base_searoutes}
@@ -338,7 +338,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    海运基础资料
     点击海运航线
     等待加载层消失
-    进入列表框架
+    进入主页面框架
     ${text}    海运航线列表-查询    ${base_searoutes}
     应该包含    ${text}    共1条
     #勾选删除
@@ -358,11 +358,11 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    海运基础资料
     点击船期
     Wait Until Page Contains Element    id=content    #等待页面加载完毕，出现元素
-    进入列表框架
+    进入主页面框架
     点击    xpath=//span[text()='新 增']/..    #点击新增
     离开框架
     船期-新增    ${CQ_voyno}
-    进入列表框架
+    进入主页面框架
     船期列表-查询    ${CQ_voyno}
     ${text}    获取匹配xpath的个数    xpath=//table//tbody//tr
     应该要相等    ${text}    1
@@ -374,7 +374,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    海运基础资料
     点击船期
     Wait Until Page Contains Element    id=content    #等待页面加载完毕，出现元素
-    进入列表框架
+    进入主页面框架
     船期列表-查询    ${CQ_voyno}
     ${text}    获取匹配xpath的个数    xpath=//table//tbody//tr    #获取行数
     应该要相等    ${text}    1
@@ -383,7 +383,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     ${CQ_voyno}    Get Timestamp    #生成新航次
     Set Suite Variable    ${CQ_voyno}
     船期-修改    ${CQ_voyno}
-    进入列表框架
+    进入主页面框架
     船期列表-查询    ${CQ_voyno}
     ${text}    获取匹配xpath的个数    xpath=//table//tbody//tr
     应该要相等    ${text}    1
@@ -395,7 +395,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    海运基础资料
     点击船期
     Wait Until Page Contains Element    id=content    #等待页面加载完毕，出现元素
-    进入列表框架
+    进入主页面框架
     船期列表-查询    ${CQ_voyno}
     ${text}    获取匹配xpath的个数    xpath=//table//tbody//tr    #获取复制前的行数
     ${text加1}    Evaluate    int(${text})+1    #设定复制后应该是行数+1
@@ -412,7 +412,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    海运基础资料
     点击船期
     Wait Until Page Contains Element    id=content    #等待页面加载完毕，出现元素
-    进入列表框架
+    进入主页面框架
     船期列表-查询    ${CQ_voyno}
     ${text}    获取匹配xpath的个数    xpath=//table//tbody//tr    #获取删除前的行数
     Should Not Be Empty    ${text}
@@ -431,7 +431,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    海运基础资料
     点击航线代码
     等待加载层消失
-    进入列表框架
+    进入主页面框架
     航线代码-新增    ${routeCode}
     航线代码列表-查询    ${routeCode}
     ${text}    获取页面文本内容    css=.ant-pagination-total-text
@@ -444,7 +444,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    海运基础资料
     点击航线代码
     等待加载层消失
-    进入列表框架
+    进入主页面框架
     航线代码列表-查询    ${routeCode}
     ${text}    获取页面文本内容    css=.ant-pagination-total-text
     应该包含    ${text}    共1条
@@ -466,7 +466,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    海运基础资料
     点击航线代码
     等待加载层消失
-    进入列表框架
+    进入主页面框架
     航线代码列表-查询    ${routeCode}
     ${text}    获取页面文本内容    css=.ant-pagination-total-text
     应该包含    ${text}    共1条

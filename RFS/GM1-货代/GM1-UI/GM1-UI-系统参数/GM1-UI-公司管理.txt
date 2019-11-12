@@ -26,7 +26,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     ${CY_dataVo.addressName}    Set Variable    AUTO-常用地址    #类别
     ${CY_dataVo.address}    Set Variable    浙江省宁波市总部壹号    #英文地址
     ${CY_dataVo.linkman}    Set Variable    咖狗    #联系人
-    进入列表框架
+    进入主页面框架
     ${count}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr    #获取新增前数量
     ${count+1}    Evaluate    int(${count})+1    #设定新增后+1
     #新增
@@ -47,7 +47,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     ${DD_dataVo.orgEnName}    Set Variable    AUTO-GM1-cargo    #公司英文名称
     ${DD_dataVo.linkmanEnName}    Set Variable    AUTO-linkman    #联系人英文名称
     ${DD_dataVo.enAddress}    Set Variable    AUTO-address    #联系人英文地址
-    进入列表框架
+    进入主页面框架
     ${count}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr    #获取新增前数量
     ${count+1}    Evaluate    int(${count})+1    #设定新增后+1
     #新增

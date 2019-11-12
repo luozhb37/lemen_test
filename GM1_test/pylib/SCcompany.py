@@ -1,34 +1,36 @@
-import tkinter as tk
+import win32com.client
 from tkinter import filedialog
+from selenium.webdriver.common.keys import Keys
 from pylib.SCcommon import *
-class SCcompany(SCcommon):
+class SCcompany:
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
-    name = 'sccompany_github'
+    name = 'sccompany'
+    sc_c1 = SCcommon()
+    driver = sc_c1.driver
 
-    def modify_company_infomation(self):
+    #其余信息个人觉得更改不太好,这边只更换公司logo
+    def modify_company_infomation(self):#此关键字只限打开的对话框有相关图片才可以操作，因无法确定其他成员电脑图片存放具体位置
+        self.driver.implicitly_wait(10)
+        self.sc_c1.refresh_sleep()
+        self.sc_c1.enter_iframe("GM1ExternalFrame")
+        self.driver.find_element_by_css_selector('div#customer-edit-area span.ant-upload').click()
         time.sleep(3)
-        ele_mobile = self.driver.find_element_by_id('mobile')
-        ele_mobile.clear()
-        ele_mobile.send_keys(self.phoneNORandomGenerator())
-        self.driver.find_element_by_xpath('//div[text()="Upload Logo"]').click()
-        root = tk.Tk()    #打开选择文件夹对话框
-        root.withdraw()
-
-        Folderpath = filedialog.askdirectory()  # 获得选择好的文件夹
-        Filepath = filedialog.askopenfilename()  # 获得选择好的文件
-
-        print('Folderpath:', Folderpath)
-        print('Filepath:', Filepath)
-
+        shell = win32com.client.Dispatch('WScript.Shell')
+        shell.Sendkeys(r"D:\test_photo\test123.gif" + "\r\n")
+        shell.Sendkeys("{ENTER}")
+        time.sleep(3)
+        self.driver.find_element_by_css_selector("button.ant-btn-primary").click()
+        time.sleep(1)
 
 
 
 
 if __name__ == '__main__':
     s2 = SCcompany()
-    s2.open_broswer()
-    s2.sc_login('sc_lzb','a111111')
-    s2.click_user_setting('设置','公司信息')
+    s2.sc_c1.open_broswer()
+    s2.sc_c1.sc_login('sc_lzb','a111111')
+    s2.sc_c1.click_user_setting('设置','公司信息')
     s2.modify_company_infomation()
+    s2.sc_c1.close_broswer()
 
 

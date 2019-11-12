@@ -51,6 +51,15 @@ Resource          GM1-UI-引用.txt
     Mouse Over    xpath=//div[text()='${icon_name}']
     mouse out    xpath=//div[text()='${icon_name}']
 
+进入菜单页面(第三版)
+    [Arguments]    ${name1}    ${name2}
+    Wait Until Element Is Visible    xpath=//div[@id='dzg-gm-front-menu']//span[text()='${name1}']
+    Mouse Over    xpath=//div[@id='dzg-gm-front-menu']//span[text()='${name1}']    #移动到一级菜单
+    等待    1
+    Wait Until Element Is Enabled    xpath=//div[@id='dzg-gm-front-menu']//span[text()='${name1}']/../..    30
+    点击    xpath=//div[@id='dzg-gm-front-menu']//span[text()='${name1}']/../..//div[@class='dzg-customized-pop-menu-wrapper']//li[@title='${name2}']//span[text()='${name2}']
+    等待加载层消失
+
 点击海运出口
     点击    xpath=//a[text()='海运出口']
     等待加载层消失
@@ -113,15 +122,19 @@ Resource          GM1-UI-引用.txt
     等待加载层消失
 
 点击费用列表--按工作单
-    点击    xpath=//div[@class='inactiveTab']
+    点击    xpath=//div[text()='按工作单']
+    等待加载层消失
+
+点击待对账--按账单
+    点击    xpath=//div[text()='按账单']
     等待加载层消失
 
 点击对账单管理
-    点击    xpath=//a[text()='对账单管理']
+    点击    xpath=//div[@id='dzg-side-menu']//li[@title='对账单管理']
     等待加载层消失
 
 点击应收发票管理
-    点击    xpath=//a[text()='应收发票管理']
+    点击    xpath=//div[@id='dzg-side-menu']//li[@title='应收发票管理']
     等待加载层消失
 
 点击应付发票
@@ -129,11 +142,11 @@ Resource          GM1-UI-引用.txt
     等待加载层消失
 
 点击应付待登记
-    点击    xpath=//a[text()='应付待登记']
+    点击    xpath=//div[@id='dzg-side-menu']//li[@title='应付待登记']
     等待加载层消失
 
 点击应付发票管理
-    点击    xpath=//a[text()='应付发票管理']
+    点击    xpath=//div[@id='dzg-side-menu']//li[@title='应付发票管理']
     等待加载层消失
 
 点击待核销
@@ -141,15 +154,15 @@ Resource          GM1-UI-引用.txt
     等待加载层消失
 
 点击核销记录(收款)
-    点击    xpath=//a[text()='核销记录']
+    点击    xpath=//div[@id='dzg-side-menu']//li[@title='核销记录']
     等待加载层消失
 
 点击请款单管理
-    点击    xpath=//a[text()='请款单管理']
+    点击    xpath=//div[@id='dzg-side-menu']//li[@title='请款单管理']
     等待加载层消失
 
 点击付款单管理
-    点击    xpath=//a[text()='付款单管理']
+    点击    xpath=//div[@id='dzg-side-menu']//li[@title='付款单管理']
     等待加载层消失
 
 点击待付款待核销
@@ -157,21 +170,21 @@ Resource          GM1-UI-引用.txt
     等待加载层消失
 
 点击核销记录(付款)
-    点击    xpath=//a[text()='核销记录']
+    点击    xpath=//div[@id='dzg-side-menu']//li[@title='核销记录']
     等待加载层消失
 
 点击我的请款单
-    点击    xpath=//a[text()='我的请款单']
+    点击    xpath=//div[@id='dzg-side-menu']//li[@title='我的请款单']
     等待加载层消失
 
 点击实收凭证
     Comment    点击    xpath=//a[@href='/fmsfinance-front/#/receiveVerificationRecord']
-    点击    xpath=//span[text()='实收凭证']/..
+    点击    xpath=//div[@id='dzg-side-menu']//li[@title='实收凭证']
     等待加载层消失
 
 点击实付凭证
     Comment    点击    xpath=//a[@href='/fmsfinance-front/#/paymentRecord']
-    点击    xpath=//span[text()='实付凭证']/..
+    点击    xpath=//div[@id='dzg-side-menu']//li[@title='实付凭证']
     等待加载层消失
 
 点击已输出凭证

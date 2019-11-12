@@ -19,9 +19,7 @@ Resource          ../../Resources/M2基础操作/M2--引用.txt
     应该包含    ${pages}    共1条    #验证新增的业务编号在列表上可以查询到一条记录
 
 复制空运进口业务台帐
-    点击业务管理
-    点击业务台帐
-    点击空运进口
+    新增空运进口业务台帐
     列表查询业务编号    ${AIR-IMPORT-BUSINESSNO-SUIT}
     选中包含业务编号的台帐    ${AIR-IMPORT-BUSINESSNO-SUIT}
     ${businessNo}    复制空运进口业务台帐

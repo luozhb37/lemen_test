@@ -16,7 +16,7 @@ Library           Collections
     ${u_depart}    Catenate    SEPARATOR=    部门测试-A    1
     #--新增顶级部门---
     点击    xpath=//a[@target='content'][contains(text(),"组织结构")]    #点【组织结构】
-    进入框架    id=content
+    进入主页面框架
     点击    xpath=//span[text()='财务部']
     点击    id=addNextNote
     新增部门（顶级）    ${u_depart}
@@ -42,7 +42,7 @@ Library           Collections
     ${u_depart}=    Catenate    SEPARATOR=    测试部
     点击    xpath=//a[@target='content'][contains(text(),"员工管理")]    #点【员工管理】
     #---新增员工
-    进入框架    id=content
+    进入主页面框架
     点击    xpath=//span[text()='新 增']/..    #点【新建】
     下拉框选中（特殊）    编制部门    财务部
     #点击    xpath=//span[contains(@id,"dept_lookup_tree_")][text()='${u_depart}']    #选择部门
@@ -99,7 +99,7 @@ Library           Collections
     #--添加用户----
     ${u_depart}=    Catenate    SEPARATOR=    测试部
     #--新增员工---
-    进入框架    id=content
+    进入主页面框架
     点击    xpath=//span[text()='新 增']/..    #点【添加】
     输入    id=username    ${temp}
     输入    id=pwd    a111111
@@ -120,7 +120,7 @@ Library           Collections
     点击用户管理
     #--查找用户并维护权限----
     #${u_name}    set variable    ${temp}
-    进入框架    id=content
+    进入主页面框架
     输入    id=name    ${temp}    #按‘用户名’查找 【或用 @{u_name} \ \ 】
     点击    //span[text()="查 询"]/..    #点【查询】
     点击    xpath=(//table/tbody/tr[1]//input)[last()]
@@ -149,7 +149,7 @@ Library           Collections
     点击用户管理
     #--查找用户并维护权限----
     #${u_name}    set variable    ${temp}
-    进入框架    id=content
+    进入主页面框架
     输入    id=name    ${temp}    #按‘用户名’查找 【或用 @{u_name} \ \ 】
     点击    //span[text()="查 询"]/..    #点【查询】
     点击    xpath=(//table/tbody/tr[1]//input)[last()]    #点击权限管理

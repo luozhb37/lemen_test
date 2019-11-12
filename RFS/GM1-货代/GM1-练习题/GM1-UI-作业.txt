@@ -12,7 +12,7 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     等待加载层消失
     点击    xpath=//span[text()='客商资料']/..
     等待    3
-    进入框架    id=content
+    进入主页面框架
     : FOR    ${index}    IN    ${row_info[1:]}    # 循环读取内容
     \    清空输入框内容    id=name
     \    输入    id=name    ${index}
@@ -27,7 +27,7 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
 获取指定列名的位置(关键字)
     点击业务管理
     进入指定二级菜单    业务台账    空运出口
-    进入框架    id=content
+    进入主页面框架
     ${count}    Get Element Count    xpath=//div[@class='ant-table-scroll']//table/thead/tr/th    # 获取表头个数
     ${count}    Evaluate    int(${count})+1
     ${list}    create list    ${empty}
@@ -43,7 +43,7 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
 获取指定列名的位置(循环)
     点击业务管理
     进入指定二级菜单    业务台账    空运出口
-    进入框架    id=content
+    进入主页面框架
     ${count}    Get Element Count    xpath=//div[@class='ant-table-scroll']//table/thead/tr/th    # 获取表头个数
     ${count}    Evaluate    int(${count})+1
     ${index}    Set Variable    1

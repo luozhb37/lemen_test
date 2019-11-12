@@ -7,9 +7,9 @@ Library           OperatingSystem
 
 *** Keywords ***
 打开
-    [Arguments]    ${url}    # 客户地址
+    [Arguments]    ${url}    ${browser}=Chrome    # 客户地址
     [Documentation]    打开一个浏览器(chrome),并打开客户地址
-    Open Browser    ${url}    browser=Chrome    remote_url=${remote_url}
+    Open Browser    ${url}    browser=${browser}    remote_url=${remote_url}
     Maximize Browser Window
 
 关闭浏览器
@@ -75,7 +75,7 @@ Library           OperatingSystem
 进入框架
     [Arguments]    ${locator}
     [Documentation]    进入一个iframe
-    select Frame    ${locator}
+    Select Frame    ${locator}
 
 离开框架
     [Documentation]    进入最前端frame

@@ -1,19 +1,24 @@
-from pylib.SCcommon import SCcommon
+from pylib.SCcommon import *
 from sc_cfg import *
 import time,random,traceback
 from selenium.webdriver import ActionChains
+from pylib.DriverUtil import DriverUtil
 
-class SCuser(SCcommon):
+
+class SCuser:
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
-    name = 'scuser_github'
+    name = 'scuser'
     timestamp = str(time.time())
+    # driver = DriverUtil.get_driver()
+    sc_u1 = SCcommon()
+    driver = sc_u1.driver
 
-
-    def add_user(self):
+    def add_user(self):#增加用户
         try:
             self.driver.implicitly_wait(10)
-            self.click_user_setting('设置','用户管理')
-            self.driver.switch_to.frame('GM1ExternalFrame')
+            self.sc_u1.refresh_sleep()
+            self.sc_u1.click_user_setting('设置','用户管理')
+            self.sc_u1.enter_iframe("GM1ExternalFrame")
             self.driver.find_element_by_css_selector('div.ant-table-title div.custom_other_btn_right:nth-child(1)').click()
             time.sleep(1)
             self.driver.find_element_by_css_selector('input#username').send_keys(self.timestamp)
@@ -37,7 +42,7 @@ class SCuser(SCcommon):
             selects[1].click()
             self.driver.find_element_by_css_selector('input#username').click()
             time.sleep(2)
-            self.driver.find_element_by_css_selector('input#mobile').send_keys(self.phoneNORandomGenerator())
+            self.driver.find_element_by_css_selector('input#mobile').send_keys(self.sc_u1.phoneNORandomGenerator())
             self.driver.find_element_by_css_selector('input#emailAddress').send_keys(f'{self.timestamp}@qq.com')
             self.driver.find_element_by_css_selector('button.ant-btn.ant-btn-primary').click()
             time.sleep(3)
@@ -46,20 +51,17 @@ class SCuser(SCcommon):
         except:
             print(traceback.format_exc())
 
-    def action_first_user(self):
-        move = self.driver.find_element_by_css_selector("div.ant-table-title div.custom_other_btn_right:nth-child(1)")
-        ActionChains(self.driver).move_to_element(move).perform()  # 移动焦点让左侧菜单栏收回
+    def action_first_user(self):#用户栏焦点
+        self.sc_u1.move_chains_css("div.ant-table-title div.custom_other_btn_right:nth-child(1)")  # 移动焦点让左侧菜单栏收回
         time.sleep(3)
-        move = self.driver.find_element_by_css_selector("tbody.ant-table-tbody>tr:nth-child(1)")
-        ActionChains(self.driver).move_to_element(move).perform()  # 移动鼠标到第一栏方便下面定位
+        self.sc_u1.move_chains_css("tbody.ant-table-tbody>tr:nth-child(1)")  # 移动鼠标到第一栏方便下面定位
 
-    def modify_user(self,):
+    def modify_user(self):#修改用户
         try:
             self.driver.implicitly_wait(10)
-            self.driver.refresh()#不加无法跳转
-            time.sleep(3)
-            self.click_user_setting('设置','用户管理')
-            self.driver.switch_to.frame('GM1ExternalFrame')
+            self.sc_u1.refresh_sleep()
+            self.sc_u1.click_user_setting('设置','用户管理')
+            self.sc_u1.enter_iframe("GM1ExternalFrame")
             time.sleep(3)
             self.action_first_user()
             time.sleep(1)
@@ -70,7 +72,7 @@ class SCuser(SCcommon):
             self.driver.find_element_by_css_selector('input#pwd').send_keys(sc_new_password)
             mobile_ele = self.driver.find_element_by_css_selector('input#mobile')
             mobile_ele.clear()
-            mobile_ele.send_keys(self.phoneNORandomGenerator())
+            mobile_ele.send_keys(self.sc_u1.phoneNORandomGenerator())
             email_ele = self.driver.find_element_by_css_selector('input#emailAddress')
             email_ele.clear()
             email_ele.send_keys(f'{self.timestamp}@qq.com')
@@ -81,13 +83,12 @@ class SCuser(SCcommon):
         except:
             print(traceback.format_exc())
 
-    def delete_user(self):
+    def delete_user(self):#删除用户
         try:
             self.driver.implicitly_wait(10)
-            self.driver.refresh()  # 不加无法跳转
-            time.sleep(3)
-            self.click_user_setting('设置','用户管理')
-            self.driver.switch_to.frame('GM1ExternalFrame')
+            self.sc_u1.refresh_sleep()
+            self.sc_u1.click_user_setting('设置','用户管理')
+            self.sc_u1.enter_iframe("GM1ExternalFrame")
             self.action_first_user()
             time.sleep(1)
             menu = self.driver.find_element_by_css_selector("tbody.ant-table-tbody td input")
@@ -102,12 +103,13 @@ class SCuser(SCcommon):
 
 if __name__ == '__main__':
     s1 = SCuser()
-    s1.open_broswer()
-    s1.sc_login('sc_lzb','a111111')
+    s1.sc_u1.open_broswer()
+    s1.sc_u1.sc_login('sc_lzb','a111111')
     s1.add_user()
     s1.modify_user()
     s1.delete_user()
-    s1.close_broswer()
+    s1.sc_u1.close_broswer()
+
 
 
 

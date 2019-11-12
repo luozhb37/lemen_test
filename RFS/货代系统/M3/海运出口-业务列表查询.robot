@@ -134,7 +134,7 @@ Resource          ../../Resources/M3基础操作/M3--引用.txt
     [Return]    ${BUSINESSNO-SUIT-SEAEXPORT}
 
 日期初始化
-    ${ACCEPT-DATE}    当前日期加减天数    +0    #接单日期
+    ${ACCEPT-DATE}=    当前日期加减天数    +0    #接单日期
     ${etc-day}    当前日期加减天数    +1    #截关日期
     ${ETC-DATE}    catenate    ${etc-day}    09:06:08
     ${PLAN-ETD-DATE}    当前日期加减天数    +2    #预配船期

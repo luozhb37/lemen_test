@@ -31,7 +31,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 整箱列表运价查询
     [Arguments]    ${sign}
-    进入框架    id=content
+    进入主页面框架
     点击    id=div_advancedConditionsBY
     点击    xpath=//a[@href="javascript:setAdvancedSelect('signflag');"]
     输入    id=advancedConditionsValue    ${sign}
@@ -41,31 +41,31 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     [Return]    ${count}=
 
 点击全选按钮
-    进入框架    id=content
+    进入主页面框架
     点击    id=sheet_row_select_all    #点击全选
     离开框架
 
 海运整箱-发布
-    进入框架    id=content
+    进入主页面框架
     点击链接    发布运价
     离开框架
 
 获取整箱列表记录数
-    进入框架    id=content
+    进入主页面框架
     ${result}    获取页面文本内容    xpath=//span[@class='view-page']
     ${num}    截取字符    ${result}    共    条
     离开框架
     [Return]    ${num}
 
 删除整箱运价
-    进入框架    id=content
+    进入主页面框架
     点击    xpath=//a[text()='删除']
     离开框架
     点击    xpath=//span[text()='确认']/..
 
 海运整箱船公司查询
     [Arguments]    ${sign}
-    进入框架    id=content
+    进入主页面框架
     点击    id=div_advancedConditionsBY
     点击    xpath=//a[@href="javascript:setAdvancedSelect('carrier');"]
     输入    id=advancedConditionsValue    ${sign}

@@ -7,8 +7,9 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
 *** Test Cases ***
 客商资料--新增
     [Documentation]    客商的用例都需要依赖该新增关键字，除非 其它的用例，自己组装传入客户名称，也是可以的
-    进入指定一级菜单    客商
-    进入指定二级菜单(新icon)    资
+    进入菜单页面(第三版)    客商    客商资料
+    #进入指定一级菜单    客商
+    #进入指定二级菜单(新icon)    资
     ${customer-fullname}    生成一个带有字符的随机数    ks
     ${code}    生成一个带有字符的随机数
     新增客商    ${customer-fullname}    ${code}
@@ -22,8 +23,9 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     ...    1. 若系统参数控制手机是必填项，则控制联系人里面手机号唯一；若选择电话为必填，则 电话、手机没有唯
     ...
     ...    一控制
-    进入指定一级菜单    客商
-    进入指定二级菜单(新icon)    资
+    进入菜单页面(第三版)    客商    客商资料
+    #进入指定一级菜单    客商
+    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}    # ${customer-fullname}
     进入客商详情    ${customer-fullname}    # ${customer-fullname}
     ${name1}    生成一个带有字符的随机数    contact1
@@ -55,8 +57,9 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     ...    若是 委托客户、供应商、经营单位这三类客商类别，则必须要存在一条业务关键人
     ...
     ...    所以，这里的删除的结果是依赖于 仅存在一条业务关键人的前提下进行的
-    进入指定一级菜单    客商
-    进入指定二级菜单(新icon)    资
+    进入菜单页面(第三版)    客商    客商资料
+    #进入指定一级菜单    客商
+    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}
     进入客商详情    ${customer-fullname}    # ${customer-fullname}
     点击客商详情内的tab    联系方式
@@ -76,8 +79,9 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     ...    AND    切换窗口
 
 收发通--新增
-    进入指定一级菜单    客商
-    进入指定二级菜单(新icon)    资
+    进入菜单页面(第三版)    客商    客商资料
+    #进入指定一级菜单    客商
+    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}
     进入客商详情    ${customer-fullname}    # ${customer-fullname}
     点击客商详情内的tab    联系方式
@@ -95,8 +99,9 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     切换窗口
 
 收发通--删除
-    进入指定一级菜单    客商
-    进入指定二级菜单(新icon)    资
+    进入菜单页面(第三版)    客商    客商资料
+    #进入指定一级菜单    客商
+    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}
     进入客商详情    ${customer-fullname}
     点击客商详情内的tab    联系方式
@@ -110,8 +115,9 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     ...    AND    切换窗口
 
 客商自己集团内--关联
-    进入指定一级菜单    客商
-    进入指定二级菜单(新icon)    资
+    进入菜单页面(第三版)    客商    客商资料
+    #进入指定一级菜单    客商
+    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}
     #维护关联公司
     进入客商详情    ${customer-fullname}    # ${customer-fullname}
@@ -126,8 +132,9 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     [Teardown]
 
 客商自己集团内--删除
-    进入指定一级菜单    客商
-    进入指定二级菜单(新icon)    资
+    进入菜单页面(第三版)    客商    客商资料
+    #进入指定一级菜单    客商
+    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}
     进入客商详情    ${customer-fullname}
     点击客商详情内的tab    关联公司
@@ -140,8 +147,9 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     ...    AND    切换窗口
 
 关联客户--关联
-    进入指定一级菜单    客商
-    进入指定二级菜单(新icon)    资
+    进入菜单页面(第三版)    客商    客商资料
+    #进入指定一级菜单    客商
+    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}
     进入客商详情    ${customer-fullname}
     点击客商详情内的tab    关联公司
@@ -155,8 +163,9 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     切换窗口
 
 关联客户--删除
-    进入指定一级菜单    客商
-    进入指定二级菜单(新icon)    资
+    进入菜单页面(第三版)    客商    客商资料
+    #进入指定一级菜单    客商
+    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}
     进入客商详情    ${customer-fullname}
     点击客商详情内的tab    关联公司
@@ -171,8 +180,9 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     ...    AND    切换窗口
 
 银行账户信息--新增
-    进入指定一级菜单    客商
-    进入指定二级菜单(新icon)    资
+    进入菜单页面(第三版)    客商    客商资料
+    #进入指定一级菜单    客商
+    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}    # ${customer-fullname}
     进入客商详情    ${customer-fullname}
     ${shortname}    生成一个带有字符的随机数    银行简称
@@ -187,8 +197,9 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     切换窗口
 
 银行账户信息--复制
-    进入指定一级菜单    客商
-    进入指定二级菜单(新icon)    资
+    进入菜单页面(第三版)    客商    客商资料
+    #进入指定一级菜单    客商
+    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}    #${customer-fullname}
     进入客商详情    ${customer-fullname}
     点击客商详情内的tab    结算信息
@@ -201,8 +212,9 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     ...    AND    切换窗口
 
 银行账户信息--删除
-    进入指定一级菜单    客商
-    进入指定二级菜单(新icon)    资
+    进入菜单页面(第三版)    客商    客商资料
+    #进入指定一级菜单    客商
+    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}
     进入客商详情    ${customer-fullname}
     点击客商详情内的tab    结算信息
@@ -215,8 +227,9 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     ...    AND    切换窗口
 
 开票信息--新增
-    进入指定一级菜单    客商
-    进入指定二级菜单(新icon)    资
+    进入菜单页面(第三版)    客商    客商资料
+    #进入指定一级菜单    客商
+    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}
     进入客商详情    ${customer-fullname}    # ${customer-fullname}
     点击客商详情内的tab    结算信息
@@ -231,8 +244,9 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     切换窗口
 
 开票信息--复制
-    进入指定一级菜单    客商
-    进入指定二级菜单(新icon)    资
+    进入菜单页面(第三版)    客商    客商资料
+    #进入指定一级菜单    客商
+    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}
     进入客商详情    ${customer-fullname}
     点击客商详情内的tab    结算信息
@@ -247,8 +261,9 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     ...    AND    切换窗口
 
 开票信息--删除
-    进入指定一级菜单    客商
-    进入指定二级菜单(新icon)    资
+    进入菜单页面(第三版)    客商    客商资料
+    #进入指定一级菜单    客商
+    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}
     进入客商详情    ${customer-fullname}
     点击客商详情内的tab    结算信息
@@ -264,8 +279,9 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
 
 账单信息---新增
     [Documentation]    若本来就存在一条记录，则点击新增按钮会直接报错，这样可以知道 该功能脚本没有运行
-    进入指定一级菜单    客商
-    进入指定二级菜单(新icon)    资
+    进入菜单页面(第三版)    客商    客商资料
+    #进入指定一级菜单    客商
+    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}
     进入客商详情    ${customer-fullname}
     点击客商详情内的tab    结算信息
@@ -284,8 +300,9 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     Comment    ${month}    Evaluate    int(${month})
     ${day}    Evaluate    time.strftime('%d',time.localtime(time.time()))    time    # 获取当天所在日
     Comment    ${day}    Evaluate    int(${day})
-    进入指定一级菜单    客商
-    进入指定二级菜单(新icon)    资
+    进入菜单页面(第三版)    客商    客商资料
+    #进入指定一级菜单    客商
+    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}    # ${customer-fullname}
     进入客商详情    ${customer-fullname}    # ${customer-fullname}
     点击客商详情内的tab    结算信息

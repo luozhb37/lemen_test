@@ -23,7 +23,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     Wait Until Page Contains    海运出口    timeout=3    error=失败
     ${pages}    海运出口列表查询业务编号    ${bussinessNO-seaexport-LCL}
     应该包含    ${pages}    共1条
-    进入框架    id=content
+    进入主页面框架
     勾选记录    xpath=//div[@class='ant-table-body-inner']//tbody/tr/td[1]//input    #勾选第一条
     点击    xpath=//span[text()='复制新增']/..    #点击复制新增按钮
     勾选记录    xpath=//span[text()='SI信息']/../span/input    #勾选SI信息复选框

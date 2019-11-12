@@ -4,7 +4,7 @@ Resource          ../GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
 *** Keywords ***
 去除管理员权限
     [Arguments]    ${u_name}
-    进入框架    id=content
+    进入主页面框架
     点击    xpath=//a[contains(@href,"${u_name}&name=")][@title='权限管理']
     离开框架
     进入框架    xpath=//iframe[contains(@id,"win_")][contains(@src,"${u_name}")]
@@ -72,7 +72,7 @@ Resource          ../GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     点击系统设置（主菜单）
     点击公司管理
     点击组织结构
-    进入框架    id=content
+    进入主页面框架
     : FOR    ${i}    IN    @{init_depart}
     \    Exit For Loop If    '${u_depart}' == '${i}'    #若重复部门，则退出循环
     \    ${u_depart}    set variable    ${i}
@@ -89,7 +89,7 @@ Resource          ../GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     点击    xpath=//button[@class='btn btn-primary']    #点击【保存】
     离开框架
     点击    xpath=//a[@target='content'][contains(text(),"组织结构")]    #点【组织结构】,刷新结构树
-    进入框架    id=content
+    进入主页面框架
     检查元素存在内容    xpath=//span[text()='${u_depart}']    ${u_depart}    #检查页面是否包含新增的部门
 
 增减用户权限
@@ -131,7 +131,7 @@ Resource          ../GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     [Arguments]    ${u_type}    ${u_value}
     [Documentation]    \#根据{u_type}判断按‘工号’OR ‘姓名’定位
     ${del_info}=    Set Variable If    '${u_type}' == '工号'    xpath=//div[@class='datagrid-cell datagrid-cell-c1-personCode'][text()='${u_value}']/../following-sibling::td[@field='operation']/div/a[text()='删除']    xpath=//a[@title='用户详情'][text()='${u_value}']/../../following-sibling::td[@field='operation']/div/a[text()='删除']    #根据{u_type}判断按‘工号’OR ‘姓名’定位
-    进入框架    id=content
+    进入主页面框架
     点击    ${del_info}    #根据参数（工号OR姓名）判断，点【删除】
     点击    xpath=//span[text()='确定']    #点【确定】删除
     wait until page contains    删除成功    timeout=5    error=删除失败
@@ -141,7 +141,7 @@ Resource          ../GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     [Arguments]    ${u_type}    ${u_value}
     [Documentation]    \#根据{u_type}判断按‘工号’OR ‘姓名’定位
     ${active_info}=    Set Variable If    '${u_type}' == '工号'    xpath=//div[@class='datagrid-cell datagrid-cell-c1-personCode'][text()='${u_value}']/../..@datagrid-row-index    xpath=//a[@title='用户详情'][text()='${u_value}']/../../..@datagrid-row-index    #根据{u_type}判断按‘工号’OR ‘姓名’定位
-    进入框架    id=content
+    进入主页面框架
     ${u_index}    Get Element Attribute    ${active_info}    #按【工号、姓名】获得员工所在行index,用于勾选
     log    ${u_index}
     点击    xpath=//tr[@id='datagrid-row-r1-1-${u_index}']/td[@field='ck']    #根据${u_index}确定勾选第X个记录
@@ -156,7 +156,7 @@ Resource          ../GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
 
 员工查询
     [Arguments]    ${u_all_name}
-    进入框架    id=content
+    进入主页面框架
     输入    id=name    ${u_all_name}    #输入【姓名】
     点击    //span[text()="查 询"]/..    #点【查询】
     page should contain    ${u_all_name}    #验证：检索结果是否1条，确保绑定正确（注：测试环境犹豫一个数据，返回结果按GM1-库和老货代库同步检索后拼接，导致2条。生产、准生产则显示1条）
@@ -212,7 +212,7 @@ Resource          ../GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     set suite variable    ${set_user_rights}    加权限    #调整个别权限；若值=加权限，则给用户增加权限
 
 升级为用户
-    进入框架    id=content
+    进入主页面框架
     点击    xpath=(//table/tbody/tr[1]//input)[last()]
     点击    xpath=//span[text()='升级为用户']/..
     gm1弹出框确认
@@ -220,7 +220,7 @@ Resource          ../GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     离开框架
 
 员工删除（新）
-    进入框架    id=content
+    进入主页面框架
     点击    xpath=(//table/tbody/tr[1]//input)[last()]
     点击    xpath=//span[text()='删 除']/..
     gm1弹出框确认

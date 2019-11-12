@@ -75,7 +75,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 铁路出口列表查询
     [Arguments]    ${bussinessNO}
-    进入列表框架
+    进入主页面框架
     输入    id=businessNumbers    ${bussinessNO}    #各类编号查询业务订单
     等待    1
     点击    xpath=//span[text()='查 询']/..

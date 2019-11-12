@@ -20,7 +20,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     点击基础资料
     进入指定二级菜单    企业基础资料    货物来源
     等待加载层消失
-    进入列表框架
+    进入主页面框架
     ${return}    货物来源-查询    ${QYgoodsSource}    启用
     应该包含    ${return}    共1条
     #点击禁用
@@ -50,7 +50,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     点击基础资料
     进入指定二级菜单    企业基础资料    服务类型
     等待加载层消失
-    进入列表框架
+    进入主页面框架
     ${return}    服务类型-查询    ${QYserviceName}    启用
     应该包含    ${return}    共1条
     #点击禁用
@@ -74,7 +74,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     费用税率--新增    ${time}    ${time}    CNY
     费用税率--查询    ${time}
     #验证数据
-    进入列表框架
+    进入主页面框架
     ${result}    获取页面数据条数
     应该要相等（数字）    ${result}    1
     离开框架
@@ -82,7 +82,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     费用税率--查询    ${time}
     费用税率--删除
     #验证数据
-    进入列表框架
+    进入主页面框架
     ${result}    获取页面列表条数    费用项目列表
     应该要相等（数字）    ${result}    0
     离开框架
@@ -98,25 +98,25 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     点击企业基础资料
     点击浮动汇率
     浮动汇率--查询    WYC    CNY    记账汇率    #验证记账汇率
-    进入列表框架
+    进入主页面框架
     ${新增前}    获取页面列表条数    浮动汇率列表
     离开框架
     Run Keyword If    '${新增前}'>'0'    浮动汇率--删除    #保证数据不重复
     浮动汇率--新增    WYC    CNY    记账汇率    5    4    6
     #验证数据
     浮动汇率--查询    WYC    CNY    记账汇率    #验证记账汇率
-    进入列表框架
+    进入主页面框架
     ${新增后}    获取页面列表条数    浮动汇率列表
     应该要相等（数字）    ${新增后}    1
     离开框架
     #记账汇率删除
     浮动汇率--查询    WYC    CNY    记账汇率
-    进入列表框架
+    进入主页面框架
     ${删除前}    获取页面列表条数    浮动汇率列表
     离开框架
     浮动汇率--删除
     #验证数据
-    进入列表框架
+    进入主页面框架
     ${删除后}    获取页面列表条数    浮动汇率列表
     应该要相等（数字）    ${删除后}    0
     离开框架
@@ -130,7 +130,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     账户类型--新增    ${time}
     账户类型--查询    ${time}
     #验证数据
-    进入列表框架
+    进入主页面框架
     ${result}    获取页面数据条数
     应该要相等（数字）    ${result}    1
     离开框架
@@ -138,7 +138,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     账户类型--查询    ${time}
     账户类型--删除
     #验证数据
-    进入列表框架
+    进入主页面框架
     ${result}    获取页面列表条数    银行类型列表
     应该要相等（数字）    ${result}    0
     离开框架
@@ -158,7 +158,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     银行账户--新增    ${time}    312312    公账    CNY
     银行账户--查询    ${time}
     #验证数据
-    进入列表框架
+    进入主页面框架
     ${result}    获取页面数据条数
     应该要相等（数字）    ${result}    1
     离开框架
@@ -166,7 +166,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     银行账户--查询    ${time}
     银行账户--删除
     #验证数据
-    进入列表框架
+    进入主页面框架
     ${result}    获取页面列表条数    银行类型列表
     应该要相等（数字）    ${result}    0
     离开框架
@@ -176,24 +176,24 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     点击企业基础资料
     点击发票类别
     #新增发票组
-    进入列表框架
+    进入主页面框架
     ${新增前}    获取匹配xpath的个数    xpath=//table[@id='qp_base_invoicetypes_tbl5']/tbody/tr
     离开框架
     ${time}    get time    epoch
     发票组--新增    code-${time}    name-${time}    type-${time}    ${time}
     #验证数据
-    进入列表框架
+    进入主页面框架
     ${新增后}    获取匹配xpath的个数    xpath=//table[@id='qp_base_invoicetypes_tbl5']/tbody/tr
     ${实际值1}    Evaluate    ${新增后}-${新增前}
     应该要相等（数字）    ${实际值1}    1
     离开框架
     #删除发票组
-    进入列表框架
+    进入主页面框架
     ${删除前}    获取匹配xpath的个数    xpath=//table[@id='qp_base_invoicetypes_tbl5']/tbody/tr
     离开框架
     发票组--删除    name-${time}
     #验证数据
-    进入列表框架
+    进入主页面框架
     ${删除后}    获取匹配xpath的个数    xpath=//table[@id='qp_base_invoicetypes_tbl5']/tbody/tr
     ${实际值2}    Evaluate    ${删除前}-${删除后}
     应该要相等（数字）    ${实际值2}    1
@@ -224,7 +224,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     点击企业基础资料
     点击异常类型
     等待加载层消失
-    进入列表框架
+    进入主页面框架
     ${QYerrType}    Get Timestamp    #异常类型
     ${return}    异常类型-查询    海运出口整箱    订单
     应该包含    ${return}    共1条

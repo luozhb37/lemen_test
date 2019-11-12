@@ -22,7 +22,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 点击订单中心
     点击    xpath=//a[@href='/fms-front/#/orderCenterList']
-    进入列表框架
+    进入主页面框架
     Wait Until Element Is Enabled    xpath=//li[@class='ant-pagination-total-text']    30
     离开框架
 
@@ -36,7 +36,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     点击    xpath=//li[contains(text(),'${content}')]    #选中下拉框的一条记录
 
 点击新增
-    进入列表框架
+    进入主页面框架
     点击    xpath=//span[contains(text(),'新 增')]/..
     离开框架
 
@@ -45,13 +45,13 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 点击运价查询
     点击    xpath=//a[@href="/freight-efcl-front/#/freightList"]
-    进入列表框架
+    进入主页面框架
     Page Should Contain    请输入必选条件【目的港】查询运价
     离开框架
 
 订单列表查询
     [Arguments]    ${workno}    # 各状态对应的id
-    进入列表框架
+    进入主页面框架
     输入    id=businessNumber    ${workno}
     点击    xpath=//span[text()='查 询']/..
     wait until element is not visible    xpath=//div[@class='ant-spin-container ant-spin-blur']    timeout=20    #等待进度条消失
@@ -71,21 +71,21 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 进入订单详情
     [Arguments]    ${workno}
     等待    1
-    进入列表框架
+    进入主页面框架
     点击    xpath=//a[text()='${workno}']
     离开框架
 
 点击审单中心
     点击    xpath=//a[@href="/fms-front/#/orderAuditCenterList"]
     #为了等待列表加载出来再进行操作
-    进入列表框架
+    进入主页面框架
     Wait Until Page Contains    每页15条    timeout=20
     离开框架
     mouse out    xpath=//a[@href="/fms-front/#/orderAuditCenterList"]
 
 点击状态tab
     [Arguments]    ${status}
-    进入列表框架
+    进入主页面框架
     点击    id=${status}    #订单状态状态查询
     wait until element is not visible    xpath=//div[@class='ant-spin-container ant-spin-blur']    timeout=20    #等待进度条消失
     离开框架
@@ -145,12 +145,12 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 点击占舱中心
     点击    xpath=//a[@href="/fms-front/#/forClassCenterList"]
-    进入列表框架
+    进入主页面框架
     Wait Until Element Is Enabled    xpath=//span[contains(text(),'新 增')]/..
     离开框架
 
 获取订单列表记录数
-    进入列表框架
+    进入主页面框架
     Wait Until Element Is Enabled    xpath=//li[@class='ant-pagination-total-text']
     ${content}    获取页面文本内容    xpath=//li[@class='ant-pagination-total-text']
     离开框架
@@ -158,7 +158,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 复制新增
     [Arguments]    ${type}    #复制订单/业务
-    进入列表框架
+    进入主页面框架
     点击    xpath=//div[@id='OPERATION_COLUMN0_0']//a[contains(text(), '操作')]    #点击列表第一条数据的操作按钮
     Wait Until Element Is Visible    xpath=//div[contains(@class, 'ant-dropdown-placement-bottomLeft')]
     点击    xpath=//div[contains(@class, 'ant-dropdown-placement-bottomLeft')]//li[text()='${type}']
@@ -167,7 +167,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     离开框架
 
 点击删除
-    进入列表框架
+    进入主页面框架
     点击    xpath=//span[contains(text(),'删 除')]/..
     Wait Until Element Is Enabled    xpath=//span[contains(text(),'确 定')]/..
     点击    xpath=//span[contains(text(),'确 定')]/..
@@ -176,7 +176,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     等待    1
 
 勾选列表第一条记录
-    进入列表框架
+    进入主页面框架
     勾选记录    xpath=//table//tbody//tr[1]//input
     离开框架
 
@@ -184,7 +184,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     [Arguments]    ${unit}    ${price}
     [Documentation]    默认批量维护底价
     勾选列表第一条记录
-    进入列表框架
+    进入主页面框架
     点击    xpath=//span[contains(text(),'批量维护')]/..
     点击    xpath=//span[contains(text(),'新 增')]/..
     #计费单位
@@ -329,12 +329,12 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     [Documentation]    避免操作等页面显示该费用时需要维护一些字段，故不允许订单的费用显示在 操作的tab 上
     点击    xpath=//a[@href="/modelhome3/applogin?currentMenu=tr_m4_baseinfo"]
     点击    xpath=//a[@href="/fms-front/#/baseInfo/business/GoodsSource"]/i
-    进入列表框架
+    进入主页面框架
     Wait Until Element Is Visible    css=.ant-pagination-total-text
     离开框架
     #点击费用税率
     点击    xpath=//ul[@class='menu']/li[3]/a
-    进入列表框架
+    进入主页面框架
     输入    id=noKeyword    海运费
     点击    xpath=//span[text()='查 询']/..
     点击    xpath=//td[text()="海运费"]/../td[3]/a
@@ -384,7 +384,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 新增订单弹出框
     [Arguments]    ${businesstype}    ${serviceRuleTypeCode}    #业务类型|#服务类型
-    进入列表框架
+    进入主页面框架
     Wait Until Element Is Visible    xpath=//label[text()='业务类型']
     新增订单选择业务类型    ${businesstype}
     新增订单选择委托单位
@@ -404,19 +404,19 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     离开框架
 
 运价查询列表勾选第一条记录
-    进入列表框架
+    进入主页面框架
     Wait Until Element Is Visible    xpath=//table//tr/td[2]/input
     勾选记录    xpath=//table//tr/td[2]/input    #勾选第一条运价记录
     离开框架
 
 列表点击生成订单按钮
-    进入列表框架
+    进入主页面框架
     点击    xpath=//span[text()='生成订单']/..
     离开框架
 
 查询起运港
     [Arguments]    ${loadport}
-    进入列表框架
+    进入主页面框架
     输入    css=.ant-input ant-select-search__field    ${loadport}
     点击    xpath=//span[text()='查 询']/..
     离开框架
@@ -509,7 +509,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 设置订单参数
     点击系统设置（主菜单）
     点击系统设置（菜单）
-    进入框架    id=fms-front
+    进入主页面框架
     设置业务参数(单选)    订舱代理手动输入无效    否
     设置业务参数(单选)    船公司手动输入无效    否
     设置业务参数(单选)    港口及航线手动输入无效    否

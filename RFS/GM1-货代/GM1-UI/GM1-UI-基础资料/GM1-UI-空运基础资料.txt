@@ -11,7 +11,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-公用.txt
     点击基础资料
     进入指定二级菜单    业务基础资料    空运基础资料    # 进入空运基础资料菜单
     点击    xpath=//a[text()='空运机场']    # 点击空运机场菜单
-    进入框架    id=content
+    进入主页面框架
     ${count}    查询是否存在测试机场    yjc
     Run Keyword If    ${count}>0    删除机场第一条数据
     Comment    ${str}    生成指定位数的随机字符串    3    True
@@ -25,7 +25,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-公用.txt
     点击基础资料
     进入指定二级菜单    业务基础资料    空运基础资料    # 进入空运基础资料菜单
     点击    xpath=//a[text()='空运机场']    # 点击空运机场菜单
-    进入框架    id=content
+    进入主页面框架
     ${count}    查询是否存在测试机场    yst
     Run Keyword If    ${count}==0    新增机场    yst    test_airport    # 如果没有则新增测试机场
     点击    xpath=//a[text()='YST']    # 点击第一条数据
@@ -42,7 +42,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-公用.txt
     点击基础资料
     进入指定二级菜单    业务基础资料    空运基础资料    # 进入空运基础资料菜单
     点击    xpath=//a[text()='空运机场']    # 点击空运机场菜单
-    进入框架    id=content
+    进入主页面框架
     ${count}    查询是否存在测试机场    yst
     Run Keyword If    ${count}==0    新增机场    yst    add_airport    # 无数据时新增一条
     点击    xpath=//table/tbody/tr[1]//input    # 点击checkbox
@@ -57,7 +57,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-公用.txt
     点击基础资料
     进入指定二级菜单    业务基础资料    空运基础资料    # 进入空运基础资料菜单
     点击    xpath=//a[text()='空运机场']    # 点击空运机场菜单
-    进入框架    id=content
+    进入主页面框架
     ${count}    查询是否存在测试机场    yst
     Run Keyword If    ${count}==0    新增机场    yst    add_airport    # 无数据时新增一条
     删除机场第一条数据
@@ -73,7 +73,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-公用.txt
     点击基础资料
     进入指定二级菜单    业务基础资料    空运基础资料    # 进入空运基础资料菜单
     点击    xpath=//a[text()='空运航线']    # 点击空运航线菜单
-    进入框架    id=content
+    进入主页面框架
     ${count}    获取列表数量    xpath=//li[@class='ant-pagination-total-text']
     ${exp_count}    Evaluate    int(${count})+1    # 原列表数+1作为最后期望值
     点击    xpath=//span[text()='新 增']/..    # 点击新增按钮
@@ -86,7 +86,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-公用.txt
     点击基础资料
     进入指定二级菜单    业务基础资料    空运基础资料    # 进入空运基础资料菜单
     点击    xpath=//a[text()='空运航线']    # 点击空运航线菜单
-    进入框架    id=content
+    进入主页面框架
     输入    id=cnname    测试航线
     点击    xpath=//span[text()='查 询']/..
     ${count}    获取列表数量    xpath=//li[@class='ant-pagination-total-text']
@@ -95,7 +95,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-公用.txt
     run keyword if    ${count}==1    点击    id=bt_add
     ...    AND    离开框架
     ...    AND    新增航线
-    ...    AND    进入框架    id=content
+    ...    AND    进入主页面框架
     点击    xpath=//table[@id='qp_base_airroutes_tbl5']/tbody/tr[2]/td[2]/input
     点击    id=bt_delete
     页面弹出框选择确定
@@ -110,7 +110,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-公用.txt
     点击基础资料
     进入指定二级菜单    业务基础资料    空运基础资料    # 进入空运基础资料菜单
     点击    xpath=//a[text()='航班信息']    # 点击航班信息菜单
-    进入框架    id=content
+    进入主页面框架
     ${count}    获取匹配xpath的个数    xpath=//table/tbody/tr
     ${count}    run keyword if    ${count}>1    run keywords    获取页面文本内容    xpath=//span[@class='view-page']
     ...    AND    截取字符    ${text}    共    条
@@ -125,7 +125,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-公用.txt
     点击基础资料
     进入指定二级菜单    业务基础资料    空运基础资料    # 进入空运基础资料菜单
     点击    xpath=//a[text()='航班信息']    # 点击航班信息菜单
-    进入框架    id=content
+    进入主页面框架
     查询航班    testflight
     ${count}    获取匹配xpath的个数    xpath=//table/tbody/tr
     ${exp_count}    run keyword if    ${count}==0    Evaluate    0

@@ -52,7 +52,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     ${pages}    铁路出口列表查询    ${WORKNO-Railway export}
     应该包含    ${pages}    共1条
     #点击业务编号进入详情
-    进入列表框架
+    进入主页面框架
     等待    2
     点击    xpath=//div[@class='ant-table-body-inner']//a[text()='${WORKNO-Railway export}']
     离开框架

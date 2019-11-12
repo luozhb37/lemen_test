@@ -3,7 +3,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 *** Keywords ***
 费用列表--按费用页面高级查询
-    [Arguments]    ${key}    ${value}    ${is_clear}=1
+    [Arguments]    ${key}    ${value}
     [Documentation]    key:高级查询条件名
     ...
     ...    value：高级查询条件查询内容
@@ -13,7 +13,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     ...    is_clear：1/0 \ \ \ 是否清空已存在的查询条件内容；1表示需要清空；0表示不需要清空
     Wait Until Element Is Visible    xpath=//div[@id='dzg-adsearch']//a[text()='高级查询']
     点击    xpath=//div[@id='dzg-adsearch']//a[text()='高级查询']
-    基石列表高级查询-内部不可引用(单列)    ${key}    ${value}    ${is_clear}
+    基石列表高级查询-内部不可引用(单列)    ${key}    ${value}    0
     点击    xpath=//div[@class='ant-modal-content']//span[text()='查询']/..    # 点击查询按钮
     等待loading消失
 
@@ -27,8 +27,17 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     等待loading消失
 
 新增对账单--按工作单页面查询
-    [Arguments]    ${worknumber}
-    清空输入框内容    id=multi_numberList
+    [Arguments]    ${customername}    ${worknumber}
+    点击    xpath=//label[@title='结算对象']/../..//div[@class='ant-select-selection__rendered']
+    输入    xpath=//label[@title='结算对象']/../..//div[@class='ant-select-selection__rendered']//input    ${customername}
+    输入    id=multi_numberList    ${worknumber}
+    点击    xpath=//span[text()='查 询']/..
+    等待loading消失
+
+新增对账单--按账单页面查询
+    [Arguments]    ${customername}    ${worknumber}
+    点击    xpath=//label[@title='结算对象']/../..//div[@class='ant-select-selection__rendered']
+    输入    xpath=//label[@title='结算对象']/../..//div[@class='ant-select-selection__rendered']//input    ${customername}
     输入    id=multi_numberList    ${worknumber}
     点击    xpath=//span[text()='查 询']/..
     等待loading消失
@@ -55,10 +64,10 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     等待loading消失
 
 收款单管理页面查询
-    [Arguments]    ${key}    ${value}    ${is_clear}=1
+    [Arguments]    ${key}    ${value}
     Wait Until Element Is Visible    xpath=//div[@id='dzg-adsearch']//a[text()='高级查询']
     点击    xpath=//div[@id='dzg-adsearch']//a[text()='高级查询']
-    基石列表高级查询-内部不可引用(单列)    ${key}    ${value}    ${is_clear}
+    基石列表高级查询-内部不可引用(单列)    ${key}    ${value}    0
     点击    xpath=//div[@class='ant-modal-content']//span[text()='查询']/..    # 点击查询按钮
     等待loading消失
 
@@ -99,24 +108,24 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 付款单管理--待付款待核销页面查询
     [Arguments]    ${待付款单号}
-    清空所有搜索条件
+    清除搜索条件(老版)
     输入    id=noKeywordList    ${待付款单号}
     点击    xpath=//span[text()='查 询']/..
     等待loading消失
 
 核销记录(收款)页面查询
-    [Arguments]    ${key}    ${value}    ${is_clear}=1
+    [Arguments]    ${key}    ${value}
     Wait Until Element Is Visible    xpath=//div[@id='dzg-adsearch']//a[text()='高级查询']
     点击    xpath=//div[@id='dzg-adsearch']//a[text()='高级查询']
-    基石列表高级查询-内部不可引用(单列)    ${key}    ${value}    ${is_clear}
+    基石列表高级查询-内部不可引用(单列)    ${key}    ${value}    0
     点击    xpath=//div[@class='ant-modal-content']//span[text()='查询']/..    # 点击查询按钮
     等待loading消失
 
 核销记录(付款)页面查询
-    [Arguments]    ${key}    ${value}    ${is_clear}=1
+    [Arguments]    ${key}    ${value}
     Wait Until Element Is Visible    xpath=//div[@id='dzg-adsearch']//a[text()='高级查询']
     点击    xpath=//div[@id='dzg-adsearch']//a[text()='高级查询']
-    基石列表高级查询-内部不可引用(单列)    ${key}    ${value}    ${is_clear}
+    基石列表高级查询-内部不可引用(单列)    ${key}    ${value}    0
     点击    xpath=//div[@class='ant-modal-content']//span[text()='查询']/..    # 点击查询按钮
     等待loading消失
 
@@ -139,8 +148,8 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     等待loading消失
 
 清空所有搜索条件
-    ${result}    Run Keyword And Return Status    Page Should Contain    xpath=//label[@title='搜索条件']
-    Run Keyword If    '${result}'=='True'    循环点击搜索条件叉叉
+    ${result}    获取匹配xpath的个数    xpath=//label[@title='搜索条件']
+    Run Keyword If    ${result}>0    循环点击搜索条件叉叉
 
 循环点击搜索条件叉叉
     ${return}    获取匹配xpath的个数    xpath=//label[@title='搜索条件']/../../../..//div[2]/div

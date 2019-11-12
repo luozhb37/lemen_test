@@ -4,14 +4,14 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 *** Keywords ***
 费用税率--查询
     [Arguments]    ${noKeyword}
-    进入列表框架
+    进入主页面框架
     输入    id=noKeyword    ${noKeyword}
     点击    xpath=//span[text()='查 询']/..
     离开框架
 
 费用税率--新增
     [Arguments]    ${code}    ${name}    ${currency}
-    进入列表框架
+    进入主页面框架
     点击列表按钮    新 增
     输入    id=code    ${code}    #输入代码
     输入    id=name    ${name}    #输入名称
@@ -21,15 +21,15 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     离开框架
 
 费用税率--删除
-    进入列表框架
+    进入主页面框架
     勾选全部
     点击列表按钮    删 除
     离开框架
 
 浮动汇率--查询
     [Arguments]    ${f_currency}    ${c_currency}    ${floatrate_type}
-    进入列表框架
-    清除搜素条件(条件按)
+    进入主页面框架
+    清除搜索条件(老版)
     #查询原币
     点击    xpath=//div[@class='ant-select-selection__placeholder']
     点击    xpath=//li[text()='原币']
@@ -50,7 +50,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 浮动汇率--新增
     [Arguments]    ${f_currency}    ${c_currency}    ${floatrate_type}    ${rate}    ${lower}    ${upper}
-    进入列表框架
+    进入主页面框架
     点击    xpath=//span[text()='新 增']/..    #点击新增
     #选择原币
     点击    xpath=//div[contains(@class,'fCurrency ant-select-lg ant-select')]//div[@class='ant-select-selection__rendered']
@@ -70,7 +70,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     离开框架
 
 浮动汇率--修改
-    进入列表框架
+    进入主页面框架
     点击    xpath=//a[contains(@href,'javascript:navigateUrl')]
     离开框架
     进入框架    xpath=//iframe[starts-with(@id,'win_')]
@@ -88,14 +88,14 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     等待    1
 
 浮动汇率--删除
-    进入列表框架
+    进入主页面框架
     勾选全部
     点击    xpath=//span[text()='删 除']/..    #点击删除
     等待    1
     离开框架
 
 删除所有满足条件的浮动汇率
-    进入列表框架
+    进入主页面框架
     勾选记录    name=SHEET_ROW_SELECT_ALL
     点击    id=bt_delete
     ${message}    confirm action    #点击确定
@@ -106,14 +106,14 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 账户类型--查询
     [Arguments]    ${name}
-    进入列表框架
+    进入主页面框架
     输入    id=keyword    ${name}
     点击    xpath=//span[text()='查 询']/..
     离开框架
 
 账户类型--新增
     [Arguments]    ${detailName}
-    进入列表框架
+    进入主页面框架
     点击    xpath=//span[text()='新 增']/..
     输入    id=detailName    ${detailName}
     点击    xpath=//div[@class='ant-radio-group ant-radio-group-large']//input[@class='ant-radio-input']    #选择默认
@@ -121,21 +121,21 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     离开框架
 
 账户类型--删除
-    进入列表框架
+    进入主页面框架
     勾选全部
     点击    xpath=//span[text()='删 除']/..    #点击删除
     离开框架
 
 银行账户--查询
     [Arguments]    ${bankcode}
-    进入列表框架
+    进入主页面框架
     输入    id=noKeyword    ${bankcode}
     点击    xpath=//span[text()='查 询']/..
     离开框架
 
 银行账户--新增
     [Arguments]    ${bankname}    ${bankaccount}    ${bankType}    ${currency}
-    进入列表框架
+    进入主页面框架
     点击列表按钮    新 增
     点击    xpath=//span[text()='是否默认']/..//input    #选择默认
     输入    id=name    ${bankname}    #开户行
@@ -150,14 +150,14 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     离开框架
 
 银行账户--删除
-    进入列表框架
+    进入主页面框架
     勾选全部
     点击列表按钮    删 除
     离开框架
 
 发票组--新增
     [Arguments]    ${code}    ${name}    ${infotypecode}    ${time}
-    进入列表框架
+    进入主页面框架
     点击    id=bt_add    #点击新增
     离开框架
     进入框架    xpath=//iframe[starts-with(@id,'win_')]
@@ -173,7 +173,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 发票组--删除
     [Arguments]    ${name}
-    进入列表框架
+    进入主页面框架
     勾选记录    xpath=//a[text()='${name}']/../..//input    #勾选发票组代码对应的勾选框
     点击    id=bt_delete    #点击删除
     ${message}    confirm action    #点击确定
@@ -184,7 +184,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 货物来源-新增
     [Arguments]    ${QYgoodsSource}
-    进入列表框架
+    进入主页面框架
     #等待加载层消失
     Wait Until Element Is Not Visible    xpath=//div[contains(@class,'ant-spin-spinning')]
     点击    xpath=//span[text()='新 增']/..
@@ -209,7 +209,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 服务类型-新增
     [Arguments]    ${QYserviceName}
     [Documentation]    ${QYserviceName}：服务类型
-    进入列表框架
+    进入主页面框架
     点击    xpath=//span[text()='新 增']/..
     输入    id=serviceName    ${QYserviceName}
     点击    xpath=//a[text()='全选']    #业务类型点击全选
@@ -234,7 +234,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     ...    ${QYadjunctType} ：附件类别（自己命名）
     ...
     ...    业务类型+业务模块+附件类别：唯一性
-    进入列表框架
+    进入主页面框架
     点击    xpath=//span[text()='新 增']/..
     #维护业务类型
     点击    xpath=//tbody[@class='ant-table-tbody']/tr[1]/td[2]//div[@class='ant-select-selection__rendered']    #每次点击新增以后，在第一行
@@ -285,7 +285,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 选择业务日期
     [Arguments]    ${name}    ${type}
-    进入列表框架
+    进入主页面框架
     点击    xpath=//td[text()='${name}']/../td[2]//div[contains(@class,'ant-select-selection-selected-value')]
     Wait Until Element Is Enabled    xpath=//ul[contains(@class,'ant-select-dropdown-menu-vertical')]
     点击    xpath=//ul[contains(@class,'ant-select-dropdown-menu-vertical')]//li[text()='${type}']

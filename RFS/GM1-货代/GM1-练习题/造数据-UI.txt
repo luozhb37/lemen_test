@@ -13,11 +13,11 @@ Library           String
     点击订单管理
     点击订单中心
     点击状态tab    draftBtn    #草稿状态
-    进入列表框架
+    进入主页面框架
     ${page}    获取元素属性值    xpath=//li[contains(@class,'ant-pagination-item')][last()]    title
     离开框架
     : FOR    ${i}    IN RANGE    ${page}
-    \    进入列表框架
+    \    进入主页面框架
     \    勾选记录    xpath=//input[@class='ant-checkbox-input']
     \    离开框架
     \    点击删除
@@ -58,7 +58,7 @@ Library           String
     \    log    ${i[1]}
     \    ${number1}    客商列表查询    ${i[1]}
     \    Continue For Loop If    ${number1}==0
-    \    进入列表框架
+    \    进入主页面框架
     \    #    点击    xpath=//span[text()='查 询']/..
     \    离开框架
     \    进入客商详情    ${i[1]}    #变量
@@ -238,7 +238,7 @@ Library           String
     点击公司管理
     点击员工管理
     #---导入员工
-    进入框架    id=content
+    进入主页面框架
     点击    xpath=//span[text()='导入用户']    #点【导入用户】
     choose file    name=file    ${load_file}
     点击    xpath=//button[text()='导入']
@@ -292,7 +292,7 @@ Library           String
     点击系统设置（主菜单）
     点击公司管理
     点击用户管理
-    进入框架    id=content
+    进入主页面框架
     ${index}    set variable    -1    #用于数组【index】取值，从=0开始，即从数组的第1个值取值
     ${depart_num}    Get Length    ${user_depart}    #获得部门LIST长度
     : FOR    ${i}    IN    @{user_name}
@@ -322,7 +322,7 @@ Library           String
     点击系统设置（主菜单）
     点击公司管理
     点击用户管理
-    进入框架    id=content
+    进入主页面框架
     ${index}    set variable    -1    #用于数组【index】取值，从=0开始，即从数组的第1个值取值
     ${depart_num}    Get Length    ${user_depart}    #获得部门LIST长度
     : FOR    ${i}    IN    @{user_name}
@@ -352,7 +352,7 @@ Library           String
     点击系统设置（主菜单）
     点击公司管理
     点击用户管理
-    进入框架    id=content
+    进入主页面框架
     ${index}    set variable    -1    #用于数组【index】取值，从=0开始，即从数组的第1个值取值
     ${depart_num}    Get Length    ${user_depart}    #获得部门LIST长度
     : FOR    ${i}    IN    @{user_name}
@@ -546,7 +546,7 @@ Library           String
     [Arguments]    ${i}
     进入客商列表
     客商列表查询    ${i}
-    进入列表框架
+    进入主页面框架
     ${result}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr
     应该要相等（数字）    ${result}    1
     离开框架

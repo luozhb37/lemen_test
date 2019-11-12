@@ -18,7 +18,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    通用基础资料
     点击其他基础资料
     等待加载层消失
-    进入框架    id=content
+    进入主页面框架
     ${count}    其他基础资料列表信息查询    ${code}
     Run Keyword If    ${count}==0    log    没有数据
     ...    ELSE    启用和禁用
@@ -38,7 +38,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    通用基础资料
     点击货物状态
     等待加载层消失
-    进入框架    id=content
+    进入主页面框架
     ${count}    货物状态信息列表查询    ${statusCode}
     Run Keyword If    ${count}==0    log    没有数据
     ...    ELSE    启用和禁用
@@ -52,7 +52,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     币别信息--新增    ${time}
     币别信息--查询    ${time}
     #验证数据
-    进入列表框架
+    进入主页面框架
     ${result}    获取页面数据条数
     应该要相等（数字）    ${result}    1
     离开框架
@@ -60,7 +60,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     币别信息--查询    ${time}
     币别信息--删除
     #验证数据
-    进入列表框架
+    进入主页面框架
     ${result}    获取页面列表条数    费用项目列表
     应该要相等（数字）    ${result}    0
     离开框架
@@ -80,7 +80,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    通用基础资料
     点击商品分类
     等待加载层消失
-    进入框架    id=content
+    进入主页面框架
     ${count}    商品分类信息列表查询    ${goodscode}
     Run Keyword If    ${count}==0    log    没有数据
     ...    ELSE    启用和禁用
@@ -119,7 +119,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    通用基础资料
     点击贸易方式
     等待加载层消失
-    进入框架    id=content
+    进入主页面框架
     ${count}    贸易信息列表查询    ${typecode}
     Run Keyword If    ${count}==0    log    没有数据
     ...    ELSE    启用和禁用
@@ -139,7 +139,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    通用基础资料
     点击成交方式
     等待加载层消失
-    进入框架    id=content
+    进入主页面框架
     ${count}    成交方式信息列表查询    ${dealcode}
     Run Keyword If    ${count}==0    log    没有数据
     ...    ELSE    启用和禁用
@@ -153,7 +153,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     结算类型--新增    ${time}
     结算类型--查询    ${time}
     #验证数据
-    进入列表框架
+    进入主页面框架
     ${实际值}    获取匹配xpath的个数    xpath=//table[@id='sp_base_settletype_tbl5']/tbody/tr
     ${预期值}    Evaluate    str(2)
     ${return}    run keyword and return status    应该要相等    ${实际值}    ${预期值}
@@ -162,7 +162,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     结算类型--查询    ${time}
     结算类型--删除
     #验证数据
-    进入列表框架
+    进入主页面框架
     ${实际值}    获取匹配xpath的个数    xpath=//table[@id='sp_base_settletype_tbl5']/tbody/tr
     ${预期值}    Evaluate    str(1)
     ${return}    run keyword and return status    应该要相等    ${实际值}    ${预期值}
@@ -173,24 +173,24 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    通用基础资料
     点击费用分类管理
     #费用分类管理--新增
-    进入列表框架
+    进入主页面框架
     ${新增前}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr
     离开框架
     ${time}    get time    epoch
     费用分类管理--新增    ${time}
     #验证数据
-    进入列表框架
+    进入主页面框架
     ${新增后}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr
     ${实际值1}    Evaluate    ${新增后}-${新增前}
     应该要相等（数字）    ${实际值1}    1
     离开框架
     #费用分类管理--删除
-    进入列表框架
+    进入主页面框架
     ${删除前}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr
     离开框架
     费用分类管理--删除    ${time}
     #验证数据
-    进入列表框架
+    进入主页面框架
     ${删除后}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr
     ${实际值2}    Evaluate    ${删除前}-${删除后}
     应该要相等（数字）    ${实际值2}    1
@@ -212,7 +212,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    通用基础资料
     点击计费方式和单位
     等待加载层消失
-    进入框架    id=content
+    进入主页面框架
     ${count}    计费方式和单位信息列表查询    ${modeEnname}
     Run Keyword If    ${count}==0    log    没有数据
     ...    ELSE    启用和禁用
@@ -245,7 +245,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     等待加载层消失
     新增国家    ${country}    Nouth
     #验证
-    进入框架    id=content
+    进入主页面框架
     验证是否新增    searchNo    ${country}
     Set Suite Variable    ${country}
 
@@ -254,7 +254,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    通用基础资料
     点击国家
     等待加载层消失
-    进入框架    id=content
+    进入主页面框架
     ${count}    城市或国家列表信息查询    UU
     Run Keyword If    ${count}==0    log    没有数据
     ...    ELSE    国家或城市启用和禁用
@@ -264,7 +264,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    通用基础资料
     点击国家
     等待加载层消失
-    进入框架    id=content
+    进入主页面框架
     ${count}    城市或国家列表信息查询    UU
     Run Keyword If    ${count}==0    log    没有数据
     ...    ELSE    删除国家或城市记录并校验
@@ -277,7 +277,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     等待加载层消失
     新增城市    ${city}    Hangzhou    AE
     #验证
-    进入框架    id=content
+    进入主页面框架
     验证是否新增    searchNo    ${city}
     Set Suite Variable    ${city}
 
@@ -286,7 +286,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    通用基础资料
     点击城市
     等待加载层消失
-    进入框架    id=content
+    进入主页面框架
     ${count}    城市或国家列表信息查询    YJYJY
     Run Keyword If    ${count}==0    log    没有数据
     ...    ELSE    国家或城市启用和禁用
@@ -296,7 +296,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    通用基础资料
     点击城市
     等待加载层消失
-    进入框架    id=content
+    进入主页面框架
     ${count}    城市或国家列表信息查询    YJYJY
     Run Keyword If    ${count}==0    log    没有数据
     ...    ELSE    删除国家或城市记录并校验
@@ -307,7 +307,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    海运基础资料
     点击箱型箱尺
     等待加载层消失
-    进入列表框架
+    进入主页面框架
     ${text}    箱型箱尺/船公司列表-查询    ${vgm.code}    启用
     应该包含    ${text}    共1条
     #勾选禁用
@@ -327,7 +327,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单    业务基础资料    海运基础资料
     点击箱型箱尺
     等待加载层消失
-    进入列表框架
+    进入主页面框架
     ${text}    箱型箱尺/船公司列表-查询    ${vgm.code}    启用
     应该包含    ${text}    共1条
     #勾选禁用

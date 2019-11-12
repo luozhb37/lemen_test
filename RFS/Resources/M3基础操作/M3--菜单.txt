@@ -5,9 +5,9 @@ Resource          M3--引用.txt
 登录
     读取货代登录配置信息
     Set Selenium Implicit Wait    5
-    打开    http://www.800jit.com/login.html
-    #等待    3
-    进入框架    id=loginPanel
+    打开    http://www.800jit.com/login.html    chrome360
+    等待    3
+    进入框架    //*[@id="loginPanel"]
     输入    id=username    ${M3_USERNAME}
     输入    id=password    ${M3_PASSWORD}
     点击    id=btn-submit
@@ -238,7 +238,7 @@ shipper登录
 
 收（付）款登记-点击按发票
     进入列表页面框架
-    点击    xpath=.//*[contains(@href,"bt_byinvoices")]
+    点击    xpath=//*[contains(@href,"bt_byinvoices")]
     离开框架
 
 收（付）款登记-点击按对账单
@@ -270,3 +270,18 @@ shipper登录
     进入列表页面框架
     点击    xpath=//a[contains(@href,"bt_tab1")]
     离开框架
+
+点击费率查询
+    点击    xpath=//a[contains(@href,'pg_bn_compact_search')]
+
+点击应付发票
+    点击    xpath=//a[contains(@href,'pg_paycheckfeeitems_search')]
+    等待加载层消失
+
+点击应付发票登记
+    点击    xpath=//a[contains(@href,'pg_iv_payfeeitems_search')]
+    等待加载层消失
+
+点击应付发票查询
+    点击    xpath=//a[contains(@href,'pg_iv_paymains_search')]
+    等待加载层消失

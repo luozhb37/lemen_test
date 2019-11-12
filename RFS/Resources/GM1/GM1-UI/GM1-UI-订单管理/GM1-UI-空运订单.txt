@@ -10,11 +10,11 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     维护空运订单详情
     ${workno}    获取页面文本内容    xpath=//span[text()='工作号']/span
     关闭当前窗口
-    切换窗口
+    切换窗口    main
     [Return]    ${workno}
 
 点击订单新增按钮
-    进入列表框架
+    进入主页面框架
     Wait Until Element Is Visible    xpath=//span[text()='新 增']/..    30
     点击    xpath=//span[text()='新 增']/..
     离开框架
@@ -26,7 +26,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     ...    ${sales}：销售名称，填写内容：销售名称；不填参数时默认选择当前登录用户
     ...    ${goodssource}：货物来源，填写内容：货物来源名称；不填参数时默认选择自揽货
     ...    ${issample}：是否简单操作模式，填写内容：true/false；不填写参数时默认为false
-    进入框架    id=content
+    进入主页面框架
     Wait Until Element Is Visible    xpath=//label[text()='业务类型']
     新增业务选择业务类型    空运出口
     log    ${sales}
@@ -71,7 +71,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 进入空运订单详情
     [Arguments]    ${workno}
-    进入列表框架
+    进入主页面框架
     Wait Until Element Is Enabled    xpath=//a[text()='${workno}']
     点击    xpath=//a[text()='${workno}']
     离开框架
@@ -96,8 +96,9 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     切换窗口
 
 空运订单新增-提交-审核
-    进入指定一级菜单    订单
-    进入指定二级菜单(新icon)    订
+    进入菜单页面(第三版)    订单    订单列表
+    #进入指定一级菜单    订单
+    #进入指定二级菜单(新icon)    订
     ${workno}    新增空运订单
     进入指定的订单标签    草 稿    #草稿状态
     订单列表高级查询(双列)    各类编号    ${workno}    精确

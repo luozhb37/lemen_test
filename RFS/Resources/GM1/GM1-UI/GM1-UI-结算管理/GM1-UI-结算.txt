@@ -3,14 +3,13 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 *** Keywords ***
 新增工作单
-    进入指定一级菜单    订单
-    进入指定二级菜单(新icon)    订
+    进入菜单页面(第三版)    订单    订单列表
     新增整箱业务单    海运出口整箱    国际运输
     点击保存
     等待loading消失
     ${bussinessNO-seaexport}    获取页面文本内容    xpath=//div[@class='dzg-business-info']/span[2]    #获取工作号
     关闭当前窗口
-    切换窗口
+    切换窗口    main
     [Return]    ${bussinessNO-seaexport}
 
 点击结算单保存按钮
@@ -82,12 +81,24 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     点击    xpath=//span[text()='整票确认']/..
     等待    2
 
+整票审核
+    点击    xpath=//span[text()='整票审核']/..
+    等待    2
+
+整票制单完成
+    点击    xpath=//div[@id='feeDetail']//div[@class='panel__body']/div[1]//span[text()='制单完成']/..
+    Run Keyword And Return Status    点击    xpath=//span[text()='确 定']/..
+    等待loading消失
+
+取消整票制单完成
+    点击    xpath=//div[@id='feeDetail']//div[@class='panel__body']/div[1]//span[text()='取消制单完成']/..
+    等待    2
+
 新增收入费用
     [Arguments]    ${customername}=2222    ${invoicename}=2222    ${type}=1
     [Documentation]    \#${customername}：结算单位    #${invoicename}：发票单位    #${type}：结算单，保存按钮比较特殊。默认正常业务，结算单需要特殊传入
     点击收入列表按钮    新 增
-    ${size}    获取匹配xpath的个数    xpath=//div[@id='fee-table']//div[@class='ant-table-scroll']//tbody[@class='ant-table-tbody']/tr
-    ${size-1}    Evaluate    ${size}-1
+    ${size}    ${size-1}    获取收入费用列表的size
     #费用项目
     点击    xpath=//div[@id='fee-table']//div[@class='ant-table-fixed-left']//div[@id='bnReceiptsList-${size-1}.feeitem']//div[@class='ant-select-selection__rendered']    #先定位应收/应付列表，再定位固定列表，再定位费用项目，最后定位选择框
     输入    xpath=//div[@id='fee-table']//div[@class='ant-table-fixed-left']//input[@id='bnReceiptsList-${size-1}.feeitem']    海运费
@@ -109,10 +120,10 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     ${a}    Run Keyword And Return Status    Page Should Not Contain    无匹配结果
     Run Keyword If    ${a} == True    按键    xpath=//input[@id='bnReceiptsList-${size-1}.ctnno']    \\13
     #单价
-    清空输入框内容    id=bnReceiptsList-${size-1}.price
+    清空输入框    id=bnReceiptsList-${size-1}.price    100
     输入    id=bnReceiptsList-${size-1}.price    100.1234
     #数量
-    清空输入框内容    id=bnReceiptsList-${size-1}.count
+    清空输入框    id=bnReceiptsList-${size-1}.count    100
     输入    id=bnReceiptsList-${size-1}.count    2.3456
     #币别
     点击    xpath=//div[@id='bnReceiptsList-${size-1}.currency']//div[@class='ant-select-selection-selected-value']
@@ -137,8 +148,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     [Arguments]    ${customername}    ${invoicename}=2222    ${type}=1
     [Documentation]    \#${customername}：结算单位    #${invoicename}：发票单位    #${type}：结算单，保存按钮比较特殊。默认正常业务，结算单需要特殊传入
     点击支出列表按钮    新 增
-    ${size}    获取匹配xpath的个数    xpath=//div[@id='pay-table']//div[@class='ant-table-scroll']//tbody[@class='ant-table-tbody']/tr
-    ${size-1}    Evaluate    ${size}-1
+    ${size}    ${size-1}    获取支出费用列表的size
     #费用项目
     点击    xpath=//div[@id='pay-table']//div[@class='ant-table-fixed-left']//div[@id='bnPaysList-${size-1}.feeitem']//div[@class='ant-select-selection__rendered']    #先定位应收/应付列表，再定位固定列表，再定位费用项目，最后定位选择框
     输入    xpath=//div[@id='pay-table']//div[@class='ant-table-fixed-left']//input[@id='bnPaysList-${size-1}.feeitem']    海运费
@@ -159,10 +169,10 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     ${a}    Run Keyword And Return Status    Page Should Not Contain    无匹配结果
     Run Keyword If    ${a} == True    按键    xpath=//input[@id='bnPaysList-${size-1}.ctnno']    \\13
     #单价
-    清空输入框内容    id=bnPaysList-${size-1}.price
+    清空输入框    id=bnPaysList-${size-1}.price    100
     输入    id=bnPaysList-${size-1}.price    100.1234
     #数量
-    清空输入框内容    id=bnPaysList-${size-1}.count
+    清空输入框    id=bnPaysList-${size-1}.count    100
     输入    id=bnPaysList-${size-1}.count    2.3456
     #币别
     点击    xpath=//div[@id='bnPaysList-${size-1}.currency']//div[@class='ant-select-selection-selected-value']
@@ -202,6 +212,53 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     点击    xpath=//span[text()='确 定']/..
     等待loading消失
     等待    1
+
+自动拆分费用
+    [Arguments]    ${number}
+    等待    2
+    清空输入框    xpath=//div[@id='split-fee']//input[@class='ant-input-number-input']    10
+    输入    xpath=//div[@id='split-fee']//input[@class='ant-input-number-input']    ${number}
+    点击    xpath=//div[@id='split-fee']//span[text()='拆 分']/..    #点击拆分
+    等待    1
+    点击    xpath=//div[text()='拆分提示']/../..//span[text()='确 定']/..    #点击确定
+    等待    1
+    点击    xpath=//div[@id='split-fee']//span[text()='保 存']/..    #点击保存
+    等待    1
+    点击    xpath=//div[text()='拆分提示']/../..//span[text()='确 定']/..    #点击确定
+    等待    2
+    等待loading消失
+
+新增费率模板
+    ${time}    get time    epoch
+    #填费率名称
+    输入    id=compactname     ${time}
+    #填业务类型
+    点击    xpath=//div[@id='compacttype']//div[@class='ant-select-selection__rendered']
+    Mouse Over    xpath//li[text()='海运出口整箱']
+    点击    xpath//li[text()='海运出口整箱']
+    #填客商名称
+    点击    xpath=//div[@id='customer']//div[@class='ant-select-selection__rendered']
+    输入    xpath=//input[@id='customer']    ${往来单位}
+    点击    xpath=//li{text()='${往来单位}']
+    [Return]    ${time}
+
+获取收入费用列表的size
+    ${size}    获取匹配xpath的个数    xpath=//div[@id='fee-table']//div[@class='ant-table-scroll']//tbody[@class='ant-table-tbody']/tr
+    ${size-1}    Evaluate    ${size}-1
+    [Return]    ${size}    ${size-1}
+
+获取支出费用列表的size
+    ${size}    获取匹配xpath的个数    xpath=//div[@id='pay-table']//div[@class='ant-table-scroll']//tbody[@class='ant-table-tbody']/tr
+    ${size-1}    Evaluate    ${size}-1
+    [Return]    ${size}    ${size-1}
+
+勾选详情应收列表最后一条
+    ${size}    ${size-1}    获取收入费用列表的size
+    点击    xpath=//div[@id='fee-table']//div[@class='ant-table-fixed-left']//tbody[@class='ant-table-tbody']//tr[${size}]//input[@class='ant-checkbox-input']    #点击勾选框（列表最后一条费用）
+
+勾选详情应付列表最后一条
+    ${size}    ${size-1}    获取支出费用列表的size
+    点击    xpath=//div[@id='pay-table']//div[@class='ant-table-fixed-left']//tbody[@class='ant-table-tbody']//tr[${size}]//input[@class='ant-checkbox-input']    #点击应付列表所有费用
 
 新增结算单
     #委托单位
@@ -251,10 +308,9 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     等待loading消失
 
 生成对账单
-    切换窗口    new
-    ${checkaccountno}    获取页面值    id=checkaccountno
-    点击    xpath=//span[text()='生成对账单']/..
     等待    2
+    切换窗口    new
+    ${checkaccountno}    获取页面文本内容    xpath=//label[@title='对账单号']/../..//div[@class='ant-form-item-control ']/span
     [Return]    ${checkaccountno}
 
 生成开票通知
@@ -427,12 +483,12 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     #供应商银行
     #点击    xpath=//div[@class='baseCustomersBankAccount ant-select-lg auto ant-select ant-select-enabled']//div[@class='ant-select-selection__rendered']
     #按键    xpath=//div[@class='baseCustomersBankAccount ant-select-lg auto ant-select ant-select-enabled']//div[@class='ant-select-selection__rendered']    \\13
-    Comment    #选择文件
-    Comment    点击    xpath=//span[text()=' 选择文件']/..
-    Comment    上传文件
+    #选择文件
+    点击    xpath=//span[text()=' 选择文件']/..
+    上传文件
     #核销
-    点击    xpath=//span[text()='自动选择']/..
-    点击    xpath=//span[text()='核 销']/..
+    #点击    xpath=//span[text()='自动选择']/..
+    #点击    xpath=//span[text()='核 销']/..
     等待    2
     点击    xpath=//span[text()='确 定']/..
     [Return]    ${paybillno}
@@ -460,7 +516,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     进入客商列表
     客商列表查询    ${往来单位}
     等待    3
-    进入列表框架
+    进入主页面框架
     ${result}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr
     ${return}    run keyword and return status    应该要相等（数字）    ${result}    1
     离开框架
@@ -469,14 +525,14 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 检查并维护币别信息
     [Arguments]    ${currency}
     币别信息--查询    ${currency}
-    进入列表框架
+    进入主页面框架
     ${result}    获取页面列表条数    列表信息
     ${return}    run keyword and return status    应该要相等（数字）    ${result}    1
     离开框架
     run keyword if    '${return}'!='True'    币别信息--新增    ${currency}
     #验证银行类型存在
     币别信息--查询    ${currency}
-    进入列表框架
+    进入主页面框架
     ${result}    获取页面数据条数
     应该要相等（数字）    ${result}    1
     离开框架
@@ -485,7 +541,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     [Arguments]    ${f_currency}    ${c_currency}    ${floatrate_type}    ${rate}    ${lower}    ${upper}
     浮动汇率--查询    ${f_currency}    ${c_currency}    ${floatrate_type}
     #验证条数
-    进入列表框架
+    进入主页面框架
     ${result}    获取页面列表条数    浮动汇率列表
     离开框架
     run keyword if    '${result}'>'0'    浮动汇率--删除    #保证数据不重复
@@ -496,14 +552,14 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 检查并维护账户类型
     [Arguments]    ${bankType}
     账户类型--查询    ${bankType}
-    进入列表框架
+    进入主页面框架
     ${result}    获取页面列表条数    账户类型列表
     ${return}    run keyword and return status    应该要相等（数字）    ${result}    1
     离开框架
     run keyword if    '${return}'!='True'    账户类型--新增    ${bankType}
     #验证银行类型存在
     账户类型--查询    ${bankType}
-    进入列表框架
+    进入主页面框架
     ${result}    获取页面数据条数
     应该要相等（数字）    ${result}    1
     离开框架
@@ -511,13 +567,13 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 检查并维护银行账户
     [Arguments]    ${bankname}    ${bankaccount}    ${bankType}    ${currency}
     银行账户--查询    ${bankname}
-    进入列表框架
+    进入主页面框架
     ${result}    获取页面列表条数    银行信息列表
     ${return}    run keyword and return status    应该要相等（数字）    ${result}    1
     离开框架
     run keyword if    '${return}'!='True'    银行账户--新增    ${bankname}    ${bankaccount}    ${bankType}    ${currency}
     #验证银行类型存在
-    进入列表框架
+    进入主页面框架
     ${result}    获取页面数据条数
     应该要相等（数字）    ${result}    1
     离开框架
@@ -527,7 +583,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     #维护系统参数
     点击系统设置（主菜单）
     点击系统设置（菜单）
-    进入列表框架    #####
+    进入主页面框架    #####
     点击    xpath=//div[text()='海运出口业务管理模块是否支持新增业务']/..//span[text()='是']/..//input[@class='ant-radio-input']    #海运出口业务管理模块是否支持新增业务
     点击    xpath=//div[text()='应付收票是否需要确认']/..//span[text()='是']/..//input[@class='ant-radio-input']
     点击    xpath=//div[text()='附加税率功能']/..//span[text()='是']/..//input[@class='ant-radio-input']
@@ -575,7 +631,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     点击系统设置（主菜单）
     点击公司管理
     点击员工管理
-    进入列表框架
+    进入主页面框架
     输入    name=username    ${M4-FULLNAME}
     点击    xpath=//button[@class='btn btn-primary btn-small']
     等待    2
@@ -593,10 +649,16 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     点击账户类型
     检查并维护账户类型    公账
 
-清除搜素条件(条件按)
-    ${num}    获取匹配xpath的个数    xpath=//div[@class='panel__body']/div[3]//div[@class='ant-col-23']/div[1]/div
+清除搜索条件(老版)
+    ${num}    获取匹配xpath的个数    xpath=//div[@class='panel__body']/div[3]/div/div[2]/div
     : FOR    ${i}    IN RANGE    1    ${num}
-    \    点击    xpath=//div[@class='panel__body']/div[3]//div[@class='ant-col-23']/div[1]/div[1]//i[@class='anticon anticon-cross']
+    \    点击    xpath=//div[@class='panel__body']/div[3]/div/div[2]/div[${i}]//i[@class='anticon anticon-cross']
+    \    等待    1
+
+清除搜索条件(基石)
+    ${num}    获取匹配xpath的个数    xpath=//div[@id='dzg-adsearch-search-tags']/div
+    : FOR    ${i}    IN RANGE    1    ${num}
+    \    点击    xpath=//div[@id='dzg-adsearch-search-tags']/div[${i}]//i[@class='anticon anticon-cross']
     \    等待    1
 
 收入费用审核

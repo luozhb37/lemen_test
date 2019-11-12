@@ -128,7 +128,7 @@ Resource          M2--引用.txt
     进入列表页面框架
     点击    id=bt_copy    #点击复制业务台帐
     离开框架
-    进入列表页面框架
+    进入详情框架
     ${businessno_prefix}    复制台帐时获取业务编号前缀
     ${No}    获取页面值    id=qycopy_businessno_content    #获取编号
     ${businessNo}    连接字符    a=${businessno_prefix}    b=${No}

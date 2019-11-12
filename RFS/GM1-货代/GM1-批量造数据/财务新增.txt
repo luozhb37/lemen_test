@@ -31,7 +31,7 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     回到首页
     进入指定一级菜单    结算
     进入指定二级菜单(新icon)    账
-    进入列表框架
+    进入主页面框架
     新增对账单--按工作单页面查询    ${WORKNUMBER}
     勾选全部
     点击列表按钮    生成对账单
@@ -53,7 +53,7 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     #点击    xpath=//span[text()='查 询']/..
     进入指定二级菜单(新icon)    账
     点击对账单管理
-    进入列表框架
+    进入主页面框架
     对账单管理页面查询    ${checkaccountno}
     点击    xpath=(//a[contains(@href,'')])[1]
     切换窗口    new
@@ -67,7 +67,7 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     回到首页
     进入指定一级菜单    结算
     进入指定二级菜单(新icon)    票
-    进入列表框架
+    进入主页面框架
     应收待开票页面查询    ${preInvoiceno}
     勾选全部
     点击列表按钮    自定义开票
@@ -81,7 +81,7 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定一级菜单    结算
     进入指定二级菜单(新icon)    票
     点击应收发票管理
-    进入列表框架
+    进入主页面框架
     应收发票管理页面查询    ${应收invoice}
     勾选全部
     点击列表按钮    快速核销
@@ -106,7 +106,7 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     回到首页
     进入指定一级菜单    结算
     进入指定二级菜单(新icon)    账
-    进入列表框架
+    进入主页面框架
     新增对账单--按工作单页面查询    ${WORKNUMBER}
     勾选全部
     点击列表按钮    生成对账单
@@ -118,7 +118,7 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定一级菜单    结算
     进入指定二级菜单(新icon)    账
     点击对账单管理
-    进入列表框架
+    进入主页面框架
     对账单管理页面查询    ${checkaccountno}
     #勾选全部
     #点击列表按钮    开票通知
@@ -132,7 +132,7 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     回到首页
     进入指定一级菜单    结算
     进入指定二级菜单(新icon)    票
-    进入列表框架
+    进入主页面框架
     应收待开票页面查询    ${preInvoiceno}
     勾选全部
     点击列表按钮    自定义开票
@@ -146,7 +146,7 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定一级菜单    结算
     进入指定二级菜单(新icon)    票
     点击应收发票管理
-    进入列表框架
+    进入主页面框架
     应收发票管理页面查询    ${应收invoice}
     勾选全部
     点击列表按钮    快速核销

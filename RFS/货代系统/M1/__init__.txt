@@ -1,0 +1,3 @@
+*** Settings ***
+Library           OlymLibrary
+Library           Selenium2Library

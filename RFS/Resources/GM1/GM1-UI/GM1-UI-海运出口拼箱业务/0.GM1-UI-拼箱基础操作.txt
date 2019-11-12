@@ -5,7 +5,7 @@ Library           AutoItLibrary
 *** Keywords ***
 新增拼箱业务单
     [Arguments]    ${businesstype}    ${text}
-    进入框架    id=content
+    进入主页面框架
     点击    xpath=//span[text()='新 增']/..
     Wait Until Element Is Visible    xpath=//label[text()='业务类型']
     下拉框选中    业务类型    ${businesstype}

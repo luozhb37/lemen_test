@@ -33,7 +33,7 @@ m4-集团登录
 
 新增分公司客商
     [Arguments]    ${customername}    ${customercode}
-    进入列表框架
+    进入主页面框架
     #等待加载层消失
     Wait Until Element Is Enabled    xpath=//span[text()='新 增']/..
     等待    2

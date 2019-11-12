@@ -4,7 +4,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 *** Keywords ***
 空运列表查询
     [Arguments]    ${workno}
-    进入列表框架
+    进入主页面框架
     点击    xpath=//span[text()='全 部']/..
     输入    id=searchNo    ${workno}
     点击    xpath=//span[text()='查 询']/..
@@ -16,7 +16,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 进入工作单详情
     [Arguments]    ${workno}
     等待    1
-    进入列表框架
+    进入主页面框架
     点击    xpath=//a[text()='${workno}']
     离开框架
 
@@ -333,7 +333,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 进入指定的订单标签
     [Arguments]    ${label}=我的业务
-    进入列表框架
+    进入主页面框架
     Wait Until Element Is Enabled    xpath=//div[@class='dzg-status-bar']
     点击    xpath=//div[@class='dzg-status-bar']//span[text()='${label}']/..
     等待加载层消失
@@ -386,7 +386,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     ...    type:两列时选择的精确/模糊；默认为精确
     ...
     ...    is_clear：1/0 \ \ \ 是否清空已存在的查询条件内容；1表示需要清空；0表示不需要清空
-    进入列表框架
+    进入主页面框架
     Wait Until Element Is Visible    xpath=//div[@id='dzg-adsearch']//a[text()='高级查询']
     点击    xpath=//div[@id='dzg-adsearch']//a[text()='高级查询']
     基石列表高级查询-内部不可引用(双列)    ${key}    ${value}    ${type}    ${is_clear}
@@ -403,7 +403,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 订单列表高级查询(单列)
     [Arguments]    ${key}    ${value}    ${is_clear}=1
-    进入列表框架
+    进入主页面框架
     Wait Until Element Is Visible    xpath=//div[@id='dzg-adsearch']//a[text()='高级查询']
     点击    xpath=//div[@id='dzg-adsearch']//a[text()='高级查询']
     基石列表高级查询-内部不可引用(单列)    ${key}    ${value}    ${is_clear}
@@ -413,7 +413,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 复制新增第一条空运出口单子
     [Arguments]    ${type}
-    进入框架    id=content
+    进入主页面框架
     点击    xpath=//div[@id='OPERATION_COLUMN0_0']//a[contains(text(), '操作')]    # 点击第一条记录
     Wait Until Element Is Visible    xpath=//div[contains(@class, 'ant-dropdown-placement-bottomLeft')]
     点击    xpath=//div[contains(@class, 'ant-dropdown-placement-bottomLeft')]//li[text()='${type}']

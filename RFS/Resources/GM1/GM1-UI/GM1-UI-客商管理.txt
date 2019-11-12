@@ -5,7 +5,7 @@ Library           ExcelLibrary
 *** Keywords ***
 进入客商详情
     [Arguments]    ${customer}    # 客商名称
-    进入列表框架
+    进入主页面框架
     Wait Until Element Is Enabled    xpath=//a[text()='${customer}']    5
     点击    xpath=//a[text()='${customer}']    #点击超链接
     离开框架
@@ -14,7 +14,7 @@ Library           ExcelLibrary
 
 新增客商
     [Arguments]    ${customername}    ${customercode}
-    进入列表框架
+    进入主页面框架
     #等待加载层消失
     Wait Until Element Is Enabled    xpath=//span[text()='新 增']/..
     等待    2
@@ -102,7 +102,7 @@ Library           ExcelLibrary
 
 客商列表查询
     [Arguments]    ${customername}
-    进入列表框架
+    进入主页面框架
     输入    id=name    ${customername}
     点击    xpath=//span[text()='查 询']/..
     ${number}    获取匹配xpath的个数    xpath=//table[@class='ant-table-fixed']//tbody[@class='ant-table-tbody']//tr
@@ -398,7 +398,7 @@ Library           ExcelLibrary
 
 查询正式客商
     [Arguments]    ${name}
-    进入框架    id=content
+    进入主页面框架
     Wait Until Element Is Enabled    id=name
     输入    id=name    ${name}
     点击    xpath=//span[text()='查 询']/..

@@ -4,14 +4,14 @@ Library           AutoItLibrary
 
 *** Keywords ***
 获取列表记录数
-    进入列表框架
+    进入主页面框架
     ${pages}    获取页面文本内容    css=.ant-pagination-total-text
     离开框架
     [Return]    ${pages}
 
 海运出口列表查询业务编号
     [Arguments]    ${bussinessNO}
-    进入列表框架
+    进入主页面框架
     输入    xpath=//div[@id='default.multiNumbers-t']//div[@class='ant-select-selection__placeholder']/..    ${bussinessNO}    #各类编号查询业务订单
     #Mouse Over    xpath=//span[@class='ant-calendar-picker-input ant-input ant-input-lg']//input[1]    #x悬停至时间
     #点击    xpath=//span[@class='ant-calendar-picker-input ant-input ant-input-lg']//i    #点击时间的删除
@@ -24,7 +24,7 @@ Library           AutoItLibrary
 
 点击业务编号进入详情页
     [Arguments]    ${bussinessNO}
-    进入列表框架
+    进入主页面框架
     等待    2
     点击    xpath=//div[@id='business-center-list']//a[text()='${bussinessNO}']/..
     离开框架
@@ -53,7 +53,7 @@ Library           AutoItLibrary
     点击系统设置（主菜单）
     点击系统设置（菜单）
     点击企业编码
-    进入列表框架
+    进入主页面框架
     海运出口集卡计划号设置无
     海运出口散货计划号设置无
     海运出口进仓编号设置无
@@ -267,7 +267,7 @@ Library           AutoItLibrary
 设置业务参数
     点击系统设置（主菜单）
     点击系统设置（菜单）
-    进入框架    id=fms-front
+    进入主页面框架
     Comment    ${radio_value}    获取页面文本内容    xpath=//div[text()='海运出口业务管理模块是否支持新增业务']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
     Comment    Run Keyword If    '${radio_value}'=='是'    设置业务参数(单选)    海运出口业务管理模块是否支持新增业务    否
     设置业务参数(单选)    订舱代理手动输入无效    否
@@ -304,7 +304,7 @@ Library           AutoItLibrary
     进入指定一级菜单    订单
     进入指定二级菜单(新icon)    订
     等待加载层消失
-    进入列表框架
+    进入主页面框架
     点击    xpath=//span[text()='自定义列']/..    #点击自定义列
     输入    xpath=//span[text()='已选']/../../following-sibling::div[1]//input[@class='ant-input ant-transfer-list-search']    工作号    #筛选工作号
     勾选记录    xpath=//li[@title='工作号']//input    #勾选工作号
@@ -318,7 +318,7 @@ Library           AutoItLibrary
     点击企业基础资料
     点击异常类型
     等待加载层消失
-    进入框架    id=fms-front
+    进入主页面框架
     ${return}    异常类型-查询    海运出口整箱    订舱
     应该包含    ${return}    共1条
     ${text}    获取页面文本内容    xpath=//table[@class='ant-table-fixed']//tbody//tr//td[5]

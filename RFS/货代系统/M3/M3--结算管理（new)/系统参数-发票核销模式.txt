@@ -1,13 +1,26 @@
 *** Settings ***
+<<<<<<< .mine
+#Suite Setup       run keywords    系统参数设置-发票核销模式
+#...               AND    登录
+#...               AND    新增海运出口业务
+Suite Setup       登录
+Suite Teardown    close all browsers
+||||||| .r18190
 Suite Setup       run keywords    系统参数设置-发票核销模式
 ...               AND    登录
 ...               AND    新增海运出口业务
 Suite Teardown    close all browsers
+=======
+Suite Setup       run keywords    系统参数设置-发票核销模式
+...               AND    登录
+...               AND    新增海运出口业务    #
+Suite Teardown    close all browsers    #
+>>>>>>> .r18202
 Test Setup        Reload Page    #
 Resource          ../../../Resources/M3基础操作/M3--引用.txt
 
 *** Test Cases ***
-收款-收款登记按发票(生成并核销)
+收款核销(生成并核销)-按发票-收款登记
     点击业务管理
     点击业务台帐
     海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
@@ -15,8 +28,7 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     从台帐详情进入费用页面
     ${row}    新增收入费用-选定费用    1000
     费用信息页面勾选收入费用    ${row}
-    ${Invoice}    获取当前时间    #使用当前时间作为发票号
-    费用页面最后一条费用开票    ${Invoice}
+    ${Invoice}    标记开票-费用信息页面
     点击业务管理
     #生成收款单
     点击结算管理
@@ -31,7 +43,7 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     应该要相等    ${fee_recbillno}    ${Payment receipt number}
     应该要相等    1,000.00    ${amount}
 
-收款-收款登记按发票(审核并核销)
+收款核销(审核并核销)-按发票-收款登记
     点击业务管理
     点击业务台帐
     海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
@@ -39,8 +51,7 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     从台帐详情进入费用页面
     ${row}    新增收入费用-选定费用    2000
     费用信息页面勾选收入费用    ${row}
-    ${Invoice}    获取当前时间
-    费用页面最后一条费用开票    ${Invoice}
+    ${Invoice}    标记开票-费用信息页面
     点击业务管理
     #生成收款单
     点击结算管理
@@ -55,16 +66,21 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     应该要相等    ${fee_recbillno}    ${Payment receipt number}
     应该要相等    2,000.00    ${amount}
 
+<<<<<<< .mine
+收款--收款登记按费用明细(生成并核销) -tc101
+||||||| .r18190
 收款--收款登记按费用明细(生成并核销)
+=======
+收款核销(生成并核销)--按费用明细-收款登记
+>>>>>>> .r18202
     点击业务管理
     点击业务台帐
-    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
-    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    海运出口列表查询业务编号    EXP1910265
+    进入台帐详情    EXP1910265
     从台帐详情进入费用页面
     ${row}    新增收入费用-选定费用    3000
     费用信息页面勾选收入费用    ${row}
-    ${Invoice}    获取当前时间
-    费用页面最后一条费用开票    ${Invoice}
+    ${Invoice}    标记开票-费用信息页面
     点击业务管理
     #生成收款单
     点击结算管理
@@ -79,7 +95,7 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     应该要相等    ${fee_recbillno}    ${Payment receipt number}
     应该要相等    3,000.00    ${amount}
 
-收款--收款登记按费用明细(审核并核销)
+收款核销(审核并核销)--按费用明细-收款登记
     点击业务管理
     点击业务台帐
     海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
@@ -87,8 +103,7 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     从台帐详情进入费用页面
     ${row}    新增收入费用-选定费用    3000
     费用信息页面勾选收入费用    ${row}
-    ${Invoice}    获取当前时间
-    费用页面最后一条费用开票    ${Invoice}
+    ${Invoice}    标记开票-费用信息页面
     点击业务管理
     #生成收款单
     点击结算管理
@@ -103,7 +118,7 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     应该要相等    ${fee_recbillno}    ${Payment receipt number}
     应该要相等    3,000.00    ${amount}
 
-收款--收款单管理(待审核:审核并核销)
+收款核销(审核并核销)--待审核-收款单管理
     点击业务管理
     点击业务台帐
     海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
@@ -111,8 +126,7 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     从台帐详情进入费用页面
     ${row}    新增收入费用-选定费用    3000
     费用信息页面勾选收入费用    ${row}
-    ${Invoice}    获取当前时间
-    费用页面最后一条费用开票    ${Invoice}
+    ${Invoice}    标记开票-费用信息页面
     点击业务管理
     #生成收款单
     点击结算管理
@@ -127,7 +141,7 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     应该要相等    ${fee_recbillno}    ${Payment receipt number}
     应该要相等    3,000.00    ${amount}
 
-收款--收款单管理(待审核:核销)
+收款核销(核销)--待审核-收款单管理
     点击业务管理
     点击业务台帐
     海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
@@ -135,8 +149,7 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     从台帐详情进入费用页面
     ${row}    新增收入费用-选定费用    3000
     费用信息页面勾选收入费用    ${row}
-    ${Invoice}    获取当前时间
-    费用页面最后一条费用开票    ${Invoice}
+    ${Invoice}    标记开票-费用信息页面
     点击业务管理
     #生成收款单
     点击结算管理
@@ -151,7 +164,7 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     应该要相等    ${fee_recbillno}    ${Payment receipt number}
     应该要相等    3,000.00    ${amount}
 
-收款-发票核销(生成并核销) - tc1050
+收款核销(生成并核销)-发票管理
     点击业务管理
     点击业务台帐
     海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
@@ -159,8 +172,7 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     从台帐详情进入费用页面
     ${row}    新增收入费用-选定费用    3000
     费用信息页面勾选收入费用    ${row}
-    ${Invoice}    获取当前时间
-    费用页面最后一条费用开票    ${Invoice}
+    ${Invoice}    标记开票-费用信息页面
     点击业务管理
     #生成收款单
     点击结算管理
@@ -176,7 +188,7 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     应该要相等    ${fee_recbillno}    ${Payment receipt number}
     应该要相等    3,000.00    ${amount}
 
-收款-发票核销(审核并核销)
+收款核销(审核并核销)-发票管理
     点击业务管理
     点击业务台帐
     海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
@@ -184,8 +196,7 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     从台帐详情进入费用页面
     ${row}    新增收入费用-选定费用    3000
     费用信息页面勾选收入费用    ${row}
-    ${Invoice}    获取当前时间
-    费用页面最后一条费用开票    ${Invoice}
+    ${Invoice}    标记开票-费用信息页面
     点击业务管理
     #生成收款单
     点击结算管理
@@ -201,7 +212,7 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     应该要相等    ${fee_recbillno}    ${Payment receipt number}
     应该要相等    3,000.00    ${amount}
 
-收款--反核销(核销记录)
+收款核销(反核销)--核销记录
     点击业务管理
     点击业务台帐
     海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
@@ -209,8 +220,7 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     从台帐详情进入费用页面
     ${row}    新增收入费用-选定费用    1000
     费用信息页面勾选收入费用    ${row}
-    ${Invoice}    获取当前时间
-    费用页面最后一条费用开票    ${Invoice}
+    ${Invoice}    标记开票-费用信息页面
     点击业务管理
     #生成收款单
     点击结算管理
@@ -227,7 +237,7 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     应该不相等    ${fee_recbillno}    ${Payment receipt number}
     应该要相等    0.00    ${amount}
 
-收款--反核销(收款单管理)
+收款核销(反核销)--已核销-收款单管理
     点击业务管理
     点击业务台帐
     海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
@@ -235,8 +245,7 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     从台帐详情进入费用页面
     ${row}    新增收入费用-选定费用    1000
     费用信息页面勾选收入费用    ${row}
-    ${Invoice}    获取当前时间
-    费用页面最后一条费用开票    ${Invoice}
+    ${Invoice}    标记开票-费用信息页面
     点击业务管理
     #生成收款单
     点击结算管理
@@ -253,7 +262,7 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     应该不相等    ${fee_recbillno}    ${Payment receipt number}
     应该要相等    0.00    ${amount}
 
-收款--反核销(费用反核销)
+收款核销(反核销)--费用反核销
     点击业务管理
     点击业务台帐
     海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
@@ -261,8 +270,7 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     从台帐详情进入费用页面
     ${row}    新增收入费用-选定费用    1000
     费用信息页面勾选收入费用    ${row}
-    ${Invoice}    获取当前时间
-    费用页面最后一条费用开票    ${Invoice}
+    ${Invoice}    标记开票-费用信息页面
     点击业务管理
     #生成收款单
     点击结算管理
@@ -279,7 +287,7 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     应该不相等    ${fee_recbillno}    ${Payment receipt number}
     应该要相等    0.00    ${amount}
 
-收款--预收款核销(明细)
+预收款核销(生成并核销)--明细
     点击业务管理
     点击业务台帐
     海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
@@ -287,8 +295,7 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     从台帐详情进入费用页面
     ${row}    新增收入费用-选定费用    1000
     费用信息页面勾选收入费用    ${row}
-    ${Invoice}    获取当前时间
-    费用页面最后一条费用开票    ${Invoice}
+    ${Invoice}    标记开票-费用信息页面
     点击业务管理
     #生成收款单
     点击结算管理
@@ -304,7 +311,7 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     应该要相等    ${fee_recbillno}    ${Payment receipt number}
     应该要相等    1,000.00    ${amount}
 
-收款--预收款核销(异币)
+预收款核销(生成并核销)--异币
     点击业务管理
     点击业务台帐
     海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
@@ -312,7 +319,7 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     从台帐详情进入费用页面
     ${row}    新增费用--USD    USD
     费用信息页面勾选收入费用    ${row}
-    费用页面最后一条费用开票    ${BUSINESSNO-SUIT-SEAEXPORT}
+    ${Invoice}    标记开票-费用信息页面
     点击业务管理
     #生成收款单
     点击结算管理

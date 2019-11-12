@@ -5,7 +5,7 @@ Resource          M2--引用.txt
 登录
     读取货代登录配置信息
     Set Selenium Implicit Wait    5
-    打开    http://www.800jit.com/login.html
+    打开    http://www.800jit.com/login.html    chrome360
     进入框架    id=loginPanel
     Wait Until Element Is Visible    id=username
     输入    id=username    ${M2_USERNAME}

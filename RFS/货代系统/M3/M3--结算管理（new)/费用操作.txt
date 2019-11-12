@@ -32,7 +32,7 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     应该要相等    ${row-after}    ${result}
     关闭所有弹出框
 
-删除费用
+删除支出费用
     [Documentation]    ${row}: 费用列表中的 tr数，包含了列头栏
     点击业务管理
     点击业务台帐
@@ -40,21 +40,27 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
     勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
     从业务列表进入费用页面
-    #新增收入、支出费用
-    ${row}    新增收入费用-选定费用
-    费用信息页面勾选收入费用    ${row}
-    #删除收入费用
-    删除收入费用
-    #验证仅删除收入费用后，收入费用总金额为0，支出费用金额不为0
-    ${row-after}    获取费用列表中的收入费用行数
-    ${result}    evaluate    ${row-after}+1
-    应该要相等    ${row}    ${result}
     ${row}    新增支出费用-选定费用
     #删除支出费用
     费用信息页面勾选支出费用    ${row}
-    删除支出费用
+    点击删除支出费用
     #验证删除支出费用后，支出费用总金额为0
     ${row-after}    获取费用列表中的支出费用行数
+    ${result}    evaluate    ${row-after}+1
+    应该要相等    ${row}    ${result}
+
+删除收入费用
+    点击业务管理
+    点击业务台帐
+    点击海运出口
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    ${row}    新增收入费用-选定费用
+    费用信息页面勾选收入费用    ${row}
+    #删除收入费用
+    点击删除收入费用
+    ${row-after}    获取费用列表中的收入费用行数
     ${result}    evaluate    ${row-after}+1
     应该要相等    ${row}    ${result}
 

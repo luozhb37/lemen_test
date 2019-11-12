@@ -36,7 +36,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单(新icon)    订
     订单列表高级查询(单列)    业务类型    空运出口
     进入指定的订单标签    审核通过
-    进入框架    id=content
+    进入主页面框架
     ${count}    获取列表数量    xpath=//li[@class='ant-pagination-total-text']
     离开框架
     run keyword if    ${count}==0    run keywords    新建空运工作单
@@ -46,7 +46,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     复制新增第一条空运出口单子    复制业务
     订单列表高级查询(单列)    业务类型    空运出口
     进入指定的订单标签    审核通过
-    进入框架    id=content
+    进入主页面框架
     ${new_count}    获取列表总条数    xpath=//li[@class='ant-pagination-total-text']    str_l=共    str_r=条
     离开框架
     应该要相等（数字）    ${exp_count}    ${new_count}
@@ -352,7 +352,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定一级菜单    订单
     进入指定二级菜单(新icon)    他    空运出口    # 进入空运出口
     点击    xpath=//a[text()='主运单管理']    # 点击主运单管理
-    进入框架    id=content
+    进入主页面框架
     ${list_count}    获取匹配xpath的个数    xpath=//table/tbody/tr
     ${count}    run keyword if    ${list_count}>0    获取列表总条数    xpath=//ul[contains(@class,'ant-table-pagination')]/li[1]    str_l=共    str_r=条，
     ...    ELSE    Set Variable    0
@@ -368,7 +368,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定一级菜单    订单
     进入指定二级菜单(新icon)    他    空运出口    # 进入空运出口
     点击    xpath=//a[text()='主运单管理']    # 点击主运单管理
-    进入框架    id=content
+    进入主页面框架
     输入    id=searchNo    ${WORKNUMBER}    # 输入主运单号
     点击    xpath=//span[text()='查 询']/..    # 点击查询按钮
     ${count}    获取匹配xpath的个数    xpath=//div[contains(@class,'ant-table-fixed-left')]//table//tr
@@ -382,7 +382,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     点击业务管理
     进入指定二级菜单    业务台账    空运出口    # 进入空运出口
     点击    xpath=//a[text()='操作计划']    # 点击主运单管理
-    进入框架    id=content
+    进入主页面框架
     ${list_count}    获取匹配xpath的个数    xpath=//table/tbody/tr
     ${count}    run keyword if    ${list_count}>0    获取列表总条数    xpath=//ul[contains(@class,'ant-table-pagination')]/li[1]    str_l=共    str_r=条，
     ...    ELSE    Set Variable    0
@@ -398,7 +398,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     ${WORKNUMBER}    截取字符    ${title}    \    空运 订舱
     关闭当前窗口
     切换窗口    欢迎您使用本系统
-    进入框架    id=content
+    进入主页面框架
     点击    xpath=//span[text()='查 询']/..
     ${new_count}    获取列表总条数    xpath=//ul[contains(@class,'ant-table-pagination')]/li[1]    str_l=共    str_r=条，
     应该要相等（数字）    ${new_count}    ${exp_count}

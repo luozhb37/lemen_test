@@ -57,3 +57,20 @@ Resource          ../../Resources/M3基础操作/M3--引用.txt
     应该要相等    ${content1}    false
     关闭所有弹出框
     点击业务管理
+
+海运进口批量完成--应收、应付费用制单完成
+    判断是否存在全局变量业务编号-海运进口
+    点击业务管理
+    点击业务台帐
+    点击海运进口
+    ${pages}    海运进口、空运列表查询业务编号    ${BUSINESSNO-SUIT-SEAIMPORT}
+    列表页面-全选记录
+    批量应收费用制单完成
+    列表页面-全选记录
+    批量应付费用制单完成
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAIMPORT}
+    从台帐详情进入费用页面
+    ${rec_finish_status}    获取收入制单完成状态
+    应该要相等    ${rec_finish_status}    已完成
+    ${pay_finish_status}    获取支出制单完成状态
+    应该要相等    ${pay_finish_status}    已完成

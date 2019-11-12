@@ -22,7 +22,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     [Setup]    回到首页
     进入指定一级菜单    结算
     进入指定二级菜单(新icon)    证
-    进入列表框架
+    进入主页面框架
     点击已输出凭证
     : FOR    ${i}    IN RANGE    1000
     \    应收应付凭证页面查询
@@ -36,7 +36,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定一级菜单    结算
     进入指定二级菜单(新icon)    证
     点击实收凭证
-    进入finance框架
+    进入主页面框架
     点击已输出凭证
     : FOR    ${i}    IN RANGE    1000
     \    实收凭证页面查询
@@ -50,7 +50,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定一级菜单    结算
     进入指定二级菜单(新icon)    证
     点击实付凭证
-    进入finance框架
+    进入主页面框架
     点击已输出凭证
     : FOR    ${i}    IN RANGE    1000
     \    实付凭证页面查询
@@ -58,3 +58,9 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     \    Run Keyword If    '${size}'>'0'    删除全部凭证
     \    ...    ELSE    Exit For Loop
     离开框架
+
+123
+    ${abc}    Set Variable    " \ woshi 666 \ "
+    Comment    ${time}    Evaluate    ${abc}.replace(' ','')
+    ${time}    Remove String    ${abc}    ${EMPTY}
+    log    ${time}

@@ -11,7 +11,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     凭证字管理--新增    ${time}
     凭证字管理--查询    ${time}
     #验证数据
-    进入列表框架
+    进入主页面框架
     ${result}    获取页面数据条数
     应该要相等（数字）    ${result}    1
     离开框架
@@ -19,7 +19,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     凭证字管理--查询    ${time}
     凭证字管理--删除
     #验证数据
-    进入列表框架
+    进入主页面框架
     ${result}    获取页面列表条数    列表信息
     应该要相等（数字）    ${result}    0
     离开框架
@@ -29,27 +29,27 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     点击凭证设置
     点击会计科目管理
     #会计科目管理--新增
-    进入列表框架    #获取新增前条数
+    进入主页面框架    #获取新增前条数
     ${新增前}    获取页面数据条数
     Comment    ${新增前}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr
     离开框架
     ${time}    get time    epoch
     会计科目管理--新增    ${time}
     #验证数据
-    进入列表框架
+    进入主页面框架
     ${新增后}    获取页面数据条数
     Comment    ${新增后}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr
     ${实际值1}    Evaluate    ${新增后}-${新增前}
     应该要相等（数字）    ${实际值1}    1
     离开框架
     #凭证字管理--删除
-    进入列表框架    #获取删除前条数
+    进入主页面框架    #获取删除前条数
     ${删除前}    获取页面数据条数
     Comment    ${删除前}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr
     离开框架
     会计科目管理--删除    ${time}
     #验证数据
-    进入列表框架
+    进入主页面框架
     ${删除后}    获取页面数据条数
     Comment    ${删除后}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr
     ${实际值2}    Evaluate    ${删除前}-${删除后}
@@ -62,26 +62,26 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     点击业务科目对应关系
     #业务科目对应关系--新增
     保证无该业务类别    损益-多付
-    进入列表框架    #获取新增前条数
+    进入主页面框架    #获取新增前条数
     ${新增前}    获取页面数据条数
     Comment    ${新增前}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr
     离开框架
     业务科目对应关系--新增    损益-多付    记    汇兑损益    汇兑损益    汇兑损益    汇兑损益
     #验证数据
-    进入列表框架
+    进入主页面框架
     ${新增后}    获取页面数据条数
     Comment    ${新增后}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr
     ${实际值1}    Evaluate    ${新增后}-${新增前}
     应该要相等（数字）    ${实际值1}    1
     离开框架
     #业务科目对应关系--删除
-    进入列表框架    #获取删除前条数
+    进入主页面框架    #获取删除前条数
     ${删除前}    获取页面数据条数
     Comment    ${删除前}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr
     离开框架
     业务科目对应关系--删除    损益-多付
     #验证数据
-    进入列表框架
+    进入主页面框架
     ${删除后}    获取页面数据条数
     Comment    ${删除后}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr
     ${实际值2}    Evaluate    ${删除前}-${删除后}
@@ -97,7 +97,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     ${time}    get time    epoch
     维护职员财务代码    ${M4-FULLNAME}    code-${time}
     #验证数据
-    进入列表框架
+    进入主页面框架
     ${result}    获取页面数据条数
     应该要相等（数字）    ${result}    1
     离开框架
@@ -110,7 +110,7 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     维护组别财务代码    group-${time}
     职员相关财务代码--查询(条件按)    group-${time}
     #验证数据
-    进入列表框架
+    进入主页面框架
     ${result}    获取页面数据条数
     应该不相等    ${result}    0
     离开框架
@@ -122,13 +122,13 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     #业务类型科目代码--新增
     删除列表所有数据
     业务类型科目代码--新增    OA    公司货    110
-    进入列表框架
+    进入主页面框架
     ${result}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr
     应该要相等（数字）    ${result}    1
     离开框架
     #业务类型科目代码--删除
     删除列表所有数据
-    进入列表框架
+    进入主页面框架
     ${result}    获取匹配xpath的个数    xpath=//tbody[@class='ant-table-tbody']/tr
     应该要相等（数字）    ${result}    0
     离开框架

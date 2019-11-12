@@ -254,7 +254,7 @@ Library           OlymLibrary
 
 读取货代登录配置信息(python2)
     #根据不同环境，修改这个文件名
-    Open Excel    ${CURDIR}\\login\\user_login-生产.xls
+    Open Excel    ${CURDIR}\\login\\user_login-测试.xls
     ${M4_INTER_DIR}    Set Variable    ${CURDIR}
     #m1
     ${M1_URL}    Read Cell Data By Name    Sheet1    C2

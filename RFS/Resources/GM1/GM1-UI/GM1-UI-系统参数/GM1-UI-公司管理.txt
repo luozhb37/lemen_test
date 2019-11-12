@@ -23,7 +23,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     ...    ${linkman}：联系人
     ...
     ...    ${email}：电子邮件
-    进入列表框架
+    进入主页面框架
     清空输入框内容    id=orgNameEn
     输入    id=orgNameEn    ${orgNameEn}
     清空输入框内容    id=orgShortEnName
@@ -37,7 +37,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 公司信息-获取内容
     等待    2    #切换页面后等待页面加载完毕
-    进入列表框架
+    进入主页面框架
     ${text1}    获取元素属性值    id=orgNameEn    value
     ${text2}    获取元素属性值    id=orgShortEnName    value
     ${text3}    获取元素属性值    id=linkman    value
@@ -78,7 +78,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     [Arguments]    ${dep}
     点击系统设置（主菜单）
     进入指定二级菜单    公司管理    组织结构    # 进入组织结构
-    进入框架    id=content
+    进入主页面框架
     ${len}    获取匹配xpath的个数    xpath=//ul[@id='stgl_jg_bmgl_leftTree']/li    # 获取一级部门的个数
     ${flag}    Set Variable    False
     : FOR    ${index}    IN RANGE    ${len}
@@ -93,7 +93,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     [Arguments]    ${dep}    ${sub_dep}
     点击系统设置（主菜单）
     进入指定二级菜单    公司管理    组织结构    # 进入组织结构
-    进入框架    id=content
+    进入主页面框架
     ${len}    获取匹配xpath的个数    xpath=//ul[@id='stgl_jg_bmgl_leftTree']/li    # 获取一级部门的个数
     ${flag}    Set Variable    False
     : FOR    ${index}    IN RANGE    ${len}
@@ -143,7 +143,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     ...    ${sub_dep}：需要选择的指定一级部门下的指定二级部门名称
     点击系统设置（主菜单）
     进入指定二级菜单    公司管理    用户管理    # 进入用户管理
-    进入框架    id=content
+    进入主页面框架
     输入    xpath=//div[@id='user_toolbar']//input[@name='username']    ${name}    # 输入用户名进行查询
     点击    xpath=//button[text()='查询']    # 点击查询按钮
     ${count}    获取匹配xpath的个数    xpath=//table[@class='datagrid-btable']/tbody/tr

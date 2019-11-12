@@ -4,14 +4,14 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 *** Keywords ***
 币别信息--查询
     [Arguments]    ${currency}
-    进入列表框架
+    进入主页面框架
     输入    id=search_code    ${currency}    #输入代码
     点击    xpath=//span[text()='查 询']/..
     离开框架
 
 币别信息--新增
     [Arguments]    ${currency}
-    进入列表框架
+    进入主页面框架
     点击    xpath=//span[text()='新 增']/..
     输入    id=code    ${currency}
     输入    id=name    ${currency}
@@ -20,21 +20,21 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     离开框架
 
 币别信息--删除
-    进入列表框架
+    进入主页面框架
     勾选全部
     点击    xpath=//span[text()='删 除']/..
     离开框架
 
 结算类型--查询
     [Arguments]    ${name}
-    进入列表框架
+    进入主页面框架
     输入    id=qy_base_settletypes_code    ${name}    #输入结算方式代码
     点击    id=bt_query
     离开框架
 
 结算类型--新增
     [Arguments]    ${name}
-    进入列表框架
+    进入主页面框架
     点击    xpath=//span[text()='新增']/..
     离开框架
     进入框架    xpath=//iframe[starts-with(@id,'win_')]
@@ -46,7 +46,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     等待    1
 
 结算类型--删除
-    进入列表框架
+    进入主页面框架
     勾选记录    name=SHEET_ROW_SELECT_ALL    #勾选全部
     点击    id=bt_delete
     ${message}    confirm action    #点击确定
@@ -57,7 +57,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 费用分类管理--新增
     [Arguments]    ${name}
-    进入列表框架
+    进入主页面框架
     点击    xpath=//span[text()='新 增']/..
     输入    id=code    ${name}    #编号
     输入    id=name    ${name}    #费用类别名称
@@ -68,14 +68,14 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 费用分类管理--删除
     [Arguments]    ${name}
-    进入列表框架
+    进入主页面框架
     勾选记录    xpath=//a[text()='${name}']/../..//input[@class='ant-checkbox-input']
     点击    xpath=//span[text()='删 除']/..
     离开框架
 
 货物信息列表查询
     [Arguments]    ${d}
-    进入框架    id=content
+    进入主页面框架
     输入    id=qy_base_goodses_code    ${d}
     点击    id=bt_query    #点击查询
     离开框架
@@ -89,14 +89,14 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 包装列表信息查询
     [Arguments]    ${base_packagetypes_code}
-    进入框架    id=content
+    进入主页面框架
     输入    id=qy_base_packagetypes_code    ${base_packagetypes_code}
     点击    id=bt_query    #点击查询
     离开框架
 
 新增国家
     [Arguments]    ${country}    ${enName}
-    进入框架    id=content
+    进入主页面框架
     点击    xpath=//span[text()='新 增']/..
     输入    id=code    ${country}
     输入    id=enName    ${enName}
@@ -105,7 +105,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 新增城市
     [Arguments]    ${city}    ${code}    ${enName}
-    进入框架    id=content
+    进入主页面框架
     点击    xpath=//span[text()='新 增']/..
     输入    id=code    ${city}
     输入    id=enName    ${code}
@@ -169,7 +169,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 新增其他基础资料
     [Arguments]    ${code}    ${cnValue}
-    进入框架    id=content
+    进入主页面框架
     点击    xpath=//span[text()='新 增']/..
     下拉框选中（最后一个元素）    类型    签单方式
     输入    id=dataVo.code    ${code}
@@ -177,7 +177,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     点击保存按钮
 
 启用和禁用
-    进入框架    id=content
+    进入主页面框架
     点击    xpath=//table/tbody/tr[1]//input    # 点击checkbox
     点击    xpath=//span[text()='启 用']/..    # 点击启用按钮
     Page Should Contain Element    xpath=//table/tbody/tr[1]/td[text()='启用']
@@ -188,7 +188,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 新增货物状态
     [Arguments]    ${statusCode}    ${statusName}    ${statusEnname}
-    进入框架    id=content
+    进入主页面框架
     点击    xpath=//span[text()='新 增']/..
     输入    id=dataVo.statusCode    ${statusCode}
     输入    id=dataVo.statusName    ${statusName}
@@ -197,7 +197,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 新增商品分类
     [Arguments]    ${goodscode}    ${commodityType}
-    进入框架    id=content
+    进入主页面框架
     点击    xpath=//span[text()='新 增']/..
     输入    id=code    ${goodscode}
     输入    id=commodityType    CCC
@@ -205,7 +205,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 新增货物信息
     [Arguments]    ${goodses_code}    ${goodses_name}
-    进入框架    id=content
+    进入主页面框架
     点击    id=bt_add
     离开框架
     进入框架    xpath=//iframe[starts-with(@id,'win_')]
@@ -216,7 +216,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 新增贸易方式
     [Arguments]    ${typecode}    ${shortTitle}    ${fullTitle}
-    进入框架    id=content
+    进入主页面框架
     点击    xpath=//span[text()='新 增']/..
     输入    id=code    ${typecode}
     输入    id=shortTitle    ${shortTitle}
@@ -225,7 +225,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 新增成交方式
     [Arguments]    ${dealcode}    ${tradeCnName}    ${tradeEnName}
-    进入框架    id=content
+    进入主页面框架
     点击    xpath=//span[text()='新 增']/..
     输入    id=code    ${dealcode}
     输入    id=tradeCnName    ${tradeCnName}
@@ -234,7 +234,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 新增计费方式和单位
     [Arguments]    ${modeEnname}    ${modeCnname}    ${unitEnname}    ${unitCnname}
-    进入框架    id=content
+    进入主页面框架
     点击    xpath=//span[text()='新 增']/..
     #输入    id=dataVo.modeEnname    ${modeEnname}
     #输入    id=dataVo.modeCnname    ${modeCnname}
@@ -247,7 +247,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 新增包装类型
     [Arguments]    ${base_packagetypes_code}    ${base_packagetypes_name}
-    进入框架    id=content
+    进入主页面框架
     点击    id=bt_add
     离开框架
     进入框架    xpath=//iframe[starts-with(@id,'win_')]
@@ -257,7 +257,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     离开框架
 
 删除国家或城市记录并校验
-    进入框架    id=content
+    进入主页面框架
     删除国家或者城市第一条记录
     ${count}    获取匹配xpath的个数    xpath=//table/tbody/tr    # 获取匹配的xpath个数
     应该要相等（数字）    ${count}    0
@@ -265,20 +265,20 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 删除包装类型并校验
     [Arguments]    ${h}
-    进入框架    id=content
+    进入主页面框架
     点击    xpath=//input[@name='SHEET_ROW_SELECT_ALL']
     点击    id=bt_delete
     页面弹出框选择确定
     离开框架
     包装列表信息查询    ${h}
-    进入框架    id=content
+    进入主页面框架
     ${text}    获取页面文本内容    xpath=//span[@class='view-page']
     应该包含    ${text}    共0条
     离开框架
 
 货物信息或包装类型新增验证
     [Arguments]    ${temp}    ${a}
-    进入框架    id=content
+    进入主页面框架
     输入    id=${temp}    ${a}
     点击    id=bt_query    #点击查询
     ${text}    获取页面文本内容    xpath=//span[@class='view-page']
@@ -295,7 +295,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     应该包含    ${text}    共1条
 
 国家或城市启用和禁用
-    进入框架    id=content
+    进入主页面框架
     点击    xpath=//table/tbody/tr[1]//input    # 点击checkbox
     点击    xpath=//div[contains(@class,'olym_table_select')]//span[text()='启 用']/..    # 点击启用按钮
     Page Should Contain Element    xpath=//table/tbody/tr[1]/td[text()='启用']
@@ -306,13 +306,13 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 删除货物信息并校验
     [Arguments]    ${d}
-    进入框架    id=content
+    进入主页面框架
     点击    xpath=//input[@name='SHEET_ROW_SELECT_ALL']
     点击    id=bt_delete
     页面弹出框选择确定
     离开框架
     货物信息列表查询    ${d}
-    进入框架    id=content
+    进入主页面框架
     ${text}    获取页面文本内容    xpath=//span[@class='view-page']
     应该包含    ${text}    共0条
     离开框架

@@ -251,14 +251,15 @@ m4-post-multipart
     Set Suite Variable    ${HWLY}
     Set Suite Variable    ${WTDW}
 
-进入列表框架
-    进入框架    id=content
+进入主页面框架
+    进入框架    id=GM1ExternalFrame
 
 回到首页
     [Documentation]    保证主页面（欢迎您使用本系统）只有一个；
     ...    刷新主页面，保证页面没有点击过任何菜单
-    切换窗口    欢迎您使用本系统
+    切换窗口    main
     重载当前页
+    等待加载层消失
 
 勾选列表记录
     [Arguments]    ${n}
@@ -326,7 +327,7 @@ m4-post-multipart
     Run Keyword And Return Status    Wait Until Element Is Not Visible    xpath=//div[@class='dzg-spinner-container']    timeout=120    #等待loading消失
 
 关闭更新弹框
-    ${count}    获取匹配xpath的个数    xpath=//div[@class='odw-body']//span[text()='不再提示']    # 判断是否存在更新弹框的不再提示按钮
+    ${count}    获取匹配xpath的个数    xpath=//div[@class='ant-modal-body']//span[text()='不再提示']    # 判断是否存在更新弹框的不再提示按钮
     run keyword if    ${count}>0    点击    xpath=//span[text()='不再提示']/..    # 如果存在更新弹框则点击按钮关闭
     Wait Until Element Is Not Visible    xpath=//span[text()='不再提示']/..
 
@@ -366,12 +367,6 @@ GM1-登录（集团B公司）
 
 gm1弹出框确认
     点击    xpath=//div[@class="ant-modal-body"]//span[text()="确 定"]/..
-
-进入fms框架
-    进入框架    id=fms-front
-
-进入finance框架
-    进入框架    id=fmsfinance-front
 
 基石列表高级查询-内部不可引用(双列)
     [Arguments]    ${key}    ${value}    ${type}=精确    ${is_clear}=1

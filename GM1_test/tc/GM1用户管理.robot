@@ -1,8 +1,9 @@
 *** Settings ***
 Library  pylib.SCcommon
 Library  pylib.SCuser
+Library
 Variables  sc_cfg.py
-Suite Setup  pylib.SCcommon.sc_login  sc_lzb  a111111
+Suite Setup    pylib.SCcommon.sc_login  sc_lzb  a111111
 
 *** Test Cases ***
 添加用户 - tc000001

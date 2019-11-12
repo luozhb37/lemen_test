@@ -79,7 +79,7 @@ Library           Screenshot
 
 根据编号查询
     [Arguments]    ${expNO}
-    进入框架    id=content
+    进入列表框架
     输入    id=no    ${expNO}
     等待    2
     点击    xpath=//span[contains(text(),'查 询')]/..
@@ -87,7 +87,7 @@ Library           Screenshot
 
 进入详情页
     [Arguments]    ${expNO}
-    进入框架    id=content
+    进入列表框架
     点击    xpath=//div[@class='ant-table-body-inner']//a[text()='${expNO}']    #点击查询结果的a标签
     等待    1
     切换窗口    new    #切换窗口进入详情页
