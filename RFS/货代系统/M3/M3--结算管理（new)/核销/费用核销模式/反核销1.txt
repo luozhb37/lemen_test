@@ -1,4 +1,4 @@
-*** Settings ***
+﻿*** Settings ***
 Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
 
 *** Test Cases ***
@@ -11,16 +11,17 @@ Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
     ${row}    新增收入费用-选定费用    1000
     费用信息页面勾选收入费用    ${row}
     费用信息页面点击收款核销
-    ${recbillno}    详情-生成收款单
+    ${recbillno}    点击生成收款单-收款单详情
     审核并核销(收款)
     关闭所有弹出框
     点击业务管理
     点击结算管理
     点击收款
     点击收款单管理
-    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${recbillno}    #按回款日期、收款单号查询
-    反核销--核销记录    ${recbillno}
-    离开框架
+    点击核销记录
+    收（付）核销记录列表查询    ${recbillno}
+    列表页面-全选记录
+    点击反核销-核销记录列表
     点击收款单管理
     收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${recbillno}    #按回款日期、收款单号查询
     ${page}    获取列表记录数
@@ -40,16 +41,16 @@ Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
     ${row}    新增收入费用-选定费用    1000
     费用信息页面勾选收入费用    ${row}
     费用信息页面点击收款核销
-    ${recbillno}    详情-生成收款单
+    ${recbillno}    点击生成收款单-收款单详情
     审核并核销(收款)
     关闭所有弹出框
     点击业务管理
     点击结算管理
     点击收款
     点击收款单管理
-    反核销--收款单管理    ${recbillno}
-    #收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${recbillno}    #按回款日期、收款单号查询
-    离开框架
+    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${recbillno}    #按回款日期、收款单号查询
+    列表页面-全选记录
+    点击反核销-收款单管理已核销列表
     点击收款
     点击收款单管理
     收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${recbillno}    #按回款日期、收款单号查询
@@ -70,14 +71,16 @@ Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
     ${row}    新增收入费用-选定费用    1000
     费用信息页面勾选收入费用    ${row}
     费用信息页面点击收款核销
-    ${recbillno}    详情-生成收款单
+    ${recbillno}    点击生成收款单-收款单详情
     审核并核销(收款)
     关闭所有弹出框
     点击业务管理
     点击结算管理
     点击收款
-    反核销--费用反核销    ${recbillno}
-    离开框架
+    点击费用反核销
+    费用反核销列表查询    ${recbillno}
+    列表页面-全选记录
+    点击反核销-费用反核销列表
     点击收款
     点击收款单管理
     收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${recbillno}    #按回款日期、收款单号查询
@@ -102,12 +105,14 @@ Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
     点击业务管理
     点击结算管理
     点击付款
+    点击核销记录
+    收（付）核销记录列表查询    ${paybillno}
+    列表页面-全选记录
+    点击反核销-核销记录列表
     点击付款单管理
-    付款反核销--付款单管理（发票）    ${paybillno}
     付款单管理已核销列表查询    ${paybillno}
     ${page}    获取列表记录数
     应该包含    ${page}    共0条
-    点击付款单管理
     #费用列表查看收款单号及实付金额
     ${fee_paybillno}    ${amount}    费用列表获取付款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
     应该要相等    ${fee_paybillno}    ${EMPTY}
@@ -127,8 +132,9 @@ Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
     点击结算管理
     点击付款
     点击付款单管理
-    点击付款
-    付款反核销--付款单管理（发票）    ${paybillno}
+    付款单管理已核销列表查询    ${paybillno}
+    列表页面-全选记录
+    点击反核销--付款单管理（已核销列表）
     付款单管理已核销列表查询    ${paybillno}
     ${page}    获取列表记录数
     应该包含    ${page}    共0条
@@ -162,58 +168,3 @@ Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
     应该要相等    ${fee_paybillno}    ${EMPTY}
     应该要相等    0.00    ${amount}
 
-对冲反核销--核销记录1
-    点击业务管理
-    点击业务台帐
-    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
-    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
-    从台帐详情进入费用页面
-    ${recrow}    新增收入费用-选定费用    2000
-    ${payrow}    新增支出费用-选定费用    2000
-    ${fapiao}    对冲费用(对账并汇总开票)
-    点击业务管理
-    点击结算管理
-    点击对冲
-    点击对冲申请
-    ${duichong}    ${money}    ${rec}    ${code}    对冲(核销)--按发票    ${fapiao}
-    对冲反核销(核销记录)    ${duichong}
-    点击对冲单管理
-    对冲单管理已核销列表查询    ${duichong}
-    ${page}    获取列表记录数
-    应该包含    ${page}    共0条
-    点击结算管理
-    #费用列表查看收款单号及实付金额
-    ${fee_paybillno}    ${amount}    费用列表获取付款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${payrow}
-    ${rec_paybillno}    ${amount1}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${recrow}
-    应该要相等    ${fee_paybillno}    ${EMPTY}
-    应该要相等    ${rec_paybillno}    ${EMPTY}
-    应该要相等    0.00    ${amount}
-    应该要相等    0.00    ${amount1}
-
-对冲反核销--对冲单管理1
-    点击业务管理
-    点击业务台帐
-    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
-    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
-    从台帐详情进入费用页面
-    ${recrow}    新增收入费用-选定费用    2000
-    ${payrow}    新增支出费用-选定费用    2000
-    ${fapiao}    对冲费用(对账并汇总开票)
-    点击业务管理
-    点击结算管理
-    点击对冲
-    点击对冲申请
-    ${duichong}    ${money}    ${rec}    ${code}    对冲(核销)--按发票    ${fapiao}
-    点击对冲单管理
-    对冲(反核销)--对冲单管理    ${duichong}
-    对冲单管理已核销列表查询    ${duichong}
-    ${page}    获取列表记录数
-    应该包含    ${page}    共0条
-    点击结算管理
-    #费用列表查看收款单号及实付金额
-    ${fee_paybillno}    ${amount}    费用列表获取付款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${payrow}
-    ${rec_paybillno}    ${amount1}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${recrow}
-    应该要相等    ${fee_paybillno}    ${EMPTY}
-    应该要相等    ${rec_paybillno}    ${EMPTY}
-    应该要相等    0.00    ${amount}
-    应该要相等    0.00    ${amount1}

@@ -5,22 +5,17 @@ Library           ExcelLibrary
 *** Keywords ***
 进入客商详情
     [Arguments]    ${customer}    # 客商名称
-    进入主页面框架
     Wait Until Element Is Enabled    xpath=//a[text()='${customer}']    5
     点击    xpath=//a[text()='${customer}']    #点击超链接
-    离开框架
     等待    2
     切换窗口    new
 
 新增客商
     [Arguments]    ${customername}    ${customercode}
-    进入主页面框架
-    #等待加载层消失
     Wait Until Element Is Enabled    xpath=//span[text()='新 增']/..
     等待    2
     点击    xpath=//span[text()='新 增']/..
     等待    2
-    离开框架
     切换窗口    new
     输入    id=name    ${customername}
     输入    id=code    ${customercode}
@@ -30,14 +25,12 @@ Library           ExcelLibrary
     勾选客户类别    国际采购商
     勾选客户类别    经营单位
     下拉框选中    客户类型    同行
-    #客户类型(全部)
     勾选客户类别    发货人    #发货人
     勾选客户类别    收货人    #收货人
     勾选客户类别    通知人    #通知人
     勾选客户类别    海外代理    #海外代理
     勾选客户类别    船公司    #船公司
     勾选客户类别    订舱代理    #订舱代理
-    #维护必填项
     点击    xpath=//button[@class='ant-btn ant-btn-primary']
     wait until page contains    保存成功    15
     关闭当前窗口
@@ -102,20 +95,18 @@ Library           ExcelLibrary
 
 客商列表查询
     [Arguments]    ${customername}
-    进入主页面框架
     输入    id=name    ${customername}
     点击    xpath=//span[text()='查 询']/..
     ${number}    获取匹配xpath的个数    xpath=//table[@class='ant-table-fixed']//tbody[@class='ant-table-tbody']//tr
-    离开框架
     [Return]    ${number}
 
 新增联系人
     [Arguments]    ${contactname}    ${goodsource}    ${phone_number}    ${contact-type}
     点击客商详情内的tab    联系方式
     点击    xpath=//span[text()='新 增']/..
-    点击    xpath=//div[text()='联系人属性']    #点击联系人属性下拉框
+    点击    xpath=//div[text()='业务关键人']    #点击联系人属性下拉框
     点击    xpath=//li[text()='${contact-type}']    #联系人属性
-    输入    xpath=//input[@id='name'][@class='ant-input ant-input-lg']    ${contactname}    #输入联系人
+    输入    xpath=//input[@class='ant-input'and@id='name']    ${contactname}    #输入联系人
     输入    id=tel    0574-8888
     输入    id=mobile    ${phone_number}
     run keyword if    '${contact-type}'=='业务关键人'    维护销售记录    0    ${goodsource}    ${M4-ORGNAME}    ${M4-DEPARTMENT}
@@ -126,7 +117,7 @@ Library           ExcelLibrary
 
 点击客商详情内的tab
     [Arguments]    ${text}    # tab名称
-    点击    xpath=//li[text()='${text}']
+    点击    xpath=//a[text()='${text}']
 
 联系人列表查询
     [Arguments]    ${name}
@@ -183,6 +174,7 @@ Library           ExcelLibrary
     按键    xpath=//input[@id='ownGroup.custName']    \\13
     下拉框选中    关系    ${kind}
     点击    xpath=//span[text()='保 存']/..
+    Wait Until Page Contains    保存成功！
 
 删除关联关系
     点击    xpath=//a[text()='删除']
@@ -269,7 +261,7 @@ Library           ExcelLibrary
     #点击全选所有业务类型
     客商下拉框选中(带筛选)    xpath=//div[contains(@class,'businessTypes_${row} ')]    全部业务
     #选择货物来源
-    客商下拉框选中(带筛选)    xpath=//div[contains(@class,'goodsSource_${row}')]    ${goodsource}
+    客商下拉框选中(带筛选)    xpath=//div[contains(@class,'goodsSourceId_${row}')]    ${goodsource}
     #选择我司公司
     客商下拉框选中(无筛选)    xpath=//div[contains(@class,'belongOrgName_${row}')]    ${orgname}
     #选择部门
@@ -398,11 +390,9 @@ Library           ExcelLibrary
 
 查询正式客商
     [Arguments]    ${name}
-    进入主页面框架
     Wait Until Element Is Enabled    id=name
     输入    id=name    ${name}
     点击    xpath=//span[text()='查 询']/..
-    离开框架
 
 客商下拉框选中(带筛选)
     [Arguments]    ${location}    ${content}
@@ -448,3 +438,50 @@ Library           ExcelLibrary
     [Arguments]    ${partition}    ${date}
     下拉框选中    付款日    ${partition}    # 选择付款日
     输入    settlePayDays    ${date}    # 输入付款日日期
+
+新增客商(申请页面)
+    [Arguments]    ${customername}    ${customercode}
+    Wait Until Element Is Enabled    xpath=//span[text()='新 增']/..
+    等待    2
+    点击    xpath=//span[text()='新 增']/..
+    等待    2
+    切换窗口    new
+    输入    id=name    ${customername}
+    输入    id=code    ${customercode}
+    输入    id=organizationCode    organization code    #社会信用统一代码
+    输入    id=address    浙江省宁波市鄞州区
+    勾选客户类别    委托客户
+    勾选客户类别    国际采购商
+    勾选客户类别    经营单位
+    下拉框选中    客户类型    同行
+    勾选客户类别    发货人    #发货人
+    勾选客户类别    收货人    #收货人
+    勾选客户类别    通知人    #通知人
+    勾选客户类别    海外代理    #海外代理
+    勾选客户类别    船公司    #船公司
+    勾选客户类别    订舱代理    #订舱代理
+    点击    xpath=//button[@class='ant-btn ant-btn-primary']
+    wait until page contains    保存成功    15
+    点击    xpath=//a[text()='联系方式']
+    等待加载层消失
+    点击    xpath=//span[text()='新 增']/..
+    ${customer-fullname}    生成一个带有字符的随机数    大香蕉
+    ${TEL}    生成一个带有字符的随机数
+    输入    xpath=//div[@id='customer-edit-area']/div[2]/div[1]//input    ${customer-fullname}
+    输入    id=tel    ${TEL}
+    输入    xpath=//input[@id='businessTypes_0']    全部业务
+    按键    xpath=//input[@id='businessTypes_0']    \\13
+    输入    xpath=//input[@id='goodsSourceId_0']    公司货
+    按键    xpath=//input[@id='businessTypes_0']    \\13
+    点击    xpath=//span[text()='确 定']/..
+    点击    xpath=//a[text()='基本信息']
+    等待加载层消失
+    点击    xpath=//span[text()='提 交']/..
+    关闭当前窗口
+    切换窗口    main
+
+客商货物来源(下拉第一个)
+    [Documentation]    应用于客商申请联系人下 货物申请
+    点击    xpath=//div[contains(@class,'goodsSourceId_0')]
+    点击    //li[text()='自揽货']
+    点击    xpath=//span[text()='确 定']/..

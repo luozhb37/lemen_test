@@ -48,6 +48,11 @@ excel_demo
     \    Set To Dictionary    ${json_post}    sign    ${sign}
     \    进行post请求并存入结果    ${json_post}    ${start}    ${i}    ${M4_INTER_DIR}\\inter_file\\result测试2.xls    ${sheetname}
 
+demo
+    ${resp}    Set Variable    {'a'}
+    ${resp}    Replace String    ${resp}    '    "
+    log    ${resp}
+
 *** Keywords ***
 进行post请求并存入结果
     [Arguments]    ${item}    ${start}    ${i}    ${filename}    ${sheetname}

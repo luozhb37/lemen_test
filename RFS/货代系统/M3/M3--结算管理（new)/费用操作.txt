@@ -1,6 +1,6 @@
 *** Settings ***
 Suite Setup       Run keywords    登录
-...               AND    新增海运出口业务    # Run keywords | 系统参数设置 | AND | 往来单位初始化 | AND | 自定义初始化
+...               AND    新增海运出口业务
 Suite Teardown    close all browsers
 Test Setup        Reload Page    #回到首页
 Resource          ../../../Resources/M3基础操作/M3--引用.txt
@@ -133,7 +133,7 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     #进入详情框架
     ${row-after}    获取费用列表中的收入费用行数
     ${result}    evaluate    ${row-before}+1
-    应该要相等    ${result}    ${row-after}
+    Should Be Equal As Strings    ${result}    ${row-after}
 
 标记收入制单完成和取消标记完成
     点击业务管理
@@ -179,74 +179,55 @@ Resource          ../../../Resources/M3基础操作/M3--引用.txt
     sleep    3
     ${row-after}    获取费用列表中的支出费用行数
     ${result}    evaluate    ${row}+1
-    应该要相等    ${row-after}    ${result}
+    Should Be Equal As Strings    ${row-after}    ${result}
 
-呆坏账管理--强制结清并取消强制结清
+引用费率-默认费率
+    点击业务管理
+    点击费率查询
+    ${compactno}    新增费率
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    ${row}    获取费用列表中的收入费用行数
+    ${row_pay}    获取费用列表中的支出费用行数
+    点击引用费率-选择确定
+    ${row_after}    获取费用列表中的收入费用行数
+    ${row_pay_after}    获取费用列表中的支出费用行数
+    ${row1}    evaluate    ${row}+1
+    ${row_pay1}    evaluate    ${row_pay}+1
+    应该要相等（数字）    ${row_after}    ${row1}    #默认汇率只会有一条
+    应该要相等（数字）    ${row_pay_after}    ${row_pay1}
+
+引用费率-选择费率
+    点击业务管理
+    点击费率查询
+    ${compactno}    新增费率
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    ${row}    获取费用列表中的收入费用行数
+    ${row_pay}    获取费用列表中的支出费用行数
+    点击引用费用率-选择取消    ${compactno}
+    ${row_after}    获取费用列表中的收入费用行数
+    ${row_pay_after}    获取费用列表中的支出费用行数
+    ${row1}    evaluate    ${row}+1
+    ${row_pay1}    evaluate    ${row_pay}+1
+    应该要相等（数字）    ${row_after}    ${row1}    #默认汇率只会有一条
+    应该要相等（数字）    ${row_pay_after}    ${row_pay1}
+
+填充收入、支出费用
     点击业务管理
     点击业务台帐
     海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
-    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
-    从台帐详情进入费用页面
-    ${row}    新增收入费用-选定费用
-    关闭所有弹出框
-    点击业务管理
-    点击结算管理
-    点击归档
-    点击呆坏账管理
-    强制结清后取消强制结清    ${BUSINESSNO-SUIT-SEAEXPORT}
-    点击结算管理
-
-凭证导出
-    凭证导出系统参数初始化-步骤1
-    新增海运出口业务台账
-    点击业务管理
-    点击业务台帐
-    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
-    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
-    从台帐详情进入费用页面
-    #新增费用
-    新增收入费用    1000    1    RMB    1
-    关闭所有弹出框
-    点击业务管理
-    #按业务明细开票
-    点击结算管理
-    点击发票
-    点击新增发票
-    点击按业务
-    新增发票-按业务未开票页面查询    qyinv_datetype=1    qybu_elementname=businessno    qybu_elementvalue=${BUSINESSNO-SUIT-SEAEXPORT}    #按接单日期，业务编号查询
-    列表页面-全选记录
-    按业务列表页面点击开票
-    Select Frame    xpath=//iframe[starts-with(@src,'about:blank?___')]
-    #select frame by index    tag=iframe    -1
-    点击    id=bt_invoice_detail    #明细开票
-    等待    1
-    离开框架
-    Select Frame    xpath=.//h3[contains(text(),'填写发票号')]/../following-sibling::div[1]/iframe
-    #select frame by index    tag=iframe    -1
-    点击    id=bt_next_sum    #点击确认
-    等待    1
-    离开框架
-    Select Frame    xpath=//iframe[starts-with(@src,'about:blank?___')]
-    #select frame by index    tag=iframe    -1
-    ${sign_invoiceno}    获取页面文本内容    xpath=.//*[contains(text(),"发票号")]/following-sibling::td[1]    #获取发票号
-    离开框架
-    关闭所有弹出框
-    #查询发票管理中存在该发票
-    发票管理-收入列表查询    qy_mains_datatype=1    write_invoiceno=${sign_invoiceno}
-    ${content}    获取列表记录数
-    应该包含    ${content}    共1条
-    点击结算管理
-    #费用列表查看发票号
-    ${fee_invoiceno}    费用列表获取收入费用发票号    ${BUSINESSNO-SUIT-SEAEXPORT}
-    应该要相等    ${fee_invoiceno}    ${sign_invoiceno}
-    Reload Page
-    点击结算管理
-    点击归档
-    点击财务接口
-    进入列表页面框架
-    输入    id=qycer_invoiceno    ${fee_invoiceno}
-    点击    id=bt_query
-    点击    name=SHEET_ROW_SELECT_ALL
-    点击    id=bt_voucher_export
-    离开框架
-    sleep    3
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    ${row}    获取费用列表中的收入费用行数
+    ${row_pay}    获取费用列表中的支出费用行数
+    点击填充收入费用
+    点击填充支出费用
+    ${row_after}    获取费用列表中的收入费用行数
+    ${row_pay_after}    获取费用列表中的支出费用行数
+    Should Not Be Equal As Integers    ${row}    ${row_after}
+    Should Not Be Equal As Integers    ${row_pay}    ${row_pay_after}

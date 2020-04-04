@@ -5,7 +5,7 @@ Resource          GM1-UI-引用.txt
 m4-登录
     读取货代登录配置信息
     Set Selenium Implicit Wait    5
-    打开    http://${M4-OPEN-URL}/login.html
+    打开    https://${M4-OPEN-URL}/login.html
     进入框架    id=loginPanel
     Wait Until Element Is Visible    id=username
     输入    id=username    ${M4-USERNAME}
@@ -252,7 +252,7 @@ m4-post-multipart
     Set Suite Variable    ${WTDW}
 
 进入主页面框架
-    进入框架    id=GM1ExternalFrame
+    进入框架    xpath=//div[@class="dzg-page-content"]/iframe
 
 回到首页
     [Documentation]    保证主页面（欢迎您使用本系统）只有一个；
@@ -266,7 +266,7 @@ m4-post-multipart
     [Documentation]    处在第一个table里，且勾选第一条记录（不是全选哈）
     ...
     ...    ${n}：对应table里面第几行
-    勾选记录    xpath=//table//tbody//tr[1]//input[${n}]
+    勾选记录    xpath=//table//tbody//tr[${n}]//input[1]
 
 选择日期（字段名称）
     [Arguments]    ${date_name}    ${month}    ${date}
@@ -327,9 +327,9 @@ m4-post-multipart
     Run Keyword And Return Status    Wait Until Element Is Not Visible    xpath=//div[@class='dzg-spinner-container']    timeout=120    #等待loading消失
 
 关闭更新弹框
-    ${count}    获取匹配xpath的个数    xpath=//div[@class='ant-modal-body']//span[text()='不再提示']    # 判断是否存在更新弹框的不再提示按钮
-    run keyword if    ${count}>0    点击    xpath=//span[text()='不再提示']/..    # 如果存在更新弹框则点击按钮关闭
-    Wait Until Element Is Not Visible    xpath=//span[text()='不再提示']/..
+    ${count}    获取匹配xpath的个数    xpath=//div[@class='ant-v4-modal-content']//span[text()='我知道了']    # 判断是否存在更新弹框的不再提示按钮
+    run keyword if    ${count}>0    点击    xpath=//div[@class='ant-v4-modal-content']//span[text()='我知道了']/..    # 如果存在更新弹框则点击按钮关闭
+    Wait Until Element Is Not Visible    xpath=//div[@class='ant-v3-modal-content']//span[text()='我知道了']/..
 
 GM1-登录（集团A公司）
     Set Selenium Implicit Wait    5
@@ -388,6 +388,7 @@ gm1弹出框确认
     # 输入查询内容
     run keyword if    ${is_clear} ==1    清空已选择高级查询条件内容    ${key}
     输入    xpath=//div[@id='dzg-adSearch-condition-sort']//label[text()='${key}']/../../../following-sibling::div[1]//input    ${value}
+    Run Keyword And Ignore Error    点击    xpath=//ul[contains(@class, 'ant-select-dropdown-menu-root')]//li[text()='${value}']
 
 基石列表高级查询-内部不可引用(单列)
     [Arguments]    ${key}    ${value}    ${is_clear}=1
@@ -395,10 +396,126 @@ gm1弹出框确认
     清空输入框内容    xpath=//div[@id='dzg-adsearch-alledit']//input
     输入    xpath=//div[@id='dzg-adsearch-alledit']//input    ${key}
     ${count}    获取匹配xpath的个数    xpath=//span[text()='${key}']/../span[contains(@class, 'ant-checkbox-checked')]
-    run keyword if    ${count}==0    点击    xpath=//div[@class='ant-modal-content']//span[text()='${key}']
+    run keyword if    ${count}==0    点击    xpath=(//div[@class='ant-modal-content'])[last()]//span[text()='${key}']
     # 输入查询内容
     run keyword if    ${is_clear} ==1    清空已选择高级查询条件内容    ${key}
     输入    xpath=//div[@id='dzg-adSearch-condition-sort']//label[text()='${key}']/../following-sibling::div[1]//input    ${value}
     按键    xpath=//div[@id='dzg-adSearch-condition-sort']//label[text()='${key}']/../following-sibling::div[1]//input    \\13
     ${count}    获取匹配xpath的个数    xpath=//div[@id='dzg-adSearch-condition-sort']//label[text()='${key}']/../following-sibling::div[1]//li[@class='ant-select-selection__choice']//div[text()='${value}']
     run keyword if    ${count}==0    点击    xpath=//ul[contains(@class, 'ant-select-dropdown-menu-root')]//li[text()='${value}']
+
+获取同级元素位置
+    [Arguments]    ${name}
+    [Documentation]    \#jquery语法：https://www.cnblogs.com/dangkai/p/9948573.html    #eg：$('div[data-key=customerName]').index()+1
+    ${a}    Execute Javascript    ${name}
+    ${i}    Evaluate    ${a}+1
+    [Return]    ${i}
+
+获取列表head位置
+    [Arguments]    ${path}    ${name}
+    [Documentation]    \# ${path}：文本所在的定位    #eg：费用详情的列头路径：$('div#${type} div.ant-table-scroll thead.ant-table-thead span')
+    ${count}    获取同级元素位置    ${path}
+
+高级查询外显
+    [Arguments]    ${查询条件}
+    点击    xpath=//a[text()='高级查询']
+    输入    xpath=//span[@class='ant-input-search ant-input-affix-wrapper']/input    ${查询条件}
+    ${num}    获取匹配xpath的个数    xpath=//div[@class='left-sider']/div[4]//label/span[text()='${查询条件}']
+    Run Keyword If    ${num}>0    勾选记录    xpath=//span[text()='客户类型']/..//input
+    高级查询上移    ${查询条件}
+
+高级查询上移
+    [Arguments]    ${查询条件}
+    Drag And Drop    xpath=//label[@title='${查询条件}']/../../../../../../div[1]/i    xpath=//div[@id='dzg-adSearch-condition-sort']/ul
+
+自定义列位置查询--订单
+    [Arguments]    ${name}
+    ${count}    Get Element Count    xpath=//div[@class="BaseTable__table BaseTable__table-main"]//div[@class="BaseTable__header-row"]//div[text()="${name}"]/../preceding-sibling::div
+    ${num}    Evaluate    ${count}+1
+    [Return]    ${num}
+
+新增查询(基石)
+    ${position}    获取匹配xpath的个数    xpath=//div[@id='dzg-adsearch-conditions']/div
+    点击     xpath=//span[text()='增加条件']
+    [Return]    ${position}
+
+时间查询(基石)
+    [Arguments]    ${position}    ${name}    ${start}    ${end}
+    [Documentation]    第一个是查询框所在位置
+    ...    第二个是查询条件
+    ...    第三个是起始时间
+    ...    第四个是结束时间
+    ...    ${xp}获取查询条件div下数量:1:表示未选 \ 2表示已选
+    ...
+    ${num}    Evaluate    ${position} -1
+    ${XP}    获取匹配xpath的个数    xpath=//div[@id='dzg-adsearch-conditions']/div[${position}]//div[@class='ant-select-selection__rendered']/div
+    Run Keyword If    ${XP}==2    点击    xpath=//div[@id='dzg-adsearch-conditions']/div[${position}]//div[@class='ant-select-selection__placeholder']
+    ...    ELSE    点击    xpath=//div[@id='dzg-adsearch-conditions']/div[${position}]//div[@class='ant-select-selection-selected-value']
+    输入    xpath=//div[@id='dzg-adsearch-conditions']/div[${position}]//div[@class='ant-select-search ant-select-search--inline']/div/input    ${name}
+    点击    xpath=//li[text()='${name}']
+    输入    xpath=//input[@id='footQueries[${num}].queryValues']    ${start}
+    输入    xpath=//input[@id='footQueries[${num}].queryValues-end']    ${end}
+
+删除查询(基石)
+    [Arguments]    ${position}
+    Mouse Over    xpath=//div[@id='dzg-adsearch-conditions']/div[${position}]//i[@class='anticon anticon-close']/..    #移动到一级菜单
+    Wait Until Element Is Visible    xpath=//div[@id='dzg-adsearch-conditions']/div[${position}]//i[@class='anticon anticon-close']    30
+    点击    xpath=//div[@id='dzg-adsearch-conditions']/div[${position}]//i[@class='anticon anticon-close']
+    等待loading消失
+
+循环删除查询(基石)
+    ${count}    获取匹配xpath的个数    xpath=//div[@id='dzg-adsearch-conditions']/div
+    :FOR    ${i}    IN RANGE    ${count}-2
+    \    Mouse Over    xpath=//div[@id='dzg-adsearch-conditions']/div[1]//i[@class='anticon anticon-close']/..    #移动到一级菜单
+    \    Wait Until Element Is Visible    xpath=//div[@id='dzg-adsearch-conditions']/div[1]//i[@class='anticon anticon-close']    30
+    \    点击    xpath=//div[@id='dzg-adsearch-conditions']/div[1]//i[@class='anticon anticon-close']
+    \    等待    1
+
+新增N个查询(基石)
+    [Arguments]    ${key}
+    循环删除查询(基石)
+    ${position}    Evaluate    ${key}
+    ${XP}    获取匹配xpath的个数    xpath=//div[@id='dzg-adsearch-conditions']/div[1]//div[@class='ant-select-selection__rendered']/div
+    Run Keyword If    ${XP}==2    点击    xpath=//div[@id='dzg-adsearch-conditions']/div[1]//div[@class='ant-select-selection__placeholder']
+    ...    ELSE    点击    xpath=//div[@id='dzg-adsearch-conditions']/div[1]//div[@class='ant-select-selection-selected-value']
+    点击    xpath=//ul[(@class='ant-select-dropdown-menu \ ant-select-dropdown-menu-root ant-select-dropdown-menu-vertical')]/li[1]
+    ${position1}    Evaluate    ${position}+1
+    :FOR    ${i}    IN RANGE    2    ${position1}
+    \    点击    xpath=//span[text()='增加条件']
+    \    点击    xpath=//div[@id='dzg-adsearch-conditions']/div[${i}]//div[@class='ant-select-selection__placeholder']
+    \    点击    xpath=//ul[(@class='ant-select-dropdown-menu \ ant-select-dropdown-menu-root ant-select-dropdown-menu-vertical')]/li[${i}]
+    \    等待    1
+    点击    //span[text()='查询']/..
+
+请选择条件(基石)
+    [Arguments]    ${position}    ${start}
+    点击    xpath=//div[@id='dzg-adsearch-conditions']/div[${position}]/div[3]//div[@class='ant-select-selection__rendered']/div
+    输入    xpath=//div[@id='dzg-adsearch-conditions']/div[${position}]/div[3]//div[@class='ant-select-selection__rendered']//input    ${start}
+    点击    xpath=//li[text()='${start}']
+
+单列查询(基石)
+    [Arguments]    ${position}    ${name}    ${condition}
+    ${num}    Evaluate    ${position}-1
+    ${XP}    获取匹配xpath的个数    xpath=//div[@id='dzg-adsearch-conditions']/div[${position}]//div[@class='ant-select-selection__rendered']/div
+    Run Keyword If    ${XP}==2    点击    xpath=//div[@id='dzg-adsearch-conditions']/div[${position}]//div[@class='ant-select-selection__placeholder']
+    ...    ELSE    点击    xpath=//div[@id='dzg-adsearch-conditions']/div[${position}]//div[@class='ant-select-selection-selected-value']
+    输入    xpath=//div[@id='dzg-adsearch-conditions']/div[${position}]//div[@class='ant-select-search ant-select-search--inline']/div/input    ${name}
+    点击    xpath=//li[text()='${name}']
+    ${text}    获取页面文本内容    xpath=//div[@id='dzg-adsearch-conditions']/div[${position}]/div[3]//div[@class='ant-select-selection__rendered']/div
+    Run Keyword If    '${text}'=='请输入条件'    输入    xpath=//div[@id='dzg-adsearch-conditions']/div[${position}]/div[3]//div[@class='ant-select-selection__rendered']//input    ${condition}
+    ...    ELSE    请选择条件(基石)    ${position}    ${condition}
+
+双列查询(基石)
+    [Arguments]    ${position}    ${name}    ${condition}    ${condition2}
+    [Documentation]    \#位置	#查询条件	#查询内容	#下拉第几位
+    ${num}    Evaluate    ${position}-1
+    ${XP}    获取匹配xpath的个数    xpath=//div[@id='dzg-adsearch-conditions']/div[${position}]//div[@class='ant-select-selection__rendered']/div
+    Run Keyword If    ${XP}==2    点击    xpath=//div[@id='dzg-adsearch-conditions']/div[${position}]//div[@class='ant-select-selection__placeholder']
+    ...    ELSE    点击    xpath=//div[@id='dzg-adsearch-conditions']/div[${position}]//div[@class='ant-select-selection-selected-value']
+    输入    xpath=//div[@id='dzg-adsearch-conditions']/div[${position}]//div[@class='ant-select-search ant-select-search--inline']/div/input    ${name}
+    点击    xpath=//li[text()='${name}']
+    点击    xpath=//div[@id='dzg-adsearch-conditions']/div[${position}]/div[2]//div[@class='ant-select-selection__rendered']/div
+    点击    xpath=//div[contains(@class,'ant-select-dropdown--single')]//li[${condition2}]
+    ${text}    获取页面文本内容    xpath=//div[@id='dzg-adsearch-conditions']/div[${position}]/div[3]//div[@class='ant-select-selection__rendered']/div
+    Run Keyword If    '${text}'=='请输入条件'    输入    xpath=//div[@id='dzg-adsearch-conditions']/div[${position}]/div[3]//div[@class='ant-select-selection__rendered']//input    ${condition}
+    ...    ELSE    请选择条件(基石)    ${position}    ${condition}

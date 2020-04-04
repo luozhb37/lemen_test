@@ -65,7 +65,7 @@ dell
 删除运价-循环
     新建掌门人管理员会话
     @{list}    ${pages}    选择一页数据    pagesize=500    publishstate=all    invalidstate=all
-    :FOR    ${i}    in range    ${pages}
+    :FOR    ${i}    IN RANGE    ${pages}
     \    @{list1}    选择一页数据    pagesize=500    publishstate=all    invalidstate=all
     \    log    i=${i}
     \    删除整箱运价    casenumber=${list1}
@@ -131,7 +131,7 @@ do
     #log    ${resultJson["data"]["list"][0]["casenumber"]}
     ${size}    set variable    ${resultJson["data"]["size"]}
     @{list}    create list
-    :FOR    ${i}    in range    ${size}
+    : FOR    ${i}    IN RANGE    ${size}
     \    ${result}    set variable    ${resultJson["data"]["list"][${i}]["casenumber"]}
     \    append to list    ${list}    ${result}
     log    ${list}

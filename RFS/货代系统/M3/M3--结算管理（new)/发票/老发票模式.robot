@@ -26,9 +26,9 @@ Resource          ../../../../Resources/M3基础操作/M3--引用.txt
     点击结算管理
     点击发票
     点击新增发票
-    点击按业务
-    新增发票-按业务未开票页面查询    qybu_elementvalue=${BN_MAINS_VESSELNAME}    qybu_elementname=vesselname
-    列表页面-全选记录
+    点击按业务-新增发票
+    查询-新增发票（按业务）    qybu_elementvalue=${BN_MAINS_VESSELNAME}    qybu_elementname=vesselname
+    全选记录-列表页面
     按业务列表页面点击开票
     ${sign_invoiceno}    汇总开票-新增发票页面
     关闭所有弹出框
@@ -65,11 +65,11 @@ Resource          ../../../../Resources/M3基础操作/M3--引用.txt
     点击结算管理
     点击发票
     点击新增发票
-    点击按业务
-    新增发票-按业务未开票页面查询    ${BUSINESSNO-SUIT-SEAEXPORT}
-    列表页面-全选记录
+    点击按业务-新增发票
+    查询-新增发票（按业务）    ${BUSINESSNO-SUIT-SEAEXPORT}
+    全选记录-列表页面
     按业务列表页面点击开票
-    ${sign_invoiceno}    明细开票
+    ${sign_invoiceno}    明细开票-开票方式
     关闭所有弹出框
     #查询发票管理中存在该发票
     发票管理-收入列表查询    ${sign_invoiceno}
@@ -99,9 +99,9 @@ Resource          ../../../../Resources/M3基础操作/M3--引用.txt
     点击结算管理
     点击发票
     点击新增发票
-    点击按业务
-    新增发票-按业务未开票页面查询    ${BUSINESSNO-SUIT-SEAEXPORT}
-    列表页面-全选记录
+    点击按业务-新增发票
+    查询-新增发票（按业务）    ${BUSINESSNO-SUIT-SEAEXPORT}
+    全选记录-列表页面
     按业务列表页面点击开票
     ${sign_invoiceno}    标记开票-新增发票页面
     关闭所有弹出框
@@ -133,7 +133,7 @@ Resource          ../../../../Resources/M3基础操作/M3--引用.txt
     点击应付发票
     点击应付发票登记
     应付发票登记列表查询    ${BUSINESSNO-SUIT-SEAEXPORT}
-    列表页面-全选记录
+    全选记录-列表页面
     点击选择
     ${model_fi_debitcredits_debitcreditno}    对账并登记发票-应付发票登记页面    ${BUSINESSNO-SUIT-SEAEXPORT}
     #查询发票

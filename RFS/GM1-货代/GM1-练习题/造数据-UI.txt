@@ -512,7 +512,7 @@ Library           String
     ${bb3}    Evaluate    ${bb2}-${bb1}
     点击    xpath=(//a[text()='编辑详情'])[last()-${bb3}]
     点击全选所有业务类型
-    下拉框选中    币别    CNY
+    客商下拉框选中    币别    CNY
     点击    xpath=(//span[text()='保 存']/..)[last()]
     Page Should Contain    海运出口整箱,
 

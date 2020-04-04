@@ -34,9 +34,9 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入主页面框架
     新增对账单--按工作单页面查询    ${WORKNUMBER}
     勾选全部
-    点击列表按钮    生成对账单
+    点击列表按钮    生成对账单(操作)
     离开框架
-    ${checkaccountno}    生成对账单
+    ${checkaccountno}    生成对账单(操作)
     关闭当前窗口
     #生成开票通知
     回到首页
@@ -82,7 +82,7 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单(新icon)    票
     点击应收发票管理
     进入主页面框架
-    应收发票管理页面查询    ${应收invoice}
+    应收发票管理页面查询(单列)    各类编号    ${应收invoice}
     勾选全部
     点击列表按钮    快速核销
     ${recbillno}    进入快速核销页面核销    recbillno
@@ -109,9 +109,9 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入主页面框架
     新增对账单--按工作单页面查询    ${WORKNUMBER}
     勾选全部
-    点击列表按钮    生成对账单
+    点击列表按钮    生成对账单(操作)
     离开框架
-    ${checkaccountno}    生成对账单
+    ${checkaccountno}    生成对账单(操作)
     关闭当前窗口
     #生成开票通知
     回到首页
@@ -147,7 +147,7 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     进入指定二级菜单(新icon)    票
     点击应收发票管理
     进入主页面框架
-    应收发票管理页面查询    ${应收invoice}
+    应收发票管理页面查询(单列)    各类编号    ${应收invoice}
     勾选全部
     点击列表按钮    快速核销
     ${recbillno}    进入快速核销页面核销    recbillno

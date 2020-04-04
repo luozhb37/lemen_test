@@ -5,7 +5,7 @@ Resource          M3--引用.txt
 登录
     读取货代登录配置信息
     Set Selenium Implicit Wait    5
-    打开    http://www.800jit.com/login.html    chrome360
+    打开    http://www.800jit.com/login.html
     等待    3
     进入框架    //*[@id="loginPanel"]
     输入    id=username    ${M3_USERNAME}
@@ -100,7 +100,7 @@ shipper登录
     点击    xpath=//a[text()="新增发票"]
     等待加载层消失
 
-点击按业务
+点击按业务-新增发票
     进入列表页面框架
     点击    xpath=//span[text()="按业务"]
     离开框架
@@ -130,10 +130,6 @@ shipper登录
     点击    xpath=//a[text()='收款单管理']
     等待加载层消失
 
-点击核销记录(收款)
-    点击    xpath=//a[text()='核销记录']
-    等待加载层消失
-
 点击付款
     点击    xpath=.//a[contains(@href,"pg_payinvoice_mainssearch")]    #点击付款
     等待加载层消失
@@ -144,10 +140,6 @@ shipper登录
 
 点击付款单管理
     点击    xpath=//a[text()="付款单管理"]
-    等待加载层消失
-
-点击核销记录(付款)
-    点击    xpath=//a[text()='核销记录']
     等待加载层消失
 
 点击对冲
@@ -236,7 +228,7 @@ shipper登录
     点击    xpath=//a[text()='货代基础资料']
     等待加载层消失
 
-收（付）款登记-点击按发票
+点击按发票-收（付）款登记
     进入列表页面框架
     点击    xpath=//*[contains(@href,"bt_byinvoices")]
     离开框架
@@ -249,11 +241,6 @@ shipper登录
 收（付）款登记-点击按账单
     进入列表页面框架
     点击    xpath=.//*[contains(@href,"bt_bydebitcredit")]
-    离开框架
-
-点击按发票
-    进入列表页面框架
-    点击    xpath=//span[text()="按发票"]
     离开框架
 
 新增发票-点击按对账单
@@ -285,3 +272,15 @@ shipper登录
 点击应付发票查询
     点击    xpath=//a[contains(@href,'pg_iv_paymains_search')]
     等待加载层消失
+
+点击费用反核销
+    点击    xpath=//a[text()="费用反核销"]
+
+点击核销记录
+    点击    xpath=//a[text()="核销记录"]
+
+点击预付款核销
+    点击    xpath=//a[text()="预付款核销"]
+
+点击预收款核销
+    点击    xpath=//a[text()="预收款核销"]

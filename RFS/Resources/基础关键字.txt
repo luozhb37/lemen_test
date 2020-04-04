@@ -1,9 +1,9 @@
 *** Settings ***
-Library           Selenium2Library
 Resource          main.txt
 Library           OlymLibrary
 Library           Screenshot
 Library           OperatingSystem
+Library           Selenium2Library
 
 *** Keywords ***
 打开
@@ -172,7 +172,7 @@ Library           OperatingSystem
 
 获取匹配xpath的个数
     [Arguments]    ${xpath}
-    ${return}    Get Matching Xpath Count    ${xpath}
+    ${return}    Get Element Count    ${xpath}
     [Return]    ${return}
 
 生成一个带有字符的随机数
@@ -308,7 +308,7 @@ get
     Execute Javascript    $('.ant-layout-content div').scrollTop(${height})
 
 拉动滚动条(新2)
-    [Arguments]    ${heightend}    ${heightbeg}=0    #起始位置|指定位置
+    [Arguments]    ${heightend}    ${heightbeg}=0    #y|x
     Execute Javascript    window.scrollTo(${heightbeg}, ${heightend})
 
 清空输入框
@@ -323,3 +323,13 @@ get
 获取当前时间
     ${time}    Get Time    epoch
     [Return]    ${time}
+
+滚轮移到视野中心(X轴)
+    [Arguments]    ${attribute}
+    [Documentation]    \#横向滚轴    #将要的元素滚到视野中心    #尾部元素滚到出现位置(不被遮挡)
+    Execute Javascript    document.evaluate('${attribute}', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.scrollIntoView({inline: 'center'});
+
+滚轮移到视野中心(y轴)
+    [Arguments]    ${attribute}
+    [Documentation]    \#纵向滚轴    #将要的元素滚到视野中心    #尾部元素滚到出现位置(不被遮挡)    #getelementBy(定位方式)(定位内容)
+    Execute Javascript    document.evaluate('${attribute}', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.scrollIntoView({block: 'center'});

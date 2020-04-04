@@ -13,6 +13,11 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-公用.txt
     Set Suite Variable    ${customer-fullname}
     [Teardown]    Close All Browsers
 
+a
+    m4-登录
+    进入客商列表
+    Close All Browsers
+
 *** Keywords ***
 m4-集团登录
     读取集团货代登录配置信息
@@ -48,7 +53,7 @@ m4-集团登录
     勾选客户类别    委托客户
     勾选客户类别    国际采购商
     勾选客户类别    经营单位
-    下拉框选中    客户类型    同行
+    客商下拉框选中    客户类型    同行
     #客户类型(全部)
     勾选客户类别    发货人    #发货人
     勾选客户类别    收货人    #收货人

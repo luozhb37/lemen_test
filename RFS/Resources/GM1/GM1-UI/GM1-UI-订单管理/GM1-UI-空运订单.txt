@@ -26,15 +26,12 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     ...    ${sales}：销售名称，填写内容：销售名称；不填参数时默认选择当前登录用户
     ...    ${goodssource}：货物来源，填写内容：货物来源名称；不填参数时默认选择自揽货
     ...    ${issample}：是否简单操作模式，填写内容：true/false；不填写参数时默认为false
-    进入主页面框架
     Wait Until Element Is Visible    xpath=//label[text()='业务类型']
     新增业务选择业务类型    空运出口
     log    ${sales}
     下拉框选中(多列)    销售    ${sales}
-    Comment    下拉框选中    货物来源    ${goodssource}
     #委托单位
     点击    id=customername
-    Comment    等待    0.5
     按键    xpath=//input[@id='customername']    \\13
     等待    0.5
     点击信控弹框    确 定
@@ -44,15 +41,12 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     等待    0.5
     选择服务类型    空运服务类型
     点击    xpath=//span[contains(text(),'确 定')]/..
-    离开框架
 
 维护空运订单详情
     切换窗口    new
     Wait Until Page Contains    订单详情
-    Comment    选择日期    业务日期    2019-03-01 周五    # 输入业务日期
     勾选服务项    订舱
     下拉框选中(多列)    起运港    YJC    # 输入起运港    YJC
-    Comment    ${value}    获取页面值    xpath=//label[contains(text(),'业务日期')]/../following-sibling::div[1]//input
     等待    1
     下拉框选中(多列)    目的港    YJC    2    # 输入目的港
     点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
@@ -64,17 +58,13 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     切换窗口    new
     点击    xpath=//span[text()='提 交']/..    # 点击提交按钮
     Wait Until Page Contains    待处理    10
-    Comment    ${count}    获取匹配xpath的个数    xpath=//div[@class='ant-modal-body']
-    Comment    Run Keyword If    ${count}>0    gm1弹出框确认
     关闭当前窗口
     切换窗口
 
 进入空运订单详情
     [Arguments]    ${workno}
-    进入主页面框架
     Wait Until Element Is Enabled    xpath=//a[text()='${workno}']
     点击    xpath=//a[text()='${workno}']
-    离开框架
 
 点击空运审核通过并关闭页面
     点击    xpath=//span[text()='通 过']/..
@@ -97,8 +87,6 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 空运订单新增-提交-审核
     进入菜单页面(第三版)    订单    订单列表
-    #进入指定一级菜单    订单
-    #进入指定二级菜单(新icon)    订
     ${workno}    新增空运订单
     进入指定的订单标签    草 稿    #草稿状态
     订单列表高级查询(双列)    各类编号    ${workno}    精确

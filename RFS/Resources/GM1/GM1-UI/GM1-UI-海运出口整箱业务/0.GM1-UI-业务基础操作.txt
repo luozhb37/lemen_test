@@ -11,23 +11,19 @@ Library           AutoItLibrary
 
 海运出口列表查询业务编号
     [Arguments]    ${bussinessNO}
-    进入主页面框架
-    输入    xpath=//div[@id='default.multiNumbers-t']//div[@class='ant-select-selection__placeholder']/..    ${bussinessNO}    #各类编号查询业务订单
+    输入    xpath=//label[@title='各类编号']/../../../../div[2]//input    ${bussinessNO}    #各类编号查询业务订单
     #Mouse Over    xpath=//span[@class='ant-calendar-picker-input ant-input ant-input-lg']//input[1]    #x悬停至时间
     #点击    xpath=//span[@class='ant-calendar-picker-input ant-input ant-input-lg']//i    #点击时间的删除
     等待    1
-    点击    id=BusinessCenter-adSearch
+    点击    xpath=//span[text()='查询']
     等待    1    #点击查询后，页面还在刷新
-    ${pages}    获取页面文本内容    css=.ant-pagination-total-text
-    离开框架
+    ${pages}    获取页面文本内容    xpath=//div[@class='ant-pagination-total-text']
     [Return]    ${pages}
 
 点击业务编号进入详情页
     [Arguments]    ${bussinessNO}
-    进入主页面框架
     等待    2
     点击    xpath=//div[@id='business-center-list']//a[text()='${bussinessNO}']/..
-    离开框架
 
 点击保存按钮
     Focus    xpath=//span[text()='保 存']/..
@@ -50,10 +46,7 @@ Library           AutoItLibrary
     log    已进入海运出口台账页面
 
 初始化设置企业编码
-    点击系统设置（主菜单）
-    点击系统设置（菜单）
-    点击企业编码
-    进入主页面框架
+    进入菜单页面(第三版)    设置    企业编码
     海运出口集卡计划号设置无
     海运出口散货计划号设置无
     海运出口进仓编号设置无
@@ -62,7 +55,6 @@ Library           AutoItLibrary
     海运出口装箱计划编号设置无
     海运出口报关委托编号设置无
     #海运出口委托编号设置无
-    离开框架
 
 海运出口集卡计划号设置无
     点击    xpath=//a[text()='海运出口集卡计划号']
@@ -236,7 +228,7 @@ Library           AutoItLibrary
     #进入框架    id=fms-front
     Comment    点击    xpath=//span[text()='新 增']/..
     Comment    Wait Until Element Is Visible    xpath=//label[text()='业务类型']
-    Comment    Comment    下拉框选中    货物来源    ${text}
+    Comment    Comment    客商下拉框选中    货物来源    ${text}
     Comment    点击    xpath=//label[text()='委托单位']/../following-sibling::div[1]
     Comment    按键    xpath=//input[@id='customername']    \\13
     Comment    点击    xpath=//label[text()='货物来源']/../following-sibling::div[1]
@@ -261,38 +253,34 @@ Library           AutoItLibrary
     点击    xpath=//a[text()='特种']/../following-sibling::div[1]//a    #点击箱型箱量的+号
     下拉框选择(带筛选功能)    xpath=//div[contains(@id,'bnMainsBookingCtnList[1].ctn_')]//div[@class='ant-select-selection__rendered']    xpath=//div[contains(@id,'bnMainsBookingCtnList[1].ctn_')]//div[@class='ant-select-selection__rendered']//input[@class='ant-select-search__field']    40GP    #第二个箱子
     输入    xpath=//div[contains(@id,'bnMainsBookingCtnList[1].ctnCount')]//input[@class='ant-input ant-input-sm']    1    #第二个箱型箱量输入数量
-    输入    xpath=//div[@id='bnMains.hblno-t']//input    循环点击搜索条件叉叉    #英文或数字，不超过30位，都可
+    #输入    xpath=//div[@id='bnMains.hblno-t']//input    循环点击搜索条件叉叉    #英文或数字，不超过30位，都可
+    点击    xpath=//label[text()='预计开船时间']/../following-sibling::div[1]
+    点击    xpath=//a[text()='今天']
     拉动滚动条（新）    0    #xpath=//div[@id='boxarea']/div[1]div[2]/div/div[2]
 
 设置业务参数
-    点击系统设置（主菜单）
-    点击系统设置（菜单）
-    进入主页面框架
+    进入菜单页面(第三版)    设置    业务参数
+    进入框架    id=GM1ExternalFrame
     Comment    ${radio_value}    获取页面文本内容    xpath=//div[text()='海运出口业务管理模块是否支持新增业务']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
     Comment    Run Keyword If    '${radio_value}'=='是'    设置业务参数(单选)    海运出口业务管理模块是否支持新增业务    否
     设置业务参数(单选)    订舱代理手动输入无效    否
-    设置业务参数(单选)    附加税率功能    是
     设置业务参数(单选)    海运出口业务管理模块是否支持新增业务    是
-    设置业务参数(单选)    海运出口整箱是否启用舱单功能    是
-    设置业务参数(单选)    船名航次手动输入无效    否
+    设置业务参数(单选)    非海运出口整箱船名航次手动输入无效    否
     #设置业务参数(单选)    海运出口整箱已放舱是否根据SO直接生成集装箱    是    #业务1.0已取消该参数
     设置业务参数(单选)    港口及航线手动输入无效    否
     设置业务参数(单选)    放舱时，SO与操作详情的箱型箱量是否校验    否
     设置业务参数(单选)    是否启用业务日期校验    不校验
     点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+    进入框架    id=GM1ExternalFrame
     ${订舱代理_value}    获取页面文本内容    xpath=//div[text()='订舱代理手动输入无效']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
-    ${附加税率功能_value}    获取页面文本内容    xpath=//div[text()='附加税率功能']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
     ${业务新增_value}    获取页面文本内容    xpath=//div[text()='海运出口业务管理模块是否支持新增业务']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
-    ${舱单_value}    获取页面文本内容    xpath=//div[text()='海运出口整箱是否启用舱单功能']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
-    ${船名航次_value}    获取页面文本内容    xpath=//div[text()='船名航次手动输入无效']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
+    ${船名航次_value}    获取页面文本内容    xpath=//div[text()='非海运出口整箱船名航次手动输入无效']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
     #${SO_value}    获取页面文本内容    xpath=//div[text()='海运出口整箱已放舱是否根据SO直接生成集装箱']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
     ${港口_value}    获取页面文本内容    xpath=//div[text()='港口及航线手动输入无效']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
     ${放舱校验_value}    获取页面文本内容    xpath=//div[text()='放舱时，SO与操作详情的箱型箱量是否校验']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
     ${业务日期校验_value}    获取页面文本内容    xpath=//div[text()='是否启用业务日期校验']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
     应该要相等    ${订舱代理_value}    否
-    应该要相等    ${附加税率功能_value}    是
     应该要相等    ${业务新增_value}    是
-    应该要相等    ${舱单_value}    是
     应该要相等    ${船名航次_value}    否
     #应该要相等    ${SO_value}    是
     应该要相等    ${港口_value}    否
@@ -301,22 +289,17 @@ Library           AutoItLibrary
     离开框架
 
 海出订单主列表自定义设置
-    进入指定一级菜单    订单
-    进入指定二级菜单(新icon)    订
+    进入菜单页面(第三版)    订单    订单列表
     等待加载层消失
-    进入主页面框架
     点击    xpath=//span[text()='自定义列']/..    #点击自定义列
     输入    xpath=//span[text()='已选']/../../following-sibling::div[1]//input[@class='ant-input ant-transfer-list-search']    工作号    #筛选工作号
     勾选记录    xpath=//li[@title='工作号']//input    #勾选工作号
     点击    xpath=//span[text()='置 顶']/..    #点击置顶
     点击    xpath=//div[@class='footer-btn-layout']//button[@class='ant-btn ant-btn-primary']    #点击确定按钮
     Wait Until Page Contains    自定义列保存成功
-    离开框架
 
 设置异常类型
-    点击基础资料
-    点击企业基础资料
-    点击异常类型
+    进入菜单页面(第三版)    资料    异常类型
     等待加载层消失
     进入主页面框架
     ${return}    异常类型-查询    海运出口整箱    订舱
@@ -341,3 +324,13 @@ Library           AutoItLibrary
     ${异常数量}    获取页面文本内容    xpath=//li[contains(text(),'异常')][@role='menuitem']
     ${异常数量_登记}    截取字符    ${异常数量}    异常\\(    \\)
     [Return]    ${异常数量_登记}
+
+点击自定义状态
+    ${num}    获取匹配xpath的个数    xpath=//div[@class='ant-popover-inner-content']
+    Run Keyword If    ${num}>0    点击    xpath=//button[@class='ant-btn ant-btn-sm']//span[text()='不再提示']/..
+    ...    ELSE    log    不存在
+    点击    xpath=//div[@class="dzg-ad-search-status-setting"]/a[2]
+
+获取列表查询结果数量
+    ${num}    获取匹配xpath的个数    xpath=//div[@class='BaseTable__table BaseTable__table-frozen-left']/div/div/div
+    [Return]    ${num}

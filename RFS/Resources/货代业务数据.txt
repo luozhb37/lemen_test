@@ -67,6 +67,9 @@ Library           OlymLibrary
     ${往来单位}    Read Excel Cell    6    2
     Comment    ${往来单位}    Read Cell Data By Name    Sheet1    B6
     Set Global Variable    ${往来单位}
+    ${发票抬头}    Read Excel Cell    6    4
+    Comment    ${发票抬头}    Read Cell Data By Name    Sheet1
+    Set Global Variable    ${发票抬头}
     #GM1
     ${M4-URL}    Read Excel Cell    7    3
     ${M4-FULLNAME}    Read Excel Cell    7    4

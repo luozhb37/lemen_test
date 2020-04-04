@@ -1,7 +1,7 @@
 *** Settings ***
 Suite Setup       m4-登录
-Suite Teardown    Close All Browsers    #
-Test Setup        重载当前页
+Suite Teardown    #Close All Browsers
+Test Setup        #重载当前页
 Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
 
 *** Test Cases ***
@@ -10,83 +10,84 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
 
 新增订单
     [Setup]    # 维护费用项目
-    Comment    点击订单管理
-    Comment    点击订单中心
-    进入指定一级菜单    订单
-    进入指定二级菜单(新icon)    订
+    进入菜单页面(第三版)    订单    订单列表
     全业务列表进入对应视图    全部
     #进入指定的订单标签
     ${WORKNO}    订单新增    海运出口整箱    serviceRuleTypeCode=国际运输
     #草稿状态
-    点击状态tab    DRAFT
+    #点击状态tab    DRAFT
     订单列表高级查询(双列)    各类编号    ${WORKNO}    精确
     ${content}    获取订单列表记录数
-    应该包含    ${content}    共1条
+    应该包含    ${content}    1
     Set Suite Variable    ${WORKNO}
 
 修改订单
     [Documentation]    因该用例的运行失败，不影响其它的用例，故在teardown里加上该步骤
-    进入指定一级菜单    订单
-    进入指定二级菜单(新icon)    订
+    进入菜单页面(第三版)    订单    订单列表
     订单列表高级查询(双列)    各类编号    ${WORKNO}    精确
     进入订单详情    ${WORKNO}
     切换窗口    new
-    订单修改某字段    20.22
+    订单修改某字段    22.22
     进入订单详情    ${WORKNO}
     切换窗口    new
-    Wait Until Element Is Visible    xpath=//div[@title='自揽货']
+    #Wait Until Element Is Visible    xpath=//div[@title='自揽货']
     ${price}    获取元素属性值    id=receiptsList[0].price    value
-    应该要相等    ${price}    20.22
-    [Teardown]    run keywords    关闭当前窗口
-    ...    AND    切换窗口
+    应该要相等    ${price}    22.22
+    关闭当前窗口
+    切换窗口    main
+    [Teardown]
 
 提交订单
-    进入指定一级菜单    订单
-    进入指定二级菜单(新icon)    订
+    进入菜单页面(第三版)    订单    订单列表
     订单列表高级查询(双列)    各类编号    ${WORKNO}    精确
     点击提交订单    ${WORKNO}
     #这两步都是为了刷新页面
     Comment    点击订单管理
     Comment    点击订单中心
-    点击状态tab    PENDING    #待处理
+    #点击状态tab    PENDING    #待处理
+    点击    xpath=//span[text()='待处理']/..
     订单列表高级查询(双列)    各类编号    ${WORKNO}    精确
     ${content}    获取订单列表记录数
-    应该包含    ${content}    共1条
+    应该包含    ${content}    1
 
 审核通过
-    进入指定一级菜单    订单
-    进入指定二级菜单(新icon)    订
-    订单列表高级查询(双列)    各类编号    BB2019070425    精确
-    进入订单详情    BB2019070425
+    进入菜单页面(第三版)    订单    订单列表
+    订单列表高级查询(双列)    各类编号    ${WORKNO}    精确
+    进入订单详情    ${WORKNO}
     切换窗口    new
     点击审核通过    新订
-    进入指定一级菜单    订单
-    进入指定二级菜单(新icon)    订
-    点击状态tab    PASS    #审核通过
-    订单列表高级查询(双列)    各类编号    BB2019070425    精确
+    进入菜单页面(第三版)    订单    订单列表
+    #点击状态tab    PASS    #审核通过
+    点击    xpath=//span[text()='审核通过']/..
+    订单列表高级查询(双列)    各类编号    ${WORKNO}    精确
     ${content}    获取订单列表记录数
-    应该包含    ${content}    共1条
+    应该包含    ${content}    1
+
+复制新增订单
+    进入菜单页面(第三版)    订单    订单列表
+    #勾选列表第一条记录
+    点击自定义    全部
+    复制新增    复制订单
+    等待    5
+    切换窗口    main
 
 批量维护
-    进入指定一级菜单    订单
-    进入指定二级菜单(新icon)    订
-    点击状态tab    PASS    #审核通过
-    订单列表查询    ${WORKNO}
+    ${WORKNO}    Set Variable    EXP19120094
+    进入菜单页面(第三版)    订单    订单列表
+    #点击状态tab    PASS    #审核通过
+    订单列表高级查询(双列)    各类编号    ${WORKNO}    精确
+    #订单列表查询    ${WORKNO}
     点击批量维护    20GP    30
-    订单列表查询    ${WORKNO}
+    sleep    3
+    订单列表高级查询(双列)    各类编号    ${WORKNO}    精确
+    #订单列表查询    ${WORKNO}
     进入订单详情    ${WORKNO}
     切换窗口    new
     拉动滚动条（新）    1000
-    ${price1}    获取页面值    xpath=//input[contains(@id,'paysList_price_')]
+    ${price1}    获取页面值    xpath=//input[contains(@id,'paysList[0].price')]
     Should Be Equal As Integers    ${price1}    30
-    [Teardown]    run keywords    关闭当前窗口
-    ...    AND    切换窗口
-
-复制新增订单
-    进入指定一级菜单    订单
-    进入指定二级菜单(新icon)    订
-    #勾选列表第一条记录
-    复制新增    复制订单
+    切换窗口    main
+    [Teardown]
 
 删除订单
     Comment    点击订单管理
@@ -117,5 +118,17 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     Comment    订单列表查询    ${workno}
     Comment    ${content}    获取订单列表记录数
     Comment    应该包含    ${content}    共1条
+
+测试
+    ${WORKNO}    Set Variable    EXP2019120118
+    进入菜单页面(第三版)    订单    订单列表
+    订单列表高级查询(双列)    各类编号    ${WORKNO}    精确
+    进入订单详情    ${WORKNO}
+    切换窗口    new
+    等待loading消失
+    点击    xpath=//li[text()='费用 \ (1/0)']
+    滚轮移到视野中心(X轴)    '//div[@id='fee-table']//span[text()="备注"]'
+    等待    1
+    滚轮移到视野中心(X轴)    '//div[@id='fee-table']//span[text()="费用名称"]'
 
 *** Keywords ***

@@ -1,4 +1,9 @@
 *** Settings ***
+Suite Setup       Run keywords    系统参数设置-发票核销模式
+...               AND    登录
+...               AND    新增海运出口业务
+Suite Teardown    close all browsers
+Test Setup        Reload Page
 Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
 
 *** Test Cases ***
@@ -9,18 +14,32 @@ Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
     进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
     从台帐详情进入费用页面
     ${row}    新增支出费用-选定费用    2000
-    ${fapiao}    付款--对账并开票    ${BUSINESSNO-SUIT-SEAEXPORT}
+    点击对账-费用信息页面
+    选择收入（支出）费用-生成对账单（费用信息入口）    pay
+    ${check_no}    生成对账单
+    点击业务管理
+    点击结算管理
+    点击发票
+    查询-新增发票（按对账单）    ${check_no}    ${BUSINESSNO-SUIT-SEAEXPORT}
+    全选记录-列表页面
+    点击开票-新增发票
+    ${write_invoiceno}    按对账单-应付登记发票
     点击付款
     点击付款申请
-    ${paycode}    ${paynum}    付款(生成并核销)--按发票    ${fapiao}
+    点击按发票-收（付）款登记
+    查询-收（付）款登记-按发票    ${write_invoiceno}
+    全选记录-列表页面
+    点击生成付款单-付款申请列表（按发票）
+    生成并核销收（付）款单    生成付款单
+    ${qypay_paybillno}    获取付款单号-生成付款单详情
+    关闭所有弹出框
     点击付款单管理
-    付款单管理已核销列表查询    ${paynum}
+    查询-付款单管理（已核销）    ${qypay_paybillno}
     ${page}    获取列表记录数
     应该包含    ${page}    共1条
-    点击付款单管理
     #费用列表查看收款单号及实付金额
     ${fee_paybillno}    ${amount}    费用列表获取付款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
-    应该要相等    ${fee_paybillno}    ${paynum}
+    应该要相等    ${fee_paybillno}    ${qypay_paybillno}
     应该要相等    2,000.00    ${amount}
 
 付款(生成并核销)--按费用明细
@@ -30,80 +49,32 @@ Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
     进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
     从台帐详情进入费用页面
     ${row}    新增支出费用-选定费用    2000
-    ${fapiao}    付款--对账并开票    ${BUSINESSNO-SUIT-SEAEXPORT}
-    点击付款
-    点击付款申请
-    ${paycode}    ${paynum}    付款(生成并核销)--按费用明细    ${fapiao}
-    点击付款单管理
-    付款单管理已核销列表查询    ${paynum}
-    ${page}    获取列表记录数
-    应该包含    ${page}    共1条
-    点击付款单管理
-    #费用列表查看收款单号及实付金额
-    ${fee_paybillno}    ${amount}    费用列表获取付款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
-    应该要相等    ${fee_paybillno}    ${paynum}
-    应该要相等    2,000.00    ${amount}
-
-付款(核销)--付款单管理
+    点击对账-费用信息页面
+    选择收入（支出）费用-生成对账单（费用信息入口）    pay
+    ${check_no}    生成对账单
     点击业务管理
-    点击业务台帐
-    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
-    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
-    从台帐详情进入费用页面
-    ${row}    新增支出费用-选定费用    2000
-    ${fapiao}    付款--对账并开票    ${BUSINESSNO-SUIT-SEAEXPORT}
-    点击付款
-    点击付款申请
-    ${paycode}    ${paynum}    生成付款单    ${fapiao}
-    付款(核销)--付款单管理    ${paynum}
-    付款单管理已核销列表查询    ${paynum}
-    ${page}    获取列表记录数
-    应该包含    ${page}    共1条
-    点击付款单管理
-    #费用列表查看收款单号及实付金额
-    ${fee_paybillno}    ${amount}    费用列表获取付款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
-    应该要相等    ${fee_paybillno}    ${paynum}
-    应该要相等    2,000.00    ${amount}
-
-付款(审核并核销)--付款单管理
-    点击业务管理
-    点击业务台帐
-    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
-    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
-    从台帐详情进入费用页面
-    ${row}    新增支出费用-选定费用    2000
-    ${fapiao}    付款--对账并开票    ${BUSINESSNO-SUIT-SEAEXPORT}
-    点击付款
-    点击付款申请
-    ${paycode}    ${paynum}    生成付款单    ${fapiao}
-    付款(审核并核销)--付款单管理    ${paynum}
-    付款单管理已核销列表查询    ${paynum}
-    ${page}    获取列表记录数
-    应该包含    ${page}    共1条
-    点击付款单管理
-    #费用列表查看收款单号及实付金额
-    ${fee_paybillno}    ${amount}    费用列表获取付款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
-    应该要相等    ${fee_paybillno}    ${paynum}
-    应该要相等    2,000.00    ${amount}
-
-付款(核销)--发票管理
-    点击业务管理
-    点击业务台帐
-    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
-    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
-    从台帐详情进入费用页面
-    ${row}    新增支出费用-选定费用    2000
-    ${fapiao}    付款--对账并开票    ${BUSINESSNO-SUIT-SEAEXPORT}
+    点击结算管理
     点击发票
-    点击发票管理
-    ${paycode}    ${paynum}    付款(核销)--发票管理    ${fapiao}
+    查询-新增发票（按对账单）    ${check_no}    ${BUSINESSNO-SUIT-SEAEXPORT}
+    全选记录-列表页面
+    点击开票-新增发票
+    ${write_invoiceno}    按对账单-应付登记发票
     点击付款
+    点击付款申请
+    收（付）款登记-点击按费用明细
+    查询-收（付）登记（按费用明细）    ${BUSINESSNO-SUIT-SEAEXPORT}    ${write_invoiceno}
+    全选记录-列表页面
+    点击选择-付款申请列表（按费用明细）
+    点击生成付款单-付款申请列表（按费用明细）
+    生成并核销收（付）款单    生成付款单
+    ${qypay_paybillno}    获取付款单号-生成付款单详情
+    关闭所有弹出框
     点击付款单管理
-    付款单管理已核销列表查询    ${paynum}
+    查询-付款单管理（已核销）    ${qypay_paybillno}
     ${page}    获取列表记录数
     应该包含    ${page}    共1条
     点击付款单管理
     #费用列表查看收款单号及实付金额
     ${fee_paybillno}    ${amount}    费用列表获取付款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
-    应该要相等    ${fee_paybillno}    ${paynum}
+    应该要相等    ${fee_paybillno}    ${qypay_paybillno}
     应该要相等    2,000.00    ${amount}

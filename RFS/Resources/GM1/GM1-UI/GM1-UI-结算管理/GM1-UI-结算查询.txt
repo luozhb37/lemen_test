@@ -2,8 +2,8 @@
 Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 *** Keywords ***
-费用列表--按费用页面高级查询
-    [Arguments]    ${key}    ${value}
+费用列表--按费用页面高级查询(单列)
+    [Arguments]    ${key}    ${value}    ${is_clear}=0
     [Documentation]    key:高级查询条件名
     ...
     ...    value：高级查询条件查询内容
@@ -13,17 +13,52 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     ...    is_clear：1/0 \ \ \ 是否清空已存在的查询条件内容；1表示需要清空；0表示不需要清空
     Wait Until Element Is Visible    xpath=//div[@id='dzg-adsearch']//a[text()='高级查询']
     点击    xpath=//div[@id='dzg-adsearch']//a[text()='高级查询']
-    基石列表高级查询-内部不可引用(单列)    ${key}    ${value}    0
+    基石列表高级查询-内部不可引用(单列)    ${key}    ${value}    ${is_clear}
+    点击    xpath=(//div[@class='ant-modal-content'])[last()]//span[text()='查询']/..    # 点击查询按钮
+    等待loading消失
+
+费用列表--按费用页面高级查询(双列)
+    [Arguments]    ${key}    ${value}    ${type}
+    [Documentation]    key:高级查询条件名
+    ...
+    ...    value：高级查询条件查询内容
+    ...
+    ...    type:两列时选择的精确/模糊；默认为精确
+    ...
+    ...    is_clear：1/0 \ \ \ 是否清空已存在的查询条件内容；1表示需要清空；0表示不需要清空
+    Wait Until Element Is Visible    xpath=//div[@id='dzg-adsearch']//a[text()='高级查询']
+    点击    xpath=//div[@id='dzg-adsearch']//a[text()='高级查询']
+    基石列表高级查询-内部不可引用(双列)    ${key}    ${value}    ${type}    0
     点击    xpath=//div[@class='ant-modal-content']//span[text()='查询']/..    # 点击查询按钮
     等待loading消失
 
-费用列表--按工作单页面查询
+费用列表--按工作单页面查询(各类编号)
     [Arguments]    ${businessno}
     清空输入框内容    id=noKeywordList
     输入    id=noKeywordList    ${businessno}
     Run Keyword And Return Status    Mouse Over    xpath=//i[@class='anticon anticon-cross-circle ant-calendar-picker-clear']    #移动到清除按钮上
     Run Keyword And Return Status    点击    xpath=//i[@class='anticon anticon-cross-circle ant-calendar-picker-clear']    #清除时间
     点击    xpath=//span[text()='查 询']/..
+    等待loading消失
+
+费用列表--按工作单页面查询(条件按)
+    [Arguments]    ${name1}    ${name2}    ${name3}
+    清空输入框内容    id=noKeywordList
+    点击    xpath=//label[@title='条件按']/../..//div[@class='ant-select-selection__placeholder']    #查询应收制单完成状态
+    Mouse Over    xpath=//li[@title='${name1}']
+    点击    xpath=//li[@title='${name1}']
+    点击    xpath=//div[@id='${name2}']//div[@class='ant-select-selection__rendered']
+    Mouse Over    xpath=//li[text()='${name3}']    #选中已完成
+    点击    xpath=//li[text()='${name3}']
+    等待loading消失
+
+账单列表页面查询(各类编号)
+    [Arguments]    ${businessno}
+    清空输入框内容    id=noKeywordList
+    输入    id=noKeywordList    ${businessno}
+    Run Keyword And Return Status    Mouse Over    xpath=//i[@class='anticon anticon-cross-circle ant-calendar-picker-clear']    #移动到清除按钮上
+    Run Keyword And Return Status    点击    xpath=//i[@class='anticon anticon-cross-circle ant-calendar-picker-clear']    #清除时间
+    点击按钮(名称)    查 询
     等待loading消失
 
 新增对账单--按工作单页面查询
@@ -46,24 +81,25 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     [Arguments]    ${checkaccountno}
     清空输入框内容    id=multi_numberList
     输入    id=multi_numberList    ${checkaccountno}
-    点击    xpath=//span[text()='查 询']/..
+    点击按钮(名称)    查 询
     等待loading消失
 
 应收待开票页面查询
     [Arguments]    ${preInvoiceno}
     清空输入框内容    id=noKeywordList
     输入    id=noKeywordList    ${preInvoiceno}
-    点击    xpath=//span[text()='查 询']/..
+    点击按钮(名称)    查 询
     等待loading消失
 
-应收发票管理页面查询
-    [Arguments]    ${invoice}
-    清空输入框内容    id=noKeywordList
-    输入    id=noKeywordList    ${invoice}
-    点击    xpath=//span[text()='查 询']/..
+应收发票管理页面查询(单列)
+    [Arguments]    ${key}    ${value}    ${is_clear}=0
+    Wait Until Element Is Visible    xpath=//div[@id='dzg-adsearch']//a[text()='高级查询']
+    点击    xpath=//div[@id='dzg-adsearch']//a[text()='高级查询']
+    基石列表高级查询-内部不可引用(单列)    ${key}    ${value}    ${is_clear}
+    点击    xpath=(//div[@class='ant-modal-content'])[last()]//span[text()='查询']/..    # 点击查询按钮
     等待loading消失
 
-收款单管理页面查询
+收款单管理页面查询(单列)
     [Arguments]    ${key}    ${value}
     Wait Until Element Is Visible    xpath=//div[@id='dzg-adsearch']//a[text()='高级查询']
     点击    xpath=//div[@id='dzg-adsearch']//a[text()='高级查询']
@@ -75,42 +111,49 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     [Arguments]    ${invoice}
     清空输入框内容    id=multi_numberList
     输入    id=multi_numberList    ${invoice}
-    点击    xpath=//span[text()='查 询']/..
+    点击按钮(名称)    查 询
     等待loading消失
 
 应付发票管理页面查询
     [Arguments]    ${invoice}
     清空输入框内容    id=noKeywordList
     输入    id=noKeywordList    ${invoice}
-    点击    xpath=//span[text()='查 询']/..
+    点击按钮(名称)    查 询
     等待loading消失
 
 我的请款单--未付款页面查询
     [Arguments]    ${applyNo}
     清空输入框内容    id=noKeywordList
     输入    id=noKeywordList    ${applyNo}
-    点击    xpath=//span[text()='查 询']/..
+    点击按钮(名称)    查 询
     等待loading消失
 
 请款单管理--不可受理页面查询
     [Arguments]    ${applyNo}
     清空输入框内容    id=noKeywordList
     输入    id=noKeywordList    ${applyNo}
-    点击    xpath=//span[text()='查 询']/..
+    点击按钮(名称)    查 询
     等待loading消失
 
 付款单管理--待付款未审核页面查询
     [Arguments]    ${单号}
     清空所有搜索条件
     输入    id=noKeywordList    ${单号}
-    点击    xpath=//span[text()='查 询']/..
+    点击按钮(名称)    查 询
     等待loading消失
 
 付款单管理--待付款待核销页面查询
     [Arguments]    ${待付款单号}
-    清除搜索条件(老版)
+    清空所有搜索条件
     输入    id=noKeywordList    ${待付款单号}
-    点击    xpath=//span[text()='查 询']/..
+    点击按钮(名称)    查 询
+    等待loading消失
+
+付款单管理--付款单已核销页面查询
+    [Arguments]    ${待付款单号}
+    清空所有搜索条件
+    输入    id=noKeywordList    ${待付款单号}
+    点击按钮(名称)    查 询
     等待loading消失
 
 核销记录(收款)页面查询
@@ -129,9 +172,26 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     点击    xpath=//div[@class='ant-modal-content']//span[text()='查询']/..    # 点击查询按钮
     等待loading消失
 
+关账页面查询
+    [Arguments]    ${businessno}
+    清空输入框内容    id=noKeyword
+    输入    id=noKeyword    ${businessno}
+    Run Keyword And Return Status    Mouse Over    xpath=//i[@class='anticon anticon-cross-circle ant-calendar-picker-clear']    #移动到清除按钮上
+    Run Keyword And Return Status    点击    xpath=//i[@class='anticon anticon-cross-circle ant-calendar-picker-clear']    #清除时间
+    点击按钮(名称)    查 询
+    等待loading消失
+
 应收应付凭证页面查询
-    Run Keyword And Return Status    Mouse Over    xpath=//i[@class='anticon anticon-cross-circle ant-calendar-picker-clear']
-    Run Keyword And Return Status    点击    xpath=//i[@class='anticon anticon-cross-circle ant-calendar-picker-clear']    #清空日期
+    [Arguments]    ${time1}=0    ${time2}=0
+    Comment    Run Keyword And Return Status    Mouse Over    xpath=//i[@class='anticon anticon-cross-circle ant-calendar-picker-clear']
+    Comment    Run Keyword And Return Status    点击    xpath=//i[@class='anticon anticon-cross-circle ant-calendar-picker-clear']    #清空日期
+    点击    xpath=//span[@class='ant-calendar-picker-input ant-input ant-input-sm']//input[1]
+    清空输入框    xpath=//div[@class='ant-calendar-date-panel']//div[@class='ant-calendar-range-part ant-calendar-range-left']//input    20
+    输入    xpath=//div[@class='ant-calendar-date-panel']//div[@class='ant-calendar-range-part ant-calendar-range-left']//input    ${time1}
+    等待    2
+    点击    xpath=//span[@class='ant-calendar-picker-input ant-input ant-input-sm']//input[2]
+    清空输入框    xpath=//div[@class='ant-calendar-date-panel']//div[@class='ant-calendar-range-part ant-calendar-range-right']//input    20
+    输入    xpath=//div[@class='ant-calendar-date-panel']//div[@class='ant-calendar-range-part ant-calendar-range-right']//input    ${time2}
     点击    id=financeInterface-old-adSearch
     等待loading消失
 
@@ -155,4 +215,72 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     ${return}    获取匹配xpath的个数    xpath=//label[@title='搜索条件']/../../../..//div[2]/div
     ${ti}    Evaluate    ${return}-1
     : FOR    ${i}    IN RANGE    ${ti}
-    \    点击    xpath=xpath=//label[@title='搜索条件']/../../../..//div[2]/div[${i}]//i[@class='anticon anticon-cross']
+    \    点击    xpath=//label[@title='搜索条件']/../../../..//div[2]/div[${i}]//i[@class='anticon anticon-cross']
+
+清空所有查询条件
+    ${result}    获取匹配xpath的个数    xpath=//div[text()='查询条件：']/../div[2]/div[1]/div
+    Run Keyword If    ${result}>0    循环点击查询条件叉叉    ${result}
+
+循环点击查询条件叉叉
+    [Arguments]    ${result}
+    : FOR    ${i}    IN RANGE    ${result}
+    \    点击    xpath=//div[text()='查询条件：']/../div[2]/div[1]/div//i[@class='anticon anticon-cross']
+
+清空所有查询选项
+    ${result}    获取匹配xpath的个数    xpath=//div[@id='dzg-adsearch-conditions']/div
+    Run Keyword If    ${result}>2    循环点击查询选项叉叉    ${result}
+
+循环点击查询选项叉叉
+    [Arguments]    ${result}
+    : FOR    ${i}    IN RANGE    ${result}
+    \    ${result}    Evaluate    ${result}-1
+    \    Mouse Over    xpath=//div[@id='dzg-adsearch-conditions']/div[${result}]//div[@class='dzg-adsearch-condition-field-remove']
+    \    点击    xpath=//div[@id='dzg-adsearch-conditions']/div[${result}]//i[@class='anticon anticon-close']
+    \    Exit For Loop If    ${result}==2
+
+基石列表查询【第二版】
+    [Arguments]    ${box}    ${clear_query}=1    ${clear_condition}=1
+    [Documentation]    ${type}可以传 ①选择：下拉选择框； ②输入：输入框； ③日期：日期选择框； ④数字：数字范围框
+    确定查询为展开状态
+    Run Keyword If    '${clear_condition}'=='1'    清空所有查询条件
+    Run Keyword If    '${clear_query}'=='1'    清空所有查询选项
+    ${size}    获取匹配xpath的个数    id=dzg-adsearch-conditions
+    ${box_list}    Split String    ${box}    |    #切割不同查询条件
+    ${box_length}    Get Length    ${box_list}    #长度
+    : FOR    ${i}    IN RANGE    ${box_length}
+    \    ${case_list}    Split String    ${box_list}[${i}]    ;    #分割分号,一个查询组
+    \    Run Keyword If    '${case_list}[0]'=='输入选择'    查询条件(输入选择)    ${i}    ${case_list}
+    \    ...    ELSE IF    '${case_list}[0]'=='时间'    查询条件(时间)    ${i}    ${case_list}
+    \    ...    ELSE IF    '${case_list}[0]'=='数字'    查询条件(数量)    ${i}    ${case_list}
+    \    Run Keyword And Return Status    点击    xpath=//span[text()='增加条件']
+    点击    xpath=//i[@class='anticon anticon-search']/..
+
+确定查询为展开状态
+    ${adsearch}    获取元素属性值    xpath=//div[@id='dzg-adsearch']/div[1]    class
+    Run Keyword If    '${adsearch}'=='dzg-adsearch-content dzg-collapse-up'    点击    xptah=//i[@ga_event_lable='高级查询_展开']
+    等待loading消失
+
+查询条件(输入选择)
+    [Arguments]    ${i}    ${case_list}
+    #查询条件
+    ${dot_list}    Split String    ${case_list}[1]    ,
+    ${dot_length}    Get Length    ${dot_list}    #获取长度
+    #选择条件名称
+    点击    xpath=//div[@id='footQueries[${i}].queryField']//div[@class='ant-select-selection__rendered']
+    输入    xpath=//div[@id='footQueries[${i}].queryField']//div[@class='ant-select-selection__rendered']//input    ${dot_list}[0]
+    点击    xpath=//li[text()='${dot_list}[0]'][last()]
+    #选择检索
+    Run Keyword If    '${dot_length}'=='2'    选择检索字    ${dot_list}[1]    ${i}
+    #输入内容
+    ${result}    Run Keyword And Return Status    Element Should Be Visible    xpath=//div[@id='footQueries[${i}].queryValues']//div[@class='ant-select-selection__rendered']
+    点击    xpath=//div[@id='footQueries[${i}].queryValues']
+    输入    xpath=//div[@id='footQueries[${i}].queryValues']//input    ${case_list}[2]
+    按键    xpath=//div[@id='footQueries[${i}].queryValues']//input    \\13
+
+查询条件(时间)
+
+选择检索字
+    [Arguments]    ${name}    ${i}
+    [Documentation]    ${type}可以传 ①选择：下拉选择框； ②输入：输入框； ③日期：日期选择框； ④数字：数字范围框
+    点击    xpath=//div[@id='footQueries[${i}].scope']//div[@class='ant-select-selection__rendered']
+    点击    xpath=//li[text()='${name}'][last()]

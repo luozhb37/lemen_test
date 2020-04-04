@@ -22,6 +22,7 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     \    #新增集装箱    SITU2955043
     \    点击费用    #切换到费用模块
     \    新增收入费用
+    \    等待    2
     \    新增支出费用    ${jiesuandanwei}
     \    点击操作详情
     \    ${value}    获取元素属性值    xpath=//input[@id='goodsName']@value

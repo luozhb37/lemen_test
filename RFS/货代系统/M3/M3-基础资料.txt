@@ -1,7 +1,7 @@
 *** Settings ***
 Suite Setup       登录
 Suite Teardown    close all browsers
-Test Setup        Reload Page
+Test Setup        Reload Page    #回到首页
 Resource          ../../Resources/M3基础操作/M3--引用.txt
 
 *** Test Cases ***
@@ -21,23 +21,6 @@ Resource          ../../Resources/M3基础操作/M3--引用.txt
     离开框架
     上传    ${CURDIR}\\driverfee.xls
 
-往来单位上传
-    点击基础资料
-    点击企业基础资料
-    点击    xpath=//a[text()='往来单位']
-    等待加载层消失
-    进入列表页面框架
-    输入    id=qy_base_customers_name    安菲尔德球场
-    点击    id=bt_query
-    ${pages}    获取页面文本内容    css=span.view-page
-    ${temp}    Run Keyword And Return Status    应该包含    ${pages}    共1条
-    Run Keyword If    ${temp} == True    删除上传
-    离开框架
-    进入列表页面框架
-    点击    bt_insert
-    离开框架
-    上传    ${CURDIR}\\customers.xls
-
 货物信息上传
     点击基础资料
     点击企业基础资料
@@ -55,6 +38,51 @@ Resource          ../../Resources/M3基础操作/M3--引用.txt
     离开框架
     上传    ${CURDIR}\\goods.xls
 
+往来单位上传
+    点击基础资料
+    点击企业基础资料
+    点击    xpath=//a[text()='往来单位']
+    等待加载层消失
+    进入列表页面框架
+    输入    id=qy_base_customers_name    安菲尔德球场
+    点击    id=bt_query
+    ${pages}    获取页面文本内容    css=span.view-page
+    ${temp}    Run Keyword And Return Status    应该包含    ${pages}    共1条
+    Run Keyword If    ${temp} == True    删除上传
+    离开框架
+    进入列表页面框架
+    点击    bt_insert
+    离开框架
+    上传    ${CURDIR}\\customers.xls
+
+往来单位-新增
+    点击基础资料
+    点击企业基础资料
+    点击    xpath=//a[text()='往来单位']
+    等待加载层消失
+    进入列表页面框架
+    点击    id=bt_add    #点击新增
+    离开框架
+    进入特定页面框架    往来单位编辑
+    ${code}    生成一个带有字符的随机数    DM
+    输入    id=base_customers_code    ${code}    #输入代码
+    ${name}    生成一个带有字符的随机数    WLDW
+    输入    id=base_customers_name    ${name}    #输入名称
+    输入    id=base_customers_fms_sales    自动化    #输入销售员
+    点击    id=ck_all    #勾选应用于
+    点击    id=bt_save    #点击保存
+    离开框架
+    关闭所有弹出框
+    #验证
+    点击    xpath=//a[text()='往来单位']
+    进入列表页面框架
+    输入    id=qy_base_customers_code    ${code}    #输入代码
+    输入    id=qy_base_customers_name    ${name}    #输入名称
+    点击    id=bt_query    #点击查询
+    离开框架
+    ${pages}    获取列表记录数
+    应该包含    ${pages}    共1条
+
 币别信息-新增
     点击基础资料
     点击企业基础资料
@@ -65,31 +93,514 @@ Resource          ../../Resources/M3基础操作/M3--引用.txt
     离开框架
     #新增币别
     进入框架    xpath=//iframe[starts-with(@name,'win_')]
-    输入    xpath=//tr[@elementname="base_currencytypes_code"]/td/span/input    YE
+    ${daima}    生成一个带有字符的随机数
+    输入    xpath=//tr[@elementname="base_currencytypes_code"]/td/span/input    ${daima}
     输入    xpath=//tr[@elementname="base_currencytypes_name"]/td/span/input    叶
     输入    xpath=//tr[@elementname="base_currencytypes_defaultrate"]/td/span/input    10
     点击    id=bt_save_close
     sleep    3
     #验证
     进入列表页面框架
-    输入    id=qy_base_currencytypes_code    YE
+    输入    id=qy_base_currencytypes_code    ${daima}
     点击    id=bt_query
     离开框架
     ${pages}    获取列表记录数（另一种）
-    应该包含    ${pages}    共1条
+    应该包含    ${pages}    共1条、1页
+    Set Suite Variable    ${daima}
 
 币别信息-删除
     点击基础资料
     点击企业基础资料
     点击    xpath=//a[text()='币别信息']
-    等待加载层消失
     进入列表页面框架
-    输入    id=qy_base_currencytypes_code    YE
+    输入    id=qy_base_currencytypes_code    ${daima}
+    输入    id=qy_base_currencytypes_name    叶
     点击    id=bt_query
     点击    name=SHEET_ROW_SELECT_ALL
     点击    id=bt_delete
     页面弹出框选择确定
     离开框架
+    #校验
+    点击企业基础资料
+    点击    xpath=//a[text()='币别信息']
+    等待加载层消失
+    进入列表页面框架
+    点击    id=bt_canclefilter
+    输入    id=qy_base_currencytypes_code    ${daima}
+    输入    id=qy_base_currencytypes_name    叶
+    点击    id=bt_query
+    离开框架
+    ${pages}    获取列表记录数（另一种）
+    应该包含    ${pages}    共0条、1页
+    进入列表页面框架
+    点击    id=bt_canclefilter
+    点击    id=bt_query
+    离开框架
+
+费用项目-新增
+    点击基础资料
+    点击企业基础资料
+    点击    xpath=//a[text()='费用项目']
+    等待加载层消失
+    进入列表页面框架
+    点击    id=bt_add    #点击新增
+    离开框架
+    进入特定页面框架    费用信息编辑
+    生成一个带有字符的随机数    DM
+    输入    id=base_feeitems_code    ${daima}
+    输入    id=base_feeitems_name    自动化
+    点击    id=bt_save
+    离开框架
+    关闭所有弹出框
+    #校验
+    点击    xpath=//a[text()='费用项目']
+    进入列表页面框架
+    点击    id=bt_canclefilter
+    输入    id=qy_base_feeitems_code    ${daima}    #代码
+    输入    id=qy_base_feeitems_name    自动化    #名称
+    点击    id=bt_query
+    离开框架
+    ${pages}    获取列表记录数
+    应该包含    ${pages}    共1条
+    #删除
+    #进入列表页面框架
+    #点击    css=.vrws-row-portlet-sel-checkbox
+    #点击    id=bt_delete
+    #页面弹出框选择确定
+    #离开框架
+    #校验
+    #点击    xpath=//a[text()='费用项目']
+    #进入列表页面框架
+    #输入    id=qy_base_feeitems_code    ${zifu}    #代码
+    #输入    id=qy_base_feeitems_name    ${name}    #名称
+    #点击    id=bt_query
+    #离开框架
+    #${pages}    获取列表记录数
+    #应该包含    ${pages}    共0条
+
+费用项目-删除
+    点击基础资料
+    点击企业基础资料
+    点击    xpath=//a[text()='费用项目']
+    进入列表页面框架
+    点击    id=bt_canclefilter
+    输入    id=qy_base_feeitems_code    ${daima}    #代码
+    输入    id=qy_base_feeitems_name    自动化    #名称
+    点击    id=bt_query
+    #删除
+    点击    css=.vrws-row-portlet-sel-checkbox
+    点击    id=bt_delete
+    页面弹出框选择确定
+    离开框架
+    #校验
+    点击    xpath=//a[text()='费用项目']
+    进入列表页面框架
+    点击    id=bt_canclefilter
+    输入    id=qy_base_feeitems_code    ${daima}    #代码
+    输入    id=qy_base_feeitems_name    自动化    #名称
+    点击    id=bt_query
+    离开框架
+    ${pages}    获取列表记录数
+    应该包含    ${pages}    共0条
+
+货物信息-新增
+    点击基础资料
+    点击企业基础资料
+    点击    xpath=//a[text()='货物信息']
+    进入列表页面框架
+    点击    id=bt_add
+    离开框架
+    进入特定页面框架    货物信息编辑
+    生成一个带有字符的随机数    DM
+    输入    id=base_goodses_code    ${daima}
+    输入    id=base_goodses_name    自动化
+    点击    id=bt_save
+    离开框架
+    关闭所有弹出框
+    #校验
+    点击    xpath=//a[text()='货物信息']
+    进入列表页面框架
+    点击    id=bt_canclefilter
+    输入    id=qy_base_goodses_code    ${daima}
+    输入    id=qy_base_goodses_name    自动化
+    点击    id=bt_query
+    离开框架
+    ${pages}    获取列表记录数
+    应该包含    ${pages}    共1条
+
+货物信息-删除
+    点击基础资料
+    点击企业基础资料
+    点击    xpath=//a[text()='货物信息']
+    进入列表页面框架
+    输入    id=qy_base_goodses_code    ${daima}
+    输入    id=qy_base_goodses_name    自动化
+    点击    id=bt_query
+    点击    css=.vrws-row-portlet-sel-checkbox
+    点击    id=bt_delete
+    页面弹出框选择确定
+    离开框架
+    #校验
+    点击    xpath=//a[text()='货物信息']
+    进入列表页面框架
+    点击    id=bt_canclefilter
+    输入    id=qy_base_goodses_code    ${daima}
+    输入    id=qy_base_goodses_name    自动化
+    点击    id=bt_query
+    离开框架
+    ${pages}    获取列表记录数
+    应该包含    ${pages}    共0条
+
+结算类型-新增
+    点击基础资料
+    点击企业基础资料
+    点击    xpath=//a[text()='结算类型']
+    进入列表页面框架
+    点击    css=.button_addNewRow
+    离开框架
+    进入特定页面框架    结算方式编辑
+    生成一个带有字符的随机数    DM
+    输入    xpath=/html/body/form/div[2]/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[1]/td[2]/span/input    ${daima}
+    输入    xpath=/html/body/form/div[2]/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[2]/td[2]/span/input    自动化
+    点击    id=bt_save
+    离开框架
+    关闭所有弹出框
+    #校验
+    点击    xpath=//a[text()='结算类型']
+    进入列表页面框架
+    点击    id=bt_canclefilter
+    输入    id=qy_base_settletypes_code    ${daima}
+    输入    id=qy_base_settletypes_name    自动化
+    点击    id=bt_query
+    离开框架
+    ${pages}    获取列表记录数（另一种）
+    应该包含    ${pages}    共1条
+
+结算类型-删除
+    点击基础资料
+    点击企业基础资料
+    点击    xpath=//a[text()='结算类型']
+    进入列表页面框架
+    输入    id=qy_base_settletypes_code    ${daima}
+    输入    id=qy_base_settletypes_name    自动化
+    点击    id=bt_query
+    点击    css=.vrws-row-portlet-sel-checkbox
+    点击    id=bt_delete
+    页面弹出框选择确定
+    离开框架
+    #校验
+    点击企业基础资料
+    点击    xpath=//a[text()='结算类型']
+    进入列表页面框架
+    点击    id=bt_canclefilter
+    输入    id=qy_base_settletypes_code    ${daima}
+    输入    id=qy_base_settletypes_name    自动化
+    点击    id=bt_query
+    离开框架
+    ${pages}    获取列表记录数（另一种）
+    应该包含    ${pages}    共0条
+
+包装类型-新增
+    点击基础资料
+    点击企业基础资料
+    点击    xpath=//a[text()='包装类型']
+    进入列表页面框架
+    点击    id=bt_add
+    离开框架
+    进入特定页面框架    包装类型编辑
+    生成一个带有字符的随机数    DM
+    输入    id=base_packagetypes_code    ${daima}
+    点击    id=bt_save
+    离开框架
+    关闭所有弹出框
+    #校验
+    点击企业基础资料
+    点击    xpath=//a[text()='包装类型']
+    进入列表页面框架
+    点击    id=bt_canclefilter
+    输入    id=qy_base_packagetypes_code    ${daima}
+    点击    id=bt_query
+    离开框架
+    ${pages}    获取列表记录数
+    应该包含    ${pages}    共1条
+
+包装类型-删除
+    点击基础资料
+    点击企业基础资料
+    点击    xpath=//a[text()='包装类型']
+    进入列表页面框架
+    输入    id=qy_base_packagetypes_code    ${daima}
+    点击    id=bt_query
+    点击    css=.vrws-row-portlet-sel-checkbox
+    点击    id=bt_delete
+    页面弹出框选择确定
+    离开框架
+    #校验
+    点击企业基础资料
+    点击    xpath=//a[text()='包装类型']
+    进入列表页面框架
+    点击    id=bt_canclefilter
+    输入    id=qy_base_packagetypes_code    ${daima}
+    点击    id=bt_query
+    离开框架
+    ${pages}    获取列表记录数
+    应该包含    ${pages}    共0条
+
+汇率设置-新增
+    点击基础资料
+    点击企业基础资料
+    点击    xpath=//a[text()='汇率设置']
+    进入列表页面框架
+    点击    id=bt_add
+    离开框架
+    进入特定页面框架    汇率设置
+    生成一个带有字符的随机数
+    输入    id=base_floatrates_rate    ${daima}
+    ${day}    当前日期加减天数    +0
+    输入    id=base_floatrates_startdate    ${day}
+    点击    id=bt_save
+    离开框架
+    关闭所有弹出框
+    #校验
+    点击企业基础资料
+    点击    xpath=//a[text()='汇率设置']
+    进入列表页面框架
+    下拉选择byValue    xpath=//span[@vrwsfilter='qp_base_floatrates_parent']/select    rate
+    等待    2
+    下拉选择byValue    xpath=//span[@vrwsfilter='qp_base_floatrates_parent']/select[2]    =
+    等待    2
+    输入    xpath=//input[@vrwsfilter='v1']    ${daima}
+    等待    2
+    点击    id=bt_query
+    离开框架
+    ${pages}    获取列表记录数
+    应该包含    ${pages}    共1条
+
+汇率设置-删除
+    点击基础资料
+    点击企业基础资料
+    点击    xpath=//a[text()='汇率设置']
+    进入列表页面框架
+    下拉选择byValue    xpath=//span[@vrwsfilter='qp_base_floatrates_parent']/select    rate
+    等待    2
+    下拉选择byValue    xpath=//span[@vrwsfilter='qp_base_floatrates_parent']/select[2]    =
+    等待    2
+    输入    xpath=//input[@vrwsfilter='v1']    ${daima}
+    等待    2
+    点击    id=bt_query
+    点击    css=.vrws-row-portlet-sel-checkbox
+    点击    id=bt_delete
+    页面弹出框选择确定
+    离开框架
+    #校验
+    点击企业基础资料
+    点击    xpath=//a[text()='汇率设置']
+    进入列表页面框架
+    下拉选择byValue    xpath=//span[@vrwsfilter='qp_base_floatrates_parent']/select    rate
+    等待    2
+    下拉选择byValue    xpath=//span[@vrwsfilter='qp_base_floatrates_parent']/select[2]    =
+    等待    2
+    输入    xpath=//input[@vrwsfilter='v1']    ${daima}
+    等待    2
+    点击    id=bt_query
+    离开框架
+    ${pages}    获取列表记录数
+    应该包含    ${pages}    共0条
+
+港口信息-新增
+    点击基础资料
+    点击货代基础资料
+    点击    xpath=//a[text()='港口信息']
+    进入列表页面框架
+    点击    id=bt_add
+    离开框架
+    进入特定页面框架    港口信息编辑
+    生成一个带有字符的随机数    D
+    输入    id=base_ports_code    ${daima}    #代码
+    输入    id=base_ports_enname    NINGBO    #英文名称
+    输入    id=base_ports_cnname    宁波    #中文名称
+    点击    id=bt_save
+    离开框架
+    关闭所有弹出框
+    #校验
+    点击货代基础资料
+    点击    xpath=//a[text()='港口信息']
+    进入列表页面框架
+    输入    id=qy_base_ports_code    ${daima}
+    输入    id=qy_base_ports_cnname    宁波
+    点击    id=bt_query
+    离开框架
+    ${pages}    获取列表记录数
+    应该包含    ${pages}    共1条
+
+港口信息-删除
+    点击基础资料
+    点击货代基础资料
+    点击    xpath=//a[text()='港口信息']
+    进入列表页面框架
+    输入    id=qy_base_ports_code    ${daima}
+    输入    id=qy_base_ports_cnname    宁波
+    点击    id=bt_query
+    点击    css=.vrws-row-portlet-sel-checkbox
+    点击    id=bt_delete
+    页面弹出框选择确定
+    离开框架
+    #校验
+    点击货代基础资料
+    点击    xpath=//a[text()='港口信息']
+    进入列表页面框架
+    点击    id=bt_canclefilter
+    输入    id=qy_base_ports_code    ${daima}
+    输入    id=qy_base_ports_cnname    宁波
+    点击    id=bt_query
+    离开框架
+    ${pages}    获取列表记录数
+    应该包含    ${pages}    共0条
+
+船只信息-新增
+    点击基础资料
+    点击货代基础资料
+    点击    xpath=//a[text()='船只信息']
+    进入列表页面框架
+    点击    id=bt_add
+    离开框架
+    进入特定页面框架    船只信息编辑
+    生成一个带有字符的随机数    CZXX
+    输入    id=base_vessels_enname    ${daima}
+    输入    id=base_vessels_cnname    自动化
+    点击    id=bt_save
+    离开框架
+    关闭所有弹出框
+    #校验
+    点击货代基础资料
+    点击    xpath=//a[text()='船只信息']
+    进入列表页面框架
+    点击    id=bt_canclefilter
+    输入    id=qy_base_vessels_enname    ${daima}
+    输入    id=qy_base_vessels_cnname    自动化
+    点击    id=bt_query
+    离开框架
+    ${pages}    获取列表记录数
+    应该包含    ${pages}    共1条
+
+船只信息-删除
+    点击基础资料
+    点击货代基础资料
+    点击    xpath=//a[text()='船只信息']
+    进入列表页面框架
+    输入    id=qy_base_vessels_enname    ${daima}
+    输入    id=qy_base_vessels_cnname    自动化
+    点击    id=bt_query
+    点击    css=.vrws-row-portlet-sel-checkbox
+    点击    id=bt_delete
+    页面弹出框选择确定
+    离开框架
+    #校验
+    点击货代基础资料
+    点击    xpath=//a[text()='船只信息']
+    进入列表页面框架
+    点击    id=bt_canclefilter
+    输入    id=qy_base_vessels_enname    ${daima}
+    输入    id=qy_base_vessels_cnname    自动化
+    点击    id=bt_query
+    离开框架
+    ${pages}    获取列表记录数
+    应该包含    ${pages}    共0条
+
+仓库信息-新增
+    点击基础资料
+    点击货代基础资料
+    点击    xpath=//a[text()='仓库信息']
+    进入列表页面框架
+    点击    id=bt_add
+    离开框架
+    进入特定页面框架    仓库信息
+    生成一个带有字符的随机数    DM
+    输入    id=base_warehousings_code    ${daima}
+    点击    xpath=//span[text()='新增']
+    输入    xpath=/html/body/form/div[2]/table[2]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/div/table/tbody/tr[2]/td/div/table/tbody/tr/td/table/tbody/tr[2]/td[3]/input    自动化
+    点击    id=bt_save
+    离开框架
+    关闭所有弹出框
+    #校验
+    点击货代基础资料
+    点击    xpath=//a[text()='仓库信息']
+    进入列表页面框架
+    输入    id=qy_base_warehousings_code    ${daima}
+    点击    id=bt_query
+    离开框架
+    ${pages}    获取列表记录数
+    应该包含    ${pages}    共1条
+
+仓库信息-删除
+    点击基础资料
+    点击货代基础资料
+    点击    xpath=//a[text()='仓库信息']
+    进入列表页面框架
+    清空输入框内容    id=qy_base_warehousings_code
+    输入    id=qy_base_warehousings_code    ${daima}
+    点击    id=bt_query
+    点击    css=.vrws-row-portlet-sel-checkbox
+    点击    id=bt_delete
+    页面弹出框选择确定
+    离开框架
+    #校验
+    点击货代基础资料
+    点击    xpath=//a[text()='仓库信息']
+    进入列表页面框架
+    清空输入框内容    id=qy_base_warehousings_code
+    输入    id=qy_base_warehousings_code    ${daima}
+    点击    id=bt_query
+    离开框架
+    ${pages}    获取列表记录数
+    应该包含    ${pages}    共0条
+
+港区信息-新增
+    点击基础资料
+    点击货代基础资料
+    点击    xpath=//a[text()='港区信息']
+    进入列表页面框架
+    点击    xpath=/html/body/form/div[3]/div[3]/table[1]/tbody/tr/td/table/tbody/tr/td/div/table/tbody/tr[1]/td/table/tbody/tr/td/table/tbody/tr/td[3]/a
+    离开框架
+    进入特定页面框架    港区信息编辑
+    生成一个带有字符的随机数    DM
+    输入    xpath=/html/body/form/div[2]/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[1]/td[2]/span/input    ${daima}
+    输入    xpath=/html/body/form/div[2]/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[2]/td[2]/span/input    自动化
+    点击    id=bt_save
+    离开框架
+    关闭所有弹出框
+    #校验
+    点击货代基础资料
+    点击    xpath=//a[text()='港区信息']
+    进入列表页面框架
+    输入    id=qy_base_portareas_code    ${daima}
+    点击    id=bt_query
+    离开框架
+    ${pages}    获取列表记录数（另一种）
+    应该包含    ${pages}    共1条
+
+港区信息-删除
+    点击基础资料
+    点击货代基础资料
+    点击    xpath=//a[text()='港区信息']
+    进入列表页面框架
+    清空输入框内容    id=qy_base_portareas_code
+    输入    id=qy_base_portareas_code    ${daima}
+    点击    id=bt_query
+    点击    css=.vrws-row-portlet-sel-checkbox
+    点击    id=bt_delete
+    页面弹出框选择确定
+    离开框架
+    #校验
+    点击货代基础资料
+    点击    xpath=//a[text()='港区信息']
+    进入列表页面框架
+    清空输入框内容    id=qy_base_portareas_code
+    输入    id=qy_base_portareas_code    ${daima}
+    点击    id=bt_query
+    离开框架
+    ${pages}    获取列表记录数（另一种）
+    应该包含    ${pages}    共0条
 
 *** Keywords ***
 上传

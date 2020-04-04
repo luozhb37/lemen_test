@@ -36,7 +36,7 @@ Resource          ../../Resources/M3基础操作/M3--引用.txt
     点击业务台帐
     点击空运出口(新)
     海运进口、空运列表查询业务编号    ${BUSINESSNO-SUIT-AIREXPORT}
-    列表页面-全选记录
+    全选记录-列表页面
     空运--批量提单确认
     ${content}    获取台帐详情提单确认状态    ${BUSINESSNO-SUIT-AIREXPORT}
     应该要相等    ${content}    true
@@ -48,13 +48,13 @@ Resource          ../../Resources/M3基础操作/M3--引用.txt
     点击业务台帐
     点击空运出口(新)
     空运出口(新)填写离港日期
-    列表页面-全选记录
+    全选记录-列表页面
     海运进口、空运批量业务制单完成
     ${content}    获取台帐详情锁定后的业务制单状态    ${BUSINESSNO-SUIT-AIREXPORT}
     应该要相等    ${content}    true
     关闭所有弹出框
     等待    1
-    列表页面-全选记录
+    全选记录-列表页面
     海运进口、空运批量取消业务制单完成
     ${content1}    获取台帐详情未锁定的业务制单状态    ${BUSINESSNO-SUIT-AIREXPORT}
     应该要相等    ${content1}    false
@@ -67,11 +67,11 @@ Resource          ../../Resources/M3基础操作/M3--引用.txt
     点击业务管理
     点击业务台帐
     点击空运出口(新)
-    列表页面-全选记录
+    全选记录-列表页面
     空运--批量应收费用制单
-    列表页面-全选记录
+    全选记录-列表页面
     空运--批量应付费用制单
-    列表页面-全选记录
+    全选记录-列表页面
     从业务列表进入费用页面
     ${content}    获取费用信息收入制单完成状态
     ${content1}    获取费用信息支出制单完成状态

@@ -9,7 +9,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     输入    id=searchNo    ${workno}
     点击    xpath=//span[text()='查 询']/..
     wait until element is not visible    xpath=//div[@class='ant-spin-container ant-spin-blur']    timeout=10    #等待进度条消失
-    ${num}    Get Matching Xpath Count    xpath=//div[@class='ant-spin-container ant-spin-blur']    #判断加载图层是否存在
+    ${num}    Get Element Count    xpath=//div[@class='ant-spin-container ant-spin-blur']    #判断加载图层是否存在
     离开框架
     Capture Page Screenshot
 
@@ -64,6 +64,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     [Return]    ${count}    # 返回总条数
 
 编辑空运工作单
+    Wait Until Page Contains    操作计划
     ${mblno}    生成一个带有字符的随机数    mbl-
     ${hblno}    生成一个带有字符的随机数    hbl
     勾选服务项    订舱
@@ -333,11 +334,11 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 进入指定的订单标签
     [Arguments]    ${label}=我的业务
-    进入主页面框架
-    Wait Until Element Is Enabled    xpath=//div[@class='dzg-status-bar']
-    点击    xpath=//div[@class='dzg-status-bar']//span[text()='${label}']/..
+    #进入主页面框架
+    Wait Until Element Is Enabled    xpath=//div[@class='dzg-ad-search-status-list']
+    点击    xpath=//div[@class='dzg-ad-search-status-list']//span[text()='${label}']/..
     等待加载层消失
-    离开框架
+    #离开框架
 
 是否勾选空运简单模式
     [Arguments]    ${type}
@@ -386,13 +387,11 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     ...    type:两列时选择的精确/模糊；默认为精确
     ...
     ...    is_clear：1/0 \ \ \ 是否清空已存在的查询条件内容；1表示需要清空；0表示不需要清空
-    进入主页面框架
     Wait Until Element Is Visible    xpath=//div[@id='dzg-adsearch']//a[text()='高级查询']
     点击    xpath=//div[@id='dzg-adsearch']//a[text()='高级查询']
     基石列表高级查询-内部不可引用(双列)    ${key}    ${value}    ${type}    ${is_clear}
     点击    xpath=//div[@class='ant-modal-content']//span[text()='查询']/..    # 点击查询按钮
     等待loading消失
-    离开框架
 
 清空已选择高级查询条件内容
     [Arguments]    ${key}
@@ -403,13 +402,11 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 订单列表高级查询(单列)
     [Arguments]    ${key}    ${value}    ${is_clear}=1
-    进入主页面框架
     Wait Until Element Is Visible    xpath=//div[@id='dzg-adsearch']//a[text()='高级查询']
     点击    xpath=//div[@id='dzg-adsearch']//a[text()='高级查询']
     基石列表高级查询-内部不可引用(单列)    ${key}    ${value}    ${is_clear}
     点击    xpath=//div[@class='ant-modal-content']//span[text()='查询']/..    # 点击查询按钮
     等待loading消失
-    离开框架
 
 复制新增第一条空运出口单子
     [Arguments]    ${type}

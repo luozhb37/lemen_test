@@ -125,11 +125,6 @@ m3--分单
     #等待    2
     离开框架
 
-列表全选记录
-    进入框架    id=content
-    勾选记录    xpath=//input[@name='SHEET_ROW_SELECT_ALL']
-    离开框架
-
 删除业务台帐
     进入列表页面框架
     等待    5
@@ -148,7 +143,7 @@ m3--分单
     离开框架
 
 删除海运出口业务
-    列表页面-全选记录
+    全选记录-列表页面
     进入列表页面框架
     点击    id=bt_delete    #点击删除
     等待    1
@@ -399,6 +394,7 @@ m3--分单
     关闭所有弹出框
     Set Global Variable    ${BUSINESSNO-SUIT-SEAEXPORT}
     Set Suite Variable    ${BN_MAINS_VESSELNAME}    #船名，用于汇总发票中查询条件
+    [Return]    ${BUSINESSNO-SUIT-SEAEXPORT}
 
 新增海运出口业务-删除专用
     [Arguments]    ${bn_mains_vesselname}=cxcm
@@ -885,7 +881,7 @@ m3--分单
     Comment    点击    id=bt_dispatch
     离开框架
 
-列表页面-全选记录
+全选记录-列表页面
     [Documentation]    全选
     进入列表页面框架
     勾选记录    xpath=//input[@name="SHEET_ROW_SELECT_ALL"]
@@ -900,7 +896,7 @@ m3--分单
     点击    xpath=//a[text()='${business_no}']
     离开框架
 
-进入详情框架后-全选记录
+全选记录-进入详情框架
     [Documentation]    全选
     进入详情框架
     勾选记录    xpath=//input[@name="SHEET_ROW_SELECT_ALL"]
@@ -1158,20 +1154,6 @@ m3--分单
     ${return}    evaluate    ${size}>=7
     run keyword if    ${return}==True    移动滚动条（m3）    500
     离开框架
-
-获取对账单类型-对账单管理列表
-    [Documentation]    对账单(收入大)
-    ...    对账单(支出大) \ \ \ \ \ \ \ \ \ \
-    进入列表页面框架
-    ${check_type}    获取页面文本内容    xpath=//table[@id='qp_checkaccountbill_search_tbl5']//tr[2]//td[@elementname='qp_checkaccountbill_search:check_type']
-    离开框架
-    [Return]    ${check_type}    # 对账单类型
-
-获取对账金额-对账单管理列表
-    进入列表页面框架
-    ${check_amount}    获取页面文本内容    xpath=//table[@id='qp_checkaccountbill_search_tbl5']//tr[2]//td[@elementname='qp_checkaccountbill_search:amount']
-    离开框架
-    [Return]    ${check_amount}    # 对账单金额
 
 批量应收费用制单完成
     进入列表页面框架

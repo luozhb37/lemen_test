@@ -92,23 +92,19 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 业务点击新增指定按钮
     [Arguments]    ${name}
     [Documentation]    $name：新增按钮下拉对应的按钮名称
-    进入主页面框架
     Wait Until Element Is Enabled    xpath=//span[text()='新增 ']/..    10
     click element    xpath=//span[text()='新增 ']/..
     Wait Until Element Is Visible    xpath=//div[contains(@class, 'ant-dropdown-placement-bottomLeft')]//span[text()='${name}']/..
     mouse over    xpath=//div[contains(@class, 'ant-dropdown-placement-bottomLeft')]//span[text()='${name}']/..
     点击    xpath=//div[contains(@class, 'ant-dropdown-placement-bottomLeft')]//span[text()='${name}']/..
-    离开框架
 
 全业务列表进入对应视图
     [Arguments]    ${name}
-    进入主页面框架
     Wait Until Element Is Enabled    xpath=//span[text()='视图']/..
     mouse over    xpath=//span[text()='视图']/..
     Wait Until Element Is Visible    xpath=//div[contains(@class, 'ant-dropdown-placement-bottomLeft')]//li[text()='${name}']
     mouse over    xpath=//div[contains(@class, 'ant-dropdown-placement-bottomLeft')]//li[text()='${name}']
     点击    xpath=//div[contains(@class, 'ant-dropdown-placement-bottomLeft')]//li[text()='${name}']
-    离开框架
 
 新增业务选择业务类型
     [Arguments]    ${name}

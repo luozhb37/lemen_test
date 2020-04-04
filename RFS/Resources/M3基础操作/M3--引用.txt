@@ -1,6 +1,5 @@
 *** Settings ***
 Library           ExcelLibrary
-Library           Selenium2Library
 Library           String
 Library           AutoItLibrary
 Library           Collections
@@ -11,3 +10,4 @@ Resource          M3--初始化.txt
 Resource          M3--菜单.txt
 Resource          M3--业务.txt
 Resource          M3--结算.txt
+Library           Selenium2Library

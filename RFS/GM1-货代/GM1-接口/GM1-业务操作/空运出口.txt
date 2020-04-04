@@ -6,6 +6,7 @@ Library           requests
 Resource          ../../../Resources/GM1/GM1-接口/m4-接口-新订单基础操作.txt
 Resource          ../../../Resources/GM1-空运接口.txt
 Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+Library           OlymLibrary
 
 *** Test Cases ***
 读取接口test
@@ -23,9 +24,9 @@ Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
 
 数据驱动例子
     Open Excel    ${M4_INTER_DIR}\\inter_file\\数据驱动_test.xls
-    ${row_count}    Get Row Count    Sheet1
-    ${col_count}    Get Column Count    Sheet1
-    @{excel_data}    读取Excel数据    Sheet1    ${col_count}    ${row_count}
+    ${row_count}    Get Row Count    Sheet2
+    ${col_count}    Get Column Count    Sheet2
+    @{excel_data}    读取Excel数据    Sheet2    ${col_count}    ${row_count}
     Write All Excel    ${M4_INTER_DIR}\\result_inter_file\\result_数据驱动.xls    testSheet    ${excel_data}    # 将原excel内容写入新excel
     : FOR    ${item}    IN    @{excel_data}
     \    run keyword if    '${item[2]}' == 'Protocol'    写入列名    ${M4_INTER_DIR}\\result_inter_file\\result_数据驱动.xls    testSheet
@@ -54,6 +55,39 @@ demo
     : FOR    ${i}    IN RANGE    ${length}
     \    进行post请求并放入结果    ${data[${i}]}    ${start}    ${i}    C:\\Users\\叶俊彦\\Desktop\\interface\\result测试.xls    ${sheetname}
 
+接口模拟练习
+    # 模拟生成data
+    ${secret}    Set Variable    123456
+    ${list}    create list
+    ${dict}    Create Dictionary    voucherType=    voucherGroup=    casenumberList=${list}
+    ${data}    生成接口data    ${dict}
+    # 获取当前时间
+    ${time}    Evaluate    time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))    time
+    # 拼接参数
+    ${dict}    Create Dictionary    name=voucher.create    version=1.0    app_key=test    data=${data}    timestamp=2019-03-06 17:25:42
+    ...    format=json
+    log    ${dict}
+    ${sign}    Build Sign    ${dict}    ${secret}    # 根据规则生成签名
+    log    ${sign}
+    ${dict}    Set To Dictionary    ${dict}    sign=${sign}
+    log    ${dict}
+    # 模拟Post请求
+    CreateSession    api    http://api.800jit.com/
+    ${headers}    Create Dictionary    Content-Type=application/json
+    ${resp}    Post Request    api    /openplatform-rest/rest/api    data=${dict}    headers=${headers}
+    ${json}    to json    ${resp.content}
+
+调用js
+    ${name}    Set Variable    goods.get
+    ${version}    Set Variable    1.0
+    ${url}    Set Variable    http://api.800jit.com/openplatform-rest/rest/api
+    ${callback}    Set Variable    function(resp){return resp;}
+    ${resp}    Set Variable
+    Execute Javascript    C:\\Users\\yusen\\Desktop\\a\\inter_jssdk.js
+    ${param}    Create Dictionary    goods_name=iphone
+    ${data}    Create Dictionary    name=${name}    version=${version}    url=${url}    data=${param}
+    ${resp}    Execute Javascript    sdk.post({name:'${name}',version:'${version}',url:'${url}',data:${param},callback:${callback}})
+
 *** Keywords ***
 进行post请求并放入结果
     [Arguments]    ${item}    ${start}    ${i}    ${filename}    ${sheetname}
@@ -67,3 +101,9 @@ demo
     Write Cell    ${filename}    ${sheetname}    ${t}    1    ${content_string}
 
 把结果放入list中
+
+生成接口data
+    [Arguments]    ${dict}
+    ${strip_string}    Evaluate    '${dict}'.replace(' ','')
+    ${data}    Evaluate    urllib.quote('${strip_string}')    urllib
+    [Return]    ${data}

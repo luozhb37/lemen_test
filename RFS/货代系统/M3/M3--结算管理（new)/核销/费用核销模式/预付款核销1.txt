@@ -5,8 +5,8 @@ Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
 预付款核销--明细
     点击业务管理
     点击业务台帐
-    海运出口列表查询业务编号    EXP1911153
-    进入台帐详情    EXP1911153
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
     从台帐详情进入费用页面
     ${row}    新增支出费用-选定费用    2000
     关闭所有弹出框
@@ -14,16 +14,22 @@ Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
     点击结算管理
     点击付款
     点击付款单管理
-    ${fukuan}    预付款登记（未开票）
-    预付款核销按明细    ${fukuan}    EXP1911153
+    ${paybillno}    新增预付款单（未开票）    2000    RMB
+    付款单管理待审核页面查询    ${paybillno}
+    列表页面-全选记录
+    点击审核--付款单管理页面
+    点击预付款核销
+    预付款核销列表查询    ${paybillno}
+    预付款核销--明细    businessno=${BUSINESSNO-SUIT-SEAEXPORT}
     #校验
     点击付款单管理
-    付款单管理已核销列表查询    ${fukuan}
-    ${page}    获取列表记录数
-    应该包含    ${page}    共1条
+    付款单管理已核销列表查询    ${paybillno}
+    ${return}    获取预付款核销金额
+    应该要相等    ${return}    2000.00
+    #
     点击付款单管理
-    ${fee_paybillno}    ${amount}    费用列表获取付款单号-选定费用    EXP1911153    ${row}
-    应该要相等    ${fee_paybillno}    ${fukuan}
+    ${fee_paybillno}    ${amount}    费用列表获取付款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_paybillno}    ${paybillno}
     应该要相等    2,000.00    ${amount}
 
 预付款核销--异币
@@ -38,14 +44,19 @@ Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
     点击结算管理
     点击付款
     点击付款单管理
-    ${fukuan}    预付款登记（未开票/异币）
-    预付款核销按异币    ${fukuan}    ${BUSINESSNO-SUIT-SEAEXPORT}
+    ${paybillno}    新增预付款单（未开票）    142.86    USD
+    付款单管理待审核页面查询    ${paybillno}
+    列表页面-全选记录
+    点击审核--付款单管理页面
+    点击预付款核销
+    预付款核销列表查询    ${paybillno}
+    预付款核销--异币    businessno=${BUSINESSNO-SUIT-SEAEXPORT}
     #校验
     点击付款单管理
-    付款单管理已核销列表查询    ${fukuan}
-    ${page}    获取列表记录数
-    应该包含    ${page}    共1条
+    付款单管理已核销列表查询    ${paybillno}
+    ${return}    获取预付款核销金额
+    应该要相等    ${return}    142.86
     点击付款单管理
     ${fee_paybillno}    ${amount}    费用列表获取付款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
-    应该要相等    ${fee_paybillno}    ${fukuan}
+    应该要相等    ${fee_paybillno}    ${paybillno}
     应该要相等    1,000.00    ${amount}

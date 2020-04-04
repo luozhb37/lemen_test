@@ -39,6 +39,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     #--
     Focus    xpath=//span[text()='取 消']/../following-sibling::button[1]    #有滚动条，所以先focus
     点击    xpath=//span[text()='取 消']/../following-sibling::button[1]    #点击详情页保存按钮
+    等待加载层消失
     点击详情页关闭按钮
 
 关联货物

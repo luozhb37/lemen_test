@@ -202,3 +202,31 @@ Resource          M3--引用.txt
     退出
     关闭浏览器
     [Teardown]    close browser
+
+系统参数设置-费用核销模式核销前必须审核
+    登录
+    点击系统设置
+    点击系统参数
+    系统参数单选框设置    group_name=sys_paras_new_invoicememu    value=1    #启用新发票模式
+    系统参数单选框设置    group_name=sys_paras_savebilllogs    value=1    #记录业务维护日志选择是
+    系统参数单选框设置    group_name=sys_paras_savefeelogs    value=1    #记录费用维护日志选择是
+    系统参数单选框设置    group_name=sys_paras_stopfinish_lock    value=1    #业务制单后锁定页面
+    系统参数单选框设置    group_name=sys_paras_background_iscolor    value=1    #业务台账变化选择是
+    系统参数下拉框设置    id=sys_paras_reportdateby    2    #报表查询默认日期按离港日期
+    系统参数下拉框设置    id=sys_paras_verificationdate    2    #结算管理默认日期按离港日期
+    系统参数下拉框设置    id=sys_paras_recfee_rate_from    2    #收入费用汇率日期按离港日期
+    系统参数下拉框设置    id=sys_paras_payfee_rate_from    2    #支出费用汇率日期按离港日期
+    #
+    系统参数单选框设置    group_name=sys_paras_checkaccount_payaudit    value=0    #对账前不需要审核
+    系统参数下拉框设置    id=sys_paras_iv_writeoff_start    3    #选择按费用核销
+    系统参数单选框设置    group_name=sys_paras_allow_writeoff    value=1    #选择按费用核销前必须 审核
+    系统参数单选框设置    group_name=sys_paras_fee_confirm    value=0    #开发票前不需要费用确认
+    系统参数单选框设置    group_name=sys_paras_invoice_recfeeaudit    value=0    #开发票前不需要费用审核
+    系统参数设置点击保存
+    #财务参数
+    点击财务参数
+    系统参数下拉框设置    id=sys_paras_financialsoftware    value=-1    #财务软件：-请选择--
+    系统参数设置点击保存
+    点击系统设置
+    退出
+    关闭浏览器

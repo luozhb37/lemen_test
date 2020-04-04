@@ -1,4 +1,9 @@
 *** Settings ***
+Suite Setup       Run keywords    系统参数设置-费用核销模式
+...               AND    登录
+...               AND    新增海运出口业务
+Suite Teardown    close all browsers
+Test Setup        Reload Page
 Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
 
 *** Test Cases ***
@@ -11,14 +16,14 @@ Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
     ${row}    新增收入费用-选定费用    2000
     费用信息页面勾选收入费用    ${row}
     费用信息页面点击收款核销
-    ${recbillno}    详情-生成收款单
+    ${recbillno}    生成收款单-收款单详情
     审核并核销(收款)
     关闭所有弹出框
     点击业务管理
     点击结算管理
     点击收款
     点击收款单管理
-    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${recbillno}    #按回款日期、收款单号查询
+    查询-收款单管理（已核销）    ${recbillno}
     ${page}    获取列表记录数
     应该包含    ${page}    共1条
     点击收款单管理
@@ -36,14 +41,14 @@ Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
     ${row}    新增收入费用-选定费用    3000
     费用信息页面勾选收入费用    ${row}
     费用信息页面点击收款核销
-    点击生成并核销收（付）款单    收款核销
+    生成并核销收（付）款单    收款核销
     ${recbillno}    收款单页面获取收款单号    收款核销
     关闭所有弹出框
     点击业务管理
     点击结算管理
     点击收款
     点击收款单管理
-    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${recbillno}    #按回款日期、收款单号查询
+    查询-收款单管理（已核销）    ${recbillno}
     ${page}    获取列表记录数
     应该包含    ${page}    共1条
     点击收款单管理
@@ -66,18 +71,18 @@ Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
     点击收款
     点击收款登记
     收（付）款登记-点击按费用明细
-    收（付）登记-按费用明细-列表查询    ${BUSINESSNO-SUIT-SEAEXPORT}
+    查询-收（付）登记（按费用明细）    ${BUSINESSNO-SUIT-SEAEXPORT}
     进入列表页面框架
     勾选记录    xpath=//table[@id='qp_rec_invoice8_tbl5']/tbody/tr[2]//input    #勾选第一条记录
     #勾选记录    xpath=//*[contains(@name,"${CASENUMBER-SUIT}")]    #勾选包含该casenumber的记录
     点击    id=bt_select    #点击选择
     离开框架
-    收款登记列表（按费用明细）-点击生成收款单
-    点击生成并核销收（付）款单    生成收款单
+    点击生成收款单-收款登记列表（按费用明细）
+    生成并核销收（付）款单    生成收款单
     ${recbillno}    收款单页面获取收款单号
     关闭所有弹出框
     点击收款单管理
-    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${recbillno}    #按回款日期、收款单号查询
+    查询-收款单管理（已核销）    ${recbillno}
     ${page}    获取列表记录数
     应该包含    ${page}    共1条
     点击收款单管理
@@ -101,17 +106,17 @@ Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
     点击结算管理
     点击收款
     点击收款登记
-    收（付）款登记-点击按发票
-    收（付）款登记-按发票页面查询    ${invoiceno}
+    点击按发票-收（付）款登记
+    查询-收（付）款登记-按发票    ${invoiceno}
     进入列表页面框架
     勾选记录    xpath=//table[@id='qp_invoicen_mains_tbl5']/tbody/tr[2]//input    #勾选第一条记录
     离开框架
-    收款登记列表页面-点击生成收款单
-    点击生成并核销收（付）款单    生成收款单
+    点击生成收款单-收款登记列表页面
+    生成并核销收（付）款单    生成收款单
     ${recbillno}    收款单页面获取收款单号
     关闭所有弹出框
     点击收款单管理
-    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${recbillno}    #按回款日期、收款单号查询
+    查询-收款单管理（已核销）    ${recbillno}
     ${page}    获取列表记录数
     应该包含    ${page}    共1条
     点击收款单管理
@@ -127,8 +132,8 @@ Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
     进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
     从台帐详情进入费用页面
     ${row}    新增收入费用-选定费用    3000
-    费用信息页面-点击对账
-    从费用信息页面-生成对账单    rec
+    点击对账-费用信息页面
+    生成对账单-费用信息页面    rec
     ${check_no}    生成对账单
     点击业务管理
     #生成收款单
@@ -140,13 +145,13 @@ Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
     进入列表页面框架
     勾选记录    xpath=//table[@id='qp_rec_checkaccount_tbl5']/tbody/tr[2]//input    #勾选第一条记录
     离开框架
-    收款登记列表页面-点击生成收款单
+    点击生成收款单-收款登记列表页面
     收款核销选择页面-勾选记录并点击收款登记
-    点击生成并核销收（付）款单    生成收款单
+    生成并核销收（付）款单    生成收款单
     ${recbillno}    收款单页面获取收款单号
     关闭所有弹出框
     点击收款单管理
-    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${recbillno}    #按回款日期、收款单号查询
+    查询-收款单管理（已核销）    ${recbillno}
     ${page}    获取列表记录数
     应该包含    ${page}    共1条
     点击收款单管理
@@ -163,9 +168,9 @@ Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
     进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
     从台帐详情进入费用页面
     ${row}    新增收入费用-选定费用    3000
-    费用信息页面点击应收账单/Debitnote
+    点击应收账单/Debitnote-费用信息
     应收（付）账单/Debitnote-保存账单    应收账单/Debitnote
-    ${debitno}    生成账单
+    ${debitno}    保存账单-新增账单
     点击业务管理
     #生成收款单
     点击结算管理
@@ -176,13 +181,13 @@ Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
     进入列表页面框架
     勾选记录    xpath=//table[@id='qp_rec_debitcredit_tbl5']/tbody/tr[2]//input    #勾选第一条记录
     离开框架
-    收款登记列表页面-点击生成收款单
+    点击生成收款单-收款登记列表页面
     收款核销选择页面-勾选记录并点击收款登记
-    点击生成并核销收（付）款单    生成收款单
+    生成并核销收（付）款单    生成收款单
     ${recbillno}    收款单页面获取收款单号
     关闭所有弹出框
     点击收款单管理
-    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${recbillno}    #按回款日期、收款单号查询
+    查询-收款单管理（已核销）    ${recbillno}
     ${page}    获取列表记录数
     应该包含    ${page}    共1条
     点击收款单管理
@@ -200,7 +205,7 @@ Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
     ${row}    新增收入费用-选定费用    3000
     费用信息页面勾选收入费用    ${row}
     费用信息页面点击收款核销
-    ${recbillno}    详情-生成收款单
+    ${recbillno}    生成收款单-收款单详情
     关闭所有弹出框
     点击业务管理
     点击结算管理
@@ -210,7 +215,7 @@ Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
     进入收/付款单详情
     收款单页面审核并核销
     关闭所有弹出框
-    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${recbillno}    #按回款日期、收款单号查询
+    查询-收款单管理（已核销）    ${recbillno}
     ${page}    获取列表记录数
     应该包含    ${page}    共1条
     点击收款单管理
@@ -228,7 +233,7 @@ Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
     ${row}    新增收入费用-选定费用    3000
     费用信息页面勾选收入费用    ${row}
     费用信息页面点击收款核销
-    ${recbillno}    详情-生成收款单
+    ${recbillno}    生成收款单-收款单详情
     关闭所有弹出框
     点击业务管理
     点击结算管理
@@ -239,7 +244,7 @@ Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
     收款单页面审核
     收款单页面核销
     关闭所有弹出框
-    收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${recbillno}    #按回款日期、收款单号查询
+    查询-收款单管理（已核销）    ${recbillno}
     ${page}    获取列表记录数
     应该包含    ${page}    共1条
     点击收款单管理
@@ -264,7 +269,7 @@ Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
     发票管理-收入列表查询    ${Invoice}
     发票管理（收入）页面费用点击核销
     收款核销选择页面-勾选记录并点击收款登记
-    点击生成并核销收（付）款单    生成收款单
+    生成并核销收（付）款单    生成收款单
     ${fi_recbills_recbillno}    收款单页面获取收款单号
     关闭所有弹出框
     点击收款
@@ -290,23 +295,41 @@ Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
     点击发票
     点击发票管理
     发票管理-收入列表查询    ${Invoice}
-    #点击发票号
-    进入列表页面框架
-    点击链接    css=.Linkstyle
-    离开框架
-    #发票详情点击收款核销
-    进入特定页面框架    发票
-    点击    id=bt_writeoff_rec
-    离开框架
-    点击生成并核销收（付）款单    收款核销
-    进入特定页面框架    收款核销
-    等待    1
-    ${fi_recbills_recbillno}    获取页面文本内容    css=.vrws-value    #获取收款单号
-    离开框架
-    #${fi_recbills_recbillno}    收款单页面获取收款单号
+    点击发票号-发票管理列表
+    点击收款核销-发票详情页面
+    生成并核销收（付）款单    收款核销
+    ${fi_recbills_recbillno}    收款单页面获取收款单号    收款核销
     关闭所有弹出框
     点击收款
     收款核销记录查询    ${fi_recbills_recbillno}
     ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
     应该要相等    ${fee_recbillno}    ${fi_recbills_recbillno}
     应该要相等    3,000.00    ${amount}
+
+删除收款单-收款单管理页面
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    3000
+    费用信息页面勾选收入费用    ${row}
+    费用信息页面点击收款核销
+    ${recbillno}    生成收款单-收款单详情
+    关闭所有弹出框
+    点击业务管理
+    点击结算管理
+    点击收款
+    点击收款单管理
+    收款单管理待审核页面查询    ${recbillno}
+    点击收款单号-收款单管理列表    ${recbillno}
+    取消申请-收款单详情
+    全选记录-列表页面
+    点击删除-收款单管理列表
+    收款单管理待审核页面查询    ${recbillno}
+    ${page}    获取列表记录数
+    应该包含    ${page}    共0条
+    #费用列表获取收款单号和金额
+    ${recbill_no}    ${amount}    ${amount_apply}    费用列表获取收款单号-申请（实收）金额    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    Should Be Empty    ${recbill_no}
+    Should Be Equal As Strings    ${amount_apply}    0.00

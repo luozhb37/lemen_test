@@ -16,7 +16,6 @@ Resource          M1--引用.txt
     page should contain    首页
 
 回到首页
-    [Arguments]    ${url}=${M1_URL}
     Reload Page
 
 点击业务管理
@@ -141,3 +140,16 @@ Resource          M1--引用.txt
 
 点击个人资料
     click element    xpath=//a[contains(text(),'个人资料')]
+
+shipper-登录
+    #设置全局隐式等待时间
+    读取货代登录配置信息
+    Set Selenium Implicit Wait    5
+    打开    http://shipper.800jit.com    chrome360
+    进入框架    css=.ignore
+    输入    id=username    w01@800jit.com
+    输入    id=password    3aS2KG
+    点击    id=btn-submit
+    离开框架
+    Set Selenium Implicit Wait    20
+    page should contain    首页

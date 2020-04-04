@@ -1,15 +1,13 @@
 *** Settings ***
 Suite Setup       m4-登录
 Suite Teardown    关闭浏览器
-Test Teardown     切换窗口    main
+Test Teardown     切换窗口
 Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
 
 *** Test Cases ***
 客商资料--新增
     [Documentation]    客商的用例都需要依赖该新增关键字，除非 其它的用例，自己组装传入客户名称，也是可以的
     进入菜单页面(第三版)    客商    客商资料
-    #进入指定一级菜单    客商
-    #进入指定二级菜单(新icon)    资
     ${customer-fullname}    生成一个带有字符的随机数    ks
     ${code}    生成一个带有字符的随机数
     新增客商    ${customer-fullname}    ${code}
@@ -24,8 +22,6 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     ...
     ...    一控制
     进入菜单页面(第三版)    客商    客商资料
-    #进入指定一级菜单    客商
-    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}    # ${customer-fullname}
     进入客商详情    ${customer-fullname}    # ${customer-fullname}
     ${name1}    生成一个带有字符的随机数    contact1
@@ -49,7 +45,7 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     Set Suite Variable    ${key-telphone}
     Set Suite Variable    ${other-telphone}
     关闭当前窗口
-    切换窗口
+    切换窗口    main
 
 联系方式--删除
     [Documentation]    业务逻辑：
@@ -58,8 +54,6 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     ...
     ...    所以，这里的删除的结果是依赖于 仅存在一条业务关键人的前提下进行的
     进入菜单页面(第三版)    客商    客商资料
-    #进入指定一级菜单    客商
-    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}
     进入客商详情    ${customer-fullname}    # ${customer-fullname}
     点击客商详情内的tab    联系方式
@@ -80,8 +74,6 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
 
 收发通--新增
     进入菜单页面(第三版)    客商    客商资料
-    #进入指定一级菜单    客商
-    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}
     进入客商详情    ${customer-fullname}    # ${customer-fullname}
     点击客商详情内的tab    联系方式
@@ -100,8 +92,6 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
 
 收发通--删除
     进入菜单页面(第三版)    客商    客商资料
-    #进入指定一级菜单    客商
-    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}
     进入客商详情    ${customer-fullname}
     点击客商详情内的tab    联系方式
@@ -116,14 +106,11 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
 
 客商自己集团内--关联
     进入菜单页面(第三版)    客商    客商资料
-    #进入指定一级菜单    客商
-    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}
-    #维护关联公司
     进入客商详情    ${customer-fullname}    # ${customer-fullname}
     点击客商详情内的tab    关联公司
     ${number}    获取页面列表条数    客商集团内关联关系
-    新增关联自己集团    下级
+    新增关联自己集团    上级
     ${number1}    获取页面列表条数    客商集团内关联关系
     ${number2}    Evaluate    ${number}+1
     应该要相等（数字）    ${number2}    ${number1}
@@ -133,8 +120,6 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
 
 客商自己集团内--删除
     进入菜单页面(第三版)    客商    客商资料
-    #进入指定一级菜单    客商
-    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}
     进入客商详情    ${customer-fullname}
     点击客商详情内的tab    关联公司
@@ -148,8 +133,6 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
 
 关联客户--关联
     进入菜单页面(第三版)    客商    客商资料
-    #进入指定一级菜单    客商
-    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}
     进入客商详情    ${customer-fullname}
     点击客商详情内的tab    关联公司
@@ -164,8 +147,6 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
 
 关联客户--删除
     进入菜单页面(第三版)    客商    客商资料
-    #进入指定一级菜单    客商
-    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}
     进入客商详情    ${customer-fullname}
     点击客商详情内的tab    关联公司
@@ -181,8 +162,6 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
 
 银行账户信息--新增
     进入菜单页面(第三版)    客商    客商资料
-    #进入指定一级菜单    客商
-    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}    # ${customer-fullname}
     进入客商详情    ${customer-fullname}
     ${shortname}    生成一个带有字符的随机数    银行简称
@@ -198,8 +177,6 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
 
 银行账户信息--复制
     进入菜单页面(第三版)    客商    客商资料
-    #进入指定一级菜单    客商
-    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}    #${customer-fullname}
     进入客商详情    ${customer-fullname}
     点击客商详情内的tab    结算信息
@@ -213,8 +190,6 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
 
 银行账户信息--删除
     进入菜单页面(第三版)    客商    客商资料
-    #进入指定一级菜单    客商
-    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}
     进入客商详情    ${customer-fullname}
     点击客商详情内的tab    结算信息
@@ -228,8 +203,6 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
 
 开票信息--新增
     进入菜单页面(第三版)    客商    客商资料
-    #进入指定一级菜单    客商
-    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}
     进入客商详情    ${customer-fullname}    # ${customer-fullname}
     点击客商详情内的tab    结算信息
@@ -245,8 +218,6 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
 
 开票信息--复制
     进入菜单页面(第三版)    客商    客商资料
-    #进入指定一级菜单    客商
-    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}
     进入客商详情    ${customer-fullname}
     点击客商详情内的tab    结算信息
@@ -262,8 +233,6 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
 
 开票信息--删除
     进入菜单页面(第三版)    客商    客商资料
-    #进入指定一级菜单    客商
-    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}
     进入客商详情    ${customer-fullname}
     点击客商详情内的tab    结算信息
@@ -280,8 +249,6 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
 账单信息---新增
     [Documentation]    若本来就存在一条记录，则点击新增按钮会直接报错，这样可以知道 该功能脚本没有运行
     进入菜单页面(第三版)    客商    客商资料
-    #进入指定一级菜单    客商
-    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}
     进入客商详情    ${customer-fullname}
     点击客商详情内的tab    结算信息
@@ -301,8 +268,6 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     ${day}    Evaluate    time.strftime('%d',time.localtime(time.time()))    time    # 获取当天所在日
     Comment    ${day}    Evaluate    int(${day})
     进入菜单页面(第三版)    客商    客商资料
-    #进入指定一级菜单    客商
-    #进入指定二级菜单(新icon)    资
     查询正式客商    ${customer-fullname}    # ${customer-fullname}
     进入客商详情    ${customer-fullname}    # ${customer-fullname}
     点击客商详情内的tab    结算信息
@@ -315,4 +280,30 @@ Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
     应该要相等（数字）    ${num1}    ${exp_num}
     关闭当前窗口
     切换窗口
-    [Teardown]
+    [Teardown]    run keywords    关闭当前窗口
+    ...    AND    切换窗口
+
+客商申请--新增
+    进入菜单页面(第三版)    客商    客商申请
+    ${customer-fullname1}    生成一个带有字符的随机数    ks
+    Set Global Variable    ${customer-fullname}    ${customer-fullname1}
+    ${code}    生成一个带有字符的随机数
+    新增客商(申请页面)    ${customer-fullname}    ${code}
+    ${number}    客商列表查询    ${customer-fullname}
+    应该要相等（数字）    ${number}    1
+
+客商审批
+    进入菜单页面(第三版)    客商    客商审批
+    ${number}    客商列表查询    ${customer-fullname}
+    进入主页面框架
+    点击    xpath=//table[@class='ant-table-fixed']//tbody[@class='ant-table-tbody']//tr[1]/td[3]/a
+    离开框架
+    切换窗口    new
+    点击    xpath=//span[text()='通 过']/..
+    关闭当前窗口
+    切换窗口    main
+    进入主页面框架
+    点击    xpath=//div[contains(text(),'已通过')]
+    离开框架
+    ${number1}    客商列表查询    ${customer-fullname}
+    应该要相等（数字）    ${number1}    1

@@ -3,6 +3,7 @@ Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
 
 *** Test Cases ***
 预收款核销2(生成并核销)--明细
+    新增海运出口业务台账
     点击业务管理
     点击业务台帐
     海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
@@ -14,7 +15,9 @@ Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
     点击业务管理
     #生成收款单
     点击结算管理
-    ${Payment receipt number}    预收款登记
+    点击收款
+    点击收款单管理
+    ${Payment receipt number}    预收款单生成并审核    ${往来单位}
     ${Cost}    预收款核销(明细)    ${Payment receipt number}    ${Invoice}
     点击收款单管理
     收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${Payment receipt number}    #按回款日期、收款单号查询
@@ -38,7 +41,10 @@ Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
     点击业务管理
     #生成收款单
     点击结算管理
+    点击收款
+    点击收款单管理
     ${Payment receipt number}    预收款登记
+    预收款审核--收款单管理页面    ${Payment receipt number}
     ${Cost}    预收款核销(异币)    ${Payment receipt number}    ${Invoice}
     点击收款单管理
     收款单管理已核销列表查询    qyrec_datetype=1    qyrec_recbillno=${Payment receipt number}    #按回款日期、收款单号查询

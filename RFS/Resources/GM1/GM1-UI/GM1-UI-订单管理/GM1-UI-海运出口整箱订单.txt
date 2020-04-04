@@ -14,7 +14,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     新增成本价
     ${workno}    订单点击保存
     关闭当前窗口
-    切换窗口
+    切换窗口    main
     [Return]    ${workno}
 
 点击订单管理
@@ -51,29 +51,25 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 订单列表查询
     [Arguments]    ${workno}    # 各状态对应的id
-    进入主页面框架
     输入    id=businessNumber    ${workno}
     点击    xpath=//span[text()='查 询']/..
     wait until element is not visible    xpath=//div[@class='ant-spin-container ant-spin-blur']    timeout=20    #等待进度条消失
-    离开框架
     Capture Page Screenshot
 
 点击提交订单
     [Arguments]    ${workno}
     进入订单详情    ${workno}
     切换窗口    new
+    等待loading消失
     Wait Until Element Is Visible    xpath=//div[@title='自揽货']
     点击    xpath=//span[text()='提 交']/..
-    Wait Until Page Contains    提交成功
     关闭当前窗口
-    切换窗口
+    切换窗口    main
 
 进入订单详情
     [Arguments]    ${workno}
     等待    1
-    进入主页面框架
     点击    xpath=//a[text()='${workno}']
-    离开框架
 
 点击审单中心
     点击    xpath=//a[@href="/fms-front/#/orderAuditCenterList"]
@@ -85,10 +81,8 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 点击状态tab
     [Arguments]    ${status}
-    进入主页面框架
     点击    id=${status}    #订单状态状态查询
     wait until element is not visible    xpath=//div[@class='ant-spin-container ant-spin-blur']    timeout=20    #等待进度条消失
-    离开框架
 
 新增底价-多条
     [Arguments]    ${price}    ${tr}
@@ -96,19 +90,19 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     ...    ${num}: 0 开始计数
     ...
     ...    费用项目、币别、计费单位都是选中第一条
-    : FOR    ${num}    IN RANGE    ${tr}
-    \    点击    xpath=//b[contains(text(),'底价')]/../../following-sibling::div[1]/div/button[2]
-    \    #维护费用名称
-    \    点击    xpath=//b[contains(text(),'底价')]/../../../../following-sibling::div[1]//tr[${num}+1]/td[2]/div
-    \    按键    id=paysList_feeitem_${num}    \\13
-    \    #单价
-    \    输入    xpath=//input[contains(@id,'paysList_price_${num}')]    ${price}
-    \    #币别
-    \    点击    xpath=//b[contains(text(),'底价')]/../../../../following-sibling::div[1]//tr[${num}+1]/td[5]/div
-    \    按键    id=paysList_currency_${num}    \\13
-    \    #计费单位
-    \    点击    xpath=//b[contains(text(),'底价')]/../../../../following-sibling::div[1]//tr[${num}+1]/td[6]/div
-    \    按键    id=paysList_unit_${num}    \\13
+    FOR    ${num}    IN RANGE    ${tr}
+    点击    xpath=//b[contains(text(),'底价')]/../../following-sibling::div[1]/div/button[2]
+    #维护费用名称
+    点击    xpath=//b[contains(text(),'底价')]/../../../../following-sibling::div[1]//tr[${num}+1]/td[2]/div
+    按键    id=paysList_feeitem_${num}    \\13
+    #单价
+    输入    xpath=//input[contains(@id,'paysList_price_${num}')]    ${price}
+    #币别
+    点击    xpath=//b[contains(text(),'底价')]/../../../../following-sibling::div[1]//tr[${num}+1]/td[5]/div
+    按键    id=paysList_currency_${num}    \\13
+    #计费单位
+    点击    xpath=//b[contains(text(),'底价')]/../../../../following-sibling::div[1]//tr[${num}+1]/td[6]/div
+    按键    id=paysList_unit_${num}    \\13
 
 新增底价-单条
     [Documentation]    为了 后面批量维护的验证，故写死了 传入费用项目名称为海运费
@@ -132,16 +126,16 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     [Arguments]    ${kind}    # 新订或使用现舱
     #选择订舱代理
     #拉动滚动条（新）    900
-    拉动滚动条(新2)    700
-    点击    xpath=//label[contains(text(),'订舱代理')]/../following-sibling::div[1]//div[@class='ant-select-search__field__wrap']    #点击订舱代理下拉框
-    按键    xpath=//div[@id='bnMains.bookingagency-shipping-company']//input[@class='ant-select-search__field']    \\13
-    Comment    拉动滚动条（新）    0
-    拉动滚动条(新2)    0    700
+    等待loading消失
+    #拉动滚动条(新2)    700
+    #点击    xpath=//label[contains(text(),'订舱代理')]/../following-sibling::div[1]//div[@class='ant-select-search__field__wrap']    #点击订舱代理下拉框
+    #按键    xpath=//div[@id='bnMains.bookingagency-shipping-company']//input[@class='ant-select-search__field']    \\13
+    #拉动滚动条(新2)    0
     点击    xpath=//span[contains(text(),'通 过')]/..    #点击通过
     点击    xpath=//span[contains(text(),'${kind}')]    #选择新订
     点击    xpath=//span[contains(text(),'确 定')]/..    #点击确定
     关闭当前窗口
-    切换窗口
+    切换窗口    main
 
 点击占舱中心
     点击    xpath=//a[@href="/fms-front/#/forClassCenterList"]
@@ -150,21 +144,17 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     离开框架
 
 获取订单列表记录数
-    进入主页面框架
-    Wait Until Element Is Enabled    xpath=//li[@class='ant-pagination-total-text']
-    ${content}    获取页面文本内容    xpath=//li[@class='ant-pagination-total-text']
-    离开框架
+    Wait Until Element Is Enabled    xpath=//div[@class="dzg-minimalist-pagination-container"]
+    ${content}    获取页面文本内容    xpath=//div[@class="dzg-minimalist-pagination-container"]//div[@class='total-info']
     [Return]    ${content}
 
 复制新增
     [Arguments]    ${type}    #复制订单/业务
-    进入主页面框架
     点击    xpath=//div[@id='OPERATION_COLUMN0_0']//a[contains(text(), '操作')]    #点击列表第一条数据的操作按钮
     Wait Until Element Is Visible    xpath=//div[contains(@class, 'ant-dropdown-placement-bottomLeft')]
     点击    xpath=//div[contains(@class, 'ant-dropdown-placement-bottomLeft')]//li[text()='${type}']
-    Wait Until Element Is Visible    xpath=//div[@class='ant-modal-content']
+    sleep    1
     点击    xpath=//div[@class='ant-modal-content']//span[text()='确 定']/..
-    离开框架
 
 点击删除
     进入主页面框架
@@ -183,8 +173,8 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 点击批量维护
     [Arguments]    ${unit}    ${price}
     [Documentation]    默认批量维护底价
-    勾选列表第一条记录
-    进入主页面框架
+    #勾选列表第一条记录
+    勾选记录    xpath=//table//tbody//tr[1]//input
     点击    xpath=//span[contains(text(),'批量维护')]/..
     点击    xpath=//span[contains(text(),'新 增')]/..
     #计费单位
@@ -198,7 +188,6 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     输入    id=value_0    ${price}
     点击    xpath=//span[contains(text(),'确 定')]/..
     Wait Until Page Contains    批量维护成功
-    离开框架
 
 占舱新增
     点击新增
@@ -244,7 +233,7 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     拉动滚动条（新）    0
     点击    xpath=//span[contains(text(),'保 存')]/..
     关闭当前窗口
-    切换窗口
+    切换窗口    main
 
 生成订单
     维护订单详情
@@ -290,19 +279,22 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     点击    xpath=//label[text()='预计开船时间']/../following-sibling::div[1]
     点击    xpath=//a[text()='今天']
     #箱型
-    下拉框选择(带筛选功能)    xpath=//div[@id='bnMainsBookingCtnList[0].ctn-t']//div[@class='ant-select-selection__rendered']    xpath=//div[@id='bnMainsBookingCtnList[0].ctn_0']//input[@class='ant-select-search__field']    20GP
-    输入    xpath=//div[@id='bnMainsBookingCtnList[0].ctnCount-t']//input[@class='ant-input ant-input-sm']    4    #count
-    输入    xpath=//div[@id='bnMainsBookingCtnList[0].perCtnWeight-t']//input[@class='ant-input ant-input-sm']    1.111    #单柜货重
-    输入    xpath=//div[@id='bnMainsBookingCtnList[0].perCtnVolume-t']//input[@class='ant-input ant-input-sm'] \    22.222    #体积
+    点击    xpath=//div[@id="bnMainsBookingCtnList[0].ctn_0"]//div[@class="ant-select-selection__rendered"]
+    #按键    xpath=//div[@id="bnMainsBookingCtnList[0].ctn_0"]//div[@class="ant-select-selection__rendered"]    \ue015
+    按键    xpath=//div[@id="bnMainsBookingCtnList[0].ctn_0"]//input[@class="ant-select-search__field"]    \\13
+    #输入    xpath=//div[@id="bnMainsBookingCtnList[0].ctn_0"]//input[@class="ant-select-search__field"]    20GP
+    输入    xpath=//div[@id='bnMainsBookingCtnList[0].ctnCount_1']//input[@class='ant-input ant-input-sm']    4    #count
+    输入    xpath=//div[@id='bnMainsBookingCtnList[0].perCtnWeight_2']//input[@class='ant-input ant-input-sm']    1.111    #单柜货重
+    输入    xpath=//div[@id='bnMainsBookingCtnList[0].perCtnVolume_3']//input[@class='ant-input ant-input-sm']    22.222    #体积
     #中、英文品名
-    输入    xpath=//div[@id='bnCargoVo.goodsName-t']//input[@class='ant-select-search__field']    板栗
-    输入    xpath=//div[@id='bnCargoVo.goodsDesc-t']//textarea[@class='ant-input']    cheesenuts
+    输入    xpath=//div[@id='bnCargoVo.goodsName']//input[@class='ant-select-search__field']    板栗
+    输入    xpath=//div[@id='bnCargoVo.goodsDesc']//textarea[@class='ant-input']    cheesenuts
     #将滚动条拉到下面，为了后面新增报价
     拉动滚动条（新）    1000
 
 新增报价
     #点击新增
-    点击    xpath=//div[@id='booking-fee']//div[@class='tar']/button[2]
+    点击    xpath=//div[@id='booking-fee']//div[@class='tar']/button[3]
     #维护费用名称
     点击    xpath=//div[@id='receiptsList[0].feeitem']
     点击    xpath=//li[text()='海运费']
@@ -384,16 +376,15 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 新增订单弹出框
     [Arguments]    ${businesstype}    ${serviceRuleTypeCode}    #业务类型|#服务类型
-    进入主页面框架
     Wait Until Element Is Visible    xpath=//label[text()='业务类型']
     新增订单选择业务类型    ${businesstype}
     新增订单选择委托单位
+    Run Keyword And Return Status    点击    xpath=//div[@class='ant-confirm-btns']//span[text()='确 定']/..
     #委托单位
     新增订单选择货物来源
     新增订单选择服务类型    ${serviceRuleTypeCode}
     等待    0.5
     点击    xpath=//span[contains(text(),'确 定')]/..
-    离开框架
     等待    0.5
 
 船期选择
@@ -464,39 +455,39 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
 
 读取订单excel
     Open Excel    E:\\order_list.xls
-    : FOR    ${i}    IN RANGE    1    2
-    \    ${carrier}    Read Cell Data By Coordinates    Sheet1    0    ${i}
-    \    ${loadportcode}    Read Cell Data By Coordinates    Sheet1    1    ${i}
-    \    ${dischargeportcode}    Read Cell Data By Coordinates    Sheet1    2    ${i}
-    \    ${delplacecode}    Read Cell Data By Coordinates    Sheet1    3    ${i}
-    \    ${finalplacecode}    Read Cell Data By Coordinates    Sheet1    4    ${i}
-    \    ${freeBoxDays}    Read Cell Data By Coordinates    Sheet1    5    ${i}
-    \    ${ctn}    Read Cell Data By Coordinates    Sheet1    6    ${i}
-    \    ${ctn_count}    Read Cell Data By Coordinates    Sheet1    7    ${i}
-    \    ${goodsname}    Read Cell Data By Coordinates    Sheet1    8    ${i}
-    \    ${goodsdesc}    Read Cell Data By Coordinates    Sheet1    9    ${i}
-    \    ${packkind}    Read Cell Data By Coordinates    Sheet1    10    ${i}
-    \    ${count}    Read Cell Data By Coordinates    Sheet1    11    ${i}
-    \    ${weight}    Read Cell Data By Coordinates    Sheet1    12    ${i}
-    \    ${volume}    Read Cell Data By Coordinates    Sheet1    13    ${i}
-    \    Set Suite Variable    ${carrier}
-    \    Set Suite Variable    ${loadportcode}
-    \    Set Suite Variable    ${dischargeportcode}
-    \    Set Suite Variable    ${delplacecode}
-    \    Set Suite Variable    ${finalplacecode}
-    \    Set Suite Variable    ${freeBoxDays}
-    \    Set Suite Variable    ${ctn}
-    \    Set Suite Variable    ${ctn_count}
-    \    Set Suite Variable    ${goodsname}
-    \    Set Suite Variable    ${goodsdesc}
-    \    Set Suite Variable    ${packkind}
-    \    Set Suite Variable    ${count}
-    \    Set Suite Variable    ${weight}
-    \    Set Suite Variable    ${volume}
+    FOR    ${i}    IN RANGE    1    2
+    ${carrier}    Read Cell Data By Coordinates    Sheet1    0    ${i}
+    ${loadportcode}    Read Cell Data By Coordinates    Sheet1    1    ${i}
+    ${dischargeportcode}    Read Cell Data By Coordinates    Sheet1    2    ${i}
+    ${delplacecode}    Read Cell Data By Coordinates    Sheet1    3    ${i}
+    ${finalplacecode}    Read Cell Data By Coordinates    Sheet1    4    ${i}
+    ${freeBoxDays}    Read Cell Data By Coordinates    Sheet1    5    ${i}
+    ${ctn}    Read Cell Data By Coordinates    Sheet1    6    ${i}
+    ${ctn_count}    Read Cell Data By Coordinates    Sheet1    7    ${i}
+    ${goodsname}    Read Cell Data By Coordinates    Sheet1    8    ${i}
+    ${goodsdesc}    Read Cell Data By Coordinates    Sheet1    9    ${i}
+    ${packkind}    Read Cell Data By Coordinates    Sheet1    10    ${i}
+    ${count}    Read Cell Data By Coordinates    Sheet1    11    ${i}
+    ${weight}    Read Cell Data By Coordinates    Sheet1    12    ${i}
+    ${volume}    Read Cell Data By Coordinates    Sheet1    13    ${i}
+    Set Suite Variable    ${carrier}
+    Set Suite Variable    ${loadportcode}
+    Set Suite Variable    ${dischargeportcode}
+    Set Suite Variable    ${delplacecode}
+    Set Suite Variable    ${finalplacecode}
+    Set Suite Variable    ${freeBoxDays}
+    Set Suite Variable    ${ctn}
+    Set Suite Variable    ${ctn_count}
+    Set Suite Variable    ${goodsname}
+    Set Suite Variable    ${goodsdesc}
+    Set Suite Variable    ${packkind}
+    Set Suite Variable    ${count}
+    Set Suite Variable    ${weight}
+    Set Suite Variable    ${volume}
 
 新增成本价
     #点击新增
-    点击    xpath=//div[@id='booking-feepay']//div[@class='tar']/button[2]
+    点击    xpath=//div[@id='booking-feepay']//div[@class='tar']/button[3]
     #维护费用名称
     下拉框选择(带筛选功能)    xpath=//div[@id='payfeePlanList[0].feeitem']//div[@class='ant-select-selection__rendered']    xpath=//input[contains(@id,'payfeePlanList[0].feeitem')]    海运费
     #单价
@@ -507,30 +498,28 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     下拉框选择(带筛选功能)    xpath=//div[@id='payfeePlanList[0].unit']//div[@class='ant-select-selection__rendered']    xpath=//input[contains(@id,'payfeePlanList[0].unit')]    20GP
 
 设置订单参数
-    点击系统设置（主菜单）
-    点击系统设置（菜单）
-    进入主页面框架
+    进入菜单页面(第三版)    设置    业务参数
+    进入框架    id=GM1ExternalFrame
     设置业务参数(单选)    订舱代理手动输入无效    否
     设置业务参数(单选)    船公司手动输入无效    否
     设置业务参数(单选)    港口及航线手动输入无效    否
     设置业务参数(单选)    铁路站点手动输入无效    否
-    设置业务参数(单选)    船名航次手动输入无效    否
-    设置业务参数(单选)    订单中心订舱代理是否可见    是
+    设置业务参数(单选)    非海运出口整箱船名航次手动输入无效    否
     设置业务参数(单选)    发货单位是否支持手输    是
     点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+    离开框架
+    进入框架    id=GM1ExternalFrame
     ${订舱代理_value}    获取页面文本内容    xpath=//div[text()='订舱代理手动输入无效']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
     ${船公司_value}    获取页面文本内容    xpath=//div[text()='船公司手动输入无效']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
     ${港口航线_value}    获取页面文本内容    xpath=//div[text()='港口及航线手动输入无效']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
     ${铁路站点_value}    获取页面文本内容    xpath=//div[text()='铁路站点手动输入无效']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
-    ${船名航次_value}    获取页面文本内容    xpath=//div[text()='船名航次手动输入无效']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
-    ${订舱是否可见_value}    获取页面文本内容    xpath=//div[text()='订单中心订舱代理是否可见']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
+    ${船名航次_value}    获取页面文本内容    xpath=//div[text()='非海运出口整箱船名航次手动输入无效']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
     ${发货单位_value}    获取页面文本内容    xpath=//div[text()='发货单位是否支持手输']/following-sibling::div[1]//label[contains(@class,'ant-radio-wrapper-checked')]//span[2]
     应该要相等    ${订舱代理_value}    否
     应该要相等    ${船公司_value}    否
     应该要相等    ${港口航线_value}    否
     应该要相等    ${铁路站点_value}    否
     应该要相等    ${船名航次_value}    否
-    应该要相等    ${订舱是否可见_value}    是
     应该要相等    ${发货单位_value}    是
     离开框架
 
@@ -547,23 +536,39 @@ Resource          ../GM1-UI-公共/GM1-UI-引用.txt
     [Documentation]    因为用了react,所以下拉框 无法直接赋值，于是采用先点击 下拉框，然后再点击值的方式
     ...
     ...    备注：仅适用于标签名旁直接就是下拉框
-    点击    id=customername    #点击下拉框
-    等待    0.5
+    点击    xpath=//div[@id='customername']//div[@class='ant-select-selection__rendered']    #点击下拉框
+    Wait Until Element Is Visible    xpath=//input[@id='customername']    5
+    按键    xpath=//input[@id='customername']    \ue015
     按键    xpath=//input[@id='customername']    \\13
 
 新增订单选择货物来源
     [Documentation]    因为用了react,所以下拉框 无法直接赋值，于是采用先点击 下拉框，然后再点击值的方式
     ...
     ...    备注：仅适用于标签名旁直接就是下拉框
-    点击    id=goodssource    #点击下拉框
-    等待    0.5
-    按键    xpath=//input[@id='goodssource']    \\13
+    点击    xpath=//div[@id='goodssource']//div[@class='ant-select-selection__rendered']    #点击下拉框
+    等待    2
+    #Set Focus To Element    xpath=//div[@id='goodssource']/..//li[1]
+    点击    xpath=//div[@id='goodssource']/..//li[1]
+    #xpath=//div[@id='goodssource']//div[@class='ant-select-selection__rendered']
 
 新增订单选择服务类型
     [Arguments]    ${content}    # 下拉框取值
     [Documentation]    因为用了react,所以下拉框 无法直接赋值，于是采用先点击 下拉框，然后再点击值的方式
     ...
     ...    备注：仅适用于标签名旁直接就是下拉框
-    点击    id=serviceRuleTypeCode    #点击下拉框
+    Run Keyword And Return Status    点击    id=serviceRuleTypeCode    #点击下拉框
+    Run Keyword And Return Status    点击    id=serviceTypeCode
     等待    0.5
     点击    xpath=//li[contains(text(),'${content}')]    #选中下拉框的一条记录
+
+运价新增订单弹出框
+    [Arguments]    ${serviceRuleTypeCode}    #服务类型
+    Wait Until Element Is Visible    xpath=//label[text()='业务类型']
+    新增订单选择委托单位
+    Run Keyword And Return Status    点击    xpath=//div[@class='ant-confirm-btns']//span[text()='确 定']/..
+    #委托单位
+    新增订单选择货物来源
+    新增订单选择服务类型    ${serviceRuleTypeCode}
+    等待    0.5
+    点击    xpath=//span[contains(text(),'确 定')]/..
+    等待    0.5

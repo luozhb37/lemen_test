@@ -3,6 +3,7 @@ Library           Selenium2Library
 Library           Collections
 Library           ExcelLibrary
 Library           String
+Library           re
 Resource          ../../../基础关键字.txt
 Resource          ../../../货代业务数据.txt
 Resource          GM1-UI-公用.txt
@@ -52,3 +53,7 @@ Resource          ../GM1-UI-铁路出口业务/3.GM1-UI-铁路出口仓储.txt
 Resource          ../GM1-UI-铁路出口业务/4.GM1-UI-铁路出口单证.txt
 Resource          ../GM1-UI-铁路出口业务/5.GM1-UI-铁路出口报关.txt
 Resource          ../GM1-UI-铁路出口业务/6.GM1-UI-铁路出口堆场装箱.txt
+Resource          ../GM1-UI-系统参数/GM1-UI-用户管理.txt
+Resource          ../GM1-UI-空运进口业务/GM1-UI-空运进口业务.txt
+Resource          ../GM1-UI-订单管理/GM1-UI-空运进口订单.txt
+Resource          ../GM1-UI-OA/GM1-UI-OA.txt

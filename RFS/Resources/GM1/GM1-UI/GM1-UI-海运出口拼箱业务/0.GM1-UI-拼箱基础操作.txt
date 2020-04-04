@@ -8,8 +8,8 @@ Library           AutoItLibrary
     进入主页面框架
     点击    xpath=//span[text()='新 增']/..
     Wait Until Element Is Visible    xpath=//label[text()='业务类型']
-    下拉框选中    业务类型    ${businesstype}
-    下拉框选中    货物来源    ${text}
+    客商下拉框选中    业务类型    ${businesstype}
+    客商下拉框选中    货物来源    ${text}
     点击    xpath=//label[text()='委托单位']/../following-sibling::div[1]
     按键    xpath=//input[@id='customername']    \\13
     点击    xpath=//span[contains(text(),'确 定')]/..

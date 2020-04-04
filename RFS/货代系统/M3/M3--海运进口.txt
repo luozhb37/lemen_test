@@ -45,13 +45,13 @@ Resource          ../../Resources/M3基础操作/M3--引用.txt
     点击业务台帐
     点击海运进口
     海运进口填写离港日期
-    列表页面-全选记录
+    全选记录-列表页面
     海运进口、空运批量业务制单完成
     ${content}    获取台帐详情锁定后的业务制单状态    ${BUSINESSNO-SUIT-SEAIMPORT}
     应该要相等    ${content}    true
     关闭所有弹出框
     等待    1
-    列表页面-全选记录
+    全选记录-列表页面
     海运进口、空运批量取消业务制单完成
     ${content1}    获取台帐详情未锁定的业务制单状态    ${BUSINESSNO-SUIT-SEAIMPORT}
     应该要相等    ${content1}    false
@@ -64,9 +64,9 @@ Resource          ../../Resources/M3基础操作/M3--引用.txt
     点击业务台帐
     点击海运进口
     ${pages}    海运进口、空运列表查询业务编号    ${BUSINESSNO-SUIT-SEAIMPORT}
-    列表页面-全选记录
+    全选记录-列表页面
     批量应收费用制单完成
-    列表页面-全选记录
+    全选记录-列表页面
     批量应付费用制单完成
     进入台帐详情    ${BUSINESSNO-SUIT-SEAIMPORT}
     从台帐详情进入费用页面

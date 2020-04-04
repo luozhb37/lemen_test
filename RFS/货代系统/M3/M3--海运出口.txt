@@ -43,7 +43,9 @@ Resource          ../../Resources/M3基础操作/M3--引用.txt
     海运出口列表查询业务编号    ${id}
     勾选包含业务编号的台帐    ${id}
     批量操作-标记退关
-    海运出口业务列表查询    value2=true    value8=${id}
+    ${day}    当前日期加减天数    -1
+    ${day}    当前日期加减天数    +0
+    海运出口业务列表查询    value2=true    value8=${id}    start-date=${day}    end-date=${day}
     ${pages}    获取列表记录数
     应该包含    ${pages}    共1条
     点击业务管理
@@ -51,8 +53,10 @@ Resource          ../../Resources/M3基础操作/M3--引用.txt
 海运出口批量完成--提单确认
     [Tags]    OK
     ${id}    新增海运出口业务
-    海运出口业务列表查询    value8=${id}
-    列表页面-全选记录
+    ${day}    当前日期加减天数    -1
+    ${day}    当前日期加减天数    +0
+    海运出口业务列表查询    value8=${BUSINESSNO-SUIT-SEAEXPORT}    start-date=${day}    end-date=${day}
+    全选记录-列表页面
     批量提单确认
     ${content}    获取台帐详情提单确认状态    ${id}
     应该要相等    ${content}    true
@@ -63,15 +67,17 @@ Resource          ../../Resources/M3基础操作/M3--引用.txt
     [Setup]
     #登录
     ${id}    新增海运出口业务
-    海运出口业务列表查询    value8=${id}
+    ${day}    当前日期加减天数    -1
+    ${day}    当前日期加减天数    +0
+    海运出口业务列表查询    value8=${id}    start-date=${day}    end-date=${day}
     海运出口填写离港日期
-    列表页面-全选记录
+    全选记录-列表页面
     批量业务制单完成
     ${content}    获取台帐详情锁定后的业务制单状态    ${id}
     应该要相等    ${content}    true
     关闭所有弹出框
     等待    1
-    列表页面-全选记录
+    全选记录-列表页面
     批量取消业务制单完成
     ${content1}    获取台帐详情未锁定的业务制单状态    ${id}
     应该要相等    ${content1}    false
@@ -79,34 +85,21 @@ Resource          ../../Resources/M3基础操作/M3--引用.txt
     点击业务管理
     [Teardown]
 
-海运出口批量完成--应收、应付费用制单完成
-    判断是否存在全局变量业务编号-海运出口
-    点击业务管理
-    点击业务台帐
-    点击海运出口
-    ${pages}    海运出口业务列表查询    value8=${BUSINESSNO-SUIT-SEAEXPORT}
-    列表页面-全选记录
-    批量应收费用制单完成
-    列表页面-全选记录
-    批量应付费用制单完成
-    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
-    从台帐详情进入费用页面
-    ${rec_finish_status}    获取收入制单完成状态
-    应该要相等    ${rec_finish_status}    已完成
-    ${pay_finish_status}    获取支出制单完成状态
-    应该要相等    ${pay_finish_status}    已完成
-
 分单
     ${id}    新增海运出口业务
-    海运出口业务列表查询    value8=${id}
+    ${day}    当前日期加减天数    -1
+    ${day}    当前日期加减天数    +0
+    海运出口业务列表查询    value8=${id}    start-date=${day}    end-date=${day}
     勾选包含业务编号的台帐    ${id}
     m3--分单    #拆3条保存、不关联集装箱
     点击业务管理
 
 批量修改业务台帐目的港
     ${id}    新增海运出口业务
-    海运出口业务列表查询    value8=${id}
-    列表页面-全选记录
+    ${day}    当前日期加减天数    -1
+    ${day}    当前日期加减天数    +0
+    海运出口业务列表查询    value8=${id}    start-date=${day}    end-date=${day}
+    全选记录-列表页面
     批量修改-目的港    dischargeport    NINGBO
     进入台帐详情    ${id}
     进入详情框架
@@ -120,7 +113,9 @@ Resource          ../../Resources/M3基础操作/M3--引用.txt
     [Documentation]    \#物流可视化的节点开着了就会影响点击修改的定位
     [Tags]    ok
     ${id}    新增海运出口业务
-    海运出口业务列表查询    value8=${id}
+    ${day}    当前日期加减天数    -1
+    ${day}    当前日期加减天数    +0
+    海运出口业务列表查询    value8=${id}    start-date=${day}    end-date=${day}
     进入台帐详情    ${id}
     ${TIME1}    get timestamp    #生成时间戳来表示下面的箱号
     新增集装箱信息    ctnno=${TIME1}    sealno=${TIME1}
@@ -148,7 +143,9 @@ Resource          ../../Resources/M3基础操作/M3--引用.txt
 新舱单
     ${temp}    生成一个带有字符的随机数    A
     ${id}    新增海运出口业务
-    海运出口业务列表查询    value8=${id}
+    ${day}    当前日期加减天数    -1
+    ${day}    当前日期加减天数    +0
+    海运出口业务列表查询    value8=${id}    start-date=${day}    end-date=${day}
     进入台帐详情    ${id}
     ${TIME1}    get timestamp    #生成时间戳来表示下面的箱号
     新增集装箱信息    ctnno=${TIME1}    sealno=${TIME1}
@@ -170,7 +167,9 @@ Resource          ../../Resources/M3基础操作/M3--引用.txt
 新报关
     #新增一票海运业务
     ${id}    新增海运出口业务
-    海运出口业务列表查询    value8=${id}
+    ${day}    当前日期加减天数    -1
+    ${day}    当前日期加减天数    +0
+    海运出口业务列表查询    value8=${id}    start-date=${day}    end-date=${day}
     ${pages}    获取列表记录数
     应该包含    ${pages}    共1条
     #报关部分
@@ -186,7 +185,9 @@ Resource          ../../Resources/M3基础操作/M3--引用.txt
     #生成一个业务并加入箱封号
     ${temp}    生成一个带有字符的随机数    A
     ${id}    新增海运出口业务
-    海运出口业务列表查询    value8=${id}
+    ${day}    当前日期加减天数    -1
+    ${day}    当前日期加减天数    +0
+    海运出口业务列表查询    value8=${id}    start-date=${day}    end-date=${day}
     进入台帐详情    ${id}
     ${TIME1}    get timestamp    #生成时间戳来表示下面的箱号
     新增集装箱信息    ctnno=${TIME1}    sealno=${TIME1}
@@ -209,7 +210,7 @@ Resource          ../../Resources/M3基础操作/M3--引用.txt
     #调度派车（常规派车，非箱信）
     点击调度派车
     调度派车列表查询    ${TIME1}
-    列表全选记录
+    全选记录-列表页面
     派车    大香蕉    KDA111
 
 费率查询-新增
@@ -225,22 +226,7 @@ Resource          ../../Resources/M3基础操作/M3--引用.txt
     点击费率查询
     ${compactno}    新增费率
     费率查询列表-查询    ${compactno}
-    列表全选记录
-    ${compactno1}    复制费率
-    费率查询列表-查询    ${compactno1}
     ${pages}    获取列表记录数
     应该包含    ${pages}    共1条
-
-费率查询-删除
-    点击业务管理
-    点击费率查询
-    ${compactno}    新增费率
-    费率查询列表-查询    ${compactno}
-    ${pages}    获取列表记录数
-    应该包含    ${pages}    共1条
-    列表全选记录
-    删除费率
-    ${pages1}    获取列表记录数
-    应该包含    ${pages1}    共0条
 
 *** Keywords ***

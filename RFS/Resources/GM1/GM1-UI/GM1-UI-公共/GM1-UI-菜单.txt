@@ -55,10 +55,9 @@ Resource          GM1-UI-引用.txt
     [Arguments]    ${name1}    ${name2}
     Wait Until Element Is Visible    xpath=//div[@id='dzg-gm-front-menu']//span[text()='${name1}']
     Mouse Over    xpath=//div[@id='dzg-gm-front-menu']//span[text()='${name1}']    #移动到一级菜单
-    等待    1
-    Wait Until Element Is Enabled    xpath=//div[@id='dzg-gm-front-menu']//span[text()='${name1}']/../..    30
+    Wait Until Element Is Visible    xpath=//div[@id='dzg-gm-front-menu']//span[text()='${name1}']/../..//div[@class='dzg-customized-pop-menu-wrapper']//li[@title='${name2}']    30
     点击    xpath=//div[@id='dzg-gm-front-menu']//span[text()='${name1}']/../..//div[@class='dzg-customized-pop-menu-wrapper']//li[@title='${name2}']//span[text()='${name2}']
-    等待加载层消失
+    等待loading消失
 
 点击海运出口
     点击    xpath=//a[text()='海运出口']
@@ -108,7 +107,7 @@ Resource          GM1-UI-引用.txt
 
 点击费用
     等待loading消失
-    点击    xpath=//li[text()='费用'][@role='menuitem']
+    点击    xpath=//li[contains(text(),'费用')][@role='menuitem']
     等待loading消失
 
 点击结算
@@ -131,6 +130,14 @@ Resource          GM1-UI-引用.txt
 
 点击对账单管理
     点击    xpath=//div[@id='dzg-side-menu']//li[@title='对账单管理']
+    等待加载层消失
+
+点击应收未开票--不开票
+    点击    xpath=//div[text()='不开票']
+    等待加载层消失
+
+点击应收未开票--其他
+    点击    xpath=//div[text()='其他']
     等待加载层消失
 
 点击应收发票管理
@@ -169,12 +176,20 @@ Resource          GM1-UI-引用.txt
     点击    xpath=//div[text()='待付款待核销']
     等待加载层消失
 
+点击付款单已核销
+    点击    xpath=//div[text()='付款单已核销']
+    等待加载层消失
+
 点击核销记录(付款)
     点击    xpath=//div[@id='dzg-side-menu']//li[@title='核销记录']
     等待加载层消失
 
 点击我的请款单
     点击    xpath=//div[@id='dzg-side-menu']//li[@title='我的请款单']
+    等待加载层消失
+
+点击已关账
+    点击    xpath=//div[text()='已关账']
     等待加载层消失
 
 点击实收凭证
@@ -312,9 +327,6 @@ Resource          GM1-UI-引用.txt
     mouse out    xpath=//a[text()='包装类型']
 
 点击系统设置（主菜单）
-    点击    xpath=//ul[@id='rootMenu']//a[text()=' 设置']
-    等待加载层消失
-    mouse out    xpath=//ul[@id='rootMenu']//a[text()=' 设置']
 
 点击系统设置（菜单）
     点击    xpath=//span[contains(text(),'系统设置')]/..
@@ -387,3 +399,31 @@ Resource          GM1-UI-引用.txt
 点击托书信息
     点击    xpath=//li[text()='托书信息'][@role='menuitem']
     等待加载层消失
+
+新增自定义状态
+    [Arguments]    ${名字}    ${条件}    ${二级条件}
+    ${num}    获取匹配xpath的个数    xpath=//div[@class='status-add']/span
+    ${name}    Run Keyword If    ${num}>0    新增自定义    ${名字}    ${条件}    ${二级条件}
+    ...    ELSE    log    创建满了
+    [Return]    ${name}
+
+新增自定义
+    [Arguments]    ${name}    ${queryid}    ${query}
+    点击    xpath=//div[@class='status-add']/span
+    输入    xpath=//div[@id="statusName"]//input[@class='ant-input ant-input-sm']    ${name}
+    点击    xpath=//span[text()='增加条件']/..    #新增条件
+    点击    xpath=//div[@class="dzg-status-info-list"]//div[@class="ant-select-selection__placeholder"]/..    #选择一级条件
+    输入    xpath=//div[@class="dzg-status-info-list"]//input[@class="ant-select-search__field"]    ${queryid}
+    点击    xpath=//li[text()="岗位"]
+    点击    xpath=//div[@class="status-info-field"]//div[@class="ant-select-selection__placeholder"]    #选择二级条件
+    点击    xpath=//li[text()="${query}"]
+    #输入    xpath=//div[@class="status-info-field"]//div[@class="ant-select-selection__placeholder"]    ${query}
+    点击    xpath=//div[@class="ant-modal-footer"]//button[@class="ant-btn ant-btn-primary"]    #点击保存
+    点击    xpath=//div[@class='ant-modal']//button[@class="ant-modal-close"]    #点击关闭
+    [Return]    ${name}
+
+点击自定义
+    [Arguments]    ${name}
+    ${len}    Get Length    ${name}
+    Run Keyword If    ${len}==2    点击    xpath=//button[@class="ant-btn ant-btn-default"]//span[text()='${name[0]} ${name[1]}']/..
+    ...    ELSE    点击    xpath=//button[@class="ant-btn ant-btn-default"]//span[text()='${name}']/..

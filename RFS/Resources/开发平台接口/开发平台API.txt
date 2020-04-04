@@ -11,9 +11,9 @@ Resource          ../基础关键字.txt
     Set Global Variable    ${APP_KEY}    yjt_test    # 配置app_key
     Set Global Variable    ${SECRET}    123456    # 配置secret
     Set Global Variable    ${M4_INTER_DIR}    ${CURDIR}    # 获取当前文件目录
-    Set Global Variable    ${API_EXCEL}    ${M4_INTER_DIR}\\inter_file\\数据驱动_api.xlsx    # 读取的文件目录
+    Set Global Variable    ${API_EXCEL}    ${M4_INTER_DIR}\\数据驱动_api.xlsx    # 读取的文件目录
     Set Global Variable    ${RESULT_EXCEL}    ${M4_INTER_DIR}\\inter_file\\result_数据驱动_api.xls    # 生成的文件目录
-    Set Global Variable    ${DATA_FILEPATH}    ${M4_INTER_DIR}\\inter_data_file\\    # 数据文件存放路径
+    Set Global Variable    ${DATA_FILEPATH}    ${M4_INTER_DIR}\\    # 数据文件存放路径
     Set Global Variable    ${RESULT_DATA_FILEPATH}    ${M4_INTER_DIR}\\inter_data_result_file\\    # 数据文件存放路径
 
 生成接口data
@@ -181,7 +181,7 @@ m4-get(带参数)
     ${data}    Set To Dictionary    ${data}    sign=${sign}
     ${content}    run keyword if    '${method}' == 'POST'    模拟post请求    ${HOST}    ${API}    ${data}
     ${result}    Convert To String    ${content}    # 转换为字符串用于进行校验
-    [Return]    ${result}
+    [Return]    ${content}
 
 接口校验字段并写入结果
     [Arguments]    ${filename}    ${sheetname}    ${row}    ${exp_data}    ${data}    ${res_col}=14
@@ -298,14 +298,15 @@ File方式模拟运行接口
     \    ${param}    Set Variable    ${item[0]}
     \    ${param}    生成接口data    ${param}
     \    @{check}    Set Variable    ${item[1]}
-    \    ${time}    获取当前时间    %Y-%m-%d %H:%M:%S
+    \    ${time}    开发平台API.获取当前时间    %Y-%m-%d %H:%M:%S
     \    ${dict}    Create Dictionary    name=${api_name}    version=${api_version}    app_key=${app_key}    data=${param}
     \    ...    timestamp=${time}    format=json
     \    ${resp}    模拟运行接口    ${method}    ${dict}
+    \    Should Be Equal As Strings    ${resp['code']}    0
     \    log many    ${resp}
-    \    File方式循环验证结果    ${result_datafile}    ${param_sheet}    ${resp}    ${key}    ${check_col}
-    \    ...    @{check}
-    \    ${key}    Evaluate    int(${key}) + 1
+    \    Comment    File方式循环验证结果    ${result_datafile}    ${param_sheet}    ${resp}    ${key}
+    \    ...    ${check_col}    @{check}
+    \    Comment    ${key}    Evaluate    int(${key}) + 1
 
 File方式循环验证结果
     [Arguments]    ${filename}    ${sheetname}    ${resp}    ${row}    ${check_col}    @{check}
