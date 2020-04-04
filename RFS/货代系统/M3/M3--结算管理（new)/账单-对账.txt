@@ -1,0 +1,342 @@
+*** Settings ***
+Suite Setup       Run keywords    登录
+...               AND    新增海运出口业务
+Suite Teardown    close all browsers
+Test Setup        Reload Page
+Resource          ../../../Resources/M3基础操作/M3--引用.txt
+
+*** Test Cases ***
+生成debit账单
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    ${row}    新增收入费用-选定费用
+    #保存账单
+    点击应收账单/Debitnote-费用信息
+    点击保存账单    应收账单/Debitnote
+    ${debitno}    保存账单-新增账单
+    #检查费用列表中的账单号
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    ${fee_debitno}    费用列表获取Debit账单号    ${row}
+    应该要相等    ${fee_debitno}    ${debitno}
+    关闭所有弹出框
+    #查询账单管理存在该账单
+    点击业务管理
+    点击结算管理
+    点击费用
+    点击账单管理
+    账单管理-应收账单/Debitnote页面查询    ${debitno}
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+
+生成CreditNote账单
+    点击业务管理
+    点击业务台帐
+    点击海运出口
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    ${row}    新增支出费用-选定费用
+    #保存账单
+    费用信息页面点击应付账单/CrebitNote
+    应付账单-点击保存账单
+    ${Creditno}    保存账单-新增账单
+    #检查费用列表中的对账单号
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    ${fee_creditno}    费用列表获取Credit账单号    ${row}
+    应该要相等    ${fee_creditno}    ${Creditno}
+    关闭所有弹出框
+    #查询账单管理存在该账单
+    点击业务管理
+    点击结算管理
+    点击费用
+    点击账单管理
+    账单管理-应付账单/Crediitnote页面查询    ${Creditno}
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+
+保存账单并生成形式发票（收入）
+    点击业务管理
+    点击业务台帐
+    点击海运出口
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用
+    #保存账单
+    费用信息页面点击对账
+    点击生成CreditNote/DebitNote
+    点击保存账单-生成CreditNote/DebitNote页面
+    ${debitcreditno}    保存账单并生成形式发票
+    #查询账单管理存在该账单
+    点击业务管理
+    点击结算管理
+    点击费用
+    点击账单管理
+    账单管理-应收账单/Debitnote页面查询    ${debitcreditno}
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    #查询发票管理存在该发票
+    点击发票
+    发票管理-收入列表查询    ${debitcreditno}
+    ${content}    获取列表记录数
+    应该包含    ${content}    共1条
+    #检查费用列表中的对账单号
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    ${fee_debitno}    费用列表获取Debit账单号    ${row}
+    应该要相等    ${fee_debitno}    ${debitcreditno}
+    #检查费用列表中的发票号
+    ${fee_invoiceno}    费用列表获取收入费用发票号    ${row}
+    应该要相等    ${fee_invoiceno}    ${debitcreditno}
+
+生成对账单（收入）-费用信息页
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    ${row-s}    新增收入费用-选定费用
+    点击对账-费用信息页面
+    选择收入（支出）费用-生成对账单（费用信息入口）    rec
+    ${check_no}    生成对账单
+    点击业务管理
+    #生成对账单
+    点击结算管理
+    点击对账
+    查询-对账单管理    fi_checkaccounts_checkaccountno=${check_no}
+    ${type}    获取对账单类型-对账单管理列表
+    应该要相等    ${type}    对账单(收入大)
+    #费用列表验证对账单号
+    点击结算管理
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    ${check_account_no}    费用列表获取收入费用对账单号    ${row-s}
+    应该要相等    ${check_account_no}    ${check_no}
+
+生成对账单（支出）-费用信息页
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    ${row-s}    新增支出费用-选定费用
+    点击对账-费用信息页面
+    选择收入（支出）费用-生成对账单（费用信息入口）    pay
+    ${check_no}    生成对账单
+    点击业务管理
+    #生成对账单
+    点击结算管理
+    点击对账
+    查询-对账单管理    fi_checkaccounts_checkaccountno=${check_no}
+    ${type}    获取对账单类型-对账单管理列表
+    应该要相等    ${type}    对账单(支出大)
+    #费用列表验证对账单号
+    点击结算管理
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    ${check_account_no}    费用列表获取支出费用对账单号    ${row-s}
+    应该要相等    ${check_account_no}    ${check_no}
+
+生成对账单（收入=支出）-费用信息页
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    ${row-s}    新增收入费用-选定费用
+    ${row-p}    新增支出费用-选定费用
+    点击对账-费用信息页面
+    选择对冲费用-生成对账单（费用信息入口）
+    ${check_no}    生成对账单
+    点击业务管理
+    #生成对账单
+    点击结算管理
+    点击对账
+    查询-对账单管理    fi_checkaccounts_checkaccountno=${check_no}
+    ${type}    获取对账单类型-对账单管理列表
+    应该要相等    ${type}    对账单(收入大)
+    ${amount}    获取对账金额-对账单管理列表
+    应该要相等    ${amount}    0.00
+    #费用列表验证对账单号
+    点击结算管理
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    ${check_account_no}    费用列表获取收入费用对账单号    ${row-s}
+    应该要相等    ${check_account_no}    ${check_no}
+    ${check_account_no_pay}    费用列表获取支出费用对账单号    ${row-p}
+    应该要相等    ${check_account_no_pay}    ${check_no}
+
+生成对账单（收入>支出）-费用信息页
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    ${row-s}    新增收入费用-选定费用    1200
+    ${row-p}    新增支出费用-选定费用    500
+    点击对账-费用信息页面
+    选择对冲费用-生成对账单（费用信息入口）
+    ${check_no}    生成对账单
+    点击业务管理
+    #生成对账单
+    点击结算管理
+    点击对账
+    查询-对账单管理    fi_checkaccounts_checkaccountno=${check_no}
+    ${type}    获取对账单类型-对账单管理列表
+    应该要相等    ${type}    对账单(收入大)
+    ${amount}    获取对账金额-对账单管理列表
+    应该要相等    ${amount}    700.00
+    #费用列表验证对账单号
+    点击结算管理
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    ${check_account_no}    费用列表获取收入费用对账单号    ${row-s}
+    应该要相等    ${check_account_no}    ${check_no}
+    ${check_account_no_pay}    费用列表获取支出费用对账单号    ${row-p}
+    应该要相等    ${check_account_no_pay}    ${check_no}
+
+生成对账单（收入<支出）-费用信息页
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    ${row-s}    新增收入费用-选定费用    600
+    ${row-p}    新增支出费用-选定费用    1000
+    点击对账-费用信息页面
+    选择对冲费用-生成对账单（费用信息入口）
+    ${check_no}    生成对账单
+    点击业务管理
+    #生成对账单
+    点击结算管理
+    点击对账
+    查询-对账单管理    ${check_no}
+    ${type}    获取对账单类型-对账单管理列表
+    应该要相等    ${type}    对账单(支出大)
+    ${amount}    获取对账金额-对账单管理列表
+    应该要相等    ${amount}    400.00
+    #费用列表验证对账单号
+    点击结算管理
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    ${check_account_no}    费用列表获取收入费用对账单号    ${row-s}
+    应该要相等    ${check_account_no}    ${check_no}
+    ${check_account_no_pay}    费用列表获取支出费用对账单号    ${row-p}
+    应该要相等    ${check_account_no_pay}    ${check_no}
+
+生成对账单（多条收入）-新增对账单页
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    ${row-s}    新增收入费用-选定费用    100
+    ${row-z}    新增收入费用-选定费用    200
+    点击对账-费用信息页面
+    选择收入（支出）费用-生成对账单（费用信息入口）    rec    2
+    ${check_no}    生成对账单
+    点击业务管理
+    #生成对账单
+    点击结算管理
+    点击对账
+    查询-对账单管理    ${check_no}
+    ${type}    获取对账单类型-对账单管理列表
+    应该要相等    ${type}    对账单(收入大)
+    ${amount}    获取对账金额-对账单管理列表
+    应该要相等    ${amount}    300.00
+    #费用列表验证对账单号
+    点击结算管理
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    ${check_account_no}    费用列表获取收入费用对账单号    ${row-s}
+    应该要相等    ${check_account_no}    ${check_no}
+    ${fee_account_no}    费用列表获取收入费用对账单号    ${row-z}
+    应该要相等    ${fee_account_no}    ${check_no}
+
+生成对账单（多条支出）-新增对账单页
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    ${row-s}    新增支出费用-选定费用    200
+    ${row-z}    新增支出费用-选定费用    300
+    点击对账-费用信息页面
+    选择收入（支出）费用-生成对账单（费用信息入口）    pay    2
+    ${check_no}    生成对账单
+    点击业务管理
+    #生成对账单
+    点击结算管理
+    点击对账
+    查询-对账单管理    ${check_no}
+    ${type}    获取对账单类型-对账单管理列表
+    应该要相等    ${type}    对账单(支出大)
+    ${amount}    获取对账金额-对账单管理列表
+    应该要相等    ${amount}    500.00
+    #费用列表验证对账单号
+    点击结算管理
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    ${check_account_no}    费用列表获取支出费用对账单号    ${row-s}
+    应该要相等    ${check_account_no}    ${check_no}
+    ${fee_account_no}    费用列表获取支出费用对账单号    ${row-z}
+    应该要相等    ${fee_account_no}    ${check_no}
+
+添加-对账单详情
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    ${row-s}    新增收入费用-选定费用    11
+    ${row-s1}    新增收入费用-选定费用    22
+    点击对账-费用信息页面
+    选择收入（支出）费用-生成对账单（费用信息入口）    rec
+    ${check_no}    生成对账单
+    点击业务管理
+    #生成对账单
+    点击结算管理
+    点击对账
+    查询-对账单管理    fi_checkaccounts_checkaccountno=${check_no}
+    点击对账单号-对账单管理列表    ${check_no}
+    添加费用-对账单详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    点击结算管理
+    #费用列表验证对账单号
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    勾选包含业务编号的台帐    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从业务列表进入费用页面
+    Comment    ${check_account_no}    费用列表获取收入费用对账单号    ${row-s}
+    Comment    应该要相等    ${check_account_no}    ${check_no}
+    ${fee_account_no}    费用列表获取收入费用对账单号    ${row-s1}
+    应该要相等    ${fee_account_no}    ${check_no}

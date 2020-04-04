@@ -1,0 +1,195 @@
+*** Settings ***
+Suite Setup       m4-登录
+Suite Teardown    close all browsers
+Test Setup        回到首页
+Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+
+*** Test Cases ***
+空运业务-信息修改/关账【调用】
+    [Documentation]    1.fms-air-rest调finance-rest \ \ 空运业务信息修改保存（起运港、目的港...）
+    ...    2.finance-rest调fms-air-rest \ \ 空运业务 关账后自动执行选1、3（0 不处理，1 业务锁定 并 制单完成，2 制单完成，3 业务锁定）
+    #系统参数设置
+    #业务保存
+    ${businessno}    新增工作单    空运出口    国际运输
+    #关账
+    订单列表高级查询(双列)    各类编号    ${businessno}    精确
+    点击业务编号进入详情页    ${businessno}
+    等待加载层消失
+    切换窗口    new
+    点击费用
+    ${新增金额}    新增收入费用    ${往来单位}    ${发票抬头}
+    整票审核
+    等待loading消失
+    关闭当前窗口
+    切换窗口    main
+    进入菜单页面(第三版)    结算    关账
+    进入主页面框架
+    关账页面查询    ${businessno}
+    勾选全部
+    关账(操作)
+    点击已关账
+    关账页面查询    ${businessno}
+    ${result}    获取页面数据条数
+    离开框架
+    应该要相等（数字）    ${result}    1
+
+海运订单审核通过【调用】
+    [Documentation]    fms-rest调finance-rest \ \ 海运订单审核通过
+    ${businessno}    新增工作单    海运出口整箱    国际运输    订单
+    订单列表高级查询(双列)    各类编号    ${businessno}    精确
+    点击提交订单    ${businessno}
+    进入订单详情    ${businessno}
+    切换窗口    new
+    点击审核通过    新订
+
+新增收款单【调用】
+    [Documentation]    finance-rest调fms-base-rest \ \ 收款单的新增
+    #生成收款单
+    进入菜单页面(第三版)    结算    收款单管理
+    进入主页面框架
+    ${recbillno}    生成收款单    ${往来单位}    收款    公账    CNY    20000
+    关闭模态框
+    #验证
+    收款单管理页面查询(单列)    各类编号    ${recbillno}
+    ${实际值}    获取页面数据条数
+    离开框架
+    ${预期值}    Evaluate    str(1)
+    应该要相等    ${实际值}    ${预期值}
+
+保存费用【调用】
+    [Documentation]    1.finance-rest调fms-rest 费用保存
+    ...    2.search调finance-rest 更新费用信息时，search会调finance来进行同步
+    ...    3.finance-rest调search 费用列表查询
+    ${businessno}    新增工作单    海运出口整箱    国际运输
+    #保存/新增费用
+    进入菜单页面(第三版)    订单    订单列表
+    订单列表高级查询(双列)    各类编号    ${businessno}    精确
+    点击业务编号进入详情页    ${businessno}
+    等待加载层消失
+    切换窗口    new
+    点击费用
+    ${SizeOld}    ${SizeOld-1}    获取收入费用列表的size
+    ${新增金额}    新增收入费用    ${往来单位}    ${发票抬头}
+    ${SizSum}    ${SizSum-1}    获取收入费用列表的size
+    ${SizSumPay}    ${SizSumPay-1}    获取支出费用列表的size
+    ${SizCalculate}    Evaluate    ${SizeOld}+1
+    应该要相等（数字）    ${SizSum}    ${SizCalculate}
+    关闭当前窗口
+    #费用列表查询
+    切换窗口    main
+    进入菜单页面(第三版)    结算    费用列表
+    进入主页面框架
+    费用列表--按费用页面高级查询(单列)    工作单号    ${businessno}
+    ${sizeT}    获取页面条数    #费用列表-按费用查询综合
+    离开框架
+    ${RecPaySum}    Evaluate    str(${SizSum}+${SizSumPay})    #详情费用总和
+    应该要相等    ${sizeT}    ${RecPaySum}    #比较
+
+开应收发票【调用】
+    [Documentation]    finance-rest调fms-crm-rest \ \ 开应收发票
+    ${businessno}    新增工作单    海运出口整箱    国际运输
+    进入菜单页面(第三版)    订单    订单列表
+    订单列表高级查询(双列)    各类编号    ${businessno}    精确
+    点击业务编号进入详情页    ${businessno}
+    切换窗口    new
+    点击费用
+    ${新增金额}    新增收入费用    ${往来单位}    ${发票抬头}
+    #生成开票通知
+    费用详情点击开票通知    开票申请
+    ${preInvoiceno}    生成开票通知
+    关闭当前窗口
+    #生成发票
+    切换窗口    main
+    进入菜单页面(第三版)    结算    应收未开票
+    进入主页面框架
+    应收待开票页面查询    ${preInvoiceno}
+    勾选全部
+    点击列表按钮    自定义开票
+    离开框架
+    切换窗口    new
+    勾选全部
+    点击列表按钮    汇总开票
+    切换窗口    new
+    ${应收invoice}    进入详情生成发票
+    关闭当前窗口
+    #查询发票
+    切换窗口    main
+    点击应收发票管理
+    进入主页面框架
+    应收发票管理页面查询(单列)    各类编号    ${应收invoice}
+    勾选全部    new    #勾选全部
+    ${实际值}    获取页面文本内容    xpath=//span[@class='dzg-base-table-sum-row-number']
+    #检查
+    ${预期值}    Evaluate    str(1)
+    应该要相等    ${实际值}    ${预期值}
+
+待对账-生成对账单-选择费用【调用】
+    [Documentation]    fmsfinace-rest
+    ...    \ → fmsfinace-ds
+    ...    → fms-ds
+    ...    → fmsfinace-ds
+    ...    \ → fms-ds
+    ${businessno}    新增工作单    海运出口整箱    国际运输
+    #维护费用
+    进入菜单页面(第三版)    订单    订单列表
+    订单列表高级查询(双列)    各类编号    ${businessno}    精确
+    点击业务编号进入详情页    ${businessno}
+    切换窗口    new
+    点击费用
+    新增收入费用    ${往来单位}    ${发票抬头}
+    新增支出费用    ${往来单位}    ${发票抬头}
+    关闭当前窗口
+    #生成对账单
+    切换窗口    main
+    进入菜单页面(第三版)    结算    费用列表
+    进入主页面框架
+    费用列表--按费用页面高级查询(单列)    工作单号    ${businessno}
+    勾选列表记录    1
+    点击列表按钮    对账单
+    离开框架
+    等待loading消失
+    切换窗口    new
+    ${checkaccountno}    获取页面文本内容    xpath=//label[@title='对账单号']/../..//div[@class='ant-form-item-control ']/span
+    #添加费用
+    对账单-添加费用    ${businessno}
+    关闭当前窗口
+    #检查
+    切换窗口    main
+    进入菜单页面(第三版)    结算    费用列表
+    进入主页面框架
+    费用列表--按费用页面高级查询(单列)    对账单号    ${checkaccountno}
+    点击尾页
+    ${new}    Evaluate    str(2)
+    ${after}    获取页面条数
+    应该要相等    ${after}    ${new}
+    离开框架
+
+银行账户被使用后无法修改【调用】
+    [Documentation]    fms-base-rest调finance-rest \ \ 费用税率被使用后，无法修改
+    #新增费用税率
+    进入菜单页面(第三版)    资料    银行账户
+    ${bankname}    get time    epoch
+    银行账户--新增    ${bankname}    312312    公账    CNY
+    #新增费用
+    进入菜单页面(第三版)    结算    收款单管理
+    进入主页面框架
+    ${recbillno}    生成收款单    ${往来单位}    收款    公账    CNY    20000
+    ...    ${bankname}
+    #查银行账户被使用后无法修改
+    切换窗口    main
+    进入菜单页面(第三版)    资料    银行账户
+    银行账户--查询    ${bankname}
+    点击    xpath=//a[text()='${bankname}']
+    ${name_class}    获取元素属性值    id=name    class
+    应该要相等    ${name_class}    ant-input ant-input-sm ant-input-disabled
+
+客商的凭证信息【调用】
+    [Documentation]    fms-crm-rest调finance-rest \ \ 客商的凭证信息（客户、供应商财务代码、凭证科目代码）被使用后，无法修改【需要总公司账号登录】
+    进入菜单页面(第三版)    客商    客商资料
+    客商列表查询    ${往来单位}
+    进入客商详情    ${往来单位}
+    输入    id=fiCustomercode    11    #修改财务客户代码
+    输入    id=fiSuppliercode    22    #修改财务供应商代码
+    输入    id=fiSubjectcode    22    #修改凭证科目代码
+    点击按钮(名称)    保 存
+    Page Should Contain    保存失败，该客商已出过凭证，无法修改财务代码

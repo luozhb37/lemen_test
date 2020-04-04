@@ -1,0 +1,46 @@
+*** Settings ***
+Resource          ../GM1-UI-公共/GM1-UI-引用.txt
+
+*** Keywords ***
+新增空运进口业务
+    [Arguments]    ${sales}=${M4-FULLNAME}
+    业务点击新增指定按钮    业务    # 点击业务按钮
+    新增空运进口业务弹框    ${sales}    # 新增空运进口业务
+    切换窗口    new
+    编辑空运进口拼票
+    Execute Javascript    window.scrollTo(0,500)
+    点击    xpath=//div[@id='air-sub-order-list']//div[@class='ant-table-fixed-right']//tbody//tr[1]//a[text()='详情']
+    切换窗口    new
+    ${workno}    获取页面文本内容    xpath=//span[text()='工作号']/span
+    关闭当前窗口
+    切换窗口    main
+    [Return]    ${workno}
+
+新增空运进口业务弹框
+    [Arguments]    ${sales}=${M4-FULLNAME}
+    Wait Until Element Is Visible    xpath=//label[text()='业务类型']
+    新增业务选择业务类型    空运进口拼票
+    下拉框选中(多列)    销售    ${sales}
+    #委托单位
+    点击    id=customername
+    按键    xpath=//input[@id='customername']    \\13
+    等待    0.5
+    点击信控弹框    确 定
+    # 货物来源
+    点击    id=goodssource
+    按键    xpath=//input[@id='goodssource']    \\13
+    等待    0.5
+    选择服务类型    空运进口服务
+    点击    xpath=//span[contains(text(),'确 定')]/..
+
+编辑空运进口拼票
+    Wait Until Page Contains    空运进口拼票
+    勾选服务项    订舱
+    下拉框选中(多列)    起运港    YJC    # 输入起运港
+    下拉框选中(多列)    目的港    YJC    2    # 输入起运港
+    点击    xpath=//span[text()='保 存']/..    # 点击保存按钮
+    Wait Until page contains    保存成功
+
+点击列表查询按钮
+    Wait Until Element Is Visible    xpath=//div[@class='adsearch-condition']
+    点击    xpath=//div[@class='adsearch-condition']//a[@id='MainPage-adSearch']

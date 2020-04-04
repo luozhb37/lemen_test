@@ -1,0 +1,123 @@
+*** Settings ***
+Suite Setup       m4-登录
+Suite Teardown    #Close All Browsers
+Test Setup        回到首页    #重载当前页
+Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+
+*** Test Cases ***
+货物来源-禁用/启用
+    #要勾选【货物来源-新增】
+    ${QYgoodsSource}    Set Variable    goodsSource5367
+    进入菜单页面(第三版)    资料    货物来源
+    等待加载层消失
+    进入主页面框架
+    ${return}    货物来源-查询    ${QYgoodsSource}    启用
+    应该包含    ${return}    共1条
+    #点击禁用
+    勾选记录    xpath=//table//thead/tr//input    #勾选记录
+    点击    xpath=//span[text()='禁 用']/..    #点击禁用
+    ${return}    货物来源-查询    ${QYgoodsSource}    禁用
+    应该包含    ${return}    共1条
+    #点击启用
+    勾选记录    xpath=//table//thead/tr//input    #勾选记录
+    点击    xpath=//span[text()='启 用']/..    #点击启用
+    ${return}    货物来源-查询    ${QYgoodsSource}    启用
+    应该包含    ${return}    共1条
+    离开框架
+
+服务类型-禁用/启用
+    进入菜单页面(第三版)    资料    服务项
+    等待加载层消失
+    ${QYserviceName}    Get Timestamp    #服务类型，唯一性
+    进入主页面框架
+    点击    xpath=//span[text()='新 增']/..
+    输入    id=serviceName    ${QYserviceName}
+    点击    xpath=//a[text()='全选']    #业务类型点击全选
+    点击    xpath=//span[text()='启用']/..//input
+    点击保存按钮
+    输入    id=serviceNameSearch    ${QYserviceName}    #输入货物来源
+    等待    0.5
+    点击    xpath=//span[text()='查 询']/..    #点击查询
+    点击    xpath=//tr[@class='ant-table-row \ ant-table-row-level-0']/td[1]//input
+    ${tapd}    Get Text    xpath=//tr[@class='ant-table-row \ ant-table-row-level-0']/td[9]
+    Run Keyword If    '${tapd}'=='启用'    点击    xpath=//span[text()='禁 用']/..
+    ...    ELSE    '${tapd}'=='禁用'    点击    xpath=//span[text()='启 用']/..
+    重载当前页
+    进入主页面框架
+    等待    2
+    输入    id=serviceNameSearch    ${QYserviceName}    #输入货物来源
+    点击    id=isEnableSearch
+    点击    xpath=//li[text()='禁用']    #点击启用或禁用
+    等待    0.5
+    点击    xpath=//span[text()='查 询']/..    #点击查询
+    ${return}    获取页面文本内容    css=.ant-pagination-total-text
+    应该包含    ${return}    共1条
+    Set Suite Variable    ${QYserviceName}
+
+发票类型--新增/删除
+    进入菜单页面(第三版)    资料    发票类别
+    #新增发票组
+    ${新增前}    获取匹配xpath的个数    xpath=//tbody/tr
+    ${time}    get time    epoch
+    点击    xpath=//span[text()='新 增']/..    #点击新增
+    输入    id=code    ${time}    #发票组代码
+    输入    id=name    ${time}    #发票组名称
+    输入    id=infotypecode    ${time}    #发票代码
+    输入    id=startInvoiceno    ${time}    #起始发票号
+    点击    xpath=//span[text()='确 定']/..    #保存
+    等待    1
+    #验证数据
+    ${新增后}    获取匹配xpath的个数    xpath=//tbody/tr
+    ${实际值1}    Evaluate    ${新增后}-${新增前}
+    应该要相等（数字）    ${实际值1}    1
+    #删除发票组
+    勾选记录    xpath=//a[text()='${time}']/../..//input    #勾选发票组代码对应的勾选框
+    点击    xpath=//span[text()='删 除']/..    #点击删除
+    点击    xpath=//button[@class='ant-btn ant-btn-primary ant-btn-sm']
+    #${message}    Handle action    #点击确定
+    等待    2
+    choose OK on next confirmation
+    等待    1
+    #验证数据
+    ${删除后}    获取匹配xpath的个数    xpath=//tbody/tr
+    ${实际值2}    Evaluate    ${新增后}-${删除后}
+    应该要相等（数字）    ${实际值2}    1
+
+城市
+    进入菜单页面(第三版)    资料    城市
+    ${city}    Generate Random String
+    等待加载层消失
+    点击    xpath=//span[text()='新 增']/..
+    输入    id=enName    ${city}
+    #下拉框选中(多列)    国家    ${enName}
+    点击    xpath=//div[text()='二字代码']    #点击下拉框,暂用
+    等待    1
+    点击    xpath=//ul[@class='ant-select-dropdown-menu \ ant-select-dropdown-menu-root ant-select-dropdown-menu-vertical']/li[3]
+    点击    xpath=//span[text()='启用']/preceding-sibling::span[1]
+    点击保存按钮
+    #验证
+    ${count}    城市或国家列表信息查询    ${city}
+    点击    xpath=//td[@class='ant-table-selection-column']//span[1]
+    点击    xpath=//span[text()='禁 用']/..
+
+基础资料映射
+    进入菜单页面(第三版)    资料    基础资料映射
+    ${otherValue}    Generate Random String
+    等待加载层消失
+    点击    xpath=//span[text()='新 增']/..
+    点击    xpath=//div[@class='type ant-select-sm ant-select ant-select-enabled' and @id='type']
+    点击    xpath=//ul[@class='ant-select-dropdown-menu \ ant-select-dropdown-menu-root ant-select-dropdown-menu-vertical']/li[1]
+    输入    id=otherValue    ${otherValue}
+    点击    id=selfValue
+    点击    xpath=//body/div[last()]//li[1]
+    点击    xpath=//span[text()='确 定']/..
+    等待加载层消失
+    输入    id=info    ${otherValue}
+    点击    xpath=//span[text()='查 询']/..
+    点击    xpath=//tbody[@class='ant-table-tbody']//span[@class='ant-checkbox']
+    点击    xpath=//span[text()='删 除']/..
+    点击    xpath=//span[text()='确 定']/..
+    输入    id=info    ${otherValue}
+    点击    xpath=//span[text()='查 询']/..
+    ${count}    获取匹配xpath的个数    xpath=//table/tbody/tr
+    Should Be Equal    ${count}    ${0}

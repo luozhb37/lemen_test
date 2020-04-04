@@ -1,0 +1,62 @@
+*** Settings ***
+Suite Setup       m4-登录    #
+Suite Teardown    #Close All Browsers
+Test Setup        # 重载当前页
+Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+
+*** Test Cases ***
+添加管理员权限
+    进入菜单页面(第三版)    设置    用户管理
+    进入主页面框架
+    查询--用户    gm1_sc
+    点击--权限管理
+    离开框架
+    进入权限管理
+    用户权限添加    系统设置-管理员
+    点击    id=saveBtn
+    关闭浏览器
+    m4-登录
+
+删除自定义状态
+    进入菜单页面(第三版)    订单    订单列表
+    点击自定义状态
+    @{a}    Create List
+    ${num}    获取匹配xpath的个数    xpath=//div[@class='status-name-list']/ul/li
+    : FOR    ${num1}    IN RANGE    ${num}
+    \    ${a1}    获取元素属性值    xpath=//div[@class='status-name-list']/ul/li[${num1}+1]    title
+    \    Append To List    ${a}    ${a1}
+    \    Log    ${num1}
+    ${name}    Set Variable    销售
+    Run Keyword If    '${name}' in @{a}    Run Keywords    点击    xpath=//li[@title='${name}']/i
+    ...    AND    点击    xpath=//button[@class='ant-btn ant-btn-primary ant-btn-sm']
+    ...    ELSE    log    不存在
+    点击    xpath=//div[@class='ant-modal-wrap dzg-adSearch-edit-modal dzg-adSearch-status-edit-modal']//button[@class='ant-modal-close']
+
+新建自定义状态
+    进入菜单页面(第三版)    订单    订单列表
+    重载当前页
+    点击自定义状态
+    ${name}    新增自定义状态    销售    岗位    销售是当前登录用户
+    点击自定义    ${name}
+    ${num}    获取列表查询结果数量
+    Run Keyword If    ${num}>0    log    成功
+    ...    ELSE    log    失败
+
+测试
+    Open Browser    http://vip.800jit.com/    Chrome    alias=11
+    Open Browser    https://baidu.com    Chrome    alias=22
+    Switch Browser    11
+    进入框架    id=loginPanel
+    输入    id=username    12
+    输入    id=password    13
+    等待    2
+    Switch Browser    22
+
+测试1
+    ${id1}    Open Browser    http://vip.800jit.com/    Chrome    alias=11
+    ${id2}    Open Browser    https://baidu.com    Chrome    alias=22
+    Switch Browser    ${id1}
+    进入框架    id=loginPanel
+    输入    id=username    12
+    输入    id=password    13
+    Switch Browser    ${id2}

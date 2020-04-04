@@ -1,0 +1,328 @@
+*** Settings ***
+Suite Setup       Run keywords    系统参数设置-费用核销模式核销前必须审核
+...               AND    登录
+...               AND    新增海运出口业务
+Test Setup        Reload Page
+Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
+
+*** Test Cases ***
+收款核销1+（审核并核销）-费用信息页面审核后核销
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    2000
+    费用信息页面勾选收入费用    ${row}
+    审核收入费用
+    费用信息页面勾选收入费用    ${row}
+    费用信息页面点击收款核销
+    ${recbillno}    生成收款单-收款单详情
+    审核并核销(收款)
+    关闭所有弹出框
+    点击业务管理
+    点击结算管理
+    点击收款
+    点击收款单管理
+    查询-收款单管理（已核销）    ${recbillno}
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${recbillno}
+    应该要相等    2,000.00    ${amount}
+
+收款核销1+（生成并核销）-费用信息页面审核后核销
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    3000
+    费用信息页面勾选收入费用    ${row}
+    审核收入费用
+    费用信息页面勾选收入费用    ${row}
+    费用信息页面点击收款核销
+    生成并核销收（付）款单    收款核销
+    ${recbillno}    收款单页面获取收款单号    收款核销
+    关闭所有弹出框
+    点击业务管理
+    点击结算管理
+    点击收款
+    点击收款单管理
+    查询-收款单管理（已核销）    ${recbillno}
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${recbillno}
+    应该要相等    3,000.00    ${amount}
+
+收款核销1+（生成并核销）费用审核后-按费用明细-收款登记页面
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    3000
+    费用信息页面勾选收入费用    ${row}
+    审核收入费用
+    费用信息页面勾选收入费用    ${row}
+    关闭所有弹出框
+    点击业务管理
+    #生成收款单
+    点击结算管理
+    点击收款
+    点击收款登记
+    收（付）款登记-点击按费用明细
+    查询-收（付）登记（按费用明细）    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入列表页面框架
+    勾选记录    xpath=//table[@id='qp_rec_invoice8_tbl5']/tbody/tr[2]//input    #勾选第一条记录
+    #勾选记录    xpath=//*[contains(@name,"${CASENUMBER-SUIT}")]    #勾选包含该casenumber的记录
+    点击    id=bt_select    #点击选择
+    离开框架
+    点击生成收款单-收款登记列表（按费用明细）
+    生成并核销收（付）款单    生成收款单
+    ${recbillno}    收款单页面获取收款单号
+    关闭所有弹出框
+    点击收款单管理
+    查询-收款单管理（已核销）    ${recbillno}
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${recbillno}
+    应该要相等    3,000.00    ${amount}
+
+收款核销1+（生成并核销）费用审核后-按发票-收款登记页面
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    3000
+    费用信息页面勾选收入费用    ${row}
+    审核收入费用
+    费用信息页面勾选收入费用    ${row}
+    费用信息页面点击开票
+    ${invoiceno}    费用信息页面-明细开票
+    点击业务管理
+    #生成收款单
+    点击结算管理
+    点击收款
+    点击收款登记
+    点击按发票-收（付）款登记
+    查询-收（付）款登记-按发票    ${invoiceno}
+    进入列表页面框架
+    勾选记录    xpath=//table[@id='qp_invoicen_mains_tbl5']/tbody/tr[2]//input    #勾选第一条记录
+    离开框架
+    点击生成收款单-收款登记列表页面
+    生成并核销收（付）款单    生成收款单
+    ${recbillno}    收款单页面获取收款单号
+    关闭所有弹出框
+    点击收款单管理
+    查询-收款单管理（已核销）    ${recbillno}
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${recbillno}
+    应该要相等    3,000.00    ${amount}
+
+收款核销1+（生成并核销）费用审核后-按对账单-收款登记页面
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    3000
+    费用信息页面勾选收入费用    ${row}
+    审核收入费用
+    费用信息页面勾选收入费用    ${row}
+    点击对账-费用信息页面
+    生成对账单-费用信息页面    rec
+    ${check_no}    生成对账单
+    点击业务管理
+    #生成收款单
+    点击结算管理
+    点击收款
+    点击收款登记
+    收（付）款登记-点击按对账单
+    收（付）款登记-按对账单页面查询    ${check_no}
+    进入列表页面框架
+    勾选记录    xpath=//table[@id='qp_rec_checkaccount_tbl5']/tbody/tr[2]//input    #勾选第一条记录
+    离开框架
+    点击生成收款单-收款登记列表页面
+    收款核销选择页面-勾选记录并点击收款登记
+    生成并核销收（付）款单    生成收款单
+    ${recbillno}    收款单页面获取收款单号
+    关闭所有弹出框
+    点击收款单管理
+    查询-收款单管理（已核销）    ${recbillno}
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${recbillno}
+    应该要相等    3,000.00    ${amount}
+
+收款核销1+（生成并核销）费用审核后-按账单-收款登记页
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    3000
+    费用信息页面勾选收入费用    ${row}
+    审核收入费用
+    费用信息页面勾选收入费用    ${row}
+    点击应收账单/Debitnote-费用信息
+    应收（付）账单/Debitnote-保存账单    应收账单/Debitnote
+    ${debitno}    保存账单-新增账单
+    点击业务管理
+    #生成收款单
+    点击结算管理
+    点击收款
+    点击收款登记
+    收（付）款登记-点击按账单
+    收（付）款登记-按账单页面查询    ${debitno}
+    进入列表页面框架
+    勾选记录    xpath=//table[@id='qp_rec_debitcredit_tbl5']/tbody/tr[2]//input    #勾选第一条记录
+    离开框架
+    点击生成收款单-收款登记列表页面
+    收款核销选择页面-勾选记录并点击收款登记
+    生成并核销收（付）款单    生成收款单
+    ${recbillno}    收款单页面获取收款单号
+    关闭所有弹出框
+    点击收款单管理
+    查询-收款单管理（已核销）    ${recbillno}
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${recbillno}
+    应该要相等    3,000.00    ${amount}
+
+收款核销1+（审核并核销）费用审核后-点击收款单号-收款单管理页面
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    3000
+    费用信息页面勾选收入费用    ${row}
+    审核收入费用
+    费用信息页面勾选收入费用    ${row}
+    费用信息页面点击收款核销
+    ${recbillno}    生成收款单-收款单详情
+    关闭所有弹出框
+    点击业务管理
+    点击结算管理
+    点击收款
+    点击收款单管理
+    收款单管理待审核页面查询    ${recbillno}
+    进入收/付款单详情
+    收款单页面审核并核销
+    关闭所有弹出框
+    查询-收款单管理（已核销）    ${recbillno}
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${recbillno}
+    应该要相等    3,000.00    ${amount}
+
+收款核销1+（审核后核销）费用审核后-点击收款单号-收款单管理页面
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    3000
+    费用信息页面勾选收入费用    ${row}
+    审核收入费用
+    费用信息页面勾选收入费用    ${row}
+    费用信息页面点击收款核销
+    ${recbillno}    生成收款单-收款单详情
+    关闭所有弹出框
+    点击业务管理
+    点击结算管理
+    点击收款
+    点击收款单管理
+    收款单管理待审核页面查询    ${recbillno}
+    进入收/付款单详情
+    收款单页面审核
+    收款单页面核销
+    关闭所有弹出框
+    查询-收款单管理（已核销）    ${recbillno}
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${recbillno}
+    应该要相等    3,000.00    ${amount}
+
+收款核销1+（生成并核销）费用审核后-勾选发票核销-发票管理页面
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    3000
+    费用信息页面勾选收入费用    ${row}
+    审核收入费用
+    费用信息页面勾选收入费用    ${row}
+    ${Invoice}    标记开票-费用信息页面
+    点击业务管理
+    点击结算管理
+    点击发票
+    点击发票管理
+    发票管理-收入列表查询    ${Invoice}
+    发票管理（收入）页面费用点击核销
+    收款核销选择页面-勾选记录并点击收款登记
+    生成并核销收（付）款单    生成收款单
+    ${fi_recbills_recbillno}    收款单页面获取收款单号
+    关闭所有弹出框
+    点击收款
+    收款核销记录查询    ${fi_recbills_recbillno}
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${fi_recbills_recbillno}
+    应该要相等    3,000.00    ${amount}
+
+收款核销1+（生成并核销）费用审核后-点击发票号-发票管理页面
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    3000
+    费用信息页面勾选收入费用    ${row}
+    审核收入费用
+    费用信息页面勾选收入费用    ${row}
+    ${Invoice}    标记开票-费用信息页面
+    点击业务管理
+    #生成收款单
+    点击结算管理
+    点击发票
+    点击发票管理
+    发票管理-收入列表查询    ${Invoice}
+    点击发票号-发票管理列表
+    点击收款核销-发票详情页面
+    生成并核销收（付）款单    收款核销
+    ${fi_recbills_recbillno}    收款单页面获取收款单号    收款核销
+    关闭所有弹出框
+    点击收款
+    收款核销记录查询    ${fi_recbills_recbillno}
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${fi_recbills_recbillno}
+    应该要相等    3,000.00    ${amount}

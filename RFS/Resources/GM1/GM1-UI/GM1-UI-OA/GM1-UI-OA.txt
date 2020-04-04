@@ -1,0 +1,43 @@
+*** Settings ***
+Resource          ../GM1-UI-公共/GM1-UI-公用.txt
+
+*** Keywords ***
+新增报销申请
+    [Arguments]    ${account}    ${count}
+    Wait Until Page Contains    新建报销申请
+    输入    xpath=//label[text()='账号']/../following-sibling::div[1]//input    ${account}
+    # 维护参与部门
+    点击    xpath=//label[text()='参与部门']/../following-sibling::div[1]/div
+    Wait Until Element Is Visible    xpath=//div[contains(@class, 'ant-select-dropdown')]
+    点击    xpath=//div[contains(@class, 'ant-select-dropdown')]//span[@class='ant-select-tree-checkbox']
+    # 维护参与人员
+    点击    xpath=//label[text()='参与人员']/../following-sibling::div[1]/div
+    Wait Until Element Is Visible    xpath=(//div[contains(@class, 'ant-select-dropdown')])[last()]
+    点击    xpath=(//div[contains(@class, 'ant-select-dropdown')])[last()]//span[@class='ant-select-tree-checkbox']
+    # 维护金额
+    清空输入框内容    id=feeApplyExplain.total-0
+    输入    id=feeApplyExplain.total-0    ${count}
+    点击    xpath=//span[text()='保 存']/..
+    wait until page contains    保存成功
+    ${workno}    获取页面值    xpath=//label[text()='工作单号']/../following-sibling::div[1]//input
+    关闭当前窗口
+    切换窗口    main
+    [Return]    ${workno}
+
+提交报销申请
+    Wait Until Page Contains    报销详情
+    点击    xpath=//span[text()='提 交']/..    # 点击提交按钮
+    wait until page contains    提交成功
+    ${workno}    获取页面值    xpath=//label[text()='工作单号']/../following-sibling::div[1]//input
+    关闭当前窗口
+    切换窗口    main
+    [Return]    ${workno}
+
+新增费用报销模板
+    [Arguments]    ${name}
+    Wait Until Element Is Visible    xpath=//div[text()='费用报销模板设置']
+    点击    xpath=//a[@title='新增']
+    Wait Until Element Is Visible    xpath=//th[text()='类型名称:']
+    输入    xpath=//th[text()='类型名称:']/..//input    ${name}
+    点击    xpath=//button[text()='保存']
+    Wait Until Element Is Visible    xpath=//div[contains(text(), '操作成功')]

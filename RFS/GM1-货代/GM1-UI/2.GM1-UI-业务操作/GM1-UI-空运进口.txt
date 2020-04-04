@@ -1,0 +1,17 @@
+*** Settings ***
+Suite Setup       m4-登录    # Run keywords | m4-登录 | AND | 空运进口初始化
+Suite Teardown    close all browsers
+Test Setup        切换窗口    main
+Test Teardown
+Resource          ../../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+
+*** Test Cases ***
+新增空运进口业务
+    进入菜单页面(第三版)    订单    订单列表
+    全业务列表进入对应视图    全部
+    ${workno}    新增空运进口业务    ${M4-FULLNAME}
+    重载当前页
+    点击列表查询按钮
+    页面应该包含    ${workno}
+    关闭当前窗口
+    Set Suite Variable    ${workno}

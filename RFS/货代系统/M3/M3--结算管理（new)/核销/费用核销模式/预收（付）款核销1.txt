@@ -1,0 +1,122 @@
+*** Settings ***
+Suite Setup       Run keywords    系统参数设置-费用核销模式
+...               AND    登录
+...               AND    新增海运出口业务
+Suite Teardown    close all browsers
+Test Setup        Reload Page
+Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
+
+*** Test Cases ***
+预付款核销--明细
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增支出费用-选定费用    2000
+    关闭所有弹出框
+    点击业务管理
+    点击结算管理
+    点击付款
+    点击付款单管理
+    ${paybillno}    新增付款单并审核    2000    RMB
+    点击预付款核销
+    查询-预付款核销列表    ${paybillno}
+    核销-预付款核销    明细    明细核销    bt_apply    ${BUSINESSNO-SUIT-SEAEXPORT}
+    #校验
+    点击付款单管理
+    查询-付款单管理（已核销）    ${paybillno}
+    ${return}    获取预付款核销金额
+    应该要相等    ${return}    2000.00
+    #
+    点击付款单管理
+    ${fee_paybillno}    ${amount}    费用列表获取付款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_paybillno}    ${paybillno}
+    应该要相等    2,000.00    ${amount}
+
+预付款核销--异币
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增支出费用-选定费用    1000
+    关闭所有弹出框
+    点击业务管理
+    点击结算管理
+    点击付款
+    点击付款单管理
+    ${paybillno}    新增付款单并审核    142.86    USD
+    点击预付款核销
+    查询-预付款核销列表    ${paybillno}
+    核销-预付款核销    异币    付款核销 >> 异币核销    bt_verification    ${BUSINESSNO-SUIT-SEAEXPORT}
+    #校验
+    点击付款单管理
+    查询-付款单管理（已核销）    ${paybillno}
+    ${return}    获取预付款核销金额
+    应该要相等    ${return}    142.86
+    点击付款单管理
+    ${fee_paybillno}    ${amount}    费用列表获取付款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_paybillno}    ${paybillno}
+    应该要相等    1,000.00    ${amount}
+
+预收款核销--明细
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    2000
+    关闭所有弹出框
+    点击业务管理
+    点击结算管理
+    点击收款
+    点击收款单管理
+    ${recbillno}    新增收款单并审核    2000    RMB
+    点击预收款核销
+    查询-预收款核销列表    ${recbillno}
+    核销-预收款核销    明细    明细核销    ${BUSINESSNO-SUIT-SEAEXPORT}
+    点击收款单管理
+    查询-收款单管理（已核销）    ${recbillno}
+    ${return2}    获取预收款核销金额
+    应该要相等    ${return2}    2000.00
+    点击收款单管理
+    ${fee_paybillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_paybillno}    ${recbillno}
+    应该要相等    2,000.00    ${amount}
+
+预收款核销--异币
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    1000
+    关闭所有弹出框
+    点击业务管理
+    点击结算管理
+    点击收款
+    点击收款单管理
+    ${recbillno}    新增收款单并审核    142.86    USD
+    点击预收款核销
+    查询-预收款核销列表    ${recbillno}
+    核销-预收款核销    异币    收款核销 >> 异币核销    ${BUSINESSNO-SUIT-SEAEXPORT}
+    #校验
+    点击收款单管理
+    查询-收款单管理（已核销）    ${recbillno}
+    ${return2}    获取预收款核销金额
+    应该要相等    ${return2}    142.86
+    点击收款单管理
+    ${fee_paybillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${recbillno}    ${fee_paybillno}
+    应该要相等    1,000.00    ${amount}
+
+预付款申请-新增预付款单
+    点击结算管理
+    点击付款
+    点击付款申请
+    ${paybillno}    预付款申请
+    点击付款单管理
+    查询-付款单管理(待审核)    ${paybillno}
+    ${page}    获取列表记录数
+    应该包含    ${page}    共1条

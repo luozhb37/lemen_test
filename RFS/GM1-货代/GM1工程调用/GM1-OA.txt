@@ -1,0 +1,44 @@
+*** Settings ***
+Suite Setup       m4-登录
+Suite Teardown    close all browsers
+Test Setup
+Test Teardown     重载当前页
+Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+
+*** Test Cases ***
+发起并提交报销申请
+    ${account}    生成指定范围内容的带字符随机数    5
+    ${count}    生成指定范围内容的带字符随机数    2
+    进入菜单页面(第三版)    OA    报销申请
+    进入框架    id=GM1ExternalFrame    # OA为旧页面，存在iframe
+    点击    xpath=//span[text()='发起报销申请']/../..    # 点击按钮
+    离开框架
+    切换窗口    new
+    ${workno}    新增报销申请    ${account}    ${count}
+    进入框架    id=GM1ExternalFrame    # OA为旧页面，存在iframe
+    点击    xpath=//button[text()='查询']
+    离开框架
+    Page Should Contain    ${workno}    # 校验OA报销单是否创建成功
+    进入框架    id=GM1ExternalFrame    # OA为旧页面，存在iframe
+    点击    xpath=//a[text()='${workno}']    # 进入对应OA详情
+    离开框架
+    切换窗口    new
+    ${workno}    提交报销申请
+    进入框架    id=GM1ExternalFrame    # OA为旧页面，存在iframe
+    点击    xpath=//button[text()='查询']
+    点击    xpath=//a[text()='${workno}']    # 进入对应OA详情
+    离开框架
+    切换窗口    new
+    Wait Until Page Contains    报销详情
+    Page Should Contain    审批进度    # 校验是否进入审核中状态
+    关闭当前窗口
+    切换窗口    main
+
+费用报销模板设置
+    ${name}    生成指定范围内容的带字符随机数    4    费用模板
+    进入菜单页面(第三版)    OA    报销申请
+    进入框架    id=GM1ExternalFrame    # OA为旧页面，存在iframe
+    点击    xpath=//span[text()='费用报销模板设置']/../..    # 点击按钮
+    新增费用报销模板    ${name}
+    Page Should Contain    ${name}
+    离开框架

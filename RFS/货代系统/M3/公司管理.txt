@@ -1,0 +1,38 @@
+*** Settings ***
+Suite Setup       登录
+Suite Teardown    #close all browsers
+Test Setup        Reload Page
+Resource          ../../Resources/M3基础操作/M3--引用.txt
+
+*** Test Cases ***
+公司信息-保存
+    点击公司管理
+    点击    xpath=//a[text()='公司信息']
+    进入列表页面框架
+    生成一个带有字符的随机数    001
+    清空输入框内容    id=mobile
+    输入    id=mobile    ${daima}
+    点击    id=bt_save
+    离开框架
+    #校验
+    点击    xpath=//a[text()='公司信息']
+    进入列表页面框架
+    ${mobile}    获取页面文本内容    id=mobile
+    应该要相等    ${mobile}    ${daima}
+    离开框架
+
+部门信息-增加
+    点击公司管理
+    点击    xpath=//a[text()='组织结构']
+    点击
+
+个人资料-保存
+    点击公司管理
+    移动滚动条（M3）    500
+    点击    xpath=//a[text()='个人资料']
+    进入列表页面框架
+    点击    id=bt_save
+    离开框架
+    点击    xpath=//a[text()='个人资料']
+    进入列表页面框架
+    点击    id=bt_save

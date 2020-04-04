@@ -1,0 +1,46 @@
+*** Settings ***
+Suite Setup       m4-登录
+Suite Teardown    #Close All Browsers
+Test Setup        回到首页    #重载当前页
+Resource          ../../Resources/GM1/GM1-UI/GM1-UI-公共/GM1-UI-引用.txt
+
+*** Test Cases ***
+客商
+    进入菜单页面(第三版)    客商    客商申请
+    ${customer-fullname}    生成一个带有字符的随机数    ks
+    ${code}    生成一个带有字符的随机数
+    新增客商    ${customer-fullname}    ${code}
+    ${number}    客商列表查询    ${customer-fullname}
+    应该要相等（数字）    ${number}    1
+    Set Suite Variable    ${customer-fullname}
+    点击链接    xpath=//tbody[@class='ant-table-tbody']/tr/td[3]/div/a
+    切换窗口    new
+    ${name1}    生成一个带有字符的随机数    contact1
+    ${name2}    生成一个带有字符的随机数    contact2
+    ${date}    Get Timestamp
+    ${key-telphone}    连接字符    tel    ${date}
+    ${other-telphone}    连接字符    other    ${date}
+    点击客商详情内的tab    联系方式
+    点击    xpath=//span[text()='新 增']/..
+    输入    xpath=//input[@class='ant-input'and@id='name']    ${name1}
+    输入    id=tel    0574-8888
+    输入    id=mobile    ${key-telphone}
+    客商下拉框选中(带筛选)    xpath=//div[contains(@class,'businessTypes_0')]    全部业务
+    客商货物来源(下拉第一个)
+    点击客商详情内的tab    基本信息
+    点击    xpath=//span[text()='提 交']/..
+    关闭当前窗口
+    切换窗口    main
+    进入菜单页面(第三版)    客商    客商审批
+    输入    id=name    ${customer-fullname}
+    点击    xpath=//span[text()='查 询']/..
+    点击链接    xpath=//tbody[@class='ant-table-tbody']/tr/td[3]/a
+    切换窗口    new
+    点击    xpath=//span[text()='通 过']/..
+    关闭当前窗口
+    切换窗口    main
+    进入菜单页面(第三版)    客商    客商资料
+    输入    id=name    ${customer-fullname}
+    点击    xpath=//span[text()='查 询']/..
+    ${return}    获取页面文本内容    css=.ant-pagination-total-text
+    应该包含    ${return}    共1条

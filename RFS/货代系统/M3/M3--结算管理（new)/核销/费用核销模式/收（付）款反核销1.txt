@@ -1,0 +1,174 @@
+*** Settings ***
+Suite Setup       Run keywords    系统参数设置-费用核销模式
+...               AND    登录
+...               AND    新增海运出口业务
+Suite Teardown    close all browsers
+Test Setup        Reload Page
+Resource          ../../../../../Resources/M3基础操作/M3--引用.txt
+
+*** Test Cases ***
+收款核销1（反核销）--核销记录
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    1000
+    费用信息页面勾选收入费用    ${row}
+    费用信息页面点击收款核销
+    ${recbillno}    生成收款单-收款单详情
+    审核并核销(收款)
+    关闭所有弹出框
+    点击业务管理
+    点击结算管理
+    点击收款
+    点击收款单管理
+    点击核销记录
+    查询-收（付）核销记录列表    ${recbillno}
+    全选记录-列表页面
+    点击反核销-核销记录列表
+    点击收款单管理
+    查询-收款单管理（已核销）    ${recbillno}
+    ${page}    获取列表记录数
+    应该包含    ${page}    共0条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${EMPTY}
+    应该要相等    0.00    ${amount}
+
+收款核销1（反核销）--已核销-收款单管理
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    1000
+    费用信息页面勾选收入费用    ${row}
+    费用信息页面点击收款核销
+    ${recbillno}    生成收款单-收款单详情
+    审核并核销(收款)
+    关闭所有弹出框
+    点击业务管理
+    点击结算管理
+    点击收款
+    点击收款单管理
+    查询-收款单管理（已核销）    ${recbillno}
+    全选记录-列表页面
+    点击反核销-收款单管理已核销列表
+    点击收款
+    点击收款单管理
+    查询-收款单管理（已核销）    qyrec_recbillno=${recbillno}
+    ${page}    获取列表记录数
+    应该包含    ${page}    共0条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${EMPTY}
+    应该要相等    0.00    ${amount}
+
+收款核销1（反核销）--费用反核销
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增收入费用-选定费用    1000
+    费用信息页面勾选收入费用    ${row}
+    费用信息页面点击收款核销
+    ${recbillno}    生成收款单-收款单详情
+    审核并核销(收款)
+    关闭所有弹出框
+    点击业务管理
+    点击结算管理
+    点击收款
+    点击费用反核销
+    查询-费用反核销列表    ${recbillno}
+    全选记录-列表页面
+    点击反核销-费用反核销列表
+    点击收款
+    点击收款单管理
+    查询-收款单管理（已核销）    ${recbillno}
+    ${page}    获取列表记录数
+    应该包含    ${page}    共0条
+    点击收款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_recbillno}    ${amount}    费用列表获取收款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_recbillno}    ${EMPTY}
+    应该要相等    0.00    ${amount}
+
+付款核销1（反核销）--核销记录
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增支出费用-选定费用    2000
+    费用信息页面勾选支出费用    ${row}
+    点击付款核销-费用信息页
+    ${paybillno}    从费用信息页面-生成付款单并核销
+    点击业务管理
+    点击结算管理
+    点击付款
+    点击核销记录
+    查询-收（付）核销记录列表    ${paybillno}
+    全选记录-列表页面
+    点击反核销-核销记录列表
+    点击付款单管理
+    查询-付款单管理（已核销）    ${paybillno}
+    ${page}    获取列表记录数
+    应该包含    ${page}    共0条
+    #费用列表查看收款单号及实付金额
+    ${fee_paybillno}    ${amount}    费用列表获取付款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_paybillno}    ${EMPTY}
+    应该要相等    0.00    ${amount}
+
+付款核销1（反核销）--付款单管理
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增支出费用-选定费用    2000
+    费用信息页面勾选支出费用    ${row}
+    点击付款核销-费用信息页
+    ${paybillno}    从费用信息页面-生成付款单并核销
+    点击业务管理
+    点击结算管理
+    点击付款
+    点击付款单管理
+    查询-付款单管理（已核销）    ${paybillno}
+    全选记录-列表页面
+    点击反核销--付款单管理（已核销列表）
+    查询-付款单管理（已核销）    ${paybillno}
+    ${page}    获取列表记录数
+    应该包含    ${page}    共0条
+    点击付款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_paybillno}    ${amount}    费用列表获取付款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_paybillno}    ${EMPTY}
+    应该要相等    0.00    ${amount}
+
+付款核销1（反核销）--费用反核销
+    点击业务管理
+    点击业务台帐
+    海运出口列表查询业务编号    ${BUSINESSNO-SUIT-SEAEXPORT}
+    进入台帐详情    ${BUSINESSNO-SUIT-SEAEXPORT}
+    从台帐详情进入费用页面
+    ${row}    新增支出费用-选定费用    2000
+    费用信息页面勾选支出费用    ${row}
+    点击付款核销-费用信息页
+    ${paybillno}    从费用信息页面-生成付款单并核销
+    点击业务管理
+    点击结算管理
+    点击付款
+    付款反核销-费用反核销页面    ${paybillno}
+    点击付款单管理
+    查询-付款单管理（已核销）    ${paybillno}
+    ${page}    获取列表记录数
+    应该包含    ${page}    共0条
+    点击付款单管理
+    #费用列表查看收款单号及实付金额
+    ${fee_paybillno}    ${amount}    费用列表获取付款单号-选定费用    ${BUSINESSNO-SUIT-SEAEXPORT}    ${row}
+    应该要相等    ${fee_paybillno}    ${EMPTY}
+    应该要相等    0.00    ${amount}

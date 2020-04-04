@@ -1,0 +1,15 @@
+*** Settings ***
+Suite Setup       登录
+Suite Teardown    close all browsers
+Test Setup        Reload Page
+Resource          ../../Resources/M3基础操作/M3--引用.txt
+
+*** Test Cases ***
+公司信息-保存
+    点击公司管理
+    点击    xpath=//a[text()='公司信息']
+    进入列表页面框架
+    输入    id=mobile    123321
+    点击    id=bt_save
+    离开框架
+    关闭浏览器

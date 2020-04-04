@@ -1,0 +1,30 @@
+*** Settings ***
+Resource          ../GM1-UI-公共/GM1-UI-引用.txt
+
+*** Keywords ***
+查询--用户
+    [Arguments]    ${name}
+    输入    id=name    ${name}
+    点击    id=UserManageList-old-adSearch
+
+点击--权限管理
+    Mouse Over    xpath=//div[@class="ant-table-fixed-right"]//a[text()='其他操作']    #移动到一级菜单
+    等待    1
+    Wait Until Element Is Enabled    xpath=//div[@class="ant-table-fixed-right"]//a[text()='其他操作']    30
+    点击    xpath=//a[text()="权限管理"]
+    等待loading消失
+
+用户权限添加
+    [Arguments]    ${name}
+    Clear Element Text    xpath=//span[text()='用户的可选权限']/../../..//input[@placeholder='请输入权限名']
+    输入    xpath=//span[text()='用户的可选权限']/../../..//input[@placeholder='请输入权限名']    ${name}
+    ${num}    获取匹配xpath的个数    xpath=//div[@class="role_list ant-transfer"]/div[1]//li
+    Run Keyword If    ${num}>0    权限右移
+
+权限右移
+    勾选记录    xpath=//div[@class="role_list ant-transfer"]/div[1]//li//input
+    点击    xpath=//div[@class="ant-transfer-operation"]/button[2]
+
+进入权限管理
+    进入框架    css=.dzg-freight-modal-frame    #进入权限页面
+    点击    xpath=//div[@class="ant-tabs-nav ant-tabs-nav-animated"]/div[2]    #点击业务权限设置
