@@ -788,7 +788,7 @@ class SCcommon:
 
     def role_other(self,other,role_name,role_desc=None):
         '''填写其他操作文本 如删除/复制/编辑    填写角色名称，角色描述可选填
-           若选择为编辑，编辑后下一步页面与权限设置页面一样,可在此方法后接着调用role_Permissions关键字方法'''
+           若选择为编辑，编辑后下一步页面与权限设置页面一样 , 可在此方法后接着调用role_Permissions关键字方法'''
         others = self.driver.find_elements_by_css_selector("a.ant-dropdown-link.ant-dropdown-trigger")
         self.move_chains_css(others[0])
         if other == '删除':
